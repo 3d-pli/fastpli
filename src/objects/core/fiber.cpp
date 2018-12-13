@@ -1,0 +1,121 @@
+#include "fiber.hpp"
+
+#include <cassert>
+#include <iostream>
+#include <vector>
+
+#include "aabb.hpp"
+#include "fiber.hpp"
+#include "vemath.hpp"
+
+namespace object {
+FiberData::FiberData(const std::vector<float> &points,
+                     const std::vector<float> &radii) {
+
+   if (points.size() != radii.size() * 3)
+      throw std::invalid_argument("points and radii aren't same size");
+
+   points_.resize(radii.size());
+   points_.shrink_to_fit();
+   voi_ = aabb::AABB<float, 3>{};
+   radii_ = radii;
+
+   for (size_t i = 0; i < radii_.size(); i++)
+      points_[i] = vm::Vec3<float>(points[3 * i + 0], points[3 * i + 1],
+                                   points[3 * i + 2]);
+
+   // calc voi
+   if (points_.empty())
+      return;
+   else if (points_.size() == 1) {
+      voi_ = aabb::AABB<float, 3>(points_[0], points_[0]);
+      return;
+   }
+   CalculateVoi();
+}
+
+FiberData::FiberData(const std::vector<vm::Vec3<float>> &points,
+                     const std::vector<float> &radii) {
+
+   if (points.size() != radii.size())
+      throw std::invalid_argument("points and radii aren't same size");
+
+   points_ = points;
+   radii_ = radii;
+
+   // calc voi
+   if (points_.empty())
+      return;
+   else if (points_.size() == 1) {
+      voi_ = aabb::AABB<float, 3>(points_[0], points_[0]);
+      return;
+   }
+   CalculateVoi();
+}
+
+void FiberData::CalculateVoi() {
+
+   if (points_.empty()) {
+      voi_ = aabb::AABB<float, 3>{};
+      return;
+   }
+
+   voi_ = aabb::AABB<float, 3>(points_[0], points_[0]);
+   for (size_t i = 0; i < points_.size() - 1; i++) {
+      auto r_max = std::max(radii_[i], radii_[i + 1]);
+      auto tmp_voi = aabb::AABB<float, 3>(points_[i], points_[i + 1]);
+      tmp_voi.min -= r_max;
+      tmp_voi.max += r_max;
+      voi_.Unite(tmp_voi);
+   }
+}
+
+float FiberData::CalcRadius(size_t idx, float t) const {
+   assert(t >= 0 && t <= 1);
+   assert(idx + 1 < radii_.size());
+
+   return radii_[idx] * (1 - t) + radii_[idx + 1] * t;
+}
+
+void FiberData::RotateFiber(const vm::Mat3x3<float> &rot_mat) {
+   for (auto &p : points_)
+      p = vm::dot(rot_mat, p);
+   CalculateVoi();
+}
+
+void FiberData::TranslateFiber(const vm::Vec3<float> &translation) {
+   auto off = vm::Vec3<float>(translation);
+   for (auto &p : points_)
+      p += off;
+   CalculateVoi();
+}
+
+void FiberData::RotateFiberAroundPoint(const vm::Mat3x3<float> &rot_mat,
+                                       const vm::Vec3<float> point) {
+   auto rot = vm::Mat3x3<float>(rot_mat);
+   auto off = vm::Vec3<float>(point);
+   for (auto &p : points_)
+      p = vm::dot(rot, p - off) + off;
+   CalculateVoi();
+}
+
+void FiberData::ResizeFiberPos(const float f) {
+   for (auto &p : points_)
+      p *= f;
+   CalculateVoi();
+}
+
+void FiberData::ResizeFiberRadii(const float f) {
+   for (auto &r : radii_)
+      r *= f;
+   CalculateVoi();
+}
+
+void FiberData::ResizeFiber(const float f) {
+   for (auto &p : points_)
+      p *= f;
+   for (auto &r : radii_)
+      r *= f;
+   CalculateVoi();
+}
+} // namespace object
