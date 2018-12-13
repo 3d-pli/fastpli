@@ -1,0 +1,21 @@
+before_script:
+  - apk update
+  - apk add make
+  - apk add gcc
+  - apk add g++
+  - apk add cmake
+  - apk add git
+  - apk add python3
+  - apk add python3-dev
+  - apk add py3-virtualenv
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - make build
+  artifacts:
+    paths:
+      - build/
