@@ -20,12 +20,21 @@ build:ubuntu:
       - $CI_COMMIT_MESSAGE =~ /WIP/
 
 install:ubuntu:
+  stage: debug
+  image: ubuntu:latest
+  only:
+    - tags
+    - master
+    - development
+  script:
+    - make debug
+    - make test
+
+install:ubuntu:
   stage: install
   image: ubuntu:latest
   only: 
     - tags
   script:
     - make install
-  artifacts:
-    paths:
-      - .env/
+    

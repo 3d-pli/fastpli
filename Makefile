@@ -41,6 +41,15 @@ endif
 	cmake ..
 	make
 
+.PHONY: test
+test:
+ifneq ($(wildcard .env/.), )
+	.env/bin/python3 -m unittest discover -s tests -p '*_test.py'
+endif
+ifneq ($(wildcard .venv/.), )
+	.venv/bin/python3 -m unittest discover -s tests -p '*_test.py'
+endif
+
 .PHONY: docker-run
 docker-run:
 	docker build -t fastpli .
