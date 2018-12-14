@@ -1,6 +1,3 @@
-# docker build --add-host dl-cdn.alpinelinux.org:151.101.112.249 -t fastpli .
-# docker run fastpli
-
 FROM alpine
 
 RUN apk update
@@ -16,5 +13,6 @@ RUN apk add py3-virtualenv
 ADD . /build/f.matuschke
 COPY . /build/f.matuschke/fastpli
 WORKDIR /build/f.matuschke/fastpli
+RUN git clean -d -f -x
 
 CMD make build
