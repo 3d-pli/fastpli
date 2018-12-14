@@ -41,6 +41,11 @@ endif
 	cmake ..
 	make
 
+.PHONY: docker-run
+docker-run:
+	docker build -t fastpli .
+	docker run fastpli
+
 .PHONY: clean-src
 clean-src:
 	find src/ -name "*egg-info" -exec rm -r {} +

@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
 
 PROJECT( fastPLI )
 SET(CMAKE_COLOR_MAKEFILE ON)
-SET(CMAKE_VERBOSE_MAKEFILE ON)
+# SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 ##########################################################################
 # Buildconfiguration
