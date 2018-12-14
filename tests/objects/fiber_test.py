@@ -21,12 +21,8 @@ class MainTest(unittest.TestCase):
                     dtype=np.float32),
                 self.fiber.radii))
 
-    def test_test(self):
-        self.assertTrue(False)
-
     # def test_rotation(self):
     #     fd.rotate_fiber()
-
 
 if __name__ == '__main__':
     unittest.main()

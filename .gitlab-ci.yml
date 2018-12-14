@@ -1,3 +1,5 @@
+image: ubuntu:latest
+
 before_script:
   - apt-get update -qq && apt-get upgrade -y
   - apt-get install -y gcc g++ cmake make
@@ -5,40 +7,27 @@ before_script:
 
 stages:
   - build
-  - install
-  - debug
+  - release
 
-build:ubuntu:
+build-debug:
   stage: build
-  image: ubuntu:latest
-  script:
-    - make build
-  only: 
-    - master
+  only:
     - development
     - TestCI
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /WIP/
-
-debug:ubuntu:
-  stage: debug
-  image: ubuntu:latest
-  only:
-    - tags
-    - master
-    - development
-    - TestCI
   script:
     - make debug
     - make test
 
-install:ubuntu:
-  stage: install
-  image: ubuntu:latest
+build-release:
+  stage: release
+  tags:
+    - setup
   only: 
-    - tags
+    - master
     - TestCI
   script:
     - make install
-    
+    - make test
