@@ -23,8 +23,6 @@ build-debug:
 
 build-release:
   stage: release
-  tags:
-    - setup
   only: 
     - master
     - TestCI
