@@ -25,6 +25,5 @@ class MainTest(unittest.TestCase):
     # def test_rotation(self):
     #     fd.rotate_fiber()
 
-
 if __name__ == '__main__':
     unittest.main()
