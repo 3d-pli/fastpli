@@ -1,21 +1,25 @@
 before_script:
-  - apk update
-  - apk add make
-  - apk add gcc
-  - apk add g++
-  - apk add cmake
-  - apk add git
-  - apk add python3
-  - apk add python3-dev
-  - apk add py3-virtualenv
+  - apt-get update -qq && apt-get upgrade -y
+  - apt-get install -y gcc g++ cmake make
+  - apt-get install -y python3-dev python3-venv
 
 stages:
   - build
+  - install
 
-build:
+build:ubuntu:
   stage: build
+  image: ubuntu:latest
   script:
     - make build
+
+install:ubuntu:
+  stage: install
+  image: ubuntu:latest
+  only: 
+    - tags
+  script:
+    - make install
   artifacts:
     paths:
-      - build/
+      - .env/
