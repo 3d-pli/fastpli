@@ -15,6 +15,7 @@ build:ubuntu:
   only: 
     - master
     - development
+    - TestCI
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /WIP/
@@ -26,6 +27,7 @@ install:ubuntu:
     - tags
     - master
     - development
+    - TestCI
   script:
     - make debug
     - make test
@@ -35,6 +37,7 @@ install:ubuntu:
   image: ubuntu:latest
   only: 
     - tags
+    - TestCI
   script:
     - make install
     
