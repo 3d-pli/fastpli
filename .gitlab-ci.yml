@@ -23,7 +23,6 @@ install:ubuntu:
     - tags
     - master
     - development
-
   script:
     - make install
   artifacts:
