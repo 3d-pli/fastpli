@@ -6,6 +6,7 @@ before_script:
 stages:
   - build
   - install
+  - debug
 
 build:ubuntu:
   stage: build
@@ -20,7 +21,7 @@ build:ubuntu:
     variables:
       - $CI_COMMIT_MESSAGE =~ /WIP/
 
-install:ubuntu:
+debug:ubuntu:
   stage: debug
   image: ubuntu:latest
   only:
