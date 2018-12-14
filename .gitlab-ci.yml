@@ -12,6 +12,9 @@ build:ubuntu:
   image: ubuntu:latest
   script:
     - make build
+  only: 
+    - master
+    - development
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /WIP/
@@ -21,8 +24,6 @@ install:ubuntu:
   image: ubuntu:latest
   only: 
     - tags
-    - master
-    - development
   script:
     - make install
   artifacts:
