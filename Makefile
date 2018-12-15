@@ -21,6 +21,7 @@ INSTALL := ${INSTALL.${BUILD}}
 ${VENV}:
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
+	${VENV}/bin/pip3 install -e . -q
 
 .PHONY: install
 install: ${VENV}
