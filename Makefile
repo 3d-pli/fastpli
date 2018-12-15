@@ -2,58 +2,61 @@
 
 .PHONY: help
 help:
-	@echo "make build -- for debugging only"
 	@echo "make install"
-	@echo "make debug"
+	@echo "make test"
 	@echo "make clean"
+	@echo ""
+	@echo "make build -- for compile checking"
 
-.PHONY: git-modules
-git-modules:
-ifeq ($(wildcard lib/pybind11/*), )
-	git submodule init
-	git submodule update
-endif
+BUILD := debug
+
+VENV.debug := .venv
+VENV.release := .env
+VENV := ${VENV.${BUILD}}
+PYTHON := ${VENV}/bin/python3
+INSTALL.debug := install -v --global-option build --global-option --debug -e .
+INSTALL.release := install . -q
+INSTALL := ${INSTALL.${BUILD}}
+
+${VENV}:
+	python3 -m venv ${VENV}/
+	${VENV}/bin/pip3 install --upgrade pip -q
 
 .PHONY: install
-install: git-modules
-ifeq ($(wildcard .env/.), )
-	python3 -m venv .env/
-	.env/bin/pip3 install --upgrade pip -q
-endif
-	.env/bin/pip3 install . -q
-
-.PHONY: debug
-debug: git-modules clean-src
-ifeq ($(wildcard .venv/.), )
-	python3 -m venv .venv/
-	.venv/bin/pip3 install --upgrade pip -q
-	.venv/bin/pip3 install -r requirements.txt -q
-endif
-	.venv/bin/pip3 install -v --global-option build --global-option --debug -e .
+install: ${VENV}
+	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: build
 .ONESHELL:
-build: git-modules
-ifeq ($(wildcard build/.), )
+build: clean-build
 	mkdir build
-endif
 	cd build
 	cmake ..
 	make
 
 .PHONY: test
 test:
-ifneq ($(wildcard .env/.), )
-	.env/bin/python3 -m unittest discover -s tests -p '*_test.py'
-endif
-ifneq ($(wildcard .venv/.), )
-	.venv/bin/python3 -m unittest discover -s tests -p '*_test.py'
-endif
+	${PYTHON} -m unittest discover -s tests -p '*_test.py'
 
-.PHONY: docker-run
-docker-run:
+.PHONY: test-docker
+test-docker:
 	docker build -t fastpli .
 	docker run fastpli
+
+.PHONY: clean
+clean: clean-src clean-build
+
+.PHONY: clean-all
+clean-all: clean-git clean-src clean-build clean-venv
+
+.PHONY: clean-build
+clean-build:
+	rm -rf build
+
+.PHONY: clean-venv
+clean-venv:
+	rm -rf .env
+	rm -rf .venv
 
 .PHONY: clean-src
 clean-src:
@@ -61,20 +64,10 @@ clean-src:
 	find src/ -name "*.so" -exec rm {} +
 	find src/ -name "__pycache__" -exec rm -r {} +
 
-.PHONY: clean
-clean: clean-src
-	rm -rf build
-
-.PHONY: clean-all
-clean-all: clean-git-check clean
-	rm -rf .env
-	rm -rf .venv
-	git clean -d -f -x -q
-
-.PHONY: clean-git-check
-clean-git-check:
-	@echo -n "Are you sure? [y/N] " && read ans && [ $$ans = y ]
-
 .PHONY: clean-git
-clean-git: clean-git-check
+clean-git: check
 	git clean src/ -d -f -x -q
+
+.PHONY: check
+check:
+	@echo -n "Are you sure? [y/N] " && read ans && [ $$ans = y ]
