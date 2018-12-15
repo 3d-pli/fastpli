@@ -25,7 +25,6 @@ class FiberData {
    ~FiberData() = default;
 
    // getter
-   // TODO: return of arrray should be only in python module
    const std::vector<vm::Vec3<float>> &points() const { return points_; }
    const std::vector<float> &radii() const { return radii_; }
    const aabb::AABB<float, 3> &voi() const { return voi_; }
@@ -34,29 +33,28 @@ class FiberData {
    float CalcRadius(size_t idx, float t) const;
 
    // manipolator
-   void RotateFiber(const std::array<float, 9> &rot_mat) {
-      RotateFiber(vm::Mat3x3<float>(rot_mat));
+   void Rotate(const std::array<float, 9> &rot_mat) {
+      Rotate(vm::Mat3x3<float>(rot_mat));
    };
-   void RotateFiber(const vm::Mat3x3<float> &rot_mat);
+   void Rotate(const vm::Mat3x3<float> &rot_mat);
 
-   void RotateFiberAroundPoint(const std::array<float, 9> &rot_mat,
-                               const std::array<float, 3> &point) {
-      RotateFiberAroundPoint(vm::Mat3x3<float>(rot_mat),
-                             vm::Vec3<float>(point));
-   };
-
-   void RotateFiberAroundPoint(const vm::Mat3x3<float> &rot_mat,
-                               const vm::Vec3<float> point);
-
-   void TranslateFiber(const std::array<float, 3> &translation) {
-      TranslateFiber(vm::Vec3<float>(translation));
+   void RotateAroundPoint(const std::array<float, 9> &rot_mat,
+                          const std::array<float, 3> &point) {
+      RotateAroundPoint(vm::Mat3x3<float>(rot_mat), vm::Vec3<float>(point));
    };
 
-   void TranslateFiber(const vm::Vec3<float> &translation);
+   void RotateAroundPoint(const vm::Mat3x3<float> &rot_mat,
+                          const vm::Vec3<float> &point);
 
-   void ResizeFiberPos(const float f);
-   void ResizeFiberRadii(const float f);
-   void ResizeFiber(const float f);
+   void Translate(const std::array<float, 3> &translation) {
+      Translate(vm::Vec3<float>(translation));
+   };
+
+   void Translate(const vm::Vec3<float> &translation);
+
+   void ScalePoints(const float f);
+   void ScaleRadii(const float f);
+   void Scale(const float f);
 
  private:
    std::vector<vm::Vec3<float>> points_;

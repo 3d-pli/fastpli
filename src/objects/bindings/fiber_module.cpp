@@ -56,20 +56,17 @@ PYBIND11_MODULE(_fiber_cpp, m) {
                                                   self.radii().data());
                               })
        .def("size", &FiberData::size)
-       .def("calc_radius", &FiberData::CalcRadius)
 
        // Manipulators
-       .def("rotate_fiber",
-            (void (FiberData::*)(const std::array<float, 9> &)) &
-                FiberData::RotateFiber)
-       .def("rotate_fiber_around_point",
+       .def("rotate", (void (FiberData::*)(const std::array<float, 9> &)) &
+                          FiberData::Rotate)
+       .def("rotate_around_point",
             (void (FiberData::*)(const std::array<float, 9> &,
                                  const std::array<float, 3> &)) &
-                FiberData::RotateFiberAroundPoint)
-       .def("translate_fiber",
-            (void (FiberData::*)(const std::array<float, 3> &)) &
-                FiberData::TranslateFiber)
-       .def("resize_fiber_pos", &FiberData::ResizeFiberPos)
-       .def("resize_fiber_radii", &FiberData::ResizeFiberRadii)
-       .def("resize_fiber", &FiberData::ResizeFiber);
+                FiberData::RotateAroundPoint)
+       .def("translate", (void (FiberData::*)(const std::array<float, 3> &)) &
+                             FiberData::Translate)
+       .def("scale_points", &FiberData::ScalePoints)
+       .def("scale_radii", &FiberData::ScaleRadii)
+       .def("scale", &FiberData::Scale);
 }
