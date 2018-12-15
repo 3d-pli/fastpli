@@ -6,11 +6,11 @@ before_script:
   - apt-get install -y python3-dev python3-venv
 
 stages:
-  - build
+  - debug
   - release
 
 build-debug:
-  stage: build
+  stage: debug
   only:
     - development
     - TestCI
@@ -18,8 +18,8 @@ build-debug:
     variables:
       - $CI_COMMIT_MESSAGE =~ /WIP/
   script:
-    - make debug
-    - make test
+    - make BUILD=debug install
+    - make BUILD=debug test
 
 build-release:
   stage: release
@@ -27,5 +27,5 @@ build-release:
     - master
     - TestCI
   script:
-    - make install
-    - make test
+    - make BUILD=release install
+    - make BUILD=release test

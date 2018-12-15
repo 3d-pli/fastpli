@@ -9,4 +9,4 @@ COPY . /code/fastpli
 WORKDIR /code/fastpli
 RUN git clean -d -f -x
 
-CMD make build
+CMD make install && make test
