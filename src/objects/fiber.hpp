@@ -9,20 +9,20 @@
 
 namespace object {
 
-class FiberData {
+class Fiber {
  public:
-   FiberData(const std::vector<vm::Vec3<float>> &points,
-             const std::vector<float> &radii);
-   FiberData(const std::vector<float> &points, const std::vector<float> &radii);
+   Fiber(const std::vector<vm::Vec3<float>> &points,
+         const std::vector<float> &radii);
+   Fiber(const std::vector<float> &points, const std::vector<float> &radii);
 
    // defaults
-   FiberData() = default;
-   FiberData(FiberData &&) = default;
-   FiberData(const FiberData &) = default;
-   FiberData &operator=(FiberData &&) = default;
-   FiberData &operator=(const FiberData &) = default;
+   Fiber() = default;
+   Fiber(Fiber &&) = default;
+   Fiber(const Fiber &) = default;
+   Fiber &operator=(Fiber &&) = default;
+   Fiber &operator=(const Fiber &) = default;
 
-   ~FiberData() = default;
+   ~Fiber() = default;
 
    // getter
    const std::vector<vm::Vec3<float>> &points() const { return points_; }
@@ -63,6 +63,9 @@ class FiberData {
 
    void CalculateVoi();
 };
+
+using FiberBundle = std::vector<Fiber>;
+using FiberTissue = std::vector<FiberBundle>;
 
 } // namespace object
 
