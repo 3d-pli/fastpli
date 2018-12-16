@@ -7,7 +7,7 @@ SET(subdir objects)
 
 # building core objects
 SET(CoreModules ${subdir}CoreModules)
-FILE(GLOB CoreFiles core/*.cpp)
+FILE(GLOB CoreFiles *.cpp)
 ADD_LIBRARY(CoreModules OBJECT ${CoreFiles})
 SET_PROPERTY(TARGET CoreModules PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
