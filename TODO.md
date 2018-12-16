@@ -29,8 +29,8 @@ back to [readme](README.md)
 - [ ] JURECA
 
 ## Tests
-- [ ] CI
-- [ ] docker-file
+- [x] CI
+- [x] docker-file
 
 # File Structure:
 ## PyPackage structure:
