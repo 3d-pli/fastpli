@@ -27,10 +27,12 @@ ${VENV}:
 install: ${VENV}
 	${VENV}/bin/pip3 ${INSTALL}
 
+build/:
+	mkdir build
+
 .PHONY: build
 .ONESHELL:
-build: clean-build
-	mkdir build
+build: build/
 	cd build
 	cmake ..
 	make
