@@ -21,7 +21,7 @@ INSTALL := ${INSTALL.${BUILD}}
 ${VENV}:
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
-	${VENV}/bin/pip3 install -e . -q
+	${VENV}/bin/pip3 install -r requirements.txt -q
 
 .PHONY: install
 install: ${VENV}
@@ -64,6 +64,7 @@ clean-src:
 	find src/ -name "*egg-info" -exec rm -r {} +
 	find src/ -name "*.so" -exec rm {} +
 	find src/ -name "__pycache__" -exec rm -r {} +
+	find tests/ -name "__pycache__" -exec rm -r {} +
 
 .PHONY: clean-git
 clean-git: check
