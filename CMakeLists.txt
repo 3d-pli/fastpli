@@ -30,4 +30,5 @@ ADD_SUBDIRECTORY(lib/pybind11)
 # Sources
 ##########################################################################
 INCLUDE_DIRECTORIES(src/include)
+ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/model/solver")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/objects")
