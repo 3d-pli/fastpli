@@ -22,6 +22,7 @@ for i in range(100):
     print(i, solved)
 
     if not solved:
+        print("num:", solver.num_objects)
         for fb in solver.get_fibers():
             for f in fb:
                 p = f.points
@@ -34,3 +35,4 @@ for i in range(100):
     ax.set_zlim(-2, 2)
     plt.pause(0.1)
     ax.cla()
+    print()

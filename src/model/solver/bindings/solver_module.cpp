@@ -28,5 +28,6 @@ PYBIND11_MODULE(_model, m) {
             },
             py::arg("drag") = 0, py::arg("obj_min_radius") = 10,
             py::arg("obj_mean_length") = 10)
-       .def("step", (bool (World::*)(void)) & World::Step);
+       .def("step", (bool (World::*)(void)) & World::Step)
+       .def_property_readonly("num_objects", &World::NumObj);
 }
