@@ -12,7 +12,7 @@
 
 class OctTree {
  public:
-   OctTree(const std::vector<object::Fiber> fibers, const float min_cube_size);
+   OctTree(const std::vector<object::Fiber> &fibers, const float min_cube_size);
    std::set<std::array<size_t, 4>> Run();
 
  private:
