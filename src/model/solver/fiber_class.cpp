@@ -165,4 +165,6 @@ void Fiber::Combine(size_t idx) {
    }
 }
 
+void Fiber::AddSpeed(size_t idx, const vm::Vec3<float> &v) { speed_[idx] += v; }
+
 } // namespace object

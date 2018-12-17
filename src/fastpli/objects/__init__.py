@@ -1,1 +1,1 @@
-from ._fiber import *
+from ._fiber import Fiber
