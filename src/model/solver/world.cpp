@@ -21,7 +21,7 @@ std::vector<std::vector<data::Fiber>> World::get_fibers() const {
    fiber_bundles[0].push_back(fibers_[0]);
 
    // since fiber order did not change
-   for (size_t i = 1; i < fiber_bundles.size(); i++) {
+   for (size_t i = 1; i < fibers_.size(); i++) {
       if (map_fb_idx_.at(i - 1).first != map_fb_idx_.at(i).first)
          fiber_bundles.push_back(std::vector<data::Fiber>());
 
