@@ -101,11 +101,11 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
    std::iota(ids.begin(), ids.end(), 0);
    auto const leafs = GenerateLeafs(ids, main_cube_, 0);
 
-#pragma omp parallel for
+   // #pragma omp parallel for
    for (size_t i = 0; i < leafs.size(); i++) {
       auto const result = TestCollision(leafs[i]);
 
-#pragma omp critical
+      // #pragma omp critical
       results.insert(std::make_move_iterator(result.begin()),
                      std::make_move_iterator(result.end()));
    }
@@ -129,7 +129,7 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
 
          auto sub_cubes = SplitInto8Cubes(cube);
 
-#pragma omp parallel for schedule(static)
+         // #pragma omp parallel for schedule(static)
          for (auto i = 0; i < 8; i++) {
             std::vector<size_t> sub_ids;
             for (auto id : ids) {
@@ -139,7 +139,7 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
 
             auto sub_tree = GenerateLeafs(sub_ids, sub_cubes[i], level + 1);
 
-#pragma omp critical
+            // #pragma omp critical
             {
                tree_ids.insert(tree_ids.end(),
                                std::make_move_iterator(sub_tree.begin()),

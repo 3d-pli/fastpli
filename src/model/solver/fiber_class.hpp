@@ -44,6 +44,6 @@ class Fiber : public data::Fiber {
    size_t fiber_idx_;
    const float k_max_speed_ = 0.1; // TODO: should be dependend on min obj size
 };
-}; // namespace object
+} // namespace object
 
 #endif // FIBER_CLASS_HPP_

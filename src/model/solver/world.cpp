@@ -29,7 +29,7 @@ std::vector<std::vector<data::Fiber>> World::get_fibers() const {
    }
 
    return fiber_bundles;
-};
+}
 
 void World::set_fibers(std::vector<std::vector<data::Fiber>> fiber_bundles) {
 
@@ -50,7 +50,7 @@ void World::set_fibers(std::vector<std::vector<data::Fiber>> fiber_bundles) {
       }
       fb_idx++;
    }
-};
+}
 
 bool World::Step() {
 
@@ -122,8 +122,8 @@ bool World::Step() {
       std::vector<std::array<size_t, 4>> colliding_vec(colliding_list.begin(),
                                                        colliding_list.end());
 
-// set speed of colliding objects
-#pragma omp parallel for
+      // set speed of colliding objects
+      // #pragma omp parallel for
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
 
@@ -135,19 +135,19 @@ bool World::Step() {
          fibers_[elm[2]].AddSpeed(elm[3] + 1, -u);
       }
 
-// move colliding objects
-#pragma omp parallel for
+      // move colliding objects
+      // #pragma omp parallel for
       for (auto i = 0u; i < fibers_.size(); i++) {
          fibers_[i].Move(w_parameter_.drag);
       }
    }
 
-// check fiber boundry conditions
-#pragma omp parallel for
+   // check fiber boundry conditions
+   // #pragma omp parallel for
    for (auto i = 0u; i < fibers_.size(); i++) {
       bool flag_length = fibers_[i].CheckLength(w_parameter_.obj_mean_length);
       bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
-#pragma omp critical
+      // #pragma omp critical
       solved = solved && flag_length && flag_radius;
       // std::cout << "i:" << i << "\t" << solved << "\t" << flag_length << "\t"
       //           << flag_radius << "\t" << num_obj << "\n";
