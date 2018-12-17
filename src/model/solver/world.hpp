@@ -1,5 +1,6 @@
 #include <random>
 #include <set>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -41,7 +42,7 @@ class World {
 
  private:
    std::vector<object::Fiber> fibers_;
-   std::vector<std::pair<size_t, size_t>> fb_idx_2_f_idx_;
+   std::map<size_t, std::pair<size_t, size_t>> map_fb_idx_;
    World::WorldParameter w_parameter_;
 
    // world functions

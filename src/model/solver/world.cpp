@@ -1,6 +1,7 @@
 #include "world.hpp"
 
 #include <functional>
+#include <map>
 #include <random>
 #include <utility>
 
@@ -13,34 +14,41 @@
 std::vector<std::vector<data::Fiber>> World::get_fibers() const {
    std::vector<std::vector<data::Fiber>> fiber_bundles;
 
-   auto fb_id_last = fb_idx_2_f_idx_.front().first;
+   if (fibers_.empty())
+      return fiber_bundles;
+
    fiber_bundles.push_back(std::vector<data::Fiber>());
-   for (auto const &[fb_id, f_id] : fb_idx_2_f_idx_) {
-      if (fb_id != fb_id_last)
+   fiber_bundles[0].push_back(fibers_[0]);
+
+   // since fiber order did not change
+   for (size_t i = 1; i < fiber_bundles.size(); i++) {
+      if (map_fb_idx_.at(i - 1).first != map_fb_idx_.at(i).first)
          fiber_bundles.push_back(std::vector<data::Fiber>());
 
-      assert(fiber_bundles.size() == fb_id + 1);
-      fiber_bundles.back().push_back(fibers_[f_id]);
+      fiber_bundles.back().push_back(fibers_[i]);
    }
 
    return fiber_bundles;
 };
 
-void World::set_fibers(std::vector<std::vector<data::Fiber>> fibers) {
+void World::set_fibers(std::vector<std::vector<data::Fiber>> fiber_bundles) {
+
+   // TODO: check reset everything
    {
       auto tmp = std::vector<object::Fiber>();
       fibers_.swap(tmp);
    }
+   map_fb_idx_.clear();
 
-   fibers_.reserve(fibers.size());
-   size_t ind = 0;
-   for (size_t i = 0; i < fibers.size(); i++) {
-      auto const &fb = fibers[i];
+   size_t fb_idx = 0;
+   for (auto const &fb : fiber_bundles) {
+      size_t f_idx = 0;
       for (auto const &f : fb) {
-         fibers_.push_back(object::Fiber(f, ind));
-         fb_idx_2_f_idx_.push_back(std::make_pair(i, ind));
-         ind++;
+         map_fb_idx_[fibers_.size()] = std::make_pair(fb_idx, f_idx);
+         fibers_.push_back(object::Fiber(f, fibers_.size()));
+         f_idx++;
       }
+      fb_idx++;
    }
 };
 
