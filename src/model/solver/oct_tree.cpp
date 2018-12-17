@@ -5,9 +5,9 @@
 #include <tuple>
 #include <vector>
 
-#include "aabb.hpp"
 #include "cone_class.hpp"
-#include "vemath.hpp"
+#include "include/aabb.hpp"
+#include "include/vemath.hpp"
 
 // aabb helper
 std::array<aabb::AABB<float, 3>, 8> SplitInto8Cubes(aabb::AABB<float, 3> cube) {

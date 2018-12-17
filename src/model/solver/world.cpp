@@ -4,10 +4,11 @@
 #include <random>
 #include <utility>
 
-#include "aabb.hpp"
 #include "fiber_class.hpp"
+#include "include/aabb.hpp"
+#include "include/vemath.hpp"
+#include "objects/fiber.hpp"
 #include "oct_tree.hpp"
-#include "vemath.hpp"
 
 std::vector<std::vector<object::FiberRawData<float>>>
 World::get_fibers() const {

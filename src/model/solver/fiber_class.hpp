@@ -3,13 +3,13 @@
 
 #include <vector>
 
-#include "../../objects/fiber.hpp"
 #include "cone_class.hpp"
-#include "vemath.hpp"
+#include "include/vemath.hpp"
+#include "objects/fiber.hpp"
 
 namespace object {
 class Fiber : public data::Fiber {
-public:
+ public:
    // defaults
    Fiber(Fiber &&) = default;
    Fiber(const Fiber &) = default;

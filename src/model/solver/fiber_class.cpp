@@ -3,7 +3,8 @@
 #include <cassert>
 #include <vector>
 
-#include "vemath.hpp"
+#include "include/vemath.hpp"
+#include "objects/fiber.hpp"
 
 namespace object {
 

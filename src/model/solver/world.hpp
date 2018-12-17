@@ -4,10 +4,11 @@
 #include <vector>
 
 // include src libs
-#include "aabb.hpp"
 #include "fiber_class.hpp"
+#include "include/aabb.hpp"
+#include "include/vemath.hpp"
+#include "objects/fiber.hpp"
 #include "oct_tree.hpp"
-#include "vemath.hpp"
 
 class World {
  public:

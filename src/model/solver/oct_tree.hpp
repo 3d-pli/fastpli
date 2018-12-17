@@ -5,10 +5,10 @@
 #include <set>
 #include <vector>
 
-#include "aabb.hpp"
 #include "cone_class.hpp"
 #include "fiber_class.hpp"
-#include "vemath.hpp"
+#include "include/aabb.hpp"
+#include "include/vemath.hpp"
 
 class OctTree {
  public:

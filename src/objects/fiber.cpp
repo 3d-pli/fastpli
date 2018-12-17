@@ -4,9 +4,9 @@
 #include <iostream>
 #include <vector>
 
-#include "aabb.hpp"
 #include "fiber.hpp"
-#include "vemath.hpp"
+#include "include/aabb.hpp"
+#include "include/vemath.hpp"
 
 namespace data {
 Fiber::Fiber(const std::vector<float> &points,
@@ -118,4 +118,4 @@ void Fiber::Scale(const float f) {
       r *= f;
    CalculateVoi();
 }
-} // namespace object
+} // namespace data

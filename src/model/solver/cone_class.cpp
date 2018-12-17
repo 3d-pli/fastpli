@@ -4,8 +4,8 @@
 #include <tuple>
 #include <vector>
 
-#include "aabb.hpp"
-#include "vemath.hpp"
+#include "include/aabb.hpp"
+#include "include/vemath.hpp"
 
 namespace object {
 aabb::AABB<float, 3> Cone::aabb() const {
