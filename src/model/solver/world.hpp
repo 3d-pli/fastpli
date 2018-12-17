@@ -38,14 +38,11 @@ class World {
    // world
    bool Step();
    bool Step(size_t n);
-   void RndMoveAll(float value);
-   void RndSeed42(bool flag = true) { rnd_seed_42 = flag; };
 
  private:
    std::vector<object::Fiber> fibers_;
    std::vector<std::pair<size_t, size_t>> fb_idx_2_f_idx_;
    World::WorldParameter w_parameter_;
-   bool rnd_seed_42 = false;
 
    // world functions
    bool CheckRadius();

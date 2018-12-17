@@ -28,7 +28,5 @@ PYBIND11_MODULE(_solver, m) {
             },
             py::arg("drag") = 0, py::arg("obj_min_radius") = 10,
             py::arg("obj_mean_length") = 10)
-       .def("rnd_move_all", &World::RndMoveAll)
-       .def("rnd_seed_42", &World::RndSeed42)
        .def("step", (bool (World::*)(void)) & World::Step);
 }

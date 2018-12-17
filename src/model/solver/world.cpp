@@ -10,15 +10,14 @@
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
 
-std::vector<std::vector<object::FiberRawData<float>>>
-World::get_fibers() const {
-   std::vector<std::vector<object::FiberRawData<float>>> fiber_bundles;
+std::vector<std::vector<data::Fiber>> World::get_fibers() const {
+   std::vector<std::vector<data::Fiber>> fiber_bundles;
 
    auto fb_id_last = fb_idx_2_f_idx_.front().first;
-   fiber_bundles.push_back(std::vector<object::FiberRawData<float>>());
+   fiber_bundles.push_back(std::vector<data::Fiber>());
    for (auto const &[fb_id, f_id] : fb_idx_2_f_idx_) {
       if (fb_id != fb_id_last)
-         fiber_bundles.push_back(std::vector<object::FiberRawData<float>>());
+         fiber_bundles.push_back(std::vector<data::Fiber>());
 
       assert(fiber_bundles.size() == fb_id + 1);
       fiber_bundles.back().push_back(fibers_[f_id]);
@@ -27,8 +26,7 @@ World::get_fibers() const {
    return fiber_bundles;
 };
 
-void World::set_fibers(
-    std::vector<std::vector<object::FiberRawData<float>>> fibers) {
+void World::set_fibers(std::vector<std::vector<data::Fiber>> fibers) {
    {
       auto tmp = std::vector<object::Fiber>();
       fibers_.swap(tmp);
@@ -53,8 +51,8 @@ bool World::Step() {
    // calculate voi
    aabb::AABB<float, 3> voi{};
    for (auto const &fiber : fibers_) {
-      if (!fiber.points.empty()) {
-         voi = aabb::AABB<float, 3>(fiber.points[0]);
+      if (!fiber.points().empty()) {
+         voi = aabb::AABB<float, 3>(fiber.points()[0]);
          break;
       }
    }
@@ -62,7 +60,7 @@ bool World::Step() {
    size_t num_obj = 0;
    for (auto const &fiber : fibers_) {
       num_obj += fiber.ConeSize();
-      for (auto const &p : fiber.points) {
+      for (auto const &p : fiber.points()) {
          voi.Unite(p);
       }
    }
@@ -83,12 +81,12 @@ bool World::Step() {
    if (max_obj_size == 0) {
       for (auto const &fiber : fibers_) {
          num_obj += fiber.ConeSize();
-         if (fiber.points.size() >= 2) {
-            for (size_t i = 0; i < fiber.points.size() - 1; i++) {
+         if (fiber.size() >= 2) {
+            for (size_t i = 0; i < fiber.size() - 1; i++) {
                {
                   auto delta =
-                      vm::length(fiber.points[i + 1] - fiber.points[i]);
-                  delta += std::max(fiber.radii[i + 1], fiber.radii[i]);
+                      vm::length(fiber.points()[i + 1] - fiber.points()[i]);
+                  delta += std::max(fiber.radii()[i + 1], fiber.radii()[i]);
                   if (max_obj_size < delta)
                      max_obj_size = delta;
                }
@@ -123,10 +121,10 @@ bool World::Step() {
 
          auto u = fibers_[elm[0]].Cone(elm[1]).PushConesApart(
              fibers_[elm[2]].Cone(elm[3]));
-         fibers_[elm[0]].speed[elm[1]] += u;
-         fibers_[elm[0]].speed[elm[1] + 1] += u;
-         fibers_[elm[2]].speed[elm[3]] -= u;
-         fibers_[elm[2]].speed[elm[3] + 1] -= u;
+         fibers_[elm[0]].AddSpeed(elm[1], u);
+         fibers_[elm[0]].AddSpeed(elm[1] + 1, u);
+         fibers_[elm[2]].AddSpeed(elm[3], -u);
+         fibers_[elm[2]].AddSpeed(elm[3] + 1, -u);
       }
 
 // move colliding objects
@@ -156,25 +154,6 @@ bool World::Step(size_t n) {
       if ((flag = Step()))
          return true;
    return flag;
-}
-
-void World::RndMoveAll(float value) {
-   std::random_device rd;
-   std::mt19937 rng_engine(rd());
-
-   if (rnd_seed_42)
-      rng_engine = std::mt19937(42);
-
-   std::uniform_real_distribution<float> dist_shift(-value, value);
-   auto rng_shift = std::bind(dist_shift, std::ref(rng_engine));
-
-#pragma omp parallel for
-   for (size_t i = 0; i < fibers_.size(); i++) {
-      auto &fiber = fibers_[i];
-      for (auto &p : fiber.points) {
-         p += vm::Vec3<float>({rng_shift(), rng_shift(), rng_shift()});
-      }
-   }
 }
 
 size_t World::NumObj() const {
