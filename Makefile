@@ -42,7 +42,7 @@ test:
 	${PYTHON} -m unittest discover -s tests -p '*_test.py'
 
 .PHONY: test-docker
-test-docker:
+docker:
 	docker build -t fastpli .
 	docker run fastpli
 
