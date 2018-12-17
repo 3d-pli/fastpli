@@ -27,12 +27,11 @@ class World {
 
    // getter
    size_t NumObj() const;
-   std::vector<std::vector<object::FiberRawData<float>>> get_fibers() const;
+   std::vector<std::vector<data::Fiber>> get_fibers() const;
    World::WorldParameter get_parameter() const { return w_parameter_; };
 
    // setter
-   void
-   set_fibers(std::vector<std::vector<object::FiberRawData<float>>> fibers);
+   void set_fibers(std::vector<std::vector<data::Fiber>> fibers);
    void set_parameter(World::WorldParameter p) { w_parameter_ = p; };
 
    // world

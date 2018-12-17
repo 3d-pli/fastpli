@@ -8,7 +8,7 @@
 #include "fiber.hpp"
 #include "vemath.hpp"
 
-namespace object {
+namespace data {
 Fiber::Fiber(const std::vector<float> &points,
              const std::vector<float> &radii) {
 

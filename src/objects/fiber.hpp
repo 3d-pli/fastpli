@@ -7,7 +7,7 @@
 #include "aabb.hpp"
 #include "vemath.hpp"
 
-namespace object {
+namespace data {
 
 class Fiber {
  public:
@@ -56,7 +56,7 @@ class Fiber {
    void ScaleRadii(const float f);
    void Scale(const float f);
 
- private:
+ protected:
    std::vector<vm::Vec3<float>> points_;
    std::vector<float> radii_;
    aabb::AABB<float, 3> voi_;
@@ -67,6 +67,6 @@ class Fiber {
 using FiberBundle = std::vector<Fiber>;
 using FiberTissue = std::vector<FiberBundle>;
 
-} // namespace object
+} // namespace data
 
 #endif // FIBER_HPP_

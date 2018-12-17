@@ -1,12 +1,13 @@
 #include "cone_class.hpp"
 
+#include <random>
 #include <tuple>
 #include <vector>
 
 #include "aabb.hpp"
 #include "vemath.hpp"
 
-namespace geometry {
+namespace object {
 aabb::AABB<float, 3> Cone::aabb() const {
    return aabb::AABB<float, 3>(p0 - r, p1 + r);
 }

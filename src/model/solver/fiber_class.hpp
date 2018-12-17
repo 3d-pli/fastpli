@@ -7,8 +7,8 @@
 #include "cone_class.hpp"
 #include "vemath.hpp"
 
-namespace geometry {
-class Fiber : object::Fiber {
+namespace object {
+class Fiber : public data::Fiber {
 public:
    // defaults
    Fiber(Fiber &&) = default;
@@ -18,7 +18,11 @@ public:
    ~Fiber() = default;
 
    // constructors
-   Fiber(const object::Fiber &fiber_data, const size_t fiber_idx);
+   Fiber(const data::Fiber &fiber_data, const size_t fiber_idx);
+
+   // getter
+   const size_t &fiber_idx() const { return fiber_idx_; }
+   const std::vector<vm::Vec3<float>> &speed() const { return speed_; }
 
    // cones
    size_t ConeSize() const;
@@ -33,11 +37,13 @@ public:
    void Split(size_t idx);
    void Combine(size_t idx);
 
-private:
+   void AddSpeed(size_t idx, const vm::Vec3<float> &v);
+
+ protected:
    std::vector<vm::Vec3<float>> speed_;
    size_t fiber_idx_;
    const float k_max_speed_ = 0.1; // TODO: should be dependend on min obj size
 };
-}; // namespace geometry
+}; // namespace object
 
 #endif // FIBER_CLASS_HPP_

@@ -7,7 +7,7 @@
 #include "aabb.hpp"
 #include "vemath.hpp"
 
-namespace geometry {
+namespace object {
 struct Cone {
    // defaults
    Cone(Cone &&) = default;

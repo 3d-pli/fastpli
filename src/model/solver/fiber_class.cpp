@@ -5,39 +5,23 @@
 
 #include "vemath.hpp"
 
-namespace geometry {
+namespace object {
 
-Fiber::Fiber(const std::vector<vm::Vec3<float>> &p, const std::vector<float> &r,
-             const size_t f_idx)
-    : FiberRawData<float>(p, r) {
+Fiber::Fiber(const data::Fiber &fiber_data, const size_t f_idx)
+    : data::Fiber(fiber_data) {
 
-   fiber_idx = f_idx;
-   speed.assign(points.size(), vm::Vec3<float>(0));
-}
-
-Fiber::Fiber(const std::vector<float> &p, const std::vector<float> &r,
-             const size_t f_idx)
-    : FiberRawData<float>(p, r) {
-
-   fiber_idx = f_idx;
-   speed.assign(points.size(), vm::Vec3<float>(0));
-}
-
-Fiber::Fiber(const FiberRawData<float> &fiber_data, const size_t f_idx)
-    : FiberRawData<float>(fiber_data) {
-
-   fiber_idx = f_idx;
-   speed.assign(points.size(), vm::Vec3<float>(0));
+   fiber_idx_ = f_idx;
+   speed_.assign(points_.size(), vm::Vec3<float>(0));
 }
 
 size_t Fiber::ConeSize() const {
-   return points.size() < 2 ? 0 : points.size() - 1;
+   return points_.size() < 2 ? 0 : points_.size() - 1;
 }
 
 object::Cone Fiber::Cone(size_t i) const {
    assert(i < ConeSize());
-   return object::Cone(points[i], points[i + 1], radii[i], radii[i + 1],
-                       fiber_idx, i);
+   return object::Cone(this->points_[i], points_[i + 1], radii_[i],
+                       radii_[i + 1], fiber_idx_, i);
 }
 
 std::vector<object::Cone> Fiber::Cones() const {
@@ -50,31 +34,31 @@ std::vector<object::Cone> Fiber::Cones() const {
 }
 
 void Fiber::Move(const float drag) {
-   for (size_t i = 0; i < points.size(); i++) {
-      auto const norm = vm::length(speed[i]);
+   for (size_t i = 0; i < points_.size(); i++) {
+      auto const norm = vm::length(speed_[i]);
       if (norm > k_max_speed_)
-         speed[i] *= k_max_speed_ / norm;
+         speed_[i] *= k_max_speed_ / norm;
 
-      points[i] += speed[i];
-      speed[i] *= drag;
+      points_[i] += speed_[i];
+      speed_[i] *= drag;
    }
 }
 
 bool Fiber::CheckRadius(const float obj_min_radius) {
    auto solved = true;
 
-   if (points.size() <= 2)
+   if (points_.size() <= 2)
       return solved;
 
    if (obj_min_radius == 0)
       return solved;
 
-   auto pos_new = points;
+   auto pos_new = points_;
 
-   for (size_t i = 1; i < points.size() - 1; i++) {
-      auto const &p1 = points[i - 1];
-      auto const &p2 = points[i];
-      auto const &p3 = points[i + 1];
+   for (size_t i = 1; i < points_.size() - 1; i++) {
+      auto const &p1 = points_[i - 1];
+      auto const &p2 = points_[i];
+      auto const &p3 = points_[i + 1];
 
       auto const a = vm::length(p1 - p2);
       auto const b = vm::length(p2 - p3);
@@ -97,12 +81,12 @@ bool Fiber::CheckRadius(const float obj_min_radius) {
          auto dv = v1 + v2;
          vm::normalize(dv);
 
-         pos_new[i] = points[i] + dv * k_max_speed_ * 0.1;
+         pos_new[i] = points_[i] + dv * k_max_speed_ * 0.1;
 
          solved = false;
       }
    }
-   points = std::move(pos_new);
+   points_ = std::move(pos_new);
 
    return solved;
 }
@@ -110,7 +94,7 @@ bool Fiber::CheckRadius(const float obj_min_radius) {
 bool Fiber::CheckLength(const float obj_mean_length) {
    auto solved = true;
 
-   if (points.size() <= 2)
+   if (points_.size() <= 2)
       return solved;
 
    if (obj_mean_length == 0)
@@ -119,13 +103,13 @@ bool Fiber::CheckLength(const float obj_mean_length) {
    auto const min = 2.0f / 3.0f * obj_mean_length;
    auto const max = 4.0f / 3.0f * obj_mean_length;
 
-   for (size_t i = 0; i < points.size() - 1; i++) {
-      auto distance = vm::length(points[i + 1] - points[i]);
+   for (size_t i = 0; i < points_.size() - 1; i++) {
+      auto distance = vm::length(points_[i + 1] - points_[i]);
       if (distance > max) {
          Split(i);
          solved = false;
       } else if (distance < min) {
-         if (points.size() == 2)
+         if (points_.size() == 2)
             return true;
          Combine(i);
          solved = false;
@@ -136,13 +120,13 @@ bool Fiber::CheckLength(const float obj_mean_length) {
 }
 
 void Fiber::Split(size_t idx) {
-   auto const pos_new = (points[idx] + points[idx + 1]) * 0.5;
-   auto const r_new = (radii[idx] + radii[idx + 1]) * 0.5;
-   auto const v_new = (speed[idx] + speed[idx + 1]) * 0.5;
+   auto const pos_new = (points_[idx] + points_[idx + 1]) * 0.5;
+   auto const r_new = (radii_[idx] + radii_[idx + 1]) * 0.5;
+   auto const v_new = (speed_[idx] + speed_[idx + 1]) * 0.5;
 
-   points.insert(points.begin() + idx + 1, pos_new);
-   radii.insert(radii.begin() + idx + 1, r_new);
-   speed.insert(speed.begin() + idx + 1, v_new);
+   points_.insert(points_.begin() + idx + 1, pos_new);
+   radii_.insert(radii_.begin() + idx + 1, r_new);
+   speed_.insert(speed_.begin() + idx + 1, v_new);
 }
 
 void Fiber::Combine(size_t idx) {
@@ -151,32 +135,32 @@ void Fiber::Combine(size_t idx) {
 
    if (idx == 0) {
       // don't erase first point
-      points.erase(points.begin() + 1);
-      radii.erase(radii.begin() + 1);
-      speed.erase(speed.begin() + 1);
-   } else if (idx == points.size() - 2) {
+      points_.erase(points_.begin() + 1);
+      radii_.erase(radii_.begin() + 1);
+      speed_.erase(speed_.begin() + 1);
+   } else if (idx == points_.size() - 2) {
       // don't erase last point
-      points.erase(points.end() - 2);
-      radii.erase(radii.end() - 2);
-      speed.erase(speed.end() - 2);
+      points_.erase(points_.end() - 2);
+      radii_.erase(radii_.end() - 2);
+      speed_.erase(speed_.end() - 2);
    } else {
       // erase midpoint
-      points.erase(points.begin() + idx + 1);
-      radii.erase(radii.begin() + idx + 1);
-      speed.erase(speed.begin() + idx + 1);
+      points_.erase(points_.begin() + idx + 1);
+      radii_.erase(radii_.begin() + idx + 1);
+      speed_.erase(speed_.begin() + idx + 1);
 
       // TODO: check
-      // auto const pos_new = (points[idx] + points[idx + 1]) * 0.5;
-      // auto const r_new = (radii[idx] + radii[idx + 1]) * 0.5;
-      // auto const v_new = (speed[idx] + speed[idx + 1]) * 0.5;
+      // auto const pos_new = (points_[idx] + points_[idx + 1]) * 0.5;
+      // auto const r_new = (radii_[idx] + radii_[idx + 1]) * 0.5;
+      // auto const v_new = (speed_[idx] + speed_[idx + 1]) * 0.5;
 
-      // points.erase(points.begin() + idx, points.begin() + idx + 2);
-      // radii.erase(radii.begin() + idx, radii.begin() + idx + 2);
-      // speed.erase(speed.begin() + idx, speed.begin() + idx + 2);
+      // points_.erase(points_.begin() + idx, points_.begin() + idx + 2);
+      // radii_.erase(radii_.begin() + idx, radii_.begin() + idx + 2);
+      // speed_.erase(speed_.begin() + idx, speed_.begin() + idx + 2);
 
-      // points.insert(points.begin() + idx, pos_new);
-      // radii.insert(radii.begin() + idx, r_new);
-      // speed.insert(speed.begin() + idx, v_new);
+      // points_.insert(points_.begin() + idx, pos_new);
+      // radii_.insert(radii_.begin() + idx, r_new);
+      // speed_.insert(speed_.begin() + idx, v_new);
    }
 }
 

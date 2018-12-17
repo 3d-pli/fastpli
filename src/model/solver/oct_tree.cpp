@@ -81,14 +81,14 @@ OctTree::OctTree(const std::vector<object::Fiber> fibers,
 
    // calculate bounding box
    for (auto const &fiber : fibers) {
-      if (!fiber.points.empty()) {
-         main_cube_ = aabb::AABB<float, 3>(fiber.points[0]);
+      if (!fiber.points().empty()) {
+         main_cube_ = aabb::AABB<float, 3>(fiber.points()[0]);
          break;
       }
    }
 
    for (auto const &fiber : fibers) {
-      for (auto const &p : fiber.points) {
+      for (auto const &p : fiber.points()) {
          main_cube_.Unite(p);
       }
    }
