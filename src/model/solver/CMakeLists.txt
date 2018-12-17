@@ -8,13 +8,13 @@ SET(subdir solver)
 # building core objects
 SET(CoreModules ${subdir}CoreModules)
 FILE(GLOB CoreFiles *.cpp)
-ADD_LIBRARY(CoreModules OBJECT ${CoreFiles})
-SET_PROPERTY(TARGET CoreModules PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+ADD_LIBRARY(${CoreModules} OBJECT ${CoreFiles})
+SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 # building python modules
 pybind11_add_module(_solver
       bindings/solver_module.cpp
-      $<TARGET_OBJECTS:CoreModules>)
+      $<TARGET_OBJECTS:${CoreModules}>)
 
 GET_TARGET_PROPERTY(outdir _solver LIBRARY_OUTPUT_DIRECTORY)
 IF (outdir)
