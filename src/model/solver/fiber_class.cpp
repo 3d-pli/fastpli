@@ -95,9 +95,6 @@ bool Fiber::CheckRadius(const float obj_min_radius) {
 bool Fiber::CheckLength(const float obj_mean_length) {
    auto solved = true;
 
-   if (points_.size() <= 2)
-      return solved;
-
    if (obj_mean_length == 0)
       return solved;
 
