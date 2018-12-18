@@ -5,15 +5,14 @@
 #include <pybind11/stl.h>
 
 #include "../world.hpp"
-// #include "fiber.hpp"
-#include "include/vemath.hpp"
+#include "objects/fiber.hpp"
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(_model, m) {
-   m.doc() = "Volume Colliding Solver World";
+PYBIND11_MODULE(_solver_cpp, m) {
+   m.doc() = "Fiber Volume Colliding Solver";
 
-   py::class_<World>(m, "Solver")
+   py::class_<World>(m, "_SolverCPP")
        .def(py::init())
        .def("get_fibers", &World::get_fibers)
        .def("set_fibers", &World::set_fibers)

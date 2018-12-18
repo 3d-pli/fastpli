@@ -1,1 +1,1 @@
-from ._model import Solver
+from ._solver import Solver
