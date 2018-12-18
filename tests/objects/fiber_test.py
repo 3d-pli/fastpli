@@ -24,6 +24,11 @@ class MainTest(unittest.TestCase):
                     dtype=np.float32),
                 self.fiber.radii))
 
+    # def test_cast_base_class(self):
+    #     test = fastpli.objects._fiber_cpp._FiberCPP([],[])
+    #     test.__class__ = fastpli.objects.Fiber
+    #     print(repr(test))
+
     def test_rotation(self):
         points = self.fiber.points
         rot = fastpli.tools.rotations.rot_theta_phi(
