@@ -59,19 +59,19 @@ bool World::Step() {
 
    // calculate voi
    aabb::AABB<float, 3> voi{};
+   // get first valid voi
    for (auto const &fiber : fibers_) {
       if (!fiber.points().empty()) {
          voi = aabb::AABB<float, 3>(fiber.points()[0]);
          break;
       }
    }
-
-   size_t num_obj = 0;
+   // combine all vois
    for (auto const &fiber : fibers_) {
-      num_obj += fiber.ConeSize();
-      for (auto const &p : fiber.points()) {
-         voi.Unite(p);
-      }
+      for (size_t i = 0; i < fiber.size(); i++)
+         voi.Unite(aabb::AABB<float, 3>(fiber.points()[i] - fiber.radii()[i],
+                                        fiber.points()[i] + fiber.radii()[i],
+                                        true));
    }
 
    // auto smallest_radius = std::numeric_limits<float>::max();
@@ -89,16 +89,13 @@ bool World::Step() {
    auto max_obj_size = 3 * w_parameter_.obj_mean_length;
    if (max_obj_size == 0) {
       for (auto const &fiber : fibers_) {
-         num_obj += fiber.ConeSize();
          if (fiber.size() >= 2) {
             for (size_t i = 0; i < fiber.size() - 1; i++) {
-               {
-                  auto delta =
-                      vm::length(fiber.points()[i + 1] - fiber.points()[i]);
-                  delta += std::max(fiber.radii()[i + 1], fiber.radii()[i]);
-                  if (max_obj_size < delta)
-                     max_obj_size = delta;
-               }
+               auto delta =
+                   vm::length(fiber.points()[i + 1] - fiber.points()[i]);
+               delta += std::max(fiber.radii()[i + 1], fiber.radii()[i]);
+               if (max_obj_size < delta)
+                  max_obj_size = delta;
             }
          }
       }
