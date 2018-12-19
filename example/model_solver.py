@@ -22,8 +22,8 @@ for points in planes:
 
 # setup solver
 solver = fastpli.model.Solver()
-solver.set_fibers(fiber_bundles)
-solver.set_parameter(drag=0, obj_min_radius=10, obj_mean_length=1)
+solver.set_fiber_bundles(fiber_bundles)
+solver.set_parameters(drag=0, obj_min_radius=10, obj_mean_length=1)
 
 
 fig = plt.figure()
@@ -32,9 +32,8 @@ ax = fig.add_subplot(111, projection='3d')
 # run solver and plot results
 for i in range(100):
     solved = solver.step()
-
     if not solved:
-        for fb in solver.get_fibers():
+        for fb in solver.get_fiber_bundles():
             for f in fb:
                 p = f.points
                 ax.plot(p[:, 0], p[:, 1], p[:, 2])
