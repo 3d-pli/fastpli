@@ -98,6 +98,7 @@ bool Fiber::CheckLength(const float obj_mean_length) {
    if (obj_mean_length == 0)
       return solved;
 
+   // TODO: static, does not change for one step
    auto const min = 2.0f / 3.0f * obj_mean_length;
    auto const max = 4.0f / 3.0f * obj_mean_length;
 

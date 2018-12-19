@@ -41,6 +41,7 @@ class World {
    bool Step(size_t n);
 
  private:
+   // TODO: fibers and parameter can be public
    std::vector<object::Fiber> fibers_;
    std::map<size_t, std::pair<size_t, size_t>> map_fb_idx_;
    World::WorldParameter w_parameter_;
