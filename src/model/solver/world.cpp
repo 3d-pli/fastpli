@@ -11,7 +11,7 @@
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
 
-std::vector<std::vector<data::Fiber>> World::get_fibers() const {
+const std::vector<std::vector<data::Fiber>> World::get_fibers() const {
    std::vector<std::vector<data::Fiber>> fiber_bundles;
 
    if (fibers_.empty())
@@ -31,7 +31,8 @@ std::vector<std::vector<data::Fiber>> World::get_fibers() const {
    return fiber_bundles;
 }
 
-void World::set_fibers(std::vector<std::vector<data::Fiber>> fiber_bundles) {
+void World::set_fibers(
+    const std::vector<std::vector<data::Fiber>> &fiber_bundles) {
 
    // TODO: check reset everything
    {
