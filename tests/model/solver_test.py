@@ -19,6 +19,13 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(self.fiber.points, fb[0][0].points))
         self.assertTrue(np.array_equal(self.fiber.radii, fb[0][0].radii))
 
+    def test_fiber_bundle_property(self):
+        self.solver.parameters = (0, 0, 0)
+        test = self.solver.parameters
+        self.solver.fiber_bundles = [
+            [fastpli.objects.Fiber([0, 0, 0, 0, 0, 2], [1, 3])]]
+        test = self.solver.fiber_bundles
+
     def test_split(self):
         self.solver.set_parameters(
             drag=0, obj_min_radius=0, obj_mean_length=0.5)
