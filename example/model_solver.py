@@ -40,7 +40,7 @@ for i in range(100):
     else:
         break
 
-    print("step:", i, solver.num_objects)
+    print("step:", i, solver.num_obj, solver.num_col_obj)
     ax.set_xlim(-1.0 * VOLUME, 1.0 * VOLUME)
     ax.set_ylim(-1.0 * VOLUME, 1.0 * VOLUME)
     ax.set_zlim(-1.0 * VOLUME, 1.0 * VOLUME)

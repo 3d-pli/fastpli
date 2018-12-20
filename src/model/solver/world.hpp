@@ -28,8 +28,9 @@ class World {
    ~World() = default;
 
    // getter
-   size_t NumObj() const;
-   const std::vector<std::vector<data::Fiber>> get_fibers() const;
+   size_t NumObj() const { return num_obj_; };
+   size_t NumColObj() const { return num_col_obj_; };
+   std::vector<std::vector<data::Fiber>> get_fibers() const;
    World::WorldParameter get_parameter() const { return w_parameter_; };
 
    // setter
@@ -38,12 +39,14 @@ class World {
 
    // world
    bool Step();
-   bool Step(size_t n);
 
  private:
    std::vector<object::Fiber> fibers_;
    std::map<size_t, std::pair<size_t, size_t>> map_fb_idx_;
    World::WorldParameter w_parameter_;
+
+   size_t num_obj_{0};
+   size_t num_col_obj_{0};
 
    // world functions
    bool CheckRadius();

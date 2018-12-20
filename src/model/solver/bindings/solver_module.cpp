@@ -38,5 +38,6 @@ PYBIND11_MODULE(_solver_cpp, m) {
                                       p.obj_mean_length);
             })
        .def("step", (bool (World::*)(void)) & World::Step)
-       .def_property_readonly("num_objects", &World::NumObj);
+       .def_property_readonly("num_obj", &World::NumObj)
+       .def_property_readonly("num_col_obj", &World::NumColObj);
 }

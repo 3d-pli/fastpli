@@ -11,7 +11,7 @@
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
 
-const std::vector<std::vector<data::Fiber>> World::get_fibers() const {
+std::vector<std::vector<data::Fiber>> World::get_fibers() const {
    std::vector<std::vector<data::Fiber>> fiber_bundles;
 
    if (fibers_.empty())
@@ -20,7 +20,7 @@ const std::vector<std::vector<data::Fiber>> World::get_fibers() const {
    fiber_bundles.push_back(std::vector<data::Fiber>());
    fiber_bundles[0].push_back(fibers_[0]);
 
-   // since fiber order did not change
+   // fiber order does not change, therefore map has the same order
    for (size_t i = 1; i < fibers_.size(); i++) {
       if (map_fb_idx_.at(i - 1).first != map_fb_idx_.at(i).first)
          fiber_bundles.push_back(std::vector<data::Fiber>());
@@ -34,12 +34,9 @@ const std::vector<std::vector<data::Fiber>> World::get_fibers() const {
 void World::set_fibers(
     const std::vector<std::vector<data::Fiber>> &fiber_bundles) {
 
-   // TODO: check reset everything
-   {
-      auto tmp = std::vector<object::Fiber>();
-      fibers_.swap(tmp);
-   }
-   map_fb_idx_.clear();
+   // free memory
+   fibers_ = std::vector<object::Fiber>();
+   map_fb_idx_ = std::map<size_t, std::pair<size_t, size_t>>();
 
    size_t fb_idx = 0;
    for (auto const &fb : fiber_bundles) {
@@ -67,7 +64,9 @@ bool World::Step() {
       }
    }
    // combine all vois
+   num_obj_ = 0;
    for (auto const &fiber : fibers_) {
+      num_obj_ += fiber.ConeSize();
       for (size_t i = 0; i < fiber.size(); i++)
          voi.Unite(aabb::AABB<float, 3>(fiber.points()[i] - fiber.radii()[i],
                                         fiber.points()[i] + fiber.radii()[i],
@@ -104,14 +103,11 @@ bool World::Step() {
    // TODO: min_radius sollte gr;-er sein als gleichseitiges dreieck,
    // R=sqrt(3)/3.0*mean_...
 
-   // create OctTree and calculate colliding objects
+   // create OctTree and calculate colliding objects in each leaf
    // TODO: num_threads
    OctTree otree(fibers_, 2 * max_obj_size);
-
-   // std::cout << "Step(): starting otree: " << 2 * max_obj_size << "\n";
    auto colliding_list = otree.Run();
-
-   // std::cout << "Step(): finished otree: " << colliding_list.size() << "\n";
+   num_col_obj_ = colliding_list.size();
 
    if (!colliding_list.empty()) {
       solved = false;
@@ -152,19 +148,4 @@ bool World::Step() {
    }
 
    return solved;
-}
-
-bool World::Step(size_t n) {
-   bool flag = false;
-   for (size_t i = 0; i < n; i++)
-      if ((flag = Step()))
-         return true;
-   return flag;
-}
-
-size_t World::NumObj() const {
-   size_t n{0};
-   for (auto const &fiber : fibers_)
-      n += fiber.ConeSize();
-   return n;
 }
