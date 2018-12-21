@@ -36,6 +36,7 @@ class World {
    // setter
    void set_fibers(const std::vector<std::vector<data::Fiber>> &fibers);
    void set_parameter(World::WorldParameter p) { w_parameter_ = p; };
+   void set_colliding_voi(const aabb::AABB<float, 3> voi) { col_voi_ = voi; };
 
    // world
    bool Step();
@@ -47,6 +48,8 @@ class World {
 
    size_t num_obj_{0};
    size_t num_col_obj_{0};
+
+   aabb::AABB<float, 3> col_voi_ = aabb::AABB<float, 3>(vm::Vec3<float>(0));
 
    // world functions
    bool CheckRadius();

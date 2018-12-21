@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # setup fibers
 VOLUME = 10
-NFIBER = 50
+NFIBER = 100
 np.random.seed(42)
 
 # 2d plane with rnd seedpoints for fibers
@@ -24,7 +24,7 @@ for points in planes:
 solver = fastpli.model.Solver()
 solver.set_fiber_bundles(fiber_bundles)
 solver.set_parameters(drag=0, obj_min_radius=10, obj_mean_length=1)
-
+solver.set_col_voi([0, 0, 0], [10, 10, 10])
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -44,6 +44,7 @@ for i in range(100):
     ax.set_xlim(-1.0 * VOLUME, 1.0 * VOLUME)
     ax.set_ylim(-1.0 * VOLUME, 1.0 * VOLUME)
     ax.set_zlim(-1.0 * VOLUME, 1.0 * VOLUME)
+
     ax.set_aspect('equal')
     plt.pause(0.1)
     ax.cla()

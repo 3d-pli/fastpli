@@ -62,7 +62,8 @@ std::array<aabb::AABB<float, 3>, 8> SplitInto8Cubes(aabb::AABB<float, 3> cube) {
 }
 
 OctTree::OctTree(const std::vector<object::Fiber> &fibers,
-                 const float min_cube_size) {
+                 const float min_cube_size,
+                 const aabb::AABB<float, 3> col_voi) {
 
    // TODO:
    // if (num_threads <= 0)
@@ -80,25 +81,37 @@ OctTree::OctTree(const std::vector<object::Fiber> &fibers,
    }
 
    // calculate bounding box
-   for (auto const &fiber : fibers) {
-      if (!fiber.points().empty()) {
-         main_cube_ = aabb::AABB<float, 3>(fiber.points()[0]);
-         break;
+   if (col_voi.min == col_voi.max) {
+      // check the whole volume
+      for (auto const &fiber : fibers) {
+         if (!fiber.points().empty()) {
+            main_cube_ = aabb::AABB<float, 3>(fiber.points()[0]);
+            break;
+         }
       }
-   }
 
-   for (auto const &fiber : fibers) {
-      for (auto const &p : fiber.points()) {
-         main_cube_.Unite(p);
+      for (auto const &fiber : fibers) {
+         for (auto const &p : fiber.points()) {
+            main_cube_.Unite(p);
+         }
       }
+   } else {
+      main_cube_ = col_voi;
    }
 }
 
 std::set<std::array<size_t, 4>> OctTree::Run() {
    std::set<std::array<size_t, 4>> results;
-   std::vector<size_t> ids;
-   ids.resize(cones_.size());
-   std::iota(ids.begin(), ids.end(), 0);
+   std::vector<size_t> ids, all_ids;
+   all_ids.resize(cones_.size());
+   std::iota(all_ids.begin(), all_ids.end(), 0);
+
+   for (auto id : all_ids) {
+      // TODO: test impact of aabb::Overlap
+      if (aabb::Overlap(main_cube_, cones_[id].aabb()))
+         ids.push_back(id);
+   }
+
    auto const leafs = GenerateLeafs(ids, main_cube_, 0);
 
    // #pragma omp parallel for

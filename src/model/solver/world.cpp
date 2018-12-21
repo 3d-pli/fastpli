@@ -1,6 +1,7 @@
 #include "world.hpp"
 
 #include <functional>
+#include <iostream>
 #include <map>
 #include <random>
 #include <utility>
@@ -105,7 +106,7 @@ bool World::Step() {
 
    // create OctTree and calculate colliding objects in each leaf
    // TODO: num_threads
-   OctTree otree(fibers_, 2 * max_obj_size);
+   OctTree otree(fibers_, 2 * max_obj_size, col_voi_);
    auto colliding_list = otree.Run();
    num_col_obj_ = colliding_list.size();
 
@@ -143,8 +144,6 @@ bool World::Step() {
       bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
       // #pragma omp critical
       solved = solved && flag_length && flag_radius;
-      // std::cout << "i:" << i << "\t" << solved << "\t" << flag_length << "\t"
-      //           << flag_radius << "\t" << num_obj << "\n";
    }
 
    return solved;

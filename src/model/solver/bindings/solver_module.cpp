@@ -1,3 +1,4 @@
+#include <iostream>
 #include <tuple>
 
 #include <pybind11/functional.h>
@@ -37,6 +38,11 @@ PYBIND11_MODULE(_solver_cpp, m) {
                return std::make_tuple(p.drag, p.obj_min_radius,
                                       p.obj_mean_length);
             })
+       .def(
+           "set_col_voi",
+           [](World &self, std::array<float, 3> min, std::array<float, 3> max) {
+              self.set_colliding_voi(aabb::AABB<float, 3>(min, max));
+           })
        .def("step", (bool (World::*)(void)) & World::Step)
        .def_property_readonly("num_obj", &World::NumObj)
        .def_property_readonly("num_col_obj", &World::NumColObj);
