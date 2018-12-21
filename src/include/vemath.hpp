@@ -4,12 +4,13 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <iostream>
 #include <numeric>
+#include <ostream>
 #include <vector>
 
 namespace vm {
 
+// TODO: test if int is better (e.g. negative number from user error)
 template <typename T, size_t M, size_t N> struct MatMxN {
    std::array<T, M * N> data_;
 
@@ -22,12 +23,9 @@ template <typename T, size_t M, size_t N> struct MatMxN {
    ~MatMxN() = default;
 
    // constructors
-   MatMxN(T s) { data_.fill(s); }
-   MatMxN(std::array<T, M * N> a) {
+   MatMxN(const T s) { data_.fill(s); }
+   MatMxN(const std::array<T, M * N> &a) {
       std::copy(a.begin(), a.end(), data_.begin());
-   }
-   MatMxN(std::initializer_list<T> il) {
-      std::copy(il.begin(), il.end(), data_.begin());
    }
 
    // x, y, z, w functionality
@@ -257,6 +255,39 @@ template <typename T> using Mat4x2 = MatMxN<T, 4, 2>;
 template <typename T> using Mat4x3 = MatMxN<T, 4, 3>;
 template <typename T> using Mat4x4 = MatMxN<T, 4, 4>;
 
+// ostream
+template <typename T, size_t N>
+std::ostream &operator<<(std::ostream &os, const Vec<T, N> v) {
+   os << "[";
+   for (size_t n = 0; n < N - 1; n++)
+      os << v[n] << ",";
+   os << v[N - 1] << "]";
+
+   return os;
+}
+
+template <typename T, size_t M, size_t N>
+std::ostream &operator<<(std::ostream &os, const MatMxN<T, M, N> &data) {
+   if (M > 1)
+      os << "[";
+
+   for (size_t m = 0; m < M - 1; m++) {
+      os << "[";
+      for (size_t n = 0; n < N - 1; n++)
+         os << data[N * m + n] << ",";
+      os << data[N * m + (N - 1)] << "]";
+   }
+   os << "[";
+   for (size_t n = 0; n < N - 1; n++)
+      os << data[N * (M - 1) + n] << ",";
+   os << data[N * (M - 1) + (N - 1)] << "]";
+
+   if (M > 1)
+      os << "]";
+
+   return os;
+}
+
 // casting and typeing
 template <typename T, typename U, size_t M, size_t N>
 MatMxN<T, M, N> cast(const MatMxN<U, M, N> &u) {
@@ -311,10 +342,6 @@ MatMxN<T, M, N> elmmul(const MatMxN<T, M, N> &A, const MatMxN<T, M, N> &B) {
 template <typename T, size_t M, size_t N>
 MatMxN<T, M, N> elmdiv(const MatMxN<T, M, N> &A, const MatMxN<T, M, N> &B) {
    MatMxN<T, M, N> result;
-   if (std::any_of(B.begin(), B.end(), [](T elm) { return elm == 0; })) {
-      std::cerr << "Error: elementwise division by zero detected\n";
-      exit(-1);
-   }
    std::transform(A.begin(), A.end(), B.begin(), result.begin(),
                   std::divides<T>());
    return result;
@@ -391,43 +418,7 @@ std::vector<T> flatten(const std::vector<MatMxN<T, M, N>> &data_vec) {
    return data;
 }
 
-// print
-template <typename T, size_t N> void print(Vec<T, N> u) {
-   std::cout << "[";
-   for (auto i = 0u; i < N - 1; i++)
-      std::cout << u[i] << ", ";
-   std::cout << u[N - 1] << "]\n";
-}
-
-template <typename T, size_t N> void errprint(Vec<T, N> u) {
-   std::cerr << "[";
-   for (auto i = 0u; i < N - 1; i++)
-      std::cerr << u[i] << ", ";
-   std::cerr << u[N - 1] << "]\n";
-}
-
-template <typename T, size_t M, size_t N> void print(MatMxN<T, M, N> u) {
-   std::cout << "[";
-   for (auto i = 0u; i < M; i++) {
-      std::cout << "[";
-      for (auto j = 0u; j < N - 1; j++)
-         std::cout << u(i, j) << ", ";
-      std::cout << u(i, N - 1) << "]";
-   }
-   std::cout << "]\n";
-}
-
-template <typename T, size_t M, size_t N> void errprint(MatMxN<T, M, N> u) {
-   std::cerr << "[";
-   for (auto i = 0u; i < M; i++) {
-      std::cerr << "[";
-      for (auto j = 0u; j < N - 1; j++)
-         std::cerr << u(i, j) << ", ";
-      std::cerr << u(i, N - 1) << "]";
-   }
-   std::cerr << "]\n";
-}
-
+// special matrices
 template <typename T, size_t N> MatNxN<T, N> IdentityMatrix() {
    MatNxN<T, N> U(0);
    for (auto i = 0u; i < N; i++)

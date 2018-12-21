@@ -2,6 +2,7 @@
 #define AABB_HPP_
 
 #include <array>
+#include <ostream>
 #include <tuple>
 #include <vector>
 
@@ -33,6 +34,13 @@ template <typename T, int N> struct AABB {
    void Intersect(const AABB<T, N> &a);
    void Intersect(const vm::Vec<T, N> &v);
 };
+
+// operators
+template <typename T, int N>
+std::ostream &operator<<(std::ostream &os, const aabb::AABB<T, N> aabb) {
+   os << "[" << aabb.min << "," << aabb.max << "]";
+   return os;
+}
 
 template <typename T, int N> AABB<T, N>::AABB(const vm::Vec<T, N> &p) {
    min = p;
