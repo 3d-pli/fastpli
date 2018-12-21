@@ -8,9 +8,10 @@ back to [readme](README.md)
 - [ ] model
   - [ ] generator
   - [ ] solver
+    - [ ] freeze objects
   - [ ] visualizer
 - [ ] objects
-  - [ ] fiber
+  - [x] fiber
   - [ ] tissue_container
 - [ ] simulation
   - [ ] generator
@@ -18,7 +19,7 @@ back to [readme](README.md)
   - [ ] apply_optic
 - [ ] tools
   - [ ] h5io
-  - [ ] rotations
+  - [x] rotations
   
 ## comparison to older programs:
 - [ ] simulation <-> simPLI
@@ -29,8 +30,8 @@ back to [readme](README.md)
 - [ ] JURECA
 
 ## Tests
-- [ ] CI
-- [ ] docker-file
+- [x] CI
+- [x] docker-file
 
 # File Structure:
 ## PyPackage structure:
@@ -54,9 +55,8 @@ back to [readme](README.md)
 |   |-- CMakeLists.txt
 |   |-- bindings
 |   |   `-- foo_module.cpp
-|   `-- core
-|       |-- foo.cpp
-|       `-- foo.hpp
+|   |-- foo.cpp
+|   `-- foo.hpp
 
 ```
 

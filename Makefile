@@ -23,14 +23,20 @@ ${VENV}:
 	${VENV}/bin/pip3 install --upgrade pip -q
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
+.PHONY: git-submodules
+git-submodules:
+	git submodule update --init
+
 .PHONY: install
 install: ${VENV}
 	${VENV}/bin/pip3 ${INSTALL}
 
+build/:
+	mkdir build
+
 .PHONY: build
 .ONESHELL:
-build: clean-build
-	mkdir build
+build: build/
 	cd build
 	cmake ..
 	make
@@ -40,7 +46,7 @@ test:
 	${PYTHON} -m unittest discover -s tests -p '*_test.py'
 
 .PHONY: test-docker
-test-docker:
+docker:
 	docker build -t fastpli .
 	docker run fastpli
 

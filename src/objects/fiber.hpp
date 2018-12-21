@@ -4,25 +4,25 @@
 #include <cassert>
 #include <vector>
 
-#include "aabb.hpp"
-#include "vemath.hpp"
+#include "include/aabb.hpp"
+#include "include/vemath.hpp"
 
-namespace object {
+namespace data {
 
-class FiberData {
+class Fiber {
  public:
-   FiberData(const std::vector<vm::Vec3<float>> &points,
-             const std::vector<float> &radii);
-   FiberData(const std::vector<float> &points, const std::vector<float> &radii);
+   Fiber(const std::vector<vm::Vec3<float>> &points,
+         const std::vector<float> &radii);
+   Fiber(const std::vector<float> &points, const std::vector<float> &radii);
 
    // defaults
-   FiberData() = default;
-   FiberData(FiberData &&) = default;
-   FiberData(const FiberData &) = default;
-   FiberData &operator=(FiberData &&) = default;
-   FiberData &operator=(const FiberData &) = default;
+   Fiber() = default;
+   Fiber(Fiber &&) = default;
+   Fiber(const Fiber &) = default;
+   Fiber &operator=(Fiber &&) = default;
+   Fiber &operator=(const Fiber &) = default;
 
-   ~FiberData() = default;
+   ~Fiber() = default;
 
    // getter
    const std::vector<vm::Vec3<float>> &points() const { return points_; }
@@ -56,7 +56,7 @@ class FiberData {
    void ScaleRadii(const float f);
    void Scale(const float f);
 
- private:
+ protected:
    std::vector<vm::Vec3<float>> points_;
    std::vector<float> radii_;
    aabb::AABB<float, 3> voi_;
@@ -64,6 +64,9 @@ class FiberData {
    void CalculateVoi();
 };
 
-} // namespace object
+using FiberBundle = std::vector<Fiber>;
+using FiberTissue = std::vector<FiberBundle>;
+
+} // namespace data
 
 #endif // FIBER_HPP_

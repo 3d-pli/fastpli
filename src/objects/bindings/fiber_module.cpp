@@ -1,19 +1,19 @@
-#include "../core/fiber.hpp"
+#include "../fiber.hpp"
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "aabb.hpp"
-#include "vemath.hpp"
+#include "include/aabb.hpp"
+#include "include/vemath.hpp"
 
 namespace py = pybind11;
-using FiberData = object::FiberData;
+using Fiber = data::Fiber;
 
 PYBIND11_MODULE(_fiber_cpp, m) {
    m.doc() = "c++ fiber classes for containing fiber and fiberbundle data";
 
-   py::class_<FiberData>(m, "_FiberCPP")
+   py::class_<Fiber>(m, "_FiberCPP")
        // Constructors
        .def(py::init<const std::vector<float> &, const std::vector<float> &>())
        .def(py::init([](py::array_t<float, py::array::c_style> &p,
@@ -37,13 +37,13 @@ PYBIND11_MODULE(_fiber_cpp, m) {
 
           std::vector<float> points_vec(data_ptr, data_ptr + size);
 
-          return new FiberData(points_vec, r);
+          return new Fiber(points_vec, r);
        }))
 
        // Getter
        .def_property_readonly(
            "points",
-           [](const FiberData &self) {
+           [](const Fiber &self) {
               auto data = vm::flatten(self.points());
               return py::array_t<float>(
                   std::vector<ptrdiff_t>{
@@ -51,22 +51,22 @@ PYBIND11_MODULE(_fiber_cpp, m) {
                   data.data());
            })
        .def_property_readonly("radii",
-                              [](const FiberData &self) {
+                              [](const Fiber &self) {
                                  return py::array(self.radii().size(),
                                                   self.radii().data());
                               })
-       .def("size", &FiberData::size)
+       .def("size", &Fiber::size)
 
        // Manipulators
-       .def("rotate", (void (FiberData::*)(const std::array<float, 9> &)) &
-                          FiberData::Rotate)
+       .def("rotate",
+            (void (Fiber::*)(const std::array<float, 9> &)) & Fiber::Rotate)
        .def("rotate_around_point",
-            (void (FiberData::*)(const std::array<float, 9> &,
-                                 const std::array<float, 3> &)) &
-                FiberData::RotateAroundPoint)
-       .def("translate", (void (FiberData::*)(const std::array<float, 3> &)) &
-                             FiberData::Translate)
-       .def("scale_points", &FiberData::ScalePoints)
-       .def("scale_radii", &FiberData::ScaleRadii)
-       .def("scale", &FiberData::Scale);
+            (void (Fiber::*)(const std::array<float, 9> &,
+                             const std::array<float, 3> &)) &
+                Fiber::RotateAroundPoint)
+       .def("translate",
+            (void (Fiber::*)(const std::array<float, 3> &)) & Fiber::Translate)
+       .def("scale_points", &Fiber::ScalePoints)
+       .def("scale_radii", &Fiber::ScaleRadii)
+       .def("scale", &Fiber::Scale);
 }
