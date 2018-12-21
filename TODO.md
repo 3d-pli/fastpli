@@ -8,6 +8,7 @@ back to [readme](README.md)
 - [ ] model
   - [ ] generator
   - [ ] solver
+    - [ ] freeze objects
   - [ ] visualizer
 - [ ] objects
   - [x] fiber
