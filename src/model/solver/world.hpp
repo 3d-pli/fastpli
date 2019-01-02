@@ -34,6 +34,7 @@ class World {
    World::WorldParameter get_parameter() const { return w_parameter_; };
 
    // setter
+   int set_omp_num_threads(int i);
    void set_fibers(const std::vector<std::vector<data::Fiber>> &fibers);
    void set_parameter(World::WorldParameter p) { w_parameter_ = p; };
    void set_colliding_voi(const aabb::AABB<float, 3> voi) { col_voi_ = voi; };

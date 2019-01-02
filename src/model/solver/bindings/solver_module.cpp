@@ -21,6 +21,7 @@ PYBIND11_MODULE(_solver_cpp, m) {
        //  &World::set_fibers)
        .def("get_fiber_bundles", &World::get_fibers)
        .def("set_fiber_bundles", &World::set_fibers)
+       .def("set_omp_num_threads", &World::set_omp_num_threads)
        .def("set_parameters",
             [](World &self, float drag, float obj_min_radius,
                float obj_mean_length) {
