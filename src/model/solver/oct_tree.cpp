@@ -9,6 +9,19 @@
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
+#if defined(_OPENMP)
+#include <omp.h>
+#else
+typedef int omp_int_t;
+inline omp_int_t omp_get_thread_num() { return 0; }
+inline omp_int_t omp_get_max_threads() { return 1; }
+inline omp_int_t omp_get_num_procs() { return 1; }
+inline void omp_set_num_threads(int i) {
+   (void)i;
+   return;
+}
+#endif
+
 // aabb helper
 std::array<aabb::AABB<float, 3>, 8> SplitInto8Cubes(aabb::AABB<float, 3> cube) {
 
@@ -65,12 +78,6 @@ OctTree::OctTree(const std::vector<object::Fiber> &fibers,
                  const float min_cube_size,
                  const aabb::AABB<float, 3> col_voi) {
 
-   // TODO:
-   // if (num_threads <= 0)
-   //    num_threads = omp_get_num_procs();
-   // omp_set_num_threads(num_threads);
-   // num_threads_ = num_threads;
-
    min_cube_size_ = min_cube_size;
 
    // create vector of cones
@@ -114,11 +121,11 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
 
    auto const leafs = GenerateLeafs(ids, main_cube_, 0);
 
-   // #pragma omp parallel for
+#pragma omp parallel for
    for (size_t i = 0; i < leafs.size(); i++) {
       auto const result = TestCollision(leafs[i]);
 
-      // #pragma omp critical
+#pragma omp critical
       results.insert(std::make_move_iterator(result.begin()),
                      std::make_move_iterator(result.end()));
    }
@@ -142,7 +149,7 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
 
          auto sub_cubes = SplitInto8Cubes(cube);
 
-         // #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
          for (auto i = 0; i < 8; i++) {
             std::vector<size_t> sub_ids;
             for (auto id : ids) {
@@ -152,7 +159,7 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
 
             auto sub_tree = GenerateLeafs(sub_ids, sub_cubes[i], level + 1);
 
-            // #pragma omp critical
+#pragma omp critical
             {
                tree_ids.insert(tree_ids.end(),
                                std::make_move_iterator(sub_tree.begin()),

@@ -12,6 +12,19 @@
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
 
+#if defined(_OPENMP)
+#include <omp.h>
+#else
+typedef int omp_int_t;
+inline omp_int_t omp_get_thread_num() { return 0; }
+inline omp_int_t omp_get_max_threads() { return 1; }
+inline omp_int_t omp_get_num_procs() { return 1; }
+inline void omp_set_num_threads(int i) {
+   (void)i;
+   return;
+}
+#endif
+
 std::vector<std::vector<data::Fiber>> World::get_fibers() const {
    std::vector<std::vector<data::Fiber>> fiber_bundles;
 
@@ -49,6 +62,16 @@ void World::set_fibers(
       }
       fb_idx++;
    }
+}
+
+int World::set_omp_num_threads(int i) {
+
+   if (i > omp_get_num_procs())
+      omp_set_num_threads(omp_get_num_procs());
+   else
+      omp_set_num_threads(i);
+
+   return omp_get_max_threads();
 }
 
 bool World::Step() {
@@ -118,7 +141,7 @@ bool World::Step() {
                                                        colliding_list.end());
 
       // set speed of colliding objects
-      // #pragma omp parallel for
+#pragma omp parallel for
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
 
@@ -130,19 +153,19 @@ bool World::Step() {
          fibers_[elm[2]].AddSpeed(elm[3] + 1, -u);
       }
 
-      // move colliding objects
-      // #pragma omp parallel for
+// move colliding objects
+#pragma omp parallel for
       for (auto i = 0u; i < fibers_.size(); i++) {
          fibers_[i].Move(w_parameter_.drag);
       }
    }
 
    // check fiber boundry conditions
-   // #pragma omp parallel for
+#pragma omp parallel for
    for (auto i = 0u; i < fibers_.size(); i++) {
       bool flag_length = fibers_[i].CheckLength(w_parameter_.obj_mean_length);
       bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
-      // #pragma omp critical
+#pragma omp critical
       solved = solved && flag_length && flag_radius;
    }
 

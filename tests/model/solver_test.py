@@ -98,6 +98,10 @@ class MainTest(unittest.TestCase):
         self.assertFalse(np.array_equal(fiber_0.points, fbs[0][0].points))
         self.assertTrue(np.array_equal(fiber_0.radii, fbs[0][0].radii))
 
+    def test_openmp(self):
+        i = self.solver.set_omp_num_threads(2)
+        self.assertTrue(i >= 0)
+
 
 if __name__ == '__main__':
     unittest.main()
