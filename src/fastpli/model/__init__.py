@@ -1,2 +1,2 @@
 from ._solver import Solver
-from ._visualizer import Vis
+from ._visualizer import Visualizer

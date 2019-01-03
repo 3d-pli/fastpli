@@ -1,9 +1,6 @@
 import numpy as np
 import fastpli
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
 # setup fibers
 VOLUME = 10
 NFIBER = 100
@@ -25,26 +22,16 @@ solver = fastpli.model.Solver()
 solver.set_fiber_bundles(fiber_bundles)
 solver.set_parameters(drag=0, obj_min_radius=10, obj_mean_length=1)
 solver.set_col_voi([0, 0, 0], [10, 10, 10])
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+solver.set_omp_num_threads(8)
 
 # run solver and plot results
-for i in range(100):
-    solved = solver.step()
-    if not solved:
-        for fb in solver.get_fiber_bundles():
-            for f in fb:
-                p = f.points
-                ax.plot(p[:, 0], p[:, 1], p[:, 2])
-    else:
+vis = fastpli.model.Visualizer()
+for i in range(1000):
+    print("step:", i, solver.num_obj, solver.num_col_obj)
+
+    if solver.step():
         break
 
-    print("step:", i, solver.num_obj, solver.num_col_obj)
-    ax.set_xlim(-1.0 * VOLUME, 1.0 * VOLUME)
-    ax.set_ylim(-1.0 * VOLUME, 1.0 * VOLUME)
-    ax.set_zlim(-1.0 * VOLUME, 1.0 * VOLUME)
-
-    ax.set_aspect('equal')
-    plt.pause(0.1)
-    ax.cla()
+    if i % 5 == 0:
+        vis.set_fbs(solver.get_fiber_bundles())
+        vis.draw()

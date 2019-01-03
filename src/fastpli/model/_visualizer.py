@@ -1,35 +1,33 @@
 import numpy as np
 
-from pyglet.gl import *
-from pyglet.window import key
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-from ..objects import Fiber
-
-WIDTH = 800
-HEIGHT = 600
-INCREMENT = 5
-NUM_POLYGON = 8
+NUM_POLYGON = 6
+DISTANCE_FACTOR = 2.5
 
 
-class Vertex:
-    def __init__(self):
-        self.p = np.empty(3, np.float32)
-        self.n = np.empty(3, np.float32)
+class Visualizer:
+    fbs = []
+    rot_x = rot_y = 30
+    distance = 0
+    distance_new = distance
+    center = np.empty((3), np.float32)
+    center_new = center
 
+    def __init__(self, width=800, height=600,
+                 title='fastpli.model.Visualizer'):
+        self._glut_init(width, height, title)
 
-class Window(pyglet.window.Window):
-    # Cube 3D start rotation
-    xRotation = yRotation = 30
-    vertex_lists = []
+    def _glut_init(self, width, height, title):
+        glutInit()
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+        glutInitWindowSize(width, height)
+        glutInitWindowPosition(0, 0)
+        glutCreateWindow(title)
 
-    def __init__(self, width, height, title=''):
-        super(Window, self).__init__(width, height, title)
-        glClearColor(0, 0, 0, 1)
-        glEnable(GL_DEPTH_TEST)
-
+        # setting scene
         glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE)
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
@@ -39,39 +37,16 @@ class Window(pyglet.window.Window):
         glLightfv(GL_LIGHT0, GL_DIFFUSE, [0.8, 0.8, 0.8, 1.0])
         glLightfv(GL_LIGHT0, GL_SPECULAR, [0.8, 0.8, 0.8, 1.0])
 
-    def on_draw(self):
-        self.clear()
+        glEnable(GL_DEPTH_TEST)
 
-        glPushMatrix()
-
-        glRotatef(self.xRotation, 1, 0, 0)
-        glRotatef(self.yRotation, 0, 1, 0)
-
-        glColor3f(0.8, 0.8, 0.8)
-
-        for vl in self.vertex_lists:
-            vl.draw(pyglet.gl.GL_TRIANGLE_STRIP)
-
-        glPopMatrix()
-
-    def draw_cylinder(self, fbs):
-        print("drawing cylinder")
-        self.clear()
-
+    def _draw_cylinders(self):
         quadObj = gluNewQuadric()
-
-        glPushMatrix()
-
-        glRotatef(self.xRotation, 1, 0, 0)
-        glRotatef(self.yRotation, 0, 1, 0)
-
         glColor3f(0.8, 0.8, 0.8)
-
-        for fb in fbs:
+        for fb in self.fbs:
             for f in fb:
                 (points, radii) = f.data
-                for i in range(len(radii)-1):
-                    dp = points[i+1, :] - points[i, :]
+                for i in range(len(radii) - 1):
+                    dp = points[i + 1, :] - points[i, :]
                     height = np.linalg.norm(dp)
                     unit = dp / height
                     theta = np.arccos(unit[2]) / np.pi * 180
@@ -82,127 +57,58 @@ class Window(pyglet.window.Window):
                     glRotatef(phi, 0.0, 0.0, 1.0)
                     glRotatef(theta, 0.0, 1.0, 0.0)
                     gluCylinder(
-                        quadObj, radii[i], radii[i+1], height, NUM_POLYGON, 1)
+                        quadObj, radii[i], radii[i + 1], height, NUM_POLYGON, 1)
                     glPopMatrix()
 
-        glPopMatrix()
+    def _auto_volume(self):
+        max_vol = np.array((-float('inf'), -float('inf'), -float('inf')))
+        min_vol = np.array((float('inf'), float('inf'), float('inf')))
 
-    def on_resize(self, width, height):
-        # set the Viewport
-        glViewport(0, 0, width, height)
+        for fb in self.fbs:
+            for f in fb:
+                fiber_min = f.points.min(axis=0)
+                fiber_max = f.points.max(axis=0)
+                min_vol = np.array([min_vol, fiber_min]).min(axis=0)
+                max_vol = np.array([max_vol, fiber_max]).max(axis=0)
 
-        # using Projection mode
+        self.center_new = (min_vol + max_vol) / 2
+        self.distance_new = max(max_vol - min_vol)
+
+    def _resize(self, width, height):
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-
-        aspectRatio = width / height
-        gluPerspective(45, aspectRatio, 0.1, 1000000)
-
+        glViewport(0, 0, width, height)
+        gluPerspective(45, width / height, 0.1, 1000000)
         glMatrixMode(GL_MODELVIEW)
+
+    def set_fbs(self, fiber_bundles):
+        self.fbs = fiber_bundles
+        self._auto_volume()
+
+        if sum(abs(self.center - self.center_new) / self.center) > 0.1:
+            self.center = self.center_new
+        if abs((self.distance - self.distance_new) / self.distance) > 0.1:
+            self.distance = self.distance_new
+
+    def draw(self):
+        self._resize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT))
+
+        glClearColor(0, 0, 0, 1)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glLightfv(GL_LIGHT0, GL_POSITION, [1, 1, 1, 0])
+
         glLoadIdentity()
-        glTranslatef(0, 0, -1250)
 
-    def on_text_motion(self, motion):
-        if motion == key.UP:
-            self.xRotation -= INCREMENT
-        elif motion == key.DOWN:
-            self.xRotation += INCREMENT
-        elif motion == key.LEFT:
-            self.yRotation -= INCREMENT
-        elif motion == key.RIGHT:
-            self.yRotation += INCREMENT
+        glTranslatef(-self.center[0], -self.center[1], -self.center[2])
+        glTranslatef(0, 0, -DISTANCE_FACTOR * self.distance)
 
+        glRotatef(self.rot_x, 1, 0, 0)
+        glRotatef(self.rot_y, 0, 1, 0)
 
-class Vis:
-    def __init__(self):
-        self.window = Window(WIDTH, HEIGHT, 'fastpli.model.Visualizer')
+        self._draw_cylinders()
 
-    def set_data(self, fiber_bundles):
-        tube_elm_0 = tuple([Vertex() for _ in range(NUM_POLYGON)])
+        glutSwapBuffers()
 
-        # generate circle
-        tangent_old = np.array([0, 0, 1], np.float32)
-        for k in range(NUM_POLYGON):
-            theta = 2 * np.pi * k / NUM_POLYGON
-            tube_elm_0[k].n = np.array(
-                (np.cos(theta), np.sin(theta), 0), np.float32)
-
-        # convert fb into tubes
-        for fb in fiber_bundles:
-            for f in fb:
-                tube_elm = tube_elm_0[:]
-                (points, radii) = f.data
-                data_list = np.empty(
-                    (len(radii), NUM_POLYGON, 2, 3), np.float32)
-
-                for i in range(points.shape[0]):
-                    if i == 0:
-                        p0 = points[i, :]
-                        p1 = points[i + 1, :]
-                        pm = p0
-                    elif i == (points.shape[0] - 1):
-                        p0 = points[i - 1, :]
-                        p1 = points[i, :]
-                        pm = p1
-                    else:
-                        p0 = points[i - 1, :]
-                        pm = points[i, :]
-                        p1 = points[i + 1, :]
-
-                    if np.array_equal(p0, p1):
-                        continue
-
-                    tangent = p1 - p0
-                    tangent = tangent / np.linalg.norm(tangent)
-
-                    # rotate old points onto new plane
-                    v = np.cross(tangent_old, tangent)
-                    s = np.linalg.norm(v) + 1e-9
-                    c = np.dot(tangent_old, tangent)
-                    rot = np.array(
-                        [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]], np.float32)
-                    rot = (np.identity(3, np.float32) + rot) + \
-                        np.dot(rot, rot) * (1 - c) / (s * s)
-
-                    for k in range(NUM_POLYGON):
-                        p = np.dot(rot, tube_elm[k].n)
-                        p = p / np.linalg.norm(p)
-                        tube_elm[k].p = pm + p * radii[i]
-                        tube_elm[k].n = p
-
-                        data_list[i, k, 0, :] = tube_elm[k].p
-                        data_list[i, k, 1, :] = tube_elm[k].n
-
-                c = 0
-                vertex_list = pyglet.graphics.vertex_list(
-                    (NUM_POLYGON + 1) * (len(radii) - 1) * 2, 'v3f', 'n3f')
-                for i in range(len(radii) - 1):
-                    for k in range(NUM_POLYGON + 1):
-                        vertex_list.vertices[c:c +
-                                             3] = data_list[i, k %
-                                                            NUM_POLYGON, 0, :]
-                        vertex_list.normals[c:c +
-                                            3] = data_list[i, k %
-                                                           NUM_POLYGON, 1, :]
-                        c = c + 3
-                        vertex_list.vertices[c:c +
-                                             3] = data_list[i +
-                                                            1, k %
-                                                            NUM_POLYGON, 0, :]
-                        vertex_list.normals[c:c +
-                                            3] = data_list[i +
-                                                           1, k %
-                                                           NUM_POLYGON, 1, :]
-                        c = c + 3
-
-                self.window.vertex_lists.append(vertex_list)
-
-    def tick(self, fiber_bundles):
-        pyglet.clock.tick()
-        self.window.switch_to()
-        self.window.dispatch_events()
-        self.window.draw_cylinder(fiber_bundles)
-        self.window.flip()
-
-    def run(self):
-        pyglet.app.run()
+    def set_rot(self, rotx, roty):
+        self.rot_x += rotx
+        self.rot_y += roty
