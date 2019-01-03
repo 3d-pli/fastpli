@@ -47,10 +47,43 @@ class Window(pyglet.window.Window):
         glRotatef(self.xRotation, 1, 0, 0)
         glRotatef(self.yRotation, 0, 1, 0)
 
-        glColor3f(0.8, 0.80, 0.80)
+        glColor3f(0.8, 0.8, 0.8)
 
         for vl in self.vertex_lists:
             vl.draw(pyglet.gl.GL_TRIANGLE_STRIP)
+
+        glPopMatrix()
+
+    def draw_cylinder(self, fbs):
+        print("drawing cylinder")
+        self.clear()
+
+        quadObj = gluNewQuadric()
+
+        glPushMatrix()
+
+        glRotatef(self.xRotation, 1, 0, 0)
+        glRotatef(self.yRotation, 0, 1, 0)
+
+        glColor3f(0.8, 0.8, 0.8)
+
+        for fb in fbs:
+            for f in fb:
+                (points, radii) = f.data
+                for i in range(len(radii)-1):
+                    dp = points[i+1, :] - points[i, :]
+                    height = np.linalg.norm(dp)
+                    unit = dp / height
+                    theta = np.arccos(unit[2]) / np.pi * 180
+                    phi = np.arctan2(unit[1], unit[0]) / np.pi * 180
+
+                    glPushMatrix()
+                    glTranslatef(points[i, 0], points[i, 1], points[i, 2])
+                    glRotatef(phi, 0.0, 0.0, 1.0)
+                    glRotatef(theta, 0.0, 1.0, 0.0)
+                    gluCylinder(
+                        quadObj, radii[i], radii[i+1], height, NUM_POLYGON, 1)
+                    glPopMatrix()
 
         glPopMatrix()
 
@@ -163,6 +196,13 @@ class Vis:
                         c = c + 3
 
                 self.window.vertex_lists.append(vertex_list)
+
+    def tick(self, fiber_bundles):
+        pyglet.clock.tick()
+        self.window.switch_to()
+        self.window.dispatch_events()
+        self.window.draw_cylinder(fiber_bundles)
+        self.window.flip()
 
     def run(self):
         pyglet.app.run()
