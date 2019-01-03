@@ -45,6 +45,7 @@ PYBIND11_MODULE(_solver_cpp, m) {
               self.set_colliding_voi(aabb::AABB<float, 3>(min, max));
            })
        .def("step", (bool (World::*)(void)) & World::Step)
+       .def("visualization", &World::Visualization)
        .def_property_readonly("num_obj", &World::NumObj)
        .def_property_readonly("num_col_obj", &World::NumColObj);
 }

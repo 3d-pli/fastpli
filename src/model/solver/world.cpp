@@ -3,6 +3,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <random>
 #include <utility>
 
@@ -75,6 +76,12 @@ int World::set_omp_num_threads(int i) {
 }
 
 bool World::Step() {
+
+   if (do_vis && scene_ != nullptr) {
+      char *argv[] = {"model.solver"};
+      int argc = 1;
+      scene_ = std::make_unique<Scene>(argc, argv);
+   }
 
    bool solved = true;
 
@@ -168,6 +175,9 @@ bool World::Step() {
 #pragma omp critical
       solved = solved && flag_length && flag_radius;
    }
+
+   if (do_vis && scene_ != nullptr)
+      scene_->DrawScene(fibers_);
 
    return solved;
 }

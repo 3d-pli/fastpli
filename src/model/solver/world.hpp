@@ -1,4 +1,5 @@
 #include <map>
+#include <memory>
 #include <random>
 #include <set>
 #include <utility>
@@ -10,6 +11,7 @@
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
+#include "scene.hpp"
 
 class World {
  public:
@@ -41,6 +43,7 @@ class World {
 
    // world
    bool Step();
+   void Visualization(bool flag) { do_vis = flag; };
 
  private:
    std::vector<object::Fiber> fibers_;
@@ -49,6 +52,9 @@ class World {
 
    size_t num_obj_{0};
    size_t num_col_obj_{0};
+
+   bool do_vis = false;
+   std::unique_ptr<Scene> scene_ = nullptr;
 
    aabb::AABB<float, 3> col_voi_ = aabb::AABB<float, 3>(vm::Vec3<float>(0));
 
