@@ -67,6 +67,12 @@ void Scene::DrawScene(const std::vector<object::Fiber> &fibers) {
    glRotated(rotation_.y(), 0, 1, 0);
    glRotated(rotation_.z(), 0, 0, 1);
 
+   DrawCylinders(fibers);
+
+   glutSwapBuffers();
+}
+
+void Scene::DrawCylinders(const std::vector<object::Fiber> &fibers) {
    for (const auto &fiber : fibers) {
       if (fiber.size() <= 1)
          continue;
@@ -93,7 +99,6 @@ void Scene::DrawScene(const std::vector<object::Fiber> &fibers) {
          glPopMatrix();
       }
    }
-   glutSwapBuffers();
 }
 
 void Scene::AutoVolume(const vector<object::Fiber> &fibers) {
@@ -113,9 +118,10 @@ void Scene::AutoVolume(const vector<object::Fiber> &fibers) {
    center_new_ = (v_max + v_min) / 2;
    distance_new_ = vm::max(v_max - v_min);
 
-   if ((vm::length(center_ - center_new_) / vm::length(center_)) > 0.1)
+   if ((vm::length(center_ - center_new_) / vm::length(center_)) >
+       repos_threshold_)
       center_ = center_new_;
-   if (std::abs((distance_ - distance_new_) / distance_) > 0.1)
+   if (std::abs((distance_ - distance_new_) / distance_) > repos_threshold_)
       distance_ = distance_new_;
 }
 

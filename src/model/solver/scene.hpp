@@ -20,15 +20,16 @@ class Scene {
 
  private:
    void AutoVolume(const std::vector<object::Fiber> &fibers);
+   void DrawCylinders(const std::vector<object::Fiber> &fibers);
    void CheckWindowSize();
 
    GLUquadricObj *quadObj_;
    vm::Vec3<float> rotation_ = 0;
-   //  vm::Vec3<float> volume_dim_ = 10000;
    vm::Vec3<float> center_ = {0, 0, 0};
    vm::Vec3<float> center_new_ = center_;
    float distance_ = 0;
    float distance_new_ = 0;
+   const float repos_threshold_ = 0.25;
 };
 
 #endif // SCENECLASS_HPP_

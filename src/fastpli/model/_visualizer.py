@@ -9,6 +9,14 @@ DISTANCE_FACTOR = 2.5
 
 
 class Visualizer:
+
+    """
+    None interactive visualization of FiberBundles.
+
+    Note:
+        The methode fastpli.model.Solver.DrawScene() is much faster
+    """
+
     fbs = []
     rot_x = rot_y = 30
     distance = 0
