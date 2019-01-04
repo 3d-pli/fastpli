@@ -379,6 +379,18 @@ template <typename T, size_t N> T length(const Vec<T, N> &u) {
 }
 
 // additional functions
+template <typename T, size_t M, size_t N> T sum(const MatMxN<T, M, N> &u) {
+   return std::accumulate(u.begin(), u.end(), T(0));
+}
+
+template <typename T, size_t M, size_t N> T min(const MatMxN<T, M, N> &u) {
+   return *std::min_element(u.begin(), u.end());
+}
+
+template <typename T, size_t M, size_t N> T max(const MatMxN<T, M, N> &u) {
+   return *std::max_element(u.begin(), u.end());
+}
+
 template <typename T, size_t M, size_t N>
 MatMxN<T, M, N> abs(MatMxN<T, M, N> u) {
    std::for_each(u.begin(), u.end(), [](T &elm) { elm = std::fabs(elm); });

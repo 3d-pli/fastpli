@@ -3,6 +3,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <random>
 #include <utility>
 
@@ -170,4 +171,16 @@ bool World::Step() {
    }
 
    return solved;
+}
+
+void World::DrawScene(float rot_x, float rot_y, float rot_z) {
+   if (scene_ == nullptr) {
+      char arg0[] = "model.solver";
+      char *argv[] = {arg0, nullptr};
+      int argc = 1;
+      scene_ = std::make_unique<Scene>(argc, argv);
+   }
+
+   scene_->SetViewAngle(rot_x, rot_y, rot_z);
+   scene_->DrawScene(fibers_);
 }
