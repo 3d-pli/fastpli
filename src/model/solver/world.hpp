@@ -53,8 +53,8 @@ class World {
    size_t num_obj_{0};
    size_t num_col_obj_{0};
 
-   size_t step_ = 0;
-   int vis_step_ = 0;
+   aabb::AABB<float, 3> col_voi_ = aabb::AABB<float, 3>(vm::Vec3<float>(0));
+
    std::unique_ptr<Scene> scene_ = nullptr;
 
    aabb::AABB<float, 3> col_voi_ = aabb::AABB<float, 3>(vm::Vec3<float>(0));
