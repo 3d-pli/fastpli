@@ -33,4 +33,6 @@ for i in range(1000):
         break
 
     if i % 25 == 0:
+        # vis.set_fbs(solver.get_fiber_bundles())
+        # vis.draw()
         solver.draw_scene()

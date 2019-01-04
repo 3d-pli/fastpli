@@ -21,10 +21,10 @@ Scene::Scene(int argc, char **argv) {
 
    glutInit(&argc, argv);
 
-   glutInitWindowPosition(100, 100);
+   glutInitWindowPosition(0, 0);
    glutInitWindowSize(800, 800);
    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-   glutCreateWindow("Vollume Colliding Solver");
+   glutCreateWindow("fastpli.model.Solver.Visualizer");
 
    // Lighting set up
    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
@@ -62,7 +62,7 @@ void Scene::DrawScene(const std::vector<object::Fiber> &fibers) {
    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
    // set axis position
-   glTranslatef(offset_.x(), offset_.y(), offset_.z());
+   glTranslatef(-center_.x(), -center_.y(), -center_.z() - 2.5 * distance_);
    glRotated(rotation_.x(), 1, 0, 0);
    glRotated(rotation_.y(), 0, 1, 0);
    glRotated(rotation_.z(), 0, 0, 1);
@@ -86,7 +86,7 @@ void Scene::DrawScene(const std::vector<object::Fiber> &fibers) {
          // cone.color().z());
 
          glPushMatrix();
-         glTranslatef(points[i + 1].x(), points[i + 1].y(), points[i + 1].z());
+         glTranslatef(points[i].x(), points[i].y(), points[i].z());
          glRotatef(phi, 0.0, 0.0, 1.0);
          glRotatef(theta, 0.0, 1.0, 0.0);
          gluCylinder(quadObj_, radii[i], radii[i + 1], h, 6, 1);
@@ -103,36 +103,20 @@ void Scene::AutoVolume(const vector<object::Fiber> &fibers) {
 
    for (const auto &fiber : fibers) {
       for (const auto &pos : fiber.points()) {
-         if (pos.x() < v_min.x())
-            v_min.x() = pos.x();
-         if (pos.y() < v_min.y())
-            v_min.y() = pos.y();
-         if (pos.z() < v_min.z())
-            v_min.z() = pos.z();
-         if (pos.x() > v_max.x())
-            v_max.x() = pos.x();
-         if (pos.y() > v_max.y())
-            v_max.y() = pos.y();
-         if (pos.z() > v_max.z())
-            v_max.z() = pos.z();
+         for (int i = 0; i < 3; i++) {
+            v_min[i] = std::min(v_min[i], pos[i]);
+            v_max[i] = std::max(v_max[i], pos[i]);
+         }
       }
    }
 
-   auto volume_dim = v_max - v_min;
-   auto center = volume_dim * 0.5f + v_min;
+   center_new_ = (v_max + v_min) / 2;
+   distance_new_ = vm::max(v_max - v_min);
 
-   auto vol_diff = volume_dim - center;
-   auto max =
-       std::fmax(std::abs(vol_diff.x()),
-                 std::fmax(std::abs(vol_diff.y()), std::abs(vol_diff.z())));
-   max += v_max.z();
-
-   auto offset = vm::Vec3<float>(0.0f, 0.0f, -max * 1.5f);
-
-   // only change view if nessecary -> smoother video
-   if (vm::length(offset_ - offset) > 10) {
-      offset_ = offset;
-   }
+   if ((vm::length(center_ - center_new_) / vm::length(center_)) > 0.1)
+      center_ = center_new_;
+   if (std::abs((distance_ - distance_new_) / distance_) > 0.1)
+      distance_ = distance_new_;
 }
 
 void Scene::SetViewAngle(const float x, const float y, const float z) {
@@ -140,7 +124,6 @@ void Scene::SetViewAngle(const float x, const float y, const float z) {
 }
 
 void Scene::CheckWindowSize() {
-
    auto w = glutGet(GLUT_WINDOW_WIDTH);
    auto h = glutGet(GLUT_WINDOW_HEIGHT);
 
@@ -148,19 +131,10 @@ void Scene::CheckWindowSize() {
       h = 1;
    float ratio = w * 1.0 / h;
 
-   // Use the Projection Matrix
    glMatrixMode(GL_PROJECTION);
-
-   // Reset Matrix
    glLoadIdentity();
-
-   // Set the viewport to be the entire window
    glViewport(0, 0, w, h);
-
-   // Set the correct perspective.
    gluPerspective(45.0f, ratio, 0.1f, 100000.0f);
-
-   // Get Back to the Modelview
    glMatrixMode(GL_MODELVIEW);
 }
 
