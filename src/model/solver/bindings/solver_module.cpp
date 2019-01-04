@@ -45,8 +45,11 @@ PYBIND11_MODULE(_solver_cpp, m) {
               self.set_colliding_voi(aabb::AABB<float, 3>(min, max));
            })
        .def("step", (bool (World::*)(void)) & World::Step)
+       .def_property_readonly("num_obj", &World::NumObj)
+       .def_property_readonly("num_col_obj", &World::NumColObj)
+#if _VIS_LIBRARIES
        .def("draw_scene", &World::DrawScene, py::arg("rot_x") = 30,
             py::arg("rot_y") = 30, py::arg("rot_z") = 0)
-       .def_property_readonly("num_obj", &World::NumObj)
-       .def_property_readonly("num_col_obj", &World::NumColObj);
+#endif // _VIS_LIBRARIES
+       ;
 }

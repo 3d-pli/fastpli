@@ -11,7 +11,10 @@
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
+
+#if _VIS_LIBRARIES
 #include "scene.hpp"
+#endif //_VIS_LIBRARIES
 
 class World {
  public:
@@ -43,7 +46,10 @@ class World {
 
    // world
    bool Step();
+
+#if _VIS_LIBRARIES
    void DrawScene(float rot_x = 0, float rot_y = 0, float rot_z = 0);
+#endif //_VIS_LIBRARIES
 
  private:
    std::vector<object::Fiber> fibers_;
@@ -55,9 +61,9 @@ class World {
 
    aabb::AABB<float, 3> col_voi_ = aabb::AABB<float, 3>(vm::Vec3<float>(0));
 
+#if _VIS_LIBRARIES
    std::unique_ptr<Scene> scene_ = nullptr;
-
-   aabb::AABB<float, 3> col_voi_ = aabb::AABB<float, 3>(vm::Vec3<float>(0));
+#endif //_VIS_LIBRARIES
 
    // world functions
    bool CheckRadius();

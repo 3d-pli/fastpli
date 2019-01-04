@@ -173,6 +173,8 @@ bool World::Step() {
    return solved;
 }
 
+#if _VIS_LIBRARIES
+#include "scene.hpp"
 void World::DrawScene(float rot_x, float rot_y, float rot_z) {
    if (scene_ == nullptr) {
       char arg0[] = "model.solver";
@@ -184,3 +186,4 @@ void World::DrawScene(float rot_x, float rot_y, float rot_z) {
    scene_->SetViewAngle(rot_x, rot_y, rot_z);
    scene_->DrawScene(fibers_);
 }
+#endif //_VIS_LIBRARIES
