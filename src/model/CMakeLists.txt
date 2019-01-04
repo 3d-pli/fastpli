@@ -16,8 +16,8 @@ pybind11_add_module(_solver_cpp
       solver/bindings/solver_module.cpp
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
-      ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES}
       )
+TARGET_LINK_LIBRARIES(_solver_cpp PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
 GET_TARGET_PROPERTY(outdir _solver_cpp LIBRARY_OUTPUT_DIRECTORY)
 IF (outdir)

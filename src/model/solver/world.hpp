@@ -43,7 +43,7 @@ class World {
 
    // world
    bool Step();
-   void Visualization(bool flag) { do_vis = flag; };
+   void DrawScene(float rot_x = 0, float rot_y = 0, float rot_z = 0);
 
  private:
    std::vector<object::Fiber> fibers_;
@@ -53,7 +53,8 @@ class World {
    size_t num_obj_{0};
    size_t num_col_obj_{0};
 
-   bool do_vis = false;
+   size_t step_ = 0;
+   int vis_step_ = 0;
    std::unique_ptr<Scene> scene_ = nullptr;
 
    aabb::AABB<float, 3> col_voi_ = aabb::AABB<float, 3>(vm::Vec3<float>(0));

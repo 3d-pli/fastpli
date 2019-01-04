@@ -77,12 +77,6 @@ int World::set_omp_num_threads(int i) {
 
 bool World::Step() {
 
-   if (do_vis && scene_ != nullptr) {
-      char *argv[] = {"model.solver"};
-      int argc = 1;
-      scene_ = std::make_unique<Scene>(argc, argv);
-   }
-
    bool solved = true;
 
    // calculate voi
@@ -176,8 +170,17 @@ bool World::Step() {
       solved = solved && flag_length && flag_radius;
    }
 
-   if (do_vis && scene_ != nullptr)
-      scene_->DrawScene(fibers_);
-
    return solved;
+}
+
+void World::DrawScene(float rot_x, float rot_y, float rot_z) {
+   if (scene_ == nullptr) {
+      std::cout << "init vis" << std::endl;
+      char *argv[] = {"model.solver"};
+      int argc = 1;
+      scene_ = std::make_unique<Scene>(argc, argv);
+   }
+
+   scene_->SetViewAngle(rot_x, rot_y, rot_z);
+   scene_->DrawScene(fibers_);
 }
