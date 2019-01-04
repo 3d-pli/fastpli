@@ -175,8 +175,8 @@ bool World::Step() {
 
 void World::DrawScene(float rot_x, float rot_y, float rot_z) {
    if (scene_ == nullptr) {
-      std::cout << "init vis" << std::endl;
-      char *argv[] = {"model.solver"};
+      char arg0[] = "model.solver";
+      char *argv[] = {arg0, nullptr};
       int argc = 1;
       scene_ = std::make_unique<Scene>(argc, argv);
    }
