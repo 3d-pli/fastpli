@@ -70,3 +70,12 @@ back to [readme](README.md)
 ## include:
  - aabb.hpp
  - vemath.hpp
+
+## restructure
+ - [ ] fiber
+   - [ ] fiber::Data
+   - [ ] fiber::Geometry
+   - [ ] fiber::Segment (cone?)
+   - [ ] fiber::Bundle
+   - [ ] fiber::layer::Property
+ - [ ] 
