@@ -7,7 +7,7 @@
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
-namespace data {
+namespace data { // TODO: fiber::data
 
 class Fiber {
  public:
