@@ -12,7 +12,7 @@
 class Scene {
  public:
    Scene(int argc, char **argv);
-   ~Scene();
+   ~Scene() = default;
 
    void SetViewAngle(const float x, const float y, const float z);
    void DrawScene(const std::vector<object::Fiber> &fibers);

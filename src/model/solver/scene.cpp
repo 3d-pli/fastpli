@@ -45,8 +45,6 @@ Scene::Scene(int argc, char **argv) {
    quadObj_ = gluNewQuadric();
 }
 
-Scene::~Scene() {}
-
 void Scene::DrawScene(const std::vector<object::Fiber> &fibers) {
 
    AutoVolume(fibers);
