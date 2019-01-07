@@ -4,8 +4,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "include/vemath.hpp"
 #include "pli_module.hpp"
-#include "vemath.hpp"
 
 namespace py = pybind11;
 

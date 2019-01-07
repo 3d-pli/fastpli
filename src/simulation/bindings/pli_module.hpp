@@ -6,7 +6,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../core/data_container.hpp"
+#include "../data_container.hpp"
 
 // define opaque opbject to use reference
 // PYBIND11_MAKE_OPAQUE(DataContainer<int>);

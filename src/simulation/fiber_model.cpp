@@ -13,7 +13,7 @@ Bundle::Bundle(std::vector<data::Fiber> fibers,
                std::vector<layer::Property> properties) {
    fibers_.swap(fibers);
 
-   std::vector<double> layer_dn, layer_mu, layer_scale;
+   std::vector<float> layer_dn, layer_mu, layer_scale;
    std::vector<layer::Orientation> layer_orientation;
 
    layer_dn.reserve(properties.size());
@@ -49,4 +49,35 @@ Bundle::Bundle(std::vector<data::Fiber> fibers,
       layer_orientation_.push_back(layer_orientation[i]);
    }
 }
+
+void Bundle::Resize(const float f) {
+   for (auto &fiber : fibers_)
+      fiber.Resize(f);
+}
+void Bundle::ResizePoints(const float f) {
+   for (auto &fiber : fibers_)
+      fiber.ResizePoints(f);
+}
+
+void Bundle::ResizeRadii(const float f) {
+   for (auto &fiber : fibers_)
+      fiber.ResizeRadii(f);
+}
+
+void Bundle::Rotate(const std::array<float, 9> &rot_mat) {
+   for (auto &fiber : fibers_)
+      fiber.Rotate(rot_mat);
+}
+
+void Bundle::RotateAroundPoint(const std::array<float, 9> &rot_mat,
+                               const std::array<float, 3> point) {
+   for (auto &fiber : fibers_)
+      fiber.RotateAroundPoint(rot_mat, point);
+}
+
+void Bundle::Translate(const std::array<float, 3> &translation) {
+   for (auto &fiber : fibers_)
+      fiber.Translate(translation);
+}
+
 } // namespace fiber

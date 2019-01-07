@@ -229,6 +229,7 @@ vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
    return InterpolateVec(x, y, z, do_nn);
 }
 
+// TODO: template do_nn
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               const double z,
                                               const bool do_nn) const {

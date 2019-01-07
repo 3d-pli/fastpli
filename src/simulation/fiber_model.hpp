@@ -13,7 +13,7 @@ namespace layer {
 enum class Orientation { background, parallel, radial };
 
 struct Property {
-   Property(double s, double n, double m, char o) : scale(s), dn(n), mu(m) {
+   Property(float s, float n, float m, char o) : scale(s), dn(n), mu(m) {
       if (o == 'b')
          orientation = Orientation::background;
       else if (o == 'p')
@@ -24,12 +24,12 @@ struct Property {
          throw std::invalid_argument(
              "Orientation must be \"b\", \"p\", or \"r\"");
    }
-   Property(double s, double n, double m, Orientation o)
+   Property(float s, float n, float m, Orientation o)
        : scale(s), dn(n), mu(m), orientation(o) {}
 
-   double scale{};
-   double dn{};
-   double mu{};
+   float scale{};
+   float dn{};
+   float mu{};
    Orientation orientation{Orientation::background};
 };
 } // namespace layer
@@ -44,31 +44,42 @@ class Bundle {
    const data::Fiber &fiber(size_t i) const { return fibers_[i]; }
    const std::vector<data::Fiber> &fibers() const { return fibers_; }
    size_t size() const { return fibers_.size(); }
-   const std::vector<double> &layer_scale() const { return layer_scale_; }
-   const std::vector<double> &layer_scale_sqr() const {
+   const std::vector<float> &layer_scale() const { return layer_scale_; }
+   const std::vector<float> &layer_scale_sqr() const {
       return layer_scale_sqr_;
    }
 
    size_t layer_size() const { return layer_dn_.size(); }
-   double layer_dn(size_t i) const { return layer_dn_[i]; }
-   double layer_mu(size_t i) const { return layer_mu_[i]; }
-   double layer_orientation(size_t i) const { return layer_orientation_[i]; }
-   const std::vector<double> &layer_dn() const { return layer_dn_; }
-   const std::vector<double> &layer_mu() const { return layer_mu_; }
+   float layer_dn(size_t i) const { return layer_dn_[i]; }
+   float layer_mu(size_t i) const { return layer_mu_[i]; }
+   layer::Orientation layer_orientation(size_t i) const {
+      return layer_orientation_[i];
+   }
+   const std::vector<float> &layer_dn() const { return layer_dn_; }
+   const std::vector<float> &layer_mu() const { return layer_mu_; }
    const std::vector<layer::Orientation> &layer_orientation() const {
       return layer_orientation_;
    }
-   const aabb::AABB<double, 3> &voi() const { return voi_; }
+   const aabb::AABB<float, 3> &voi() const { return voi_; }
+
+   // manipulator
+   void Resize(const float f);
+   void ResizePoints(const float f);
+   void ResizeRadii(const float f);
+   void Rotate(const std::array<float, 9> &rot_mat);
+   void RotateAroundPoint(const std::array<float, 9> &rot_mat,
+                          std::array<float, 3> point);
+   void Translate(const std::array<float, 3> &translation);
 
  private:
    std::vector<data::Fiber> fibers_;
-   std::vector<double> layer_scale_;
-   std::vector<double> layer_scale_sqr_;
-   std::vector<double> layer_dn_;
-   std::vector<double> layer_mu_;
+   std::vector<float> layer_scale_;
+   std::vector<float> layer_scale_sqr_;
+   std::vector<float> layer_dn_;
+   std::vector<float> layer_mu_;
    std::vector<layer::Orientation> layer_orientation_;
 
-   aabb::AABB<double, 3> voi_{};
+   aabb::AABB<float, 3> voi_{};
 };
 } // namespace fiber
 

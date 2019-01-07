@@ -4,7 +4,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../core/pli_simulator.hpp"
+#include "../pli_simulator.hpp"
 #include "pli_module.hpp"
 
 namespace py = pybind11;
