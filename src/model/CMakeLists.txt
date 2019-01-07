@@ -8,8 +8,14 @@ SET(subdir model)
 # building core objects
 SET(CoreModules solverCoreModules)
 FILE(GLOB solverCoreFiles solver/*.cpp)
+IF ( NOT OPENGL_FOUND OR NOT GLUT_FOUND )
+   LIST(REMOVE_ITEM solverCoreFiles ${CMAKE_CURRENT_SOURCE_DIR}/solver/scene.cpp)
+ENDIF ( NOT OPENGL_FOUND OR NOT GLUT_FOUND )
 ADD_LIBRARY(${CoreModules} OBJECT ${solverCoreFiles})
 SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+IF ( OPENGL_FOUND AND GLUT_FOUND )
+   TARGET_COMPILE_DEFINITIONS(${CoreModules} PRIVATE _VIS_LIBRARIES)
+ENDIF ( OPENGL_FOUND AND GLUT_FOUND )
 
 # building python modules
 pybind11_add_module(_solver_cpp
@@ -17,6 +23,7 @@ pybind11_add_module(_solver_cpp
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
       )
+TARGET_LINK_LIBRARIES(_solver_cpp PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
 GET_TARGET_PROPERTY(outdir _solver_cpp LIBRARY_OUTPUT_DIRECTORY)
 IF (outdir)

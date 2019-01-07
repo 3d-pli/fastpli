@@ -35,6 +35,10 @@ ELSE ( OPENMP_FOUND )
     MESSAGE("OPENMP NOT FOUND")
 ENDIF ( OPENMP_FOUND )
 
+# OpenGL
+FIND_PACKAGE( OpenGL )
+FIND_PACKAGE( GLUT )
+
 ##########################################################################
 # Sources
 ##########################################################################

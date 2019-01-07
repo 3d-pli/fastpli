@@ -1,3 +1,4 @@
+import os
 import unittest
 import numpy as np
 
@@ -101,6 +102,16 @@ class MainTest(unittest.TestCase):
     def test_openmp(self):
         i = self.solver.set_omp_num_threads(2)
         self.assertTrue(i >= 0)
+
+    def test_opengl(self):
+        display = ""
+        try:
+            display = os.environ['DISPLAY']
+        except:
+            print("test_opengl: no display detected")
+        if display:
+            self.solver.draw_scene()
+        self.assertTrue(True)
 
 
 if __name__ == '__main__':

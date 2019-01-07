@@ -7,9 +7,11 @@ back to [readme](README.md)
   - [ ] rofl
 - [ ] model
   - [ ] generator
-  - [ ] solver
+  - [x] solver
     - [ ] freeze objects
   - [ ] visualizer
+    - [x] static
+    - [ ] interactive
 - [ ] objects
   - [x] fiber
   - [ ] tissue_container

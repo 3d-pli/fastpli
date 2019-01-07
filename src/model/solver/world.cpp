@@ -3,6 +3,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <random>
 #include <utility>
 
@@ -171,3 +172,32 @@ bool World::Step() {
 
    return solved;
 }
+
+#if _VIS_LIBRARIES
+#include "scene.hpp"
+void World::DrawScene(float rot_x, float rot_y, float rot_z) {
+   if (scene_ == nullptr) {
+      char arg0[] = "model.solver";
+      char *argv[] = {arg0, nullptr};
+      int argc = 1;
+      scene_ = std::make_unique<Scene>(argc, argv);
+   }
+   scene_->SetViewAngle(rot_x, rot_y, rot_z);
+   scene_->DrawScene(fibers_);
+}
+#else
+void World::DrawScene(float rot_x, float rot_y, float rot_z) {
+   (void)rot_x;
+   (void)rot_y;
+   (void)rot_z;
+
+   static bool flag = false;
+
+   if (!flag) {
+      flag = true;
+      std::cout << "No OpenGl detected due build. Deactivating DrawScene()"
+                << std::endl;
+   }
+}
+
+#endif //_VIS_LIBRARIES

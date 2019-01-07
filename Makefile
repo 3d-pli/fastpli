@@ -45,10 +45,15 @@ build: build/
 test:
 	${PYTHON} -m unittest discover -s tests -p '*_test.py'
 
-.PHONY: test-docker
+.PHONY: docker
 docker:
 	docker build -t fastpli .
 	docker run fastpli
+
+.PHONY: docker-ubuntu
+docker-ubuntu:
+	docker build -t fastpli-ubuntu -f Dockerfile.ubuntu .
+	docker run fastpli-ubuntu
 
 .PHONY: clean
 clean: clean-src clean-build
