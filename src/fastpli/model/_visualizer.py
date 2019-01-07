@@ -1,5 +1,6 @@
 import numpy as np
 
+# package PyOpenGL:
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -14,7 +15,8 @@ class Visualizer:
     None interactive visualization of FiberBundles.
 
     Note:
-        The methode fastpli.model.Solver.DrawScene() is much faster
+        The methode fastpli.model.Solver.DrawScene() is much faster.
+        Later this method will be an interactive visualizer
     """
 
     fbs = []

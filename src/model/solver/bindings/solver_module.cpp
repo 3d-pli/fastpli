@@ -47,9 +47,6 @@ PYBIND11_MODULE(_solver_cpp, m) {
        .def("step", (bool (World::*)(void)) & World::Step)
        .def_property_readonly("num_obj", &World::NumObj)
        .def_property_readonly("num_col_obj", &World::NumColObj)
-#if _VIS_LIBRARIES
        .def("draw_scene", &World::DrawScene, py::arg("rot_x") = 30,
-            py::arg("rot_y") = 30, py::arg("rot_z") = 0)
-#endif // _VIS_LIBRARIES
-       ;
+            py::arg("rot_y") = 30, py::arg("rot_z") = 0);
 }

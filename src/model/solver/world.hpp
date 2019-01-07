@@ -46,10 +46,7 @@ class World {
 
    // world
    bool Step();
-
-#if _VIS_LIBRARIES
    void DrawScene(float rot_x = 0, float rot_y = 0, float rot_z = 0);
-#endif //_VIS_LIBRARIES
 
  private:
    std::vector<object::Fiber> fibers_;
