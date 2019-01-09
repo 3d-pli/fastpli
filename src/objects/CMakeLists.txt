@@ -15,7 +15,7 @@ SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 pybind11_add_module(_fiber_cpp
       bindings/fiber_module.cpp
       $<TARGET_OBJECTS:${CoreModules}>)
-pybind11_add_module(vector_container
+pybind11_add_module(VectorContainer
       bindings/vector_container_module.cpp
       )
 
@@ -27,4 +27,4 @@ ELSE()
 endif()
 
 SET_TARGET_PROPERTIES(_fiber_cpp PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
-SET_TARGET_PROPERTIES(vector_container PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
+SET_TARGET_PROPERTIES(VectorContainer PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})

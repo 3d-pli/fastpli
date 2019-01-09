@@ -32,13 +32,12 @@ class IndexTracker(object):
 '''
 
 simpli = Simpli()
-
 # PliGeneration ###
 simpli.pixel_size = 1
 simpli.dim = [100, 100, 100]
 simpli.ReadFiberFile('example/cube.h5')
-simpli.layer_properties = [(0.333, 0.004, 10, 'p'), (
-    0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]
+simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
+    0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]])
 
 # manipulation of fibers
 simpli.RotateVolumeAroundPoint(np.deg2rad(
@@ -74,3 +73,9 @@ image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(180))
 
 print("run_simulation: 4")
 image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(270))
+
+'''
+tracker = IndexTracker(ax,image)
+fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
+plt.show()
+'''

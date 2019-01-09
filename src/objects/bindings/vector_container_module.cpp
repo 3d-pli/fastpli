@@ -61,7 +61,7 @@ void DeclareVectorContainer(pybind11::module &m, const std::string &typestr) {
        });
 }
 
-PYBIND11_MODULE(vector_container, m) {
+PYBIND11_MODULE(VectorContainer, m) {
    m.doc() = "VectorContainer for simpli";
 
    DeclareVectorContainer<int>(m, "Int");

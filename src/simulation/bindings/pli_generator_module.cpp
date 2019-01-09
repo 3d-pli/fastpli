@@ -33,6 +33,7 @@ PYBIND11_MODULE(generation, m) {
        .def("run_generation", &PliGenerator::RunTissueGeneration,
             py::arg("only_label") = false, py::arg("debug") = false);
 
+   // TODO: to objects?
    py::enum_<fiber::layer::Orientation>(m, "Orientation")
        .value("background", fiber::layer::Orientation::background)
        .value("parallel", fiber::layer::Orientation::parallel)

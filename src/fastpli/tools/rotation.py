@@ -1,6 +1,6 @@
 import numpy as np
 
-
+# TODO: n*pi cases
 def x(phi):
     return np.array(((1, 0, 0), (0, np.cos(phi), -np.sin(phi)), (0, np.sin(phi), np.cos(phi))), np.float32)
 
@@ -25,9 +25,9 @@ def theta(theta):
     return y(theta)
 
 
-def theta_phi(theta, phi):
-    return np.dot(phi(phi), np.dot(theta(theta), phi(-phi)))
+def theta_phi(theta_, phi_):
+    return np.dot(phi(phi_), np.dot(theta(theta_), phi(-phi_)))
 
 
-def euler(psi, theta, phi):
-    return np.dot(phi(psi), np.dot(theta(theta), phi(phi)))
+def euler(psi, theta_, phi_):
+    return np.dot(phi(psi), np.dot(theta(theta_), phi(phi_)))
