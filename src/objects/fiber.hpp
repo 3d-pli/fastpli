@@ -7,7 +7,7 @@
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
-namespace data {
+namespace data { // TODO: fiber::data
 
 class Fiber {
  public:
@@ -52,9 +52,9 @@ class Fiber {
 
    void Translate(const vm::Vec3<float> &translation);
 
-   void ScalePoints(const float f);
-   void ScaleRadii(const float f);
-   void Scale(const float f);
+   void Resize(const float f);
+   void ResizePoints(const float f);
+   void ResizeRadii(const float f);
 
  protected:
    std::vector<vm::Vec3<float>> points_;

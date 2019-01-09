@@ -66,7 +66,7 @@ PYBIND11_MODULE(_fiber_cpp, m) {
                 Fiber::RotateAroundPoint)
        .def("translate",
             (void (Fiber::*)(const std::array<float, 3> &)) & Fiber::Translate)
-       .def("scale_points", &Fiber::ScalePoints)
-       .def("scale_radii", &Fiber::ScaleRadii)
-       .def("scale", &Fiber::Scale);
+       .def("resize", &Fiber::Resize)
+       .def("resize_points", &Fiber::ResizePoints)
+       .def("resize_radii", &Fiber::ResizeRadii);
 }

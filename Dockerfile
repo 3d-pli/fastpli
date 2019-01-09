@@ -1,12 +1,10 @@
-FROM alpine
+FROM ubuntu
 
-RUN apk update
-RUN apk add gcc g++ make cmake git
-RUN apk add python3-dev py3-virtualenv
+RUN apt-get update
+RUN apt-get install -y gcc g++ make cmake git
+RUN apt-get install -y python3-dev python3-venv python3-pip
+RUN apt-get install -y freeglut3-dev
 
-ADD . /code/
-COPY . /code/fastpli
 WORKDIR /code/fastpli
-RUN git clean -d -f -x
 
-CMD make install && make test
+ENTRYPOINT git clean -d -f -x && make git-submodules && make BUILD=release install && make BUILD=release test

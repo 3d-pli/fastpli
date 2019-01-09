@@ -99,23 +99,23 @@ void Fiber::RotateAroundPoint(const vm::Mat3x3<float> &rot_mat,
    CalculateVoi();
 }
 
-void Fiber::ScalePoints(const float f) {
-   for (auto &p : points_)
-      p *= f;
-   CalculateVoi();
-}
-
-void Fiber::ScaleRadii(const float f) {
-   for (auto &r : radii_)
-      r *= f;
-   CalculateVoi();
-}
-
-void Fiber::Scale(const float f) {
+void Fiber::Resize(const float f) {
    for (auto &p : points_)
       p *= f;
    for (auto &r : radii_)
       r *= f;
    CalculateVoi();
 }
+void Fiber::ResizePoints(const float f) {
+   for (auto &p : points_)
+      p *= f;
+   CalculateVoi();
+}
+
+void Fiber::ResizeRadii(const float f) {
+   for (auto &r : radii_)
+      r *= f;
+   CalculateVoi();
+}
+
 } // namespace data

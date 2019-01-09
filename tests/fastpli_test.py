@@ -8,7 +8,7 @@ class MainTest(unittest.TestCase):
         import fastpli.tools
         import fastpli.objects
         import fastpli.model
-        # import fastpli.simulation
+        import fastpli.simulation
 
 
 if __name__ == '__main__':
