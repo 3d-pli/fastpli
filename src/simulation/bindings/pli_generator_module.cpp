@@ -5,7 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "../pli_generator.hpp"
-#include "pli_module.hpp"
+#include "objects/vector_container.hpp"
 
 namespace py = pybind11;
 
@@ -18,7 +18,18 @@ PYBIND11_MODULE(generation, m) {
             py::arg("pixel_size"),
             py::arg("flip_direction") =
                 std::array<bool, 3>{{false, false, false}})
-       .def("set_fiber_bundle", &PliGenerator::SetFiberBundles)
+       .def("set_fiber_bundles",
+            [](PliGenerator &self, std::vector<std::vector<fiber::Data>> fbs,
+               std::vector<std::vector<fiber::layer::Property>> prs) {
+               if (fbs.size() != prs.size())
+                  throw py::value_error("fbs and prs not the same size");
+
+               std::vector<fiber::Bundle> fiber_bundles;
+               for (size_t i = 0; i < fbs.size(); i++)
+                  fiber_bundles.emplace_back(fiber::Bundle(fbs[i], prs[i]));
+
+               self.SetFiberBundles(fiber_bundles);
+            })
        .def("run_generation", &PliGenerator::RunTissueGeneration,
             py::arg("only_label") = false, py::arg("debug") = false);
 

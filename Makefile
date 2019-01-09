@@ -41,6 +41,13 @@ build: build/
 	cmake ..
 	make
 
+.PHONY: build-j
+.ONESHELL:
+build-j: build/
+	cd build
+	cmake ..
+	make -j
+
 .PHONY: test
 test:
 	${PYTHON} -m unittest discover -s tests -p '*_test.py'

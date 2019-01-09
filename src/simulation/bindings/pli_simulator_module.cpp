@@ -5,18 +5,18 @@
 #include <pybind11/stl.h>
 
 #include "../pli_simulator.hpp"
-#include "pli_module.hpp"
+#include "objects/vector_container.hpp"
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(simulation, m) {
    m.doc() = "Simulation of 3D-PLI images";
 
-   py::class_<PliSimulator>(m, "PliSimulator")
+   py::class_<PliSimulator>(m, "Simulator")
        .def(py::init())
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue",
-            (void (PliSimulator::*)(DataContainer<int>, DataContainer<float>,
+            (void (PliSimulator::*)(data::VectorContainer<int>, data::VectorContainer<float>,
                                     const std::array<int, 3> &,
                                     const std::vector<TissueProperty> &,
                                     const double)) &
@@ -39,7 +39,7 @@ PYBIND11_MODULE(simulation, m) {
        .def_readwrite("dn", &TissueProperty::dn)
        .def_readwrite("mu", &TissueProperty::mu);
 
-   py::class_<PliSetup>(m, "PliSetup")
+   py::class_<PliSetup>(m, "Setup")
        .def(py::init())
        .def_readwrite("light_intensity", &PliSetup::light_intensity)
        .def_readwrite("resolution", &PliSetup::resolution)

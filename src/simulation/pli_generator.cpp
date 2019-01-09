@@ -6,10 +6,10 @@
 #include <tuple>
 #include <vector>
 
-#include "data_container.hpp"
 #include "fiber_model.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
+#include "objects/vector_container.hpp"
 #include "pli_simulator.hpp"
 
 void PliGenerator::SetVolumeWithArrays(
@@ -50,7 +50,7 @@ void PliGenerator::SetFiberBundles(
    }
 }
 
-std::tuple<DataContainer<int>, DataContainer<float>,
+std::tuple<data::VectorContainer<int>, data::VectorContainer<float>,
            std::vector<TissueProperty>>
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
@@ -122,8 +122,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    // if (debug)
    //    std::cout << std::endl;
 
-   auto label_field_ptr = DataContainer<int>();
-   auto vector_field_ptr = DataContainer<float>();
+   auto label_field_ptr = data::VectorContainer<int>();
+   auto vector_field_ptr = data::VectorContainer<float>();
 
    (*label_field_ptr.data_) = std::move(label_field);
    (*vector_field_ptr.data_) = std::move(vector_field);

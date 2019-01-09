@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
-from fastpli.simpli import generation, simulation, rotation
+from fastpli.simulation import generation, simulation
+from fastpli.objects import Fiber
+from fastpli.tools import rotation
 import numpy as np
 import h5py
 
@@ -11,75 +13,98 @@ import h5py
 class Simpli:
 
     def __init__(self):
-        self.__fiber_bundles = []
+        self.__fiber_bundles = [[]]
         self.__gen = generation.Generator()
-        self.__sim = simulation.PliSimulator()
+        self.__sim = simulation.Simulator()
 
         self.layer_properties = [[]]
         self.dim = [0, 0, 0]
         self.pixel_size = 0
-        self.setup = simulation.PliSetup()
+        self.setup = simulation.Setup()
 
     def ReadFiberFile(self, filename):
+        self.__fiber_bundles = [[]]
         with h5py.File(filename, 'r') as h5f:
-            fiber_bundle = generation.FiberBundle()
 
             fbs = h5f['fiber_bundles']
             for fb in fbs:
+                self.__fiber_bundles.append([])
                 fb = fbs[fb]
                 for f in fb:
                     f = fb[f]
-                    data = generation.FiberData(
-                        f['points'][:].flatten(), f['radii'][:])
-                    fiber_bundle.push_fiber(data)
-
-                self.__fiber_bundles.append(fiber_bundle)
+                    self.__fiber_bundles[-1].append(
+                        Fiber(f['points'][:].flatten(), f['radii'][:]))
 
     def TranslateVolume(self, offset):
         if not isinstance(offset, list):
             raise TypeError("offset must be a list")
 
         for fb in self.__fiber_bundles:
-            fb.translate_fiber_bundle(offset)
+            for f in fb:
+                f.translate(offset)
 
     def RotateVolume(self, phi, theta, psi):
-        rot_mat = rotation.rot_zyz(phi, theta, psi)
+        rot_mat = rotation.zyz(phi, theta, psi)
         for fb in self.__fiber_bundles:
-            fb.rotate_fiber_bundle(list(rot_mat))
+            for f in fb:
+                f.rotate(list(rot_mat))
 
     def RotateVolumeAroundPoint(self, phi, theta, psi, offset):
-        if not isinstance(offset, list):
-            raise TypeError("offset must be a list")
-        rot_mat = rotation.rot_zyz(phi, theta, psi)
+        # if not isinstance(offset, list):
+        #     raise TypeError("offset must be a list")
+
+        offset = np.array(offset)
+        if offset.shape != (3,):
+            raise TypeError("offset must a point")
+        rot_mat = rotation.zyz(phi, theta, psi)
         for fb in self.__fiber_bundles:
-            fb.rotate_fiber_bundle_around_point(list(rot_mat), offset)
+            for f in fb:
+                f.rotate_around_point((rot_mat), offset)
 
-    def __SetFiberProperties(self):
+    # def __SetFiberProperties(self):
+    #     if not isinstance(self.layer_properties, list):
+    #         raise TypeError("properties must be a list(list) or list(tuples)")
+    #     for l in self.layer_properties:
+    #         if not isinstance(l, (list, tuple)):
+    #             raise TypeError(
+    #                 "properties must be a list(list) or list(tuples)")
+    #         if len(l) != 4:
+    #             raise TypeError(
+    #                 "properties must have len 4 (float, float, float, char)")
+
+    def __CheckFiberBundles(self):
         if not isinstance(self.layer_properties, list):
-            raise TypeError("properties must be a list(list)")
-        if not isinstance(self.layer_properties[0], list):
-            raise TypeError("properties must be a list(list)")
-
-        if isinstance(self.layer_properties[0][0], list):
-            if len(self.layer_properties) is not len(self.__gen.fiber_bundles):
+            raise TypeError("properties must be a list(list) or list(tuples)")
+        for l in self.layer_properties:
+            if not isinstance(l, (list, tuple)):
                 raise TypeError(
-                    "propertie length and fiber_bundle length is not the same")
-            for fb, pp in zip(self.__gen.fiber_bundles, self.layer_properties):
-                lp = []
-                for p in pp:
-                    lp.append(generation.LayerProperty(p))
-                fb.set_fiber_bundle_properties(lp)
-        else:
-            for fb in self.__fiber_bundles:
-                lp = []
-                for p in self.layer_properties:
-                    lp.append(generation.LayerProperty(p))
-                fb.set_fiber_bundle_properties(lp)
+                    "properties must be a list(list) or list(tuples)")
+            if len(l) != 4:
+                raise TypeError(
+                    "properties must have len 4 (float, float, float, char)")
+
+
+
+        # if isinstance(self.layer_properties[0][0], list):
+        #     if len(self.layer_properties) is not len(self.__gen.fiber_bundles):
+        #         raise TypeError(
+        #             "property length and fiber_bundle length is not the same")
+        #     for fb, pp in zip(self.__gen.fiber_bundles, self.layer_properties):
+        #         lp = []
+        #         for p in pp:
+        #             lp.append(generation.LayerProperty(p[0], p[1], p[2], p[3]))
+        #         fb.set_fiber_bundle_properties(lp)
+        # else:
+        #     for fb in self.__fiber_bundles:
+        #         lp = []
+        #         for p in self.layer_properties:
+        #             lp.append(generation.LayerProperty(p[0], p[1], p[2], p[3]))
+        #         fb.set_fiber_bundle_properties(lp)
 
     def GenerateTissue(self):
         self.__gen.set_volume(self.dim, self.pixel_size)
-        self.__SetFiberProperties()
-        self.__gen.set_fiber_bundle(self.__fiber_bundles)
+        self.__CheckFiberBundles()
+        self.__gen.set_fiber_bundles(self.__fiber_bundles, self.layer_properties)
         label_field, vec_field, tissue_properties = self.__gen.run_generation(
             0, 0)
 

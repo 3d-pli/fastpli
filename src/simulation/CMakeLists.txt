@@ -14,15 +14,21 @@ SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 # building python modules
 pybind11_add_module(generation
       bindings/pli_generator_module.cpp
-      $<TARGET_OBJECTS:${CoreModules}>)
+      $<TARGET_OBJECTS:${CoreModules}>
+      $<TARGET_OBJECTS:objectsCoreModules>
+      )
 
 pybind11_add_module(simulation
       bindings/pli_simulator_module.cpp
-      $<TARGET_OBJECTS:${CoreModules}>)
+      $<TARGET_OBJECTS:${CoreModules}>
+      $<TARGET_OBJECTS:objectsCoreModules>
+      )
 
-pybind11_add_module(_helper
-      bindings/pli_helper_module.cpp
-      $<TARGET_OBJECTS:${CoreModules}>)
+# pybind11_add_module(_helper
+#       bindings/pli_helper_module.cpp
+#       $<TARGET_OBJECTS:${CoreModules}>
+#       $<TARGET_OBJECTS:objectsCoreModules>
+#       )
 
 GET_TARGET_PROPERTY(outdir generation LIBRARY_OUTPUT_DIRECTORY)
 IF (outdir)
@@ -33,4 +39,4 @@ endif()
 
 SET_TARGET_PROPERTIES(generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
 SET_TARGET_PROPERTIES(simulation PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
-SET_TARGET_PROPERTIES(_helper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
+# SET_TARGET_PROPERTIES(_helper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})

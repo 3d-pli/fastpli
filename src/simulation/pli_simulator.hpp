@@ -5,8 +5,8 @@
 #include <memory>
 #include <vector>
 
-#include "data_container.hpp"
 #include "include/vemath.hpp"
+#include "objects/vector_container.hpp"
 
 struct TissueProperty {
    double dn{};
@@ -30,13 +30,13 @@ class PliSimulator {
    ~PliSimulator() = default;
 
    void SetPliSetup(const PliSetup pli_setup);
-   void SetTissue(DataContainer<int> label_field_ptr,
-                  DataContainer<float> vector_field_ptr,
+   void SetTissue(data::VectorContainer<int> label_field_ptr,
+                  data::VectorContainer<float> vector_field_ptr,
                   const std::array<int, 3> &dim,
                   const std::vector<TissueProperty> &properties,
                   const double pixel_size);
-   void SetTissue(DataContainer<int> label_field_ptr,
-                  DataContainer<float> vector_field_ptr,
+   void SetTissue(data::VectorContainer<int> label_field_ptr,
+                  data::VectorContainer<float> vector_field_ptr,
                   const vm::Vec3<int> &dim,
                   const std::vector<TissueProperty> &properties,
                   const double pixel_size);
@@ -51,8 +51,8 @@ class PliSimulator {
    double pixel_size_{};
    PliSetup pli_setup_{};
    vm::Vec3<size_t> dim_{};
-   DataContainer<int> label_field_;
-   DataContainer<float> vector_field_;
+   data::VectorContainer<int> label_field_;
+   data::VectorContainer<float> vector_field_;
    std::vector<TissueProperty> properties_;
    // vm::Vec3<bool> flip_tissue_{false};
 

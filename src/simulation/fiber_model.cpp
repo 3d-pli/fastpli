@@ -9,7 +9,7 @@
 #include "objects/fiber.hpp"
 
 namespace fiber {
-Bundle::Bundle(std::vector<data::Fiber> fibers,
+Bundle::Bundle(std::vector<Data> fibers,
                std::vector<layer::Property> properties) {
    fibers_.swap(fibers);
 

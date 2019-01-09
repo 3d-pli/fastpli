@@ -9,6 +9,9 @@
 #include "objects/fiber.hpp"
 
 namespace fiber {
+
+using Data = data::Fiber;
+
 namespace layer {
 enum class Orientation { background, parallel, radial };
 
@@ -36,13 +39,12 @@ struct Property {
 
 class Bundle {
  public:
-   Bundle(std::vector<data::Fiber> fibers,
-          std::vector<layer::Property> properties);
+   Bundle(std::vector<Data> fibers, std::vector<layer::Property> properties);
    ~Bundle() = default;
 
    // getter
-   const data::Fiber &fiber(size_t i) const { return fibers_[i]; }
-   const std::vector<data::Fiber> &fibers() const { return fibers_; }
+   const Data &fiber(size_t i) const { return fibers_[i]; }
+   const std::vector<Data> &fibers() const { return fibers_; }
    size_t size() const { return fibers_.size(); }
    const std::vector<float> &layer_scale() const { return layer_scale_; }
    const std::vector<float> &layer_scale_sqr() const {
@@ -72,7 +74,7 @@ class Bundle {
    void Translate(const std::array<float, 3> &translation);
 
  private:
-   std::vector<data::Fiber> fibers_;
+   std::vector<Data> fibers_;
    std::vector<float> layer_scale_;
    std::vector<float> layer_scale_sqr_;
    std::vector<float> layer_dn_;

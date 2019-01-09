@@ -1,15 +1,16 @@
-#ifndef DATA_CONTAINER_HPP_
-#define DATA_CONTAINER_HPP_
+#ifndef VECTOR_CONTAINER_HPP_
+#define VECTOR_CONTAINER_HPP_
 
 #include <exception>
 #include <memory>
 #include <vector>
 
-template <typename T> struct DataContainer {
-   DataContainer() = default;
-   ~DataContainer() = default;
-   DataContainer(std::vector<T> &v) { (*data_) = v; }
-   DataContainer(std::shared_ptr<std::vector<T>> &sv) { data_ = sv; }
+namespace data {
+template <typename T> struct VectorContainer {
+   VectorContainer() = default;
+   ~VectorContainer() = default;
+   VectorContainer(std::vector<T> &v) { (*data_) = v; }
+   VectorContainer(std::shared_ptr<std::vector<T>> &sv) { data_ = sv; }
 
    // data
    std::shared_ptr<std::vector<T>> data_ = std::make_shared<std::vector<T>>();
@@ -47,7 +48,7 @@ template <typename T> struct DataContainer {
    T *NextDataChunkPtr();
 };
 
-template <typename T> void DataContainer<T>::SetDataChunk(size_t chunk_size) {
+template <typename T> void VectorContainer<T>::SetDataChunk(size_t chunk_size) {
    if (data_->size() % chunk_size != 0)
       throw std::invalid_argument("chunk size must be dividable by data size");
 
@@ -55,7 +56,7 @@ template <typename T> void DataContainer<T>::SetDataChunk(size_t chunk_size) {
    i_chunk_ = 0;
 }
 
-template <typename T> T *DataContainer<T>::NextDataChunkPtr() {
+template <typename T> T *VectorContainer<T>::NextDataChunkPtr() {
    auto ptr = data_->data() + chunk_size_ * i_chunk_;
    if (chunk_size_ * i_chunk_ >= data_->size())
       ptr = nullptr;
@@ -63,5 +64,6 @@ template <typename T> T *DataContainer<T>::NextDataChunkPtr() {
    i_chunk_++;
    return ptr;
 }
+} // namespace data
 
 #endif
