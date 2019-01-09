@@ -16,10 +16,10 @@ PYBIND11_MODULE(simulation, m) {
        .def(py::init())
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue",
-            (void (PliSimulator::*)(data::VectorContainer<int>, data::VectorContainer<float>,
-                                    const std::array<int, 3> &,
-                                    const std::vector<TissueProperty> &,
-                                    const double)) &
+            (void (PliSimulator::*)(
+                data::VectorContainer<int>, data::VectorContainer<float>,
+                const std::array<int, 3> &, const std::vector<TissueProperty> &,
+                const double)) &
                 PliSimulator::SetTissue)
        .def("run_simulation",
             [](PliSimulator &self, double theta, double phi, double ps,

@@ -139,8 +139,8 @@ std::vector<float> PliSimulator::RunSimulation(const double theta,
        static_cast<size_t>(dim_.x()) * dim_.y() * n_rho, 0);
 
    // calculate light for all (x,y) positions of the ccd-sensor
-   for (uint ccd_x = 0; ccd_x < dim_.x(); ++ccd_x) {
-      for (uint ccd_y = 0; ccd_y < dim_.y(); ++ccd_y) {
+   for (unsigned int ccd_x = 0; ccd_x < dim_.x(); ++ccd_x) {
+      for (unsigned int ccd_y = 0; ccd_y < dim_.y(); ++ccd_y) {
          size_t ccd_idx = ccd_x * dim_.y() + ccd_y;
          assert(ccd_idx < intensity_signal.size());
 

@@ -33,7 +33,8 @@ class PliGenerator {
                        const bool progress_bar = false);
 
    // getter
-   std::vector<ushort> CalcVisualLabelField(std::vector<int> label_field) const;
+   std::vector<unsigned short>
+   CalcVisualLabelField(std::vector<int> label_field) const;
 
  private:
    double pixel_size_{0};

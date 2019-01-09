@@ -236,10 +236,10 @@ PliGenerator::ShortestPointToLineSegmentVecCalculation(
    return std::make_tuple(pb, b);
 }
 
-std::vector<ushort>
+std::vector<unsigned short>
 PliGenerator::CalcVisualLabelField(std::vector<int> label_field) const {
    // TODO: visual label_vield
-   std::vector<ushort> vis(label_field.begin(), label_field.end());
+   std::vector<unsigned short> vis(label_field.begin(), label_field.end());
    return vis;
 }
 
@@ -256,7 +256,7 @@ std::vector<TissueProperty> PliGenerator::GetPropertyList() const {
    properties[0] = prop;
 
    for (size_t f = 0; f < fiber_bundles_org_.size(); f++) {
-      for (uint l = 0; l < fiber_bundles_org_[f].layer_dn().size(); l++) {
+      for (size_t l = 0; l < fiber_bundles_org_[f].layer_dn().size(); l++) {
          prop.dn = fiber_bundles_org_[f].layer_dn()[l];
          prop.mu = fiber_bundles_org_[f].layer_mu()[l];
 
