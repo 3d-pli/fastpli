@@ -52,15 +52,17 @@ build-j: build/
 test:
 	${PYTHON} -m unittest discover -s tests -p '*_test.py'
 
-.PHONY: docker
-docker:
+.PHONY: docker-build
+docker-build:
 	docker build -t fastpli .
-	docker run fastpli
+	docker container rm fastpli-test
+	docker create --name fastpli-test fastpli
 
-.PHONY: docker-ubuntu
-docker-ubuntu:
-	docker build -t fastpli-ubuntu -f Dockerfile.ubuntu .
-	docker run fastpli-ubuntu
+.PHONY: docker
+docker: docker-build
+	docker stop fastpli-test
+	docker cp . fastpli-test:/code/fastpli/
+	docker start -i fastpli-test
 
 .PHONY: clean
 clean: clean-src clean-build
