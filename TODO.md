@@ -16,12 +16,12 @@ back to [readme](README.md)
   - [x] fiber
   - [ ] tissue_container
 - [ ] simulation
-  - [ ] generator
-  - [ ] simulator
+  - [x] generator
+  - [x] simulator
   - [ ] apply_optic
 - [ ] tools
   - [ ] h5io
-  - [x] rotations
+  - [x] rotation
   
 ## comparison to older programs:
 - [ ] simulation <-> simPLI
@@ -75,9 +75,9 @@ back to [readme](README.md)
 
 ## restructure
  - [ ] fiber
-   - [ ] fiber::Data
+   - [x] fiber::Data
    - [ ] fiber::Geometry
    - [ ] fiber::Segment (cone?)
-   - [ ] fiber::Bundle
-   - [ ] fiber::layer::Property
+   - [x] fiber::Bundle
+   - [x] fiber::layer::Property
  - [ ] 
