@@ -60,7 +60,6 @@ docker-build:
 
 .PHONY: docker
 docker: docker-build
-	docker stop fastpli-test
 	docker cp . fastpli-test:/code/fastpli/
 	docker start -i fastpli-test
 

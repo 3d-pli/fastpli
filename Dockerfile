@@ -7,4 +7,4 @@ RUN apt-get install -y freeglut3-dev
 
 WORKDIR /code/fastpli
 
-ENTRYPOINT git clean -d -f -x && make git-submodules && make BUILD=release install && make BUILD=release test
+CMD git clean -d -f -x && make git-submodules && make BUILD=release install && make BUILD=release test
