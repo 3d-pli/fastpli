@@ -1,10 +1,9 @@
 .test/
+.nfs*
+*.h5
 
 # Created by https://www.gitignore.io/api/c++,python,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=c++,python,virtualenv,visualstudiocode
-
-# .nfs files are created when an open file is removed but is still being accessed
-.nfs*
 
 ### C++ ###
 # Prerequisites
