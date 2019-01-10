@@ -7,8 +7,8 @@
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 
-namespace object {
-class Fiber : public data::Fiber {
+namespace geometry {
+class Fiber : public object::fiber::Fiber {
  public:
    // defaults
    Fiber(Fiber &&) = default;
@@ -18,7 +18,7 @@ class Fiber : public data::Fiber {
    ~Fiber() = default;
 
    // constructors
-   Fiber(const data::Fiber &fiber_data, const size_t fiber_idx);
+   Fiber(const object::fiber::Fiber &fiber, const size_t fiber_idx);
 
    // getter
    const size_t &fiber_idx() const { return fiber_idx_; }
@@ -44,6 +44,6 @@ class Fiber : public data::Fiber {
    size_t fiber_idx_;
    const float k_max_speed_ = 0.1; // TODO: should be dependend on min obj size
 };
-} // namespace object
+} // namespace geometry
 
 #endif // FIBER_CLASS_HPP_

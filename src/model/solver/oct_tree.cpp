@@ -74,7 +74,7 @@ std::array<aabb::AABB<float, 3>, 8> SplitInto8Cubes(aabb::AABB<float, 3> cube) {
    return result;
 }
 
-OctTree::OctTree(const std::vector<object::Fiber> &fibers,
+OctTree::OctTree(const std::vector<geometry::Fiber> &fibers,
                  const float min_cube_size,
                  const aabb::AABB<float, 3> col_voi) {
 

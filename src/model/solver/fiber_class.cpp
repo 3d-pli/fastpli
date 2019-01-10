@@ -6,10 +6,10 @@
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 
-namespace object {
+namespace geometry {
 
-Fiber::Fiber(const data::Fiber &fiber_data, const size_t f_idx)
-    : data::Fiber(fiber_data) {
+Fiber::Fiber(const object::fiber::Fiber &fiber, const size_t f_idx)
+    : object::fiber::Fiber(fiber) {
 
    fiber_idx_ = f_idx;
    speed_.assign(points_.size(), vm::Vec3<float>(0));
@@ -165,4 +165,4 @@ void Fiber::Combine(size_t idx) {
 
 void Fiber::AddSpeed(size_t idx, const vm::Vec3<float> &v) { speed_[idx] += v; }
 
-} // namespace object
+} // namespace geometry
