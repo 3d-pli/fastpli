@@ -8,7 +8,8 @@
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
-namespace data {
+namespace object {
+namespace fiber {
 Fiber::Fiber(const std::vector<float> &points,
              const std::vector<float> &radii) {
 
@@ -118,4 +119,5 @@ void Fiber::ResizeRadii(const float f) {
    CalculateVoi();
 }
 
-} // namespace data
+} // namespace fiber
+} // namespace object

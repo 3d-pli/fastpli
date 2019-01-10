@@ -11,7 +11,7 @@ namespace py = pybind11;
 
 // TODO: try to move to contiguous np.array
 
-template <typename T> using VectorContainer = data::VectorContainer<T>;
+template <typename T> using VectorContainer = object::container::Vector<T>;
 
 template <typename T>
 void DeclareVectorContainer(pybind11::module &m, const std::string &typestr) {
