@@ -119,8 +119,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          }
       }
    }
-   // if (debug)
-   //    std::cout << std::endl;
+   if (progress_bar)
+      std::cout << std::endl;
 
    auto label_field_ptr = data::VectorContainer<int>();
    auto vector_field_ptr = data::VectorContainer<float>();
