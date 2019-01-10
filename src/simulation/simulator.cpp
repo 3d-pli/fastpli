@@ -13,7 +13,7 @@
 // PliSimulator::PliSimulator() {}
 // PliSimulator::~PliSimulator() {}
 
-void PliSimulator::SetPliSetup(const PliSetup pli_setup) {
+void PliSimulator::SetPliSetup(const Setup pli_setup) {
 
    if (pli_setup.light_intensity < 0)
       throw std::invalid_argument("light intensity < 0: " +

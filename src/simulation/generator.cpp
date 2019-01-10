@@ -51,7 +51,7 @@ void PliGenerator::SetFiberBundles(
 }
 
 std::tuple<data::VectorContainer<int>, data::VectorContainer<float>,
-           std::vector<TissueProperty>>
+           std::vector<PliSimulator::TissueProperty>>
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
@@ -243,11 +243,11 @@ PliGenerator::CalcVisualLabelField(std::vector<int> label_field) const {
    return vis;
 }
 
-std::vector<TissueProperty> PliGenerator::GetPropertyList() const {
-   std::vector<TissueProperty> properties(
+std::vector<PliSimulator::TissueProperty> PliGenerator::GetPropertyList() const {
+   std::vector<PliSimulator::TissueProperty> properties(
        fiber_bundles_org_.size() * max_layer_ + 1);
 
-   TissueProperty prop;
+   PliSimulator::TissueProperty prop;
 
    // background
    // TODO: background properties

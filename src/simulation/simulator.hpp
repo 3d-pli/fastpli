@@ -8,28 +8,27 @@
 #include "include/vemath.hpp"
 #include "objects/vector_container.hpp"
 
-struct TissueProperty {
-   double dn{};
-   double mu{};
-};
-
-struct PliSetup {
-   double light_intensity{};
-   double resolution{};
-   double wavelength{};
-   bool untilt_sensor = true;
-   std::vector<double> filter_rotations;
-
-   // vm::Vec2<int> sensor_dim; // currently same dimension as x-y-volume
-};
-
 class PliSimulator {
-
  public:
+   struct TissueProperty {
+      double dn{};
+      double mu{};
+   };
+
+   struct Setup {
+      double light_intensity{};
+      double resolution{};
+      double wavelength{};
+      bool untilt_sensor = true;
+      std::vector<double> filter_rotations;
+
+      // vm::Vec2<int> sensor_dim; // currently same dimension as x-y-volume
+   };
+
    PliSimulator() = default;
    ~PliSimulator() = default;
 
-   void SetPliSetup(const PliSetup pli_setup);
+   void SetPliSetup(const Setup pli_setup);
    void SetTissue(data::VectorContainer<int> label_field_ptr,
                   data::VectorContainer<float> vector_field_ptr,
                   const std::array<int, 3> &dim,
@@ -49,7 +48,7 @@ class PliSimulator {
  private:
    // bool debug_ = false;
    double pixel_size_{};
-   PliSetup pli_setup_{};
+   Setup pli_setup_{};
    vm::Vec3<size_t> dim_{};
    data::VectorContainer<int> label_field_;
    data::VectorContainer<float> vector_field_;

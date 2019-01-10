@@ -18,7 +18,8 @@ PYBIND11_MODULE(simulation, m) {
        .def("set_tissue",
             (void (PliSimulator::*)(
                 data::VectorContainer<int>, data::VectorContainer<float>,
-                const std::array<int, 3> &, const std::vector<TissueProperty> &,
+                const std::array<int, 3> &,
+                const std::vector<PliSimulator::TissueProperty> &,
                 const double)) &
                 PliSimulator::SetTissue)
        .def("run_simulation",
@@ -34,16 +35,17 @@ PYBIND11_MODULE(simulation, m) {
             py::arg("theta") = 0, py::arg("phi") = 0, py::arg("step_size") = 1,
             py::arg("do_nn_intp") = true);
 
-   py::class_<TissueProperty>(m, "TissueProperty")
+   py::class_<PliSimulator::TissueProperty>(m, "TissueProperty")
        .def(py::init())
-       .def_readwrite("dn", &TissueProperty::dn)
-       .def_readwrite("mu", &TissueProperty::mu);
+       .def_readwrite("dn", &PliSimulator::TissueProperty::dn)
+       .def_readwrite("mu", &PliSimulator::TissueProperty::mu);
 
-   py::class_<PliSetup>(m, "Setup")
+   py::class_<PliSimulator::Setup>(m, "Setup")
        .def(py::init())
-       .def_readwrite("light_intensity", &PliSetup::light_intensity)
-       .def_readwrite("resolution", &PliSetup::resolution)
-       .def_readwrite("wavelength", &PliSetup::wavelength)
-       .def_readwrite("untilt_sensor", &PliSetup::untilt_sensor)
-       .def_readwrite("filter_rotations", &PliSetup::filter_rotations);
+       .def_readwrite("light_intensity", &PliSimulator::Setup::light_intensity)
+       .def_readwrite("resolution", &PliSimulator::Setup::resolution)
+       .def_readwrite("wavelength", &PliSimulator::Setup::wavelength)
+       .def_readwrite("untilt_sensor", &PliSimulator::Setup::untilt_sensor)
+       .def_readwrite("filter_rotations",
+                      &PliSimulator::Setup::filter_rotations);
 }

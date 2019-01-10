@@ -28,7 +28,7 @@ class PliGenerator {
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
 
    std::tuple<data::VectorContainer<int>, data::VectorContainer<float>,
-              std::vector<TissueProperty>>
+              std::vector<PliSimulator::TissueProperty>>
    RunTissueGeneration(const bool only_label = false,
                        const bool progress_bar = false);
 
@@ -58,7 +58,7 @@ class PliGenerator {
                                             const vm::Vec3<float> &s0,
                                             const vm::Vec3<float> &s1);
 
-   std::vector<TissueProperty> GetPropertyList() const;
+   std::vector<PliSimulator::TissueProperty> GetPropertyList() const;
 };
 
 #endif // SIMULATION_GENERATOR_HPP_
