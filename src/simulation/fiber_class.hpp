@@ -27,6 +27,7 @@ struct Property {
 class Properties {
  public:
    const std::vector<float> &scale() const { return scale_; };
+   const std::vector<float> &scale_sqr() const { return scale_sqr_; };
    const std::vector<float> &dn() const { return dn_; };
    const std::vector<float> &mu() const { return mu_; };
    const std::vector<Orientation> &orientation() const { return orientation_; };
@@ -45,7 +46,7 @@ class Properties {
 
  private:
    std::vector<float> scale_;
-   // std::vector<float> scale_sqr_;
+   std::vector<float> scale_sqr_;
    std::vector<float> dn_;
    std::vector<float> mu_;
    std::vector<Orientation> orientation_;
@@ -80,9 +81,9 @@ class Bundle {
    const std::vector<layer::Orientation> &layers_orientation() const {
       return layers_.orientation();
    }
-   // const std::vector<float> &layer_scale_sqr() const {
-   //    return layer_.scale_sqr();
-   // }
+   const std::vector<float> &layers_scale_sqr() const {
+      return layers_.scale_sqr();
+   }
 
    layer::Properties layers() const { return layers_; };
 

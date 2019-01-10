@@ -17,8 +17,8 @@ PYBIND11_MODULE(simulation, m) {
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue",
             (void (PliSimulator::*)(
-                data::VectorContainer<int>, data::VectorContainer<float>,
-                const std::array<int, 3> &,
+                object::container::Vector<int>,
+                object::container::Vector<float>, const std::array<int, 3> &,
                 const std::vector<PliSimulator::TissueProperty> &,
                 const double)) &
                 PliSimulator::SetTissue)

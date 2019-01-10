@@ -29,13 +29,13 @@ class PliSimulator {
    ~PliSimulator() = default;
 
    void SetPliSetup(const Setup pli_setup);
-   void SetTissue(data::VectorContainer<int> label_field_ptr,
-                  data::VectorContainer<float> vector_field_ptr,
+   void SetTissue(object::container::Vector<int> label_field_ptr,
+                  object::container::Vector<float> vector_field_ptr,
                   const std::array<int, 3> &dim,
                   const std::vector<TissueProperty> &properties,
                   const double pixel_size);
-   void SetTissue(data::VectorContainer<int> label_field_ptr,
-                  data::VectorContainer<float> vector_field_ptr,
+   void SetTissue(object::container::Vector<int> label_field_ptr,
+                  object::container::Vector<float> vector_field_ptr,
                   const vm::Vec3<int> &dim,
                   const std::vector<TissueProperty> &properties,
                   const double pixel_size);
@@ -50,8 +50,8 @@ class PliSimulator {
    double pixel_size_{};
    Setup pli_setup_{};
    vm::Vec3<size_t> dim_{};
-   data::VectorContainer<int> label_field_;
-   data::VectorContainer<float> vector_field_;
+   object::container::Vector<int> label_field_;
+   object::container::Vector<float> vector_field_;
    std::vector<TissueProperty> properties_;
    // vm::Vec3<bool> flip_tissue_{false};
 

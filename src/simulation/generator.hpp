@@ -5,7 +5,7 @@
 #include <tuple>
 #include <vector>
 
-#include "fiber_model.hpp"
+#include "fiber_class.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "objects/vector_container.hpp"
@@ -27,7 +27,7 @@ class PliGenerator {
                   const vm::Vec3<bool> flip_direction = false);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
 
-   std::tuple<data::VectorContainer<int>, data::VectorContainer<float>,
+   std::tuple<object::container::Vector<int>, object::container::Vector<float>,
               std::vector<PliSimulator::TissueProperty>>
    RunTissueGeneration(const bool only_label = false,
                        const bool progress_bar = false);

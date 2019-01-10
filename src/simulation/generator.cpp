@@ -6,7 +6,7 @@
 #include <tuple>
 #include <vector>
 
-#include "fiber_model.hpp"
+#include "fiber_class.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "objects/vector_container.hpp"
@@ -50,7 +50,7 @@ void PliGenerator::SetFiberBundles(
    }
 }
 
-std::tuple<data::VectorContainer<int>, data::VectorContainer<float>,
+std::tuple<object::container::Vector<int>, object::container::Vector<float>,
            std::vector<PliSimulator::TissueProperty>>
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
@@ -122,8 +122,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    if (progress_bar)
       std::cout << std::endl;
 
-   auto label_field_ptr = data::VectorContainer<int>();
-   auto vector_field_ptr = data::VectorContainer<float>();
+   auto label_field_ptr = object::container::Vector<int>();
+   auto vector_field_ptr = object::container::Vector<float>();
 
    (*label_field_ptr.data_) = std::move(label_field);
    (*vector_field_ptr.data_) = std::move(vector_field);
@@ -158,7 +158,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
 
    float t{};
    vm::Vec3<float> min_point{};
-   const auto &layer_sqr = fb.layer_scale_sqr();
+   const auto &layers_scale_sqr = fb.layers_scale_sqr();
    for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
       for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
          for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
@@ -169,7 +169,8 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
 
             auto dist_squ = vm::length2(min_point - point);
             auto ly_r = fiber.CalcRadius(s_idx, t);
-            if (dist_squ > layer_sqr.back() * ly_r * ly_r)
+            auto const &f_ly_r = layers_scale_sqr.back();
+            if (dist_squ > f_ly_r * f_ly_r * ly_r * ly_r)
                continue;
 
             size_t ind = x * dim_.y() * dim_.z() + y * dim_.z() + z;
@@ -177,16 +178,16 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
 
             if (array_distance[ind] >= dist_squ) {
                // find corresponding layer
-               auto ly_itr =
-                   std::lower_bound(layer_sqr.begin(), layer_sqr.end(),
-                                    dist_squ / (ly_r * ly_r));
-               int ly_idx = std::distance(layer_sqr.begin(), ly_itr);
+               auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
+                                              layers_scale_sqr.end(),
+                                              dist_squ / (ly_r * ly_r));
+               int ly_idx = std::distance(layers_scale_sqr.begin(), ly_itr);
 
                array_distance[ind] = dist_squ;
                label_field[ind] = ly_idx + 1 + fb_idx * max_layer_;
 
                if (!only_label) {
-                  auto ly = fiber_bundles_[fb_idx].layer_orientation()[ly_idx];
+                  auto ly = fiber_bundles_[fb_idx].layer_orientation(ly_idx);
                   vm::Vec3<float> tmpVec(0);
 
                   if (ly != fiber::layer::Orientation::background) {
@@ -243,7 +244,8 @@ PliGenerator::CalcVisualLabelField(std::vector<int> label_field) const {
    return vis;
 }
 
-std::vector<PliSimulator::TissueProperty> PliGenerator::GetPropertyList() const {
+std::vector<PliSimulator::TissueProperty>
+PliGenerator::GetPropertyList() const {
    std::vector<PliSimulator::TissueProperty> properties(
        fiber_bundles_org_.size() * max_layer_ + 1);
 
@@ -256,9 +258,9 @@ std::vector<PliSimulator::TissueProperty> PliGenerator::GetPropertyList() const 
    properties[0] = prop;
 
    for (size_t f = 0; f < fiber_bundles_org_.size(); f++) {
-      for (size_t l = 0; l < fiber_bundles_org_[f].layer_dn().size(); l++) {
-         prop.dn = fiber_bundles_org_[f].layer_dn()[l];
-         prop.mu = fiber_bundles_org_[f].layer_mu()[l];
+      for (size_t l = 0; l < fiber_bundles_org_[f].layer_size(); l++) {
+         prop.dn = fiber_bundles_org_[f].layer_dn(l);
+         prop.mu = fiber_bundles_org_[f].layer_mu(l);
 
          auto id = l + 1 + f * max_layer_; //+1 for simple model
          properties.at(id) = prop;

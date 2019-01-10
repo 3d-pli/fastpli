@@ -24,6 +24,7 @@ Property::Property(float s, float n, float m, char o) : scale(s), dn(n), mu(m) {
 }
 
 size_t Properties::size() const {
+   assert(scale_.size() == scale_sqr_.size());
    assert(scale_.size() == dn_.size());
    assert(scale_.size() == mu_.size());
    assert(scale_.size() == orientation_.size());
@@ -32,6 +33,7 @@ size_t Properties::size() const {
 
 void Properties::clear() {
    scale_.clear();
+   scale_sqr_.clear();
    dn_.clear();
    mu_.clear();
    orientation_.clear();
@@ -39,6 +41,7 @@ void Properties::clear() {
 
 void Properties::reserve(size_t i) {
    scale_.reserve(i);
+   scale_sqr_.reserve(i);
    dn_.reserve(i);
    mu_.reserve(i);
    orientation_.reserve(i);
@@ -46,6 +49,7 @@ void Properties::reserve(size_t i) {
 
 void Properties::resize(size_t i) {
    scale_.resize(i);
+   scale_sqr_.resize(i);
    dn_.resize(i);
    mu_.resize(i);
    orientation_.resize(i);
@@ -53,6 +57,7 @@ void Properties::resize(size_t i) {
 
 void Properties::push_back(Property p) {
    scale_.push_back(p.scale);
+   scale_sqr_.push_back(p.scale * p.scale);
    dn_.push_back(p.dn);
    mu_.push_back(p.mu);
    orientation_.push_back(p.orientation);
