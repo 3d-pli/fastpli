@@ -13,13 +13,13 @@ SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 # building python modules
 pybind11_add_module(generation
-      bindings/pli_generator_module.cpp
+      bindings/generator_module.cpp
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
       )
 
 pybind11_add_module(simulation
-      bindings/pli_simulator_module.cpp
+      bindings/simulator_module.cpp
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
       )

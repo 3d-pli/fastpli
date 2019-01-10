@@ -1,5 +1,5 @@
-#ifndef PLI_GENERATOR_HPP_
-#define PLI_GENERATOR_HPP_
+#ifndef SIMULATION_GENERATOR_HPP_
+#define SIMULATION_GENERATOR_HPP_
 
 #include <memory>
 #include <tuple>
@@ -9,7 +9,7 @@
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "objects/vector_container.hpp"
-#include "pli_simulator.hpp"
+#include "simulator.hpp"
 
 class PliGenerator {
 
@@ -61,4 +61,4 @@ class PliGenerator {
    std::vector<TissueProperty> GetPropertyList() const;
 };
 
-#endif // PLI_GENERATOR_HPP_
+#endif // SIMULATION_GENERATOR_HPP_

@@ -1,5 +1,5 @@
-#ifndef PLI_SIMULATOR_HPP_
-#define PLI_SIMULATOR_HPP_
+#ifndef SIMULATION_SIMULATOR_HPP_
+#define SIMULATION_SIMULATOR_HPP_
 
 #include <functional>
 #include <memory>
@@ -97,4 +97,4 @@ class PliSimulator {
    vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) const;
 };
 
-#endif // PLI_SIMULATOR_HPP_
+#endif // SIMULATION_SIMULATOR_HPP_

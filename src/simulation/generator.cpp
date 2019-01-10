@@ -1,4 +1,4 @@
-#include "pli_generator.hpp"
+#include "generator.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -10,7 +10,7 @@
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "objects/vector_container.hpp"
-#include "pli_simulator.hpp"
+#include "simulator.hpp"
 
 void PliGenerator::SetVolumeWithArrays(
     const std::array<int, 3> dim, const float pixel_size,

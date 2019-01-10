@@ -4,7 +4,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../pli_generator.hpp"
+#include "../generator.hpp"
 #include "objects/vector_container.hpp"
 
 namespace py = pybind11;

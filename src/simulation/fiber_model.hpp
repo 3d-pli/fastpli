@@ -1,5 +1,5 @@
-#ifndef FIBER_MODEL_HPP_
-#define FIBER_MODEL_HPP_
+#ifndef SIMULATION_FIBER_MODEL_HPP_
+#define SIMULATION_FIBER_MODEL_HPP_
 
 #include <utility>
 #include <vector>
