@@ -1,5 +1,5 @@
-#ifndef SIMULATION_FIBER_MODEL_HPP_
-#define SIMULATION_FIBER_MODEL_HPP_
+#ifndef SIMULATION_FIBER_CLASS_HPP_
+#define SIMULATION_FIBER_CLASS_HPP_
 
 #include <utility>
 #include <vector>
@@ -10,59 +10,81 @@
 
 namespace fiber {
 
-using Data = data::Fiber;
-
 namespace layer {
 enum class Orientation { background, parallel, radial };
 
 struct Property {
-   Property(float s, float n, float m, char o) : scale(s), dn(n), mu(m) {
-      if (o == 'b')
-         orientation = Orientation::background;
-      else if (o == 'p')
-         orientation = Orientation::parallel;
-      else if (o == 'r')
-         orientation = Orientation::radial;
-      else
-         throw std::invalid_argument(
-             "Orientation must be \"b\", \"p\", or \"r\"");
-   }
+   Property(float s, float n, float m, char o);
    Property(float s, float n, float m, Orientation o)
        : scale(s), dn(n), mu(m), orientation(o) {}
 
    float scale{};
    float dn{};
    float mu{};
-   Orientation orientation{Orientation::background};
+   Orientation orientation{};
 };
+
+class Properties {
+ public:
+   const std::vector<float> &scale() const { return scale_; };
+   const std::vector<float> &dn() const { return dn_; };
+   const std::vector<float> &mu() const { return mu_; };
+   const std::vector<Orientation> &orientation() const { return orientation_; };
+
+   size_t size() const;
+   void clear();
+   void reserve(size_t i);
+   void resize(size_t i);
+   void push_back(Property p);
+   void push_back(float s, float n, float m, char o) {
+      push_back(Property(s, n, m, o));
+   };
+   void push_back(float s, float n, float m, Orientation o) {
+      push_back(Property(s, n, m, o));
+   };
+
+ private:
+   std::vector<float> scale_;
+   // std::vector<float> scale_sqr_;
+   std::vector<float> dn_;
+   std::vector<float> mu_;
+   std::vector<Orientation> orientation_;
+};
+
 } // namespace layer
+
+using Fiber = object::fiber::Fiber;
 
 class Bundle {
  public:
-   Bundle(std::vector<Data> fibers, std::vector<layer::Property> properties);
+   Bundle(std::vector<object::fiber::Fiber> fibers,
+          std::vector<layer::Property> properties);
    ~Bundle() = default;
 
    // getter
-   const Data &fiber(size_t i) const { return fibers_[i]; }
-   const std::vector<Data> &fibers() const { return fibers_; }
+   const Fiber &fiber(size_t i) const { return fibers_[i]; }
+   const std::vector<Fiber> &fibers() const { return fibers_; }
    size_t size() const { return fibers_.size(); }
-   const std::vector<float> &layer_scale() const { return layer_scale_; }
-   const std::vector<float> &layer_scale_sqr() const {
-      return layer_scale_sqr_;
-   }
-
-   size_t layer_size() const { return layer_dn_.size(); }
-   float layer_dn(size_t i) const { return layer_dn_[i]; }
-   float layer_mu(size_t i) const { return layer_mu_[i]; }
-   layer::Orientation layer_orientation(size_t i) const {
-      return layer_orientation_[i];
-   }
-   const std::vector<float> &layer_dn() const { return layer_dn_; }
-   const std::vector<float> &layer_mu() const { return layer_mu_; }
-   const std::vector<layer::Orientation> &layer_orientation() const {
-      return layer_orientation_;
-   }
    const aabb::AABB<float, 3> &voi() const { return voi_; }
+
+   size_t layer_size() const { return layers_.size(); }
+   float layer_scale(size_t i) const { return layers_.scale()[i]; }
+   float layer_dn(size_t i) const { return layers_.dn()[i]; }
+   float layer_mu(size_t i) const { return layers_.mu()[i]; }
+   layer::Orientation layer_orientation(size_t i) const {
+      return layers_.orientation()[i];
+   }
+   const std::vector<float> &layers_scale() const { return layers_.scale(); }
+   const std::vector<float> &layers_dn() const { return layers_.dn(); }
+   const std::vector<float> &layers_mu() const { return layers_.mu(); }
+   const std::vector<layer::Orientation> &layers_orientation() const {
+      return layers_.orientation();
+   }
+   // const std::vector<float> &layer_scale_sqr() const {
+   //    return layer_.scale_sqr();
+   // }
+
+   layer::Properties layers() const { return layers_; };
 
    // manipulator
    void Resize(const float f);
@@ -74,15 +96,10 @@ class Bundle {
    void Translate(const std::array<float, 3> &translation);
 
  private:
-   std::vector<Data> fibers_;
-   std::vector<float> layer_scale_;
-   std::vector<float> layer_scale_sqr_;
-   std::vector<float> layer_dn_;
-   std::vector<float> layer_mu_;
-   std::vector<layer::Orientation> layer_orientation_;
-
+   std::vector<Fiber> fibers_{};
+   layer::Properties layers_{};
    aabb::AABB<float, 3> voi_{};
 };
 } // namespace fiber
 
-#endif // FIBER_MODEL_HPP_
+#endif // SIMULATION_FIBER_CLASS_HPP_
