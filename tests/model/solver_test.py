@@ -107,7 +107,7 @@ class MainTest(unittest.TestCase):
         display = ""
         try:
             display = os.environ['DISPLAY']
-        except:
+        except BaseException:
             print("test_opengl: no display detected")
         if display:
             self.solver.draw_scene()

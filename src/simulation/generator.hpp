@@ -1,15 +1,15 @@
-#ifndef PLI_GENERATOR_HPP_
-#define PLI_GENERATOR_HPP_
+#ifndef SIMULATION_GENERATOR_HPP_
+#define SIMULATION_GENERATOR_HPP_
 
 #include <memory>
 #include <tuple>
 #include <vector>
 
-#include "fiber_model.hpp"
+#include "fiber_class.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "objects/vector_container.hpp"
-#include "pli_simulator.hpp"
+#include "simulator.hpp"
 
 class PliGenerator {
 
@@ -27,8 +27,8 @@ class PliGenerator {
                   const vm::Vec3<bool> flip_direction = false);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
 
-   std::tuple<data::VectorContainer<int>, data::VectorContainer<float>,
-              std::vector<TissueProperty>>
+   std::tuple<object::container::Vector<int>, object::container::Vector<float>,
+              std::vector<PliSimulator::PhyProp>>
    RunTissueGeneration(const bool only_label = false,
                        const bool progress_bar = false);
 
@@ -58,7 +58,7 @@ class PliGenerator {
                                             const vm::Vec3<float> &s0,
                                             const vm::Vec3<float> &s1);
 
-   std::vector<TissueProperty> GetPropertyList() const;
+   std::vector<PliSimulator::PhyProp> GetPropertyList() const;
 };
 
-#endif // PLI_GENERATOR_HPP_
+#endif // SIMULATION_GENERATOR_HPP_

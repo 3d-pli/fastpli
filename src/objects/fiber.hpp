@@ -7,7 +7,8 @@
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
-namespace data { // TODO: fiber::data
+namespace object {
+namespace fiber {
 
 class Fiber {
  public:
@@ -64,9 +65,26 @@ class Fiber {
    void CalculateVoi();
 };
 
-using FiberBundle = std::vector<Fiber>;
-using FiberTissue = std::vector<FiberBundle>;
+using Bundle = std::vector<Fiber>;
+using Bundles = std::vector<Bundle>;
 
-} // namespace data
+// void Resize(Fiber);
+// void Resize(Bundle);
+// void Resize(Bundles);
+
+// void Rotate(Fiber);
+// void Rotate(Bundle);
+// void Rotate(Bundles);
+
+// void Translate(Fiber);
+// void Translate(Bundle);
+// void Translate(Bundles);
+
+// void RotateAroundPoint(Fiber, vm::Vec3<float>);
+// void RotateAroundPoint(Bundle, vm::Vec3<float>);
+// void RotateAroundPoint(Bundles, vm::Vec3<float>);
+
+} // namespace fiber
+} // namespace object
 
 #endif // FIBER_HPP_

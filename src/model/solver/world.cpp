@@ -26,19 +26,19 @@ inline void omp_set_num_threads(int i) {
 }
 #endif
 
-std::vector<std::vector<data::Fiber>> World::get_fibers() const {
-   std::vector<std::vector<data::Fiber>> fiber_bundles;
+object::fiber::Bundles World::get_fibers() const {
+   object::fiber::Bundles fiber_bundles;
 
    if (fibers_.empty())
       return fiber_bundles;
 
-   fiber_bundles.push_back(std::vector<data::Fiber>());
+   fiber_bundles.push_back(std::vector<object::fiber::Fiber>());
    fiber_bundles[0].push_back(fibers_[0]);
 
    // fiber order does not change, therefore map has the same order
    for (size_t i = 1; i < fibers_.size(); i++) {
       if (map_fb_idx_.at(i - 1).first != map_fb_idx_.at(i).first)
-         fiber_bundles.push_back(std::vector<data::Fiber>());
+         fiber_bundles.push_back(std::vector<object::fiber::Fiber>());
 
       fiber_bundles.back().push_back(fibers_[i]);
    }
@@ -47,10 +47,10 @@ std::vector<std::vector<data::Fiber>> World::get_fibers() const {
 }
 
 void World::set_fibers(
-    const std::vector<std::vector<data::Fiber>> &fiber_bundles) {
+    const std::vector<std::vector<object::fiber::Fiber>> &fiber_bundles) {
 
    // free memory
-   fibers_ = std::vector<object::Fiber>();
+   fibers_ = std::vector<geometry::Fiber>();
    map_fb_idx_ = std::map<size_t, std::pair<size_t, size_t>>();
 
    size_t fb_idx = 0;
@@ -58,7 +58,7 @@ void World::set_fibers(
       size_t f_idx = 0;
       for (auto const &f : fb) {
          map_fb_idx_[fibers_.size()] = std::make_pair(fb_idx, f_idx);
-         fibers_.push_back(object::Fiber(f, fibers_.size()));
+         fibers_.push_back(geometry::Fiber(f, fibers_.size()));
          f_idx++;
       }
       fb_idx++;

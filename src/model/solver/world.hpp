@@ -35,12 +35,13 @@ class World {
    // getter
    size_t NumObj() const { return num_obj_; };
    size_t NumColObj() const { return num_col_obj_; };
-   std::vector<std::vector<data::Fiber>> get_fibers() const;
+   object::fiber::Bundles get_fibers() const;
    World::WorldParameter get_parameter() const { return w_parameter_; };
 
    // setter
    int set_omp_num_threads(int i);
-   void set_fibers(const std::vector<std::vector<data::Fiber>> &fibers);
+   void
+   set_fibers(const std::vector<std::vector<object::fiber::Fiber>> &fibers);
    void set_parameter(World::WorldParameter p) { w_parameter_ = p; };
    void set_colliding_voi(const aabb::AABB<float, 3> voi) { col_voi_ = voi; };
 
@@ -49,7 +50,7 @@ class World {
    void DrawScene(float rot_x = 0, float rot_y = 0, float rot_z = 0);
 
  private:
-   std::vector<object::Fiber> fibers_;
+   std::vector<geometry::Fiber> fibers_;
    std::map<size_t, std::pair<size_t, size_t>> map_fb_idx_;
    World::WorldParameter w_parameter_;
 

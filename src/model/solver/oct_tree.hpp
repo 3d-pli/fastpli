@@ -12,8 +12,8 @@
 
 class OctTree {
  public:
-   OctTree(const std::vector<object::Fiber> &fibers, const float min_cube_size,
-           const aabb::AABB<float, 3> col_voi);
+   OctTree(const std::vector<geometry::Fiber> &fibers,
+           const float min_cube_size, const aabb::AABB<float, 3> col_voi);
    std::set<std::array<size_t, 4>> Run();
 
  private:

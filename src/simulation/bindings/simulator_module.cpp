@@ -4,7 +4,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../pli_simulator.hpp"
+#include "../simulator.hpp"
 #include "objects/vector_container.hpp"
 
 namespace py = pybind11;
@@ -17,9 +17,9 @@ PYBIND11_MODULE(simulation, m) {
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue",
             (void (PliSimulator::*)(
-                data::VectorContainer<int>, data::VectorContainer<float>,
-                const std::array<int, 3> &, const std::vector<TissueProperty> &,
-                const double)) &
+                object::container::Vector<int>,
+                object::container::Vector<float>, const std::array<int, 3> &,
+                const std::vector<PliSimulator::PhyProp> &, const double)) &
                 PliSimulator::SetTissue)
        .def("run_simulation",
             [](PliSimulator &self, double theta, double phi, double ps,
@@ -34,16 +34,17 @@ PYBIND11_MODULE(simulation, m) {
             py::arg("theta") = 0, py::arg("phi") = 0, py::arg("step_size") = 1,
             py::arg("do_nn_intp") = true);
 
-   py::class_<TissueProperty>(m, "TissueProperty")
+   py::class_<PliSimulator::PhyProp>(m, "PhyProp")
        .def(py::init())
-       .def_readwrite("dn", &TissueProperty::dn)
-       .def_readwrite("mu", &TissueProperty::mu);
+       .def_readwrite("dn", &PliSimulator::PhyProp::dn)
+       .def_readwrite("mu", &PliSimulator::PhyProp::mu);
 
-   py::class_<PliSetup>(m, "Setup")
+   py::class_<PliSimulator::Setup>(m, "Setup")
        .def(py::init())
-       .def_readwrite("light_intensity", &PliSetup::light_intensity)
-       .def_readwrite("resolution", &PliSetup::resolution)
-       .def_readwrite("wavelength", &PliSetup::wavelength)
-       .def_readwrite("untilt_sensor", &PliSetup::untilt_sensor)
-       .def_readwrite("filter_rotations", &PliSetup::filter_rotations);
+       .def_readwrite("light_intensity", &PliSimulator::Setup::light_intensity)
+       .def_readwrite("resolution", &PliSimulator::Setup::resolution)
+       .def_readwrite("wavelength", &PliSimulator::Setup::wavelength)
+       .def_readwrite("untilt_sensor", &PliSimulator::Setup::untilt_sensor)
+       .def_readwrite("filter_rotations",
+                      &PliSimulator::Setup::filter_rotations);
 }

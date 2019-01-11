@@ -11,12 +11,6 @@
 
 #include "include/vemath.hpp"
 
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
-
 Scene::Scene(int argc, char **argv) {
 
    glutInit(&argc, argv);
@@ -45,7 +39,7 @@ Scene::Scene(int argc, char **argv) {
    quadObj_ = gluNewQuadric();
 }
 
-void Scene::DrawScene(const std::vector<object::Fiber> &fibers) {
+void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers) {
 
    AutoVolume(fibers);
    CheckWindowSize();
@@ -70,7 +64,7 @@ void Scene::DrawScene(const std::vector<object::Fiber> &fibers) {
    glutSwapBuffers();
 }
 
-void Scene::DrawCylinders(const std::vector<object::Fiber> &fibers) {
+void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
    for (const auto &fiber : fibers) {
       if (fiber.size() <= 1)
          continue;
@@ -99,7 +93,7 @@ void Scene::DrawCylinders(const std::vector<object::Fiber> &fibers) {
    }
 }
 
-void Scene::AutoVolume(const vector<object::Fiber> &fibers) {
+void Scene::AutoVolume(const std::vector<geometry::Fiber> &fibers) {
 
    vm::Vec3<float> v_min(std::numeric_limits<float>::max());
    vm::Vec3<float> v_max(-std::numeric_limits<float>::max());

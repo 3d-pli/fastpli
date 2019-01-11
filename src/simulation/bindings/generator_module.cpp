@@ -4,7 +4,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../pli_generator.hpp"
+#include "../generator.hpp"
 #include "objects/vector_container.hpp"
 
 namespace py = pybind11;
@@ -19,7 +19,7 @@ PYBIND11_MODULE(generation, m) {
             py::arg("flip_direction") =
                 std::array<bool, 3>{{false, false, false}})
        .def("set_fiber_bundles",
-            [](PliGenerator &self, std::vector<std::vector<fiber::Data>> fbs,
+            [](PliGenerator &self, object::fiber::Bundles fbs,
                std::vector<std::vector<fiber::layer::Property>> prs) {
                if (fbs.size() != prs.size())
                   throw py::value_error("fbs and prs not the same size");

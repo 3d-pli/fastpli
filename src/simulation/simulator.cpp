@@ -1,4 +1,4 @@
-#include "pli_simulator.hpp"
+#include "simulator.hpp"
 
 #include <cassert>
 #include <exception>
@@ -13,7 +13,7 @@
 // PliSimulator::PliSimulator() {}
 // PliSimulator::~PliSimulator() {}
 
-void PliSimulator::SetPliSetup(const PliSetup pli_setup) {
+void PliSimulator::SetPliSetup(const Setup pli_setup) {
 
    if (pli_setup.light_intensity < 0)
       throw std::invalid_argument("light intensity < 0: " +
@@ -33,19 +33,19 @@ void PliSimulator::SetPliSetup(const PliSetup pli_setup) {
    pli_setup_ = pli_setup;
 }
 
-void PliSimulator::SetTissue(data::VectorContainer<int> label_field,
-                             data::VectorContainer<float> vector_field,
+void PliSimulator::SetTissue(object::container::Vector<int> label_field,
+                             object::container::Vector<float> vector_field,
                              const std::array<int, 3> &dim,
-                             const std::vector<TissueProperty> &properties,
+                             const std::vector<PhyProp> &properties,
                              const double pixel_size) {
    auto dim_vec = vm::Vec3<int>(dim[0], dim[1], dim[2]);
    SetTissue(label_field, vector_field, dim_vec, properties, pixel_size);
 }
 
-void PliSimulator::SetTissue(data::VectorContainer<int> label_field,
-                             data::VectorContainer<float> vector_field,
+void PliSimulator::SetTissue(object::container::Vector<int> label_field,
+                             object::container::Vector<float> vector_field,
                              const vm::Vec3<int> &dim,
-                             const std::vector<TissueProperty> &properties,
+                             const std::vector<PhyProp> &properties,
                              const double pixel_size)
 
 {
