@@ -64,6 +64,9 @@ void Properties::push_back(Property p) {
 }
 } // namespace layer
 
+/**
+ * FiberBundle
+ */
 Bundle::Bundle(std::vector<Fiber> fibers,
                std::vector<layer::Property> properties) {
    fibers_.swap(fibers);

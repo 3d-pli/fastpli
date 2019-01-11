@@ -36,7 +36,7 @@ void PliSimulator::SetPliSetup(const Setup pli_setup) {
 void PliSimulator::SetTissue(object::container::Vector<int> label_field,
                              object::container::Vector<float> vector_field,
                              const std::array<int, 3> &dim,
-                             const std::vector<TissueProperty> &properties,
+                             const std::vector<PhyProp> &properties,
                              const double pixel_size) {
    auto dim_vec = vm::Vec3<int>(dim[0], dim[1], dim[2]);
    SetTissue(label_field, vector_field, dim_vec, properties, pixel_size);
@@ -45,7 +45,7 @@ void PliSimulator::SetTissue(object::container::Vector<int> label_field,
 void PliSimulator::SetTissue(object::container::Vector<int> label_field,
                              object::container::Vector<float> vector_field,
                              const vm::Vec3<int> &dim,
-                             const std::vector<TissueProperty> &properties,
+                             const std::vector<PhyProp> &properties,
                              const double pixel_size)
 
 {

@@ -51,7 +51,7 @@ void PliGenerator::SetFiberBundles(
 }
 
 std::tuple<object::container::Vector<int>, object::container::Vector<float>,
-           std::vector<PliSimulator::TissueProperty>>
+           std::vector<PliSimulator::PhyProp>>
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
@@ -244,26 +244,21 @@ PliGenerator::CalcVisualLabelField(std::vector<int> label_field) const {
    return vis;
 }
 
-std::vector<PliSimulator::TissueProperty>
-PliGenerator::GetPropertyList() const {
-   std::vector<PliSimulator::TissueProperty> properties(
+std::vector<PliSimulator::PhyProp> PliGenerator::GetPropertyList() const {
+   std::vector<PliSimulator::PhyProp> properties(
        fiber_bundles_org_.size() * max_layer_ + 1);
 
-   PliSimulator::TissueProperty prop;
-
    // background
-   // TODO: background properties
-   prop.dn = 0;
-   prop.mu = 0;
-   properties[0] = prop;
+   // TODO: set background properties
+   properties[0] = PliSimulator::PhyProp(0, 0);
 
    for (size_t f = 0; f < fiber_bundles_org_.size(); f++) {
       for (size_t l = 0; l < fiber_bundles_org_[f].layer_size(); l++) {
-         prop.dn = fiber_bundles_org_[f].layer_dn(l);
-         prop.mu = fiber_bundles_org_[f].layer_mu(l);
+         auto dn = fiber_bundles_org_[f].layer_dn(l);
+         auto mu = fiber_bundles_org_[f].layer_mu(l);
 
-         auto id = l + 1 + f * max_layer_; //+1 for simple model
-         properties.at(id) = prop;
+         auto id = 1 + l + f * max_layer_; //+1 for brackground
+         properties.at(id) = PliSimulator::PhyProp(dn, mu);
       }
    }
 

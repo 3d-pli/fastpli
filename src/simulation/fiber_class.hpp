@@ -67,7 +67,9 @@ class Bundle {
    const std::vector<Fiber> &fibers() const { return fibers_; }
    size_t size() const { return fibers_.size(); }
    const aabb::AABB<float, 3> &voi() const { return voi_; }
+   layer::Properties layers() const { return layers_; };
 
+   // layer informations
    size_t layer_size() const { return layers_.size(); }
    float layer_scale(size_t i) const { return layers_.scale()[i]; }
    float layer_dn(size_t i) const { return layers_.dn()[i]; }
@@ -84,8 +86,6 @@ class Bundle {
    const std::vector<float> &layers_scale_sqr() const {
       return layers_.scale_sqr();
    }
-
-   layer::Properties layers() const { return layers_; };
 
    // manipulator
    void Resize(const float f);

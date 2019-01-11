@@ -10,7 +10,10 @@
 
 class PliSimulator {
  public:
-   struct TissueProperty {
+   struct PhyProp {
+      PhyProp() = default;
+      PhyProp(double dn, double mu) : dn(dn), mu(mu){};
+
       double dn{};
       double mu{};
    };
@@ -32,12 +35,12 @@ class PliSimulator {
    void SetTissue(object::container::Vector<int> label_field_ptr,
                   object::container::Vector<float> vector_field_ptr,
                   const std::array<int, 3> &dim,
-                  const std::vector<TissueProperty> &properties,
+                  const std::vector<PhyProp> &properties,
                   const double pixel_size);
    void SetTissue(object::container::Vector<int> label_field_ptr,
                   object::container::Vector<float> vector_field_ptr,
                   const vm::Vec3<int> &dim,
-                  const std::vector<TissueProperty> &properties,
+                  const std::vector<PhyProp> &properties,
                   const double pixel_size);
 
    std::vector<float> RunSimulation(const double theta, const double phi,
@@ -52,7 +55,7 @@ class PliSimulator {
    vm::Vec3<size_t> dim_{};
    object::container::Vector<int> label_field_;
    object::container::Vector<float> vector_field_;
-   std::vector<TissueProperty> properties_;
+   std::vector<PhyProp> properties_;
    // vm::Vec3<bool> flip_tissue_{false};
 
    int GetLabel(const long long x, const long long y, const long long z) const;

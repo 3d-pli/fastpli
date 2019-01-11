@@ -19,8 +19,7 @@ PYBIND11_MODULE(simulation, m) {
             (void (PliSimulator::*)(
                 object::container::Vector<int>,
                 object::container::Vector<float>, const std::array<int, 3> &,
-                const std::vector<PliSimulator::TissueProperty> &,
-                const double)) &
+                const std::vector<PliSimulator::PhyProp> &, const double)) &
                 PliSimulator::SetTissue)
        .def("run_simulation",
             [](PliSimulator &self, double theta, double phi, double ps,
@@ -35,10 +34,10 @@ PYBIND11_MODULE(simulation, m) {
             py::arg("theta") = 0, py::arg("phi") = 0, py::arg("step_size") = 1,
             py::arg("do_nn_intp") = true);
 
-   py::class_<PliSimulator::TissueProperty>(m, "TissueProperty")
+   py::class_<PliSimulator::PhyProp>(m, "PhyProp")
        .def(py::init())
-       .def_readwrite("dn", &PliSimulator::TissueProperty::dn)
-       .def_readwrite("mu", &PliSimulator::TissueProperty::mu);
+       .def_readwrite("dn", &PliSimulator::PhyProp::dn)
+       .def_readwrite("mu", &PliSimulator::PhyProp::mu);
 
    py::class_<PliSimulator::Setup>(m, "Setup")
        .def(py::init())
