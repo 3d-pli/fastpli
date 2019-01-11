@@ -6,7 +6,7 @@ back to [readme](README.md)
   - [ ] epa
   - [ ] rofl
 - [ ] model
-  - [ ] generator
+  - [ ] generator (FAconstructor)
   - [x] solver
     - [ ] freeze objects
   - [ ] visualizer
@@ -14,7 +14,8 @@ back to [readme](README.md)
     - [ ] interactive
 - [ ] objects
   - [x] fiber
-  - [ ] tissue_container
+  - [x] tissue_container
+  - [ ] tissue_container as contigious np.array without copy
 - [ ] simulation
   - [x] generator
   - [x] simulator
@@ -74,10 +75,9 @@ back to [readme](README.md)
  - vemath.hpp
 
 ## restructure
- - [ ] fiber
-   - [x] fiber::Data
-   - [ ] fiber::Geometry
-   - [ ] fiber::Segment (cone?)
-   - [x] fiber::Bundle
-   - [x] fiber::layer::Property
- - [ ] 
+ - [x] fiber
+   - [x] fiber::Fiber
+   - [x] fiber::Geometry (model)
+   - [x] fiber::layer::Property (simulation)
+   - [x] fiber::Bundle (simulation)
+
