@@ -5,7 +5,6 @@
 #include <pybind11/stl.h>
 
 #include "../generator.hpp"
-#include "objects/vector_container.hpp"
 
 namespace py = pybind11;
 
@@ -30,8 +29,34 @@ PYBIND11_MODULE(generation, m) {
 
                self.SetFiberBundles(fiber_bundles);
             })
-       .def("run_generation", &PliGenerator::RunTissueGeneration,
-            py::arg("only_label") = false, py::arg("debug") = false);
+       .def("run_generation",
+            [](PliGenerator &self, bool only_label, bool progress_bar) {
+               std::vector<int> *label_field;
+               std::vector<float> *vector_field;
+               std::vector<PliSimulator::PhyProp> prop_list;
+
+               std::tie(label_field, vector_field, prop_list) =
+                   self.RunTissueGeneration(only_label, progress_bar);
+
+               auto capsule_label_field =
+                   py::capsule(label_field, [](void *label_field) {
+                      delete reinterpret_cast<std::vector<int> *>(label_field);
+                   });
+
+               auto capsule_vector_field =
+                   py::capsule(vector_field, [](void *vector_field) {
+                      delete reinterpret_cast<std::vector<float> *>(
+                          vector_field);
+                   });
+
+               return std::make_tuple(
+                   py::array(label_field->size(), label_field->data(),
+                             capsule_label_field),
+                   py::array(vector_field->size(), vector_field->data(),
+                             capsule_vector_field),
+                   prop_list);
+            },
+            py::arg("only_label") = false, py::arg("progress_bar") = false);
 
    // TODO: to objects?
    py::enum_<fiber::layer::Orientation>(m, "Orientation")

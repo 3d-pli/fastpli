@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "include/vemath.hpp"
-#include "objects/vector_container.hpp"
+#include "objects/np_array_container.hpp"
 
 // PliSimulator::PliSimulator() {}
 // PliSimulator::~PliSimulator() {}
@@ -33,18 +33,7 @@ void PliSimulator::SetPliSetup(const Setup pli_setup) {
    pli_setup_ = pli_setup;
 }
 
-void PliSimulator::SetTissue(object::container::Vector<int> label_field,
-                             object::container::Vector<float> vector_field,
-                             const std::array<int, 3> &dim,
-                             const std::vector<PhyProp> &properties,
-                             const double pixel_size) {
-   auto dim_vec = vm::Vec3<int>(dim[0], dim[1], dim[2]);
-   SetTissue(label_field, vector_field, dim_vec, properties, pixel_size);
-}
-
-void PliSimulator::SetTissue(object::container::Vector<int> label_field,
-                             object::container::Vector<float> vector_field,
-                             const vm::Vec3<int> &dim,
+void PliSimulator::SetTissue(const vm::Vec3<int> &dim,
                              const std::vector<PhyProp> &properties,
                              const double pixel_size)
 
@@ -58,40 +47,45 @@ void PliSimulator::SetTissue(object::container::Vector<int> label_field,
                                   "," + std::to_string(dim.y()) + "," +
                                   std::to_string(dim.z()) + "]");
 
-   auto udim = vm::cast<size_t>(dim);
-   auto size = udim.x() * udim.y() * udim.z();
+   // auto udim = vm::cast<size_t>(dim);
+   // auto size = udim.x() * udim.y() * udim.z();
 
-   if (size != label_field.size())
-      throw std::invalid_argument(
-          "dimension and label_field aren't consistend: " +
-          std::to_string(size) + " != " + std::to_string(label_field.size()));
+   // if (size != label_field->size())
+   //    throw std::invalid_argument(
+   //        "dimension and label_field aren't consistend: " +
+   //        std::to_string(size) + " != " +
+   //        std::to_string(label_field->size()));
 
-   if (size * 3 != vector_field.size())
-      throw std::invalid_argument(
-          "dimension and vector_field aren't consistend: " +
-          std::to_string(size) +
-          "*3 != " + std::to_string(vector_field.size()));
+   // if (size * 3 != vector_field.size())
+   //    throw std::invalid_argument(
+   //        "dimension and vector_field aren't consistend: " +
+   //        std::to_string(size) +
+   //        "*3 != " + std::to_string(vector_field->size()));
 
-   auto max_label = static_cast<size_t>(
-       *max_element(label_field.begin(), label_field.end()));
-   if (max_label >= properties.size())
-      throw std::invalid_argument(
-          "max(label) exits propertie.size: " + std::to_string(max_label) +
-          ">=" + std::to_string(properties.size()));
+   // auto max_label = static_cast<size_t>(
+   //     *max_element(label_field->begin(), label_field->end()));
+   // if (max_label >= properties.size())
+   //    throw std::invalid_argument(
+   //        "max(label) exits propertie.size: " + std::to_string(max_label) +
+   //        ">=" + std::to_string(properties.size()));
 
-   label_field_ = label_field;
-   vector_field_ = vector_field;
+   // label_field_ = label_field;
+   // vector_field_ = vector_field;
    dim_ = vm::cast<size_t>(dim);
    properties_ = properties;
    pixel_size_ = pixel_size;
 }
 
-std::vector<float> PliSimulator::RunSimulation(const double theta,
-                                               const double phi,
-                                               const double step_size,
-                                               const bool do_nn
-                                               // , const bool flip_beam
+std::vector<float>
+PliSimulator::RunSimulation(object::container::NpArray<int> label_field,
+                            object::container::NpArray<float> vector_field,
+                            const double theta, const double phi,
+                            const double step_size, const bool do_nn
+                            // , const bool flip_beam
 ) {
+
+   label_field_ = label_field;
+   vector_field_ = vector_field;
 
    if (std::abs(theta) >= M_PI_2)
       throw std::invalid_argument("illegal light path");
@@ -137,6 +131,9 @@ std::vector<float> PliSimulator::RunSimulation(const double theta,
 
    std::vector<float> intensity_signal(
        static_cast<size_t>(dim_.x()) * dim_.y() * n_rho, 0);
+
+   std::cerr << intensity_signal.size() << ", " << dim_ << ", " << n_rho
+             << std::endl;
 
    // calculate light for all (x,y) positions of the ccd-sensor
    for (unsigned int ccd_x = 0; ccd_x < dim_.x(); ++ccd_x) {
@@ -213,14 +210,14 @@ std::vector<float> PliSimulator::RunSimulation(const double theta,
 int PliSimulator::GetLabel(const long long x, const long long y,
                            const long long z) const {
    size_t idx = x * dim_.y() * dim_.z() + y * dim_.z() + z;
-   assert(idx < label_field_.size());
+   // assert(idx < label_field_->size());
    return label_field_[idx];
 }
 
 vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
                                       const long long z) const {
    size_t idx = x * dim_.y() * dim_.z() * 3 + y * dim_.z() * 3 + z * 3;
-   assert(idx < vector_field_.size());
+   // assert(idx < vector_field_->size());
    return vm::Vec3<double>(vector_field_[idx], vector_field_[idx + 1],
                            vector_field_[idx + 2]);
 }

@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "include/vemath.hpp"
-#include "objects/vector_container.hpp"
+#include "objects/np_array_container.hpp"
 
 class PliSimulator {
  public:
@@ -32,20 +32,16 @@ class PliSimulator {
    ~PliSimulator() = default;
 
    void SetPliSetup(const Setup pli_setup);
-   void SetTissue(object::container::Vector<int> label_field_ptr,
-                  object::container::Vector<float> vector_field_ptr,
-                  const std::array<int, 3> &dim,
-                  const std::vector<PhyProp> &properties,
-                  const double pixel_size);
-   void SetTissue(object::container::Vector<int> label_field_ptr,
-                  object::container::Vector<float> vector_field_ptr,
-                  const vm::Vec3<int> &dim,
+   void SetTissue(const vm::Vec3<int> &dim,
                   const std::vector<PhyProp> &properties,
                   const double pixel_size);
 
-   std::vector<float> RunSimulation(const double theta, const double phi,
-                                    const double step_size, const bool do_nn
-                                    //  , const bool flip_beam
+   std::vector<float>
+   RunSimulation(object::container::NpArray<int> label_field,
+                 object::container::NpArray<float> vector_field,
+                 const double theta, const double phi, const double step_size,
+                 const bool do_nn
+                 //  , const bool flip_beam
    );
 
  private:
@@ -53,8 +49,8 @@ class PliSimulator {
    double pixel_size_{};
    Setup pli_setup_{};
    vm::Vec3<size_t> dim_{};
-   object::container::Vector<int> label_field_;
-   object::container::Vector<float> vector_field_;
+   object::container::NpArray<int> label_field_;
+   object::container::NpArray<float> vector_field_;
    std::vector<PhyProp> properties_;
    // vm::Vec3<bool> flip_tissue_{false};
 
