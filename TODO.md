@@ -12,10 +12,10 @@ back to [readme](README.md)
   - [ ] visualizer
     - [x] static
     - [ ] interactive
-- [ ] objects
+- [x] objects
   - [x] fiber
   - [x] tissue_container
-  - [ ] tissue_container as contigious np.array without copy
+  - [x] tissue_container as contigious np.array without copy
 - [ ] simulation
   - [x] generator
   - [x] simulator
@@ -35,6 +35,15 @@ back to [readme](README.md)
 ## Tests
 - [x] CI
 - [x] docker-file
+
+## restructure
+ - [x] fiber
+   - [x] fiber::Fiber
+   - [x] fiber::Geometry (model)
+   - [x] fiber::layer::Property (simulation)
+   - [x] fiber::Bundle (simulation)
+
+
 
 # File Structure:
 ## PyPackage structure:
@@ -73,11 +82,3 @@ back to [readme](README.md)
 ## include:
  - aabb.hpp
  - vemath.hpp
-
-## restructure
- - [x] fiber
-   - [x] fiber::Fiber
-   - [x] fiber::Geometry (model)
-   - [x] fiber::layer::Property (simulation)
-   - [x] fiber::Bundle (simulation)
-

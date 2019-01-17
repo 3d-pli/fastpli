@@ -43,7 +43,7 @@ template <typename T> class NpArray {
    const std::vector<size_t> &shape() const { return shape_; }
 
  private:
-   T *data_ = nullptr;
+   T const *  data_ = nullptr;
    size_t size_ = 0;
    std::vector<size_t> shape_{};
 };
