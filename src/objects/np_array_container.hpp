@@ -38,7 +38,7 @@ template <typename T> class NpArray {
    }
 
    // getter
-   size_t size() const { return size; }
+   size_t size() const { return size_; }
    size_t ndim() const { return shape_.size(); }
    const std::vector<size_t> &shape() const { return shape_; }
 
