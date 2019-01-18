@@ -32,10 +32,10 @@ template <typename T> class NpArray {
       assert(i < size_);
       return data_[i];
    }
-   T &operator[](size_t i) {
-      assert(i < size_);
-      return data_[i];
-   }
+   // T &operator[](size_t i) {
+   //    assert(i < size_);
+   //    return data_[i];
+   // }
 
    // getter
    size_t size() const { return size_; }
