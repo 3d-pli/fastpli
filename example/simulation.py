@@ -44,6 +44,7 @@ simpli.RotateVolumeAroundPoint(np.deg2rad(
     20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
 simpli.TranslateVolume([25, -15, 50])
 
+label_field, _, tissue_properties = simpli.GenerateTissue(only_label=True)
 label_field, vec_field, tissue_properties = simpli.GenerateTissue()
 
 label_field_vis = np.transpose(label_field.astype(

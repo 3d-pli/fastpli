@@ -87,13 +87,13 @@ class Simpli:
             raise TypeError(
                 "properties must have the same size as fiber_bundles")
 
-    def GenerateTissue(self):
+    def GenerateTissue(self, only_label=False):
         self.__gen.set_volume(self.dim, self.pixel_size)
         self.__CheckFiberBundleAndPropertiesLength()
         self.__gen.set_fiber_bundles(
             self.__fiber_bundles, self.__fiber_bundles_properties)
         label_field, vec_field, tissue_properties = self.__gen.run_generation(
-            0, 0)
+            only_label, 0)
 
         return label_field, vec_field, tissue_properties
 

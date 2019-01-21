@@ -55,8 +55,10 @@ PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
    auto label_field = new std::vector<int>(dim_.x() * dim_.y() * dim_.z(), 0);
-   auto vector_field =
-       new std::vector<float>(dim_.x() * dim_.y() * dim_.z() * 3, 0);
+   auto vector_field = new std::vector<float>();
+
+   if (!only_label)
+      vector_field->resize(dim_.x() * dim_.y() * dim_.z() * 3, 0);
 
    // create array_distance
    std::vector<float> array_distance(dim_.x() * dim_.y() * dim_.z(),
