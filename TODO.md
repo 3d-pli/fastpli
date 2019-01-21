@@ -19,6 +19,7 @@ back to [readme](README.md)
 - [ ] simulation
   - [x] generator
   - [x] simulator
+  - [ ] *.txt output for label_field
   - [ ] apply_optic
 - [ ] tools
   - [ ] h5io
@@ -35,6 +36,8 @@ back to [readme](README.md)
 ## Tests
 - [x] CI
 - [x] docker-file
+- [ ] simulation.generator
+- [ ] simulation.simulator
 
 ## restructure
  - [x] fiber
@@ -43,7 +46,9 @@ back to [readme](README.md)
    - [x] fiber::layer::Property (simulation)
    - [x] fiber::Bundle (simulation)
 
-
+## include:
+- [x] aabb.hpp
+- [x] vemath.hpp
 
 # File Structure:
 ## PyPackage structure:
@@ -78,7 +83,3 @@ back to [readme](README.md)
     `-- module-name
         `-- foo_test.py
 ```
-
-## include:
- - aabb.hpp
- - vemath.hpp
