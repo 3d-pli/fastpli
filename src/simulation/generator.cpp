@@ -165,8 +165,8 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
 
             auto dist_squ = vm::length2(min_point - point);
             auto ly_r = fiber.CalcRadius(s_idx, t);
-            auto const &f_ly_r = layers_scale_sqr.back();
-            if (dist_squ > f_ly_r * f_ly_r * ly_r * ly_r)
+            auto const &f_ly_sqr = layers_scale_sqr.back();
+            if (dist_squ > f_ly_sqr * ly_r * ly_r)
                continue;
 
             size_t ind = x * dim_.y() * dim_.z() + y * dim_.z() + z;
