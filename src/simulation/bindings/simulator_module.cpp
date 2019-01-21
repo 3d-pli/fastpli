@@ -5,7 +5,8 @@
 #include <pybind11/stl.h>
 
 #include "../simulator.hpp"
-#include "objects/vector_container.hpp"
+#include "objects/np_array_container.hpp"
+#include "objects/np_array_helper.hpp"
 
 namespace py = pybind11;
 
@@ -16,21 +17,25 @@ PYBIND11_MODULE(simulation, m) {
        .def(py::init())
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue",
-            (void (PliSimulator::*)(
-                object::container::Vector<int>,
-                object::container::Vector<float>, const std::array<int, 3> &,
-                const std::vector<PliSimulator::PhyProp> &, const double)) &
+            (void (PliSimulator::*)(const std::array<int, 3> &,
+                                    const std::vector<PliSimulator::PhyProp> &,
+                                    const double)) &
                 PliSimulator::SetTissue)
+
        .def("run_simulation",
-            [](PliSimulator &self, double theta, double phi, double ps,
-               bool do_nn = true) {
-               auto result = new std::vector<float>(
-                   self.RunSimulation(theta, phi, ps, do_nn));
-               auto capsule = py::capsule(result, [](void *result) {
-                  delete reinterpret_cast<std::vector<float> *>(result);
-               });
-               return py::array(result->size(), result->data(), capsule);
+            [](PliSimulator &self,
+               py::array_t<int, py::array::c_style> label_array,
+               py::array_t<float, py::array::c_style> vector_array,
+               double theta, double phi, double ps, bool do_nn = true) {
+               auto label_container = object::NpArray2Container(label_array);
+               auto vector_container = object::NpArray2Container(vector_array);
+
+               auto result_vec = new std::vector<float>(self.RunSimulation(
+                   label_container, vector_container, theta, phi, ps, do_nn));
+
+               return object::Vec2NpArray(result_vec);
             },
+            py::arg("label_field"), py::arg("vector_field"),
             py::arg("theta") = 0, py::arg("phi") = 0, py::arg("step_size") = 1,
             py::arg("do_nn_intp") = true);
 

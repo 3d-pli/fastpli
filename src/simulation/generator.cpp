@@ -9,7 +9,6 @@
 #include "fiber_class.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
-#include "objects/vector_container.hpp"
 #include "simulator.hpp"
 
 void PliGenerator::SetVolumeWithArrays(
@@ -50,13 +49,14 @@ void PliGenerator::SetFiberBundles(
    }
 }
 
-std::tuple<object::container::Vector<int>, object::container::Vector<float>,
+std::tuple<std::vector<int> *, std::vector<float> *,
            std::vector<PliSimulator::PhyProp>>
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
-   std::vector<int> label_field(dim_.x() * dim_.y() * dim_.z(), 0);
-   std::vector<float> vector_field(dim_.x() * dim_.y() * dim_.z() * 3, 0);
+   auto label_field = new std::vector<int>(dim_.x() * dim_.y() * dim_.z(), 0);
+   auto vector_field =
+       new std::vector<float>(dim_.x() * dim_.y() * dim_.z() * 3, 0);
 
    // create array_distance
    std::vector<float> array_distance(dim_.x() * dim_.y() * dim_.z(),
@@ -90,8 +90,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
             for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
                // TODO: figure out how to incapsulate idx into fiber to only
                // parse fiber
-               FillVoxelsAroundFiberSegment(fb_idx, f_idx, s_idx, label_field,
-                                            vector_field, array_distance,
+               FillVoxelsAroundFiberSegment(fb_idx, f_idx, s_idx, *label_field,
+                                            *vector_field, array_distance,
                                             only_label);
             }
          }
@@ -122,13 +122,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    if (progress_bar)
       std::cout << std::endl;
 
-   auto label_field_ptr = object::container::Vector<int>();
-   auto vector_field_ptr = object::container::Vector<float>();
-
-   (*label_field_ptr.data_) = std::move(label_field);
-   (*vector_field_ptr.data_) = std::move(vector_field);
-
-   return std::make_tuple(label_field_ptr, vector_field_ptr, GetPropertyList());
+   return std::make_tuple(label_field, vector_field, GetPropertyList());
 }
 
 void PliGenerator::FillVoxelsAroundFiberSegment(

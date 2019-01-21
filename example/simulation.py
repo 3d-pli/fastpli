@@ -46,7 +46,7 @@ simpli.TranslateVolume([25, -15, 50])
 
 label_field, vec_field, tissue_properties = simpli.GenerateTissue()
 
-label_field_vis = np.transpose(label_field.asarray().astype(
+label_field_vis = np.transpose(label_field.astype(
     np.uint16).reshape(simpli.dim[0], simpli.dim[1], simpli.dim[2]), (0, 1, 2))
 label_field_vis[label_field_vis > 0] += 3
 
@@ -57,22 +57,42 @@ simpli.setup.resolution = 1
 simpli.setup.untilt_sensor = True
 simpli.setup.wavelength = 525
 
-simpli.InitSimulation(label_field, vec_field, tissue_properties)
+# simpli.InitSimulation(label_field, vec_field, tissue_properties)
 
 print("run_simulation: 0")
-image = simpli.run_simulation(0, 0)
+image = simpli.run_simulation(label_field, vec_field, tissue_properties, 0, 0)
 
 print("run_simulation: 1")
-image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(0))
+image = simpli.run_simulation(
+    label_field,
+    vec_field,
+    tissue_properties,
+    np.deg2rad(5.5),
+    np.deg2rad(0))
 
 print("run_simulation: 2")
-image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(90))
+image = simpli.run_simulation(
+    label_field,
+    vec_field,
+    tissue_properties,
+    np.deg2rad(5.5),
+    np.deg2rad(90))
 
 print("run_simulation: 3")
-image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(180))
+image = simpli.run_simulation(
+    label_field,
+    vec_field,
+    tissue_properties,
+    np.deg2rad(5.5),
+    np.deg2rad(180))
 
 print("run_simulation: 4")
-image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(270))
+image = simpli.run_simulation(
+    label_field,
+    vec_field,
+    tissue_properties,
+    np.deg2rad(5.5),
+    np.deg2rad(270))
 
 '''
 tracker = IndexTracker(ax,image)

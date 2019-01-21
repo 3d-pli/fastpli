@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from fastpli.simulation import generation, simulation
-from fastpli.objects import Fiber, VectorContainer
+from fastpli.objects import Fiber
 from fastpli.tools import rotation
 import numpy as np
 import h5py
@@ -103,9 +103,15 @@ class Simpli:
         self.__sim.set_tissue(label_field, vec_field, self.dim,
                               tissue_properties, self.pixel_size)
 
-    def run_simulation(self, theta, phi, do_untilt=True):
+    def run_simulation(self, label_field, vec_field,
+                       tissue_properties, theta, phi, do_untilt=True):
 
-        image = self.__sim.run_simulation(theta, phi, do_untilt)
+        self.__sim.set_pli_setup(self.setup)
+        self.__sim.set_tissue(self.dim,
+                              tissue_properties, self.pixel_size)
+
+        image = self.__sim.run_simulation(
+            label_field, vec_field, theta, phi, do_untilt)
         return image.reshape(self.dim[0], self.dim[1],
                              len(self.setup.filter_rotations))
 
