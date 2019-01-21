@@ -15,7 +15,6 @@ template <typename T> class NpArray {
     * function, since python can change the memory adress anytime.
     */
  public:
-   NpArray();
    NpArray(T *ptr, size_t n, std::vector<size_t> shape)
        : data_{ptr}, size_(n), shape_(shape) {
 
@@ -24,7 +23,8 @@ template <typename T> class NpArray {
                                std::multiplies<size_t>());
       assert(v == n);
    };
-   // NpArray() = default;
+   
+   NpArray() = default;
    ~NpArray() = default;
 
    // operators
