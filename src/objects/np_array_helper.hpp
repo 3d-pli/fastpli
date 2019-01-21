@@ -1,12 +1,19 @@
 #ifndef NP_ARRAY_HELPER_HPP_
 #define NP_ARRAY_HELPER_HPP_
 
+#include <vector>
+
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <vector>
+#include "np_array_container.hpp"
+
+/**
+ * Helper function for pybind-modules to bind np_arrays and vector containers
+ * into c++ and python
+ */
 
 namespace py = pybind11;
 namespace object {

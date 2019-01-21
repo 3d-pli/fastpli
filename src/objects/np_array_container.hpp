@@ -23,7 +23,7 @@ template <typename T> class NpArray {
                                std::multiplies<size_t>());
       assert(v == n);
    };
-   
+
    NpArray() = default;
    ~NpArray() = default;
 
@@ -43,7 +43,7 @@ template <typename T> class NpArray {
    const std::vector<size_t> &shape() const { return shape_; }
 
  private:
-   T const *  data_ = nullptr;
+   T const *data_ = nullptr;
    size_t size_ = 0;
    std::vector<size_t> shape_{};
 };
