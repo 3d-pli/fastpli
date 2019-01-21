@@ -1,6 +1,7 @@
 #ifndef NP_ARRAY_HELPER_HPP_
 #define NP_ARRAY_HELPER_HPP_
 
+#include <iostream>
 #include <vector>
 
 #include <pybind11/functional.h>
@@ -28,10 +29,27 @@ NpArray2Container(py::array_t<T, py::array::c_style> &array) {
        std::vector<size_t>(buffer.shape.begin(), buffer.shape.end()));
 }
 
-template <typename T> py::array Vec2NpArray(std::vector<T> *vec) {
+template <typename T>
+py::array Vec2NpArray(std::vector<T> *vec,
+                      std::vector<size_t> shape = std::vector<size_t>()) {
+
+   if (shape.empty())
+      shape.push_back(vec->size());
+
+   std::vector<size_t> stride(shape.size(), 0);
+   size_t elm_stride = sizeof(T);
+
+   auto shape_it = shape.rbegin();
+   auto stride_it = stride.rbegin();
+   for (; stride_it != stride.rend(); stride_it++, shape_it++) {
+      *stride_it = elm_stride;
+      elm_stride *= *shape_it;
+   }
+
    auto capsule = py::capsule(
        vec, [](void *vec) { delete reinterpret_cast<std::vector<T> *>(vec); });
-   return py::array(vec->size(), vec->data(), capsule);
+
+   return py::array_t<T>(shape, stride, vec->data(), capsule);
 }
 } // namespace object
 

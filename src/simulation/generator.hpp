@@ -34,6 +34,7 @@ class PliGenerator {
    // getter
    std::vector<unsigned short>
    CalcVisualLabelField(std::vector<int> label_field) const;
+   vm::Vec3<size_t> dim() { return dim_; };
 
  private:
    double pixel_size_{0};
