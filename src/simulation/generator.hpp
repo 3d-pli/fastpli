@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "fiber_class.hpp"
+#include "helper.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "simulator.hpp"
@@ -22,7 +23,7 @@ class PliGenerator {
                             const float pixel_size,
                             const std::array<bool, 3> flip_direction =
                                 std::array<bool, 3>{{false, false, false}});
-   void SetVolume(const vm::Vec3<int> dim, const float pixel_size,
+   void SetVolume(const vm::Vec3<long long> dim, const float pixel_size,
                   const vm::Vec3<bool> flip_direction = false);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
 
@@ -34,11 +35,15 @@ class PliGenerator {
    // getter
    std::vector<unsigned short>
    CalcVisualLabelField(std::vector<int> label_field) const;
-   vm::Vec3<size_t> dim() { return dim_; };
+   Dimensions dim() { return dim_; };
+   vm::Vec3<long long> dim_local_() { return dim_.local; };
+   vm::Vec3<long long> dim_global_() { return dim_.global; };
+   vm::Vec3<long long> dim_offset_() { return dim_.offset; };
 
  private:
    double pixel_size_{0};
-   vm::Vec3<size_t> dim_{0};
+   Dimensions dim_;
+
    vm::Vec3<bool> flip_direction_{false};
 
    std::vector<fiber::Bundle> fiber_bundles_org_;
