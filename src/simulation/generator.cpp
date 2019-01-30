@@ -93,7 +93,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
 
    int lastProgress = 0;
    const auto volume_bb = aabb::AABB<float, 3>(
-       vm::cast<float>(dim_.local),
+       vm::cast<float>(dim_.offset.local),
        vm::cast<float>(dim_.local + dim_.offset.local), true);
 
    size_t progress_counter = 0;
@@ -171,7 +171,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    fiber_segment_bb.min -= max_radius;
    fiber_segment_bb.max += max_radius;
    fiber_segment_bb.Intersect(aabb::AABB<float, 3>(
-       vm::cast<float>(dim_.local),
+       vm::cast<float>(dim_.offset.local),
        vm::cast<float>(dim_.local + dim_.offset.local), true));
    const auto min = fiber_segment_bb.min;
    const auto max = fiber_segment_bb.max;
