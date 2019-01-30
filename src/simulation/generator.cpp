@@ -27,6 +27,17 @@ void PliGenerator::SetVolume(const Dimensions dim, const float pixel_size,
                                   std::to_string(dim.local.y()) + "," +
                                   std::to_string(dim.local.z()) + "]");
 
+   // clang-format off
+   if (dim.local < dim.global)
+      throw std::invalid_argument("dim.local < dim.global: [" +
+                                  std::to_string(dim.local.x()) + "," +
+                                  std::to_string(dim.local.y()) + "," +
+                                  std::to_string(dim.local.z()) + "] < [" +
+                                  std::to_string(dim.global.x()) + "," +
+                                  std::to_string(dim.global.y()) + "," +
+                                  std::to_string(dim.global.z()) + "]");
+   // clang-format on
+
    if (pixel_size <= 0)
       throw std::invalid_argument("pixel_size <= 0: " +
                                   std::to_string(pixel_size));
@@ -34,6 +45,15 @@ void PliGenerator::SetVolume(const Dimensions dim, const float pixel_size,
    dim_ = dim;
    pixel_size_ = pixel_size;
    flip_direction_ = flip_direction;
+
+   if (debug_) {
+      std::cout << "dim.global = " << dim.global << std::endl;
+      std::cout << "dim.local = " << dim.local << std::endl;
+      std::cout << "dim.offset.local = " << dim.offset.local << std::endl;
+      std::cout << "dim.offset.global = " << dim.offset.global << std::endl;
+      std::cout << "pixel_size = " << pixel_size_ << std::endl;
+      std::cout << "flip_direction = " << flip_direction_ << std::endl;
+   }
 }
 void PliGenerator::SetFiberBundles(
     const std::vector<fiber::Bundle> &fiber_bundles) {

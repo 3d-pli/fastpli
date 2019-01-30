@@ -37,6 +37,7 @@ class PliGenerator {
    vm::Vec3<double> dim_offset_global() { return dim_.offset.global; };
 
  private:
+   const bool debug_ = true;
    double pixel_size_{0};
    Dimensions dim_;
 
