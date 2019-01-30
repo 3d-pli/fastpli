@@ -20,7 +20,7 @@ void PliGenerator::SetVolume(const Dimensions dim, const float pixel_size,
                                   std::to_string(dim.global.x()) + "," +
                                   std::to_string(dim.global.y()) + "," +
                                   std::to_string(dim.global.z()) + "]");
-   
+
    if (dim.local.x() <= 0 || dim.local.y() <= 0 || dim.local.z() <= 0)
       throw std::invalid_argument("dim.global[any] <= 0: [" +
                                   std::to_string(dim.local.x()) + "," +
@@ -53,14 +53,17 @@ std::tuple<std::vector<int> *, std::vector<float> *,
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
-   auto label_field = new std::vector<int>(dim_.x() * dim_.y() * dim_.z(), 0);
+   auto label_field = new std::vector<int>(
+       dim_.local.x() * dim_.local.y() * dim_.local.z(), 0);
    auto vector_field = new std::vector<float>();
 
    if (!only_label)
-      vector_field->resize(dim_.x() * dim_.y() * dim_.z() * 3, 0);
+      vector_field->resize(dim_.local.x() * dim_.local.y() * dim_.local.z() * 3,
+                           0);
 
    // create array_distance
-   std::vector<float> array_distance(dim_.x() * dim_.y() * dim_.z(),
+   std::vector<float> array_distance(dim_.local.x() * dim_.local.y() *
+                                         dim_.local.z(),
                                      std::numeric_limits<float>::infinity());
 
    // size fibers with pixel_size
@@ -69,8 +72,9 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       fb.Resize(1.0 / pixel_size_);
 
    int lastProgress = 0;
-   const auto volume_bb =
-       aabb::AABB<float, 3>(vm::Vec3<float>(0), vm::cast<float>(dim_), true);
+   const auto volume_bb = aabb::AABB<float, 3>(
+       vm::cast<float>(dim_.local),
+       vm::cast<float>(dim_.local + dim_.offset.local), true);
 
    size_t progress_counter = 0;
 
@@ -146,8 +150,9 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    aabb::AABB<float, 3> fiber_segment_bb(p, q);
    fiber_segment_bb.min -= max_radius;
    fiber_segment_bb.max += max_radius;
-   fiber_segment_bb.Intersect(
-       aabb::AABB<float, 3>(vm::Vec3<float>(0), vm::cast<float>(dim_), true));
+   fiber_segment_bb.Intersect(aabb::AABB<float, 3>(
+       vm::cast<float>(dim_.local),
+       vm::cast<float>(dim_.local + dim_.offset.local), true));
    const auto min = fiber_segment_bb.min;
    const auto max = fiber_segment_bb.max;
 
@@ -168,7 +173,10 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
             if (dist_squ > f_ly_sqr * ly_r * ly_r)
                continue;
 
-            size_t ind = x * dim_.y() * dim_.z() + y * dim_.z() + z;
+            size_t ind =
+                (x - dim_.offset.local.x()) * dim_.local.y() * dim_.local.z() +
+                (y - dim_.offset.local.y()) * dim_.local.z() +
+                (z - dim_.offset.local.z());
             assert(ind < label_field.size());
 
             if (array_distance[ind] >= dist_squ) {
