@@ -88,6 +88,10 @@ PliGenerator::RunTissueGeneration(const bool only_label,
 
    // size fibers with pixel_size
    fiber_bundles_ = fiber_bundles_org_;
+   if (dim_.offset.global != 0) {
+      for (auto &fb : fiber_bundles_)
+         fb.Translate(vm::cast<float>(-dim_.offset.global));
+   }
    for (auto &fb : fiber_bundles_)
       fb.Resize(1.0 / pixel_size_);
 
