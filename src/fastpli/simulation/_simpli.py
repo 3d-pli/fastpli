@@ -20,7 +20,10 @@ class Simpli:
         self.__sim = simulation.Simulator()
 
         # self.layer_properties = [[]]
-        self.dim = [0, 0, 0]
+        self.dim_local = [0, 0, 0]
+        self.dim_global = [0, 0, 0]
+        self.dim_offset_local = [0, 0, 0]
+
         self.pixel_size = 0
         self.setup = simulation.Setup()
 
@@ -88,7 +91,8 @@ class Simpli:
                 "properties must have the same size as fiber_bundles")
 
     def GenerateTissue(self, only_label=False):
-        self.__gen.set_volume(self.dim, self.pixel_size)
+        self.__gen.set_volume(
+            self.dim_global, self.dim_local, self.dim_offset_local, self.pixel_size)
         self.__CheckFiberBundleAndPropertiesLength()
         self.__gen.set_fiber_bundles(
             self.__fiber_bundles, self.__fiber_bundles_properties)
@@ -98,21 +102,20 @@ class Simpli:
         return label_field, vec_field, tissue_properties
 
     def InitSimulation(self, label_field, vec_field, tissue_properties):
-        print("InitSimualtion:", self.pixel_size, self.dim)
         self.__sim.set_pli_setup(self.setup)
-        self.__sim.set_tissue(label_field, vec_field, self.dim,
-                              tissue_properties, self.pixel_size)
+        self.__sim.set_tissue(
+            label_field, vec_field, tissue_properties, self.pixel_size)
 
     def run_simulation(self, label_field, vec_field,
                        tissue_properties, theta, phi, do_untilt=True):
 
         self.__sim.set_pli_setup(self.setup)
-        self.__sim.set_tissue(self.dim,
-                              tissue_properties, self.pixel_size)
+        self.__sim.set_tissue(
+            self.dim_global, tissue_properties, self.pixel_size)
 
         image = self.__sim.run_simulation(
             label_field, vec_field, theta, phi, do_untilt)
-        return image.reshape(self.dim[0], self.dim[1],
+        return image.reshape(self.dim_global[0], self.dim_global[1],
                              len(self.setup.filter_rotations))
 
 
