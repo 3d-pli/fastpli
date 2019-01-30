@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "../generator.hpp"
+#include "../helper.hpp"
 #include "objects/np_array_helper.hpp"
 
 namespace py = pybind11;
@@ -14,7 +15,7 @@ PYBIND11_MODULE(generation, m) {
 
    py::class_<PliGenerator>(m, "Generator")
        .def(py::init())
-       .def("set_volume", &PliGenerator::SetVolumeWithArrays, py::arg("dim"),
+       .def("set_volume", &PliGenerator::SetVolume, py::arg("dim"),
             py::arg("pixel_size"),
             py::arg("flip_direction") =
                 std::array<bool, 3>{{false, false, false}})
@@ -35,15 +36,14 @@ PYBIND11_MODULE(generation, m) {
                std::vector<int> *label_field;
                std::vector<float> *vector_field;
                std::vector<PliSimulator::PhyProp> prop_list;
-               std::vector<size_t> dim;
-
                std::tie(label_field, vector_field, prop_list) =
                    self.RunTissueGeneration(only_label, progress_bar);
 
-               std::vector<size_t> dim_label_field = self.dim();
+               std::vector<size_t> dim_label_field =
+                   vm::cast<size_t>(self.dim_local());
                std::vector<size_t> dim_vector_field;
                if (!only_label) {
-                  dim_vector_field = self.dim();
+                  dim_vector_field = dim_label_field;
                   dim_vector_field.push_back(3);
                }
 
