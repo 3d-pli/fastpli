@@ -59,13 +59,19 @@ PYBIND11_MODULE(_fiber_cpp, m) {
 
        // Manipulators
        .def("rotate",
-            (void (Fiber::*)(const std::array<float, 9> &)) & Fiber::Rotate)
+            [](Fiber &self, const std::array<float, 9> &mat) {
+               self.Rotate(vm::Mat3x3<float>(mat));
+            })
        .def("rotate_around_point",
-            (void (Fiber::*)(const std::array<float, 9> &,
-                             const std::array<float, 3> &)) &
-                Fiber::RotateAroundPoint)
+            [](Fiber &self, const std::array<float, 9> &mat,
+               const std::array<float, 3> &point) {
+               self.RotateAroundPoint(vm::Mat3x3<float>(mat),
+                                      vm::Vec3<float>(point));
+            })
        .def("translate",
-            (void (Fiber::*)(const std::array<float, 3> &)) & Fiber::Translate)
+            [](Fiber &self, const std::array<float, 3> &offset) {
+               self.Translate(vm::Vec3<float>(offset));
+            })
        .def("resize", &Fiber::Resize)
        .def("resize_points", &Fiber::ResizePoints)
        .def("resize_radii", &Fiber::ResizeRadii);

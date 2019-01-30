@@ -34,23 +34,9 @@ class Fiber {
    float CalcRadius(size_t idx, float t) const;
 
    // manipolator
-   void Rotate(const std::array<float, 9> &rot_mat) {
-      Rotate(vm::Mat3x3<float>(rot_mat));
-   };
    void Rotate(const vm::Mat3x3<float> &rot_mat);
-
-   void RotateAroundPoint(const std::array<float, 9> &rot_mat,
-                          const std::array<float, 3> &point) {
-      RotateAroundPoint(vm::Mat3x3<float>(rot_mat), vm::Vec3<float>(point));
-   };
-
    void RotateAroundPoint(const vm::Mat3x3<float> &rot_mat,
                           const vm::Vec3<float> &point);
-
-   void Translate(const std::array<float, 3> &translation) {
-      Translate(vm::Vec3<float>(translation));
-   };
-
    void Translate(const vm::Vec3<float> &translation);
 
    void Resize(const float f);
@@ -67,22 +53,6 @@ class Fiber {
 
 using Bundle = std::vector<Fiber>;
 using Bundles = std::vector<Bundle>;
-
-// void Resize(Fiber);
-// void Resize(Bundle);
-// void Resize(Bundles);
-
-// void Rotate(Fiber);
-// void Rotate(Bundle);
-// void Rotate(Bundles);
-
-// void Translate(Fiber);
-// void Translate(Bundle);
-// void Translate(Bundles);
-
-// void RotateAroundPoint(Fiber, vm::Vec3<float>);
-// void RotateAroundPoint(Bundle, vm::Vec3<float>);
-// void RotateAroundPoint(Bundles, vm::Vec3<float>);
 
 } // namespace fiber
 } // namespace object

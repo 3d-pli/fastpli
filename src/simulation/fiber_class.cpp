@@ -96,18 +96,18 @@ void Bundle::ResizeRadii(const float f) {
       fiber.ResizeRadii(f);
 }
 
-void Bundle::Rotate(const std::array<float, 9> &rot_mat) {
+void Bundle::Rotate(const vm::Mat3x3<float> &rot_mat) {
    for (auto &fiber : fibers_)
       fiber.Rotate(rot_mat);
 }
 
-void Bundle::RotateAroundPoint(const std::array<float, 9> &rot_mat,
-                               const std::array<float, 3> point) {
+void Bundle::RotateAroundPoint(const vm::Mat3x3<float> &rot_mat,
+                               const vm::Vec3<float> &point) {
    for (auto &fiber : fibers_)
       fiber.RotateAroundPoint(rot_mat, point);
 }
 
-void Bundle::Translate(const std::array<float, 3> &translation) {
+void Bundle::Translate(const vm::Vec3<float> &translation) {
    for (auto &fiber : fibers_)
       fiber.Translate(translation);
 }

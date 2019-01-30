@@ -91,10 +91,10 @@ class Bundle {
    void Resize(const float f);
    void ResizePoints(const float f);
    void ResizeRadii(const float f);
-   void Rotate(const std::array<float, 9> &rot_mat);
-   void RotateAroundPoint(const std::array<float, 9> &rot_mat,
-                          std::array<float, 3> point);
-   void Translate(const std::array<float, 3> &translation);
+   void Rotate(const vm::Mat3x3<float> &rot_mat);
+   void RotateAroundPoint(const vm::Mat3x3<float> &rot_mat,
+                          const vm::Vec3<float> &point);
+   void Translate(const vm::Vec3<float> &translation);
 
  private:
    std::vector<Fiber> fibers_{};
