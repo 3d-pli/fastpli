@@ -18,12 +18,7 @@ class PliGenerator {
    ~PliGenerator() = default;
 
    // setter
-
-   void SetVolumeWithArrays(const std::array<int, 3> dim,
-                            const float pixel_size,
-                            const std::array<bool, 3> flip_direction =
-                                std::array<bool, 3>{{false, false, false}});
-   void SetVolume(const vm::Vec3<long long> dim, const float pixel_size,
+   void SetVolume(const Dimensions dim, const float pixel_size,
                   const vm::Vec3<bool> flip_direction = false);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
 
@@ -36,9 +31,10 @@ class PliGenerator {
    std::vector<unsigned short>
    CalcVisualLabelField(std::vector<int> label_field) const;
    Dimensions dim() { return dim_; };
-   vm::Vec3<long long> dim_local_() { return dim_.local; };
-   vm::Vec3<long long> dim_global_() { return dim_.global; };
-   vm::Vec3<long long> dim_offset_() { return dim_.offset; };
+   vm::Vec3<long long> dim_local() { return dim_.local; };
+   vm::Vec3<long long> dim_global() { return dim_.global; };
+   vm::Vec3<long long> dim_offset_local() { return dim_.offset.local; };
+   vm::Vec3<double> dim_offset_global() { return dim_.offset.global; };
 
  private:
    double pixel_size_{0};

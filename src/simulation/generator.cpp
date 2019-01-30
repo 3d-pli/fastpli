@@ -7,32 +7,31 @@
 #include <vector>
 
 #include "fiber_class.hpp"
+#include "helper.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "simulator.hpp"
 
-void PliGenerator::SetVolumeWithArrays(
-    const std::array<int, 3> dim, const float pixel_size,
-    const std::array<bool, 3> flip_direction) {
-   auto dim_vec = vm::Vec3<int>(dim[0], dim[1], dim[2]);
-   auto flip_direction_vec =
-       vm::Vec3<bool>(flip_direction[0], flip_direction[1], flip_direction[2]);
-   SetVolume(dim_vec, pixel_size, flip_direction_vec);
-}
-
-void PliGenerator::SetVolume(const vm::Vec3<int> dim, const float pixel_size,
+void PliGenerator::SetVolume(const Dimensions dim, const float pixel_size,
                              const vm::Vec3<bool> flip_direction) {
 
-   if (dim.x() <= 0 || dim.y() <= 0 || dim.z() <= 0)
-      throw std::invalid_argument("dim[any] <= 0: [" + std::to_string(dim.x()) +
-                                  "," + std::to_string(dim.y()) + "," +
-                                  std::to_string(dim.z()) + "]");
+   if (dim.global.x() <= 0 || dim.global.y() <= 0 || dim.global.z() <= 0)
+      throw std::invalid_argument("dim.global[any] <= 0: [" +
+                                  std::to_string(dim.global.x()) + "," +
+                                  std::to_string(dim.global.y()) + "," +
+                                  std::to_string(dim.global.z()) + "]");
+   
+   if (dim.local.x() <= 0 || dim.local.y() <= 0 || dim.local.z() <= 0)
+      throw std::invalid_argument("dim.global[any] <= 0: [" +
+                                  std::to_string(dim.local.x()) + "," +
+                                  std::to_string(dim.local.y()) + "," +
+                                  std::to_string(dim.local.z()) + "]");
 
    if (pixel_size <= 0)
       throw std::invalid_argument("pixel_size <= 0: " +
                                   std::to_string(pixel_size));
 
-   dim_ = vm::cast<size_t>(dim);
+   dim_ = dim;
    pixel_size_ = pixel_size;
    flip_direction_ = flip_direction;
 }
