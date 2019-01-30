@@ -10,12 +10,26 @@
 
 namespace py = pybind11;
 
+// TODO: expose vm::vec with vec->data_ as an array
+
 PYBIND11_MODULE(generation, m) {
    m.doc() = "Generation of tissue for SimPLI";
 
    py::class_<PliGenerator>(m, "Generator")
        .def(py::init())
-       .def("set_volume", &PliGenerator::SetVolume, py::arg("dim"),
+       .def("set_volume",
+            [](PliGenerator &self, std::array<size_t, 3> global,
+               std::array<size_t, 3> local, std::array<size_t, 3> local_offset,
+               double pixel_size, std::array<bool, 3> flip_direction) {
+               Dimensions dim;
+               dim.local = vm::cast<long long>(vm::Vec3<size_t>(local));
+               dim.global = vm::cast<long long>(vm::Vec3<size_t>(global));
+               dim.offset.local =
+                   vm::cast<long long>(vm::Vec3<size_t>(local_offset));
+               self.SetVolume(dim, pixel_size, flip_direction);
+            },
+            py::arg("global"), py::arg("local"),
+            py::arg("local_offset") = std::array<size_t, 3>{{0, 0, 0}},
             py::arg("pixel_size"),
             py::arg("flip_direction") =
                 std::array<bool, 3>{{false, false, false}})
