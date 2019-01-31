@@ -122,7 +122,6 @@ void Bundle::Translate(const vm::Vec3<float> &translation) {
 
 void Bundle::CalculateVoi() {
    voi_ = aabb::AABB<float, 3>();
-   std::cout << "Bundle::CalculateVoi(): " << voi_ << std::endl;
    if (!fibers_.empty())
       voi_ = fibers_.front().voi();
 

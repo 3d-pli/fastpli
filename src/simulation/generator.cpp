@@ -12,49 +12,56 @@
 #include "include/vemath.hpp"
 #include "simulator.hpp"
 
-void PliGenerator::SetVolume(const Dimensions dim, const float pixel_size,
+void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
+                             const vm::Vec3<float> origin,
+                             const float pixel_size,
                              const vm::Vec3<bool> flip_direction) {
 
-   if (dim.global.x() <= 0 || dim.global.y() <= 0 || dim.global.z() <= 0)
+   if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)
       throw std::invalid_argument("dim.global[any] <= 0: [" +
-                                  std::to_string(dim.global.x()) + "," +
-                                  std::to_string(dim.global.y()) + "," +
-                                  std::to_string(dim.global.z()) + "]");
+                                  std::to_string(global_dim.x()) + "," +
+                                  std::to_string(global_dim.y()) + "," +
+                                  std::to_string(global_dim.z()) + "]");
 
-   if (dim.local.x() <= 0 || dim.local.y() <= 0 || dim.local.z() <= 0)
+   mpi_->CreateCartGrid(global_dim);
+
+   dim_ = mpi_->dim_vol();
+   dim_.origin = origin;
+
+   if (dim_.local.x() <= 0 || dim_.local.y() <= 0 || dim_.local.z() <= 0)
       throw std::invalid_argument("dim.global[any] <= 0: [" +
-                                  std::to_string(dim.local.x()) + "," +
-                                  std::to_string(dim.local.y()) + "," +
-                                  std::to_string(dim.local.z()) + "]");
+                                  std::to_string(dim_.local.x()) + "," +
+                                  std::to_string(dim_.local.y()) + "," +
+                                  std::to_string(dim_.local.z()) + "]");
 
    // clang-format off
-   if (dim.local < dim.global)
+   if (dim_.local < dim_.global)
       throw std::invalid_argument("dim.local < dim.global: [" +
-                                  std::to_string(dim.local.x()) + "," +
-                                  std::to_string(dim.local.y()) + "," +
-                                  std::to_string(dim.local.z()) + "] < [" +
-                                  std::to_string(dim.global.x()) + "," +
-                                  std::to_string(dim.global.y()) + "," +
-                                  std::to_string(dim.global.z()) + "]");
+                                  std::to_string(dim_.local.x()) + "," +
+                                  std::to_string(dim_.local.y()) + "," +
+                                  std::to_string(dim_.local.z()) + "] < [" +
+                                  std::to_string(dim_.global.x()) + "," +
+                                  std::to_string(dim_.global.y()) + "," +
+                                  std::to_string(dim_.global.z()) + "]");
    // clang-format on
 
    if (pixel_size <= 0)
       throw std::invalid_argument("pixel_size <= 0: " +
                                   std::to_string(pixel_size));
 
-   dim_ = dim;
    pixel_size_ = pixel_size;
    flip_direction_ = flip_direction;
 
    if (debug_) {
-      std::cout << "dim.global = " << dim.global << std::endl;
-      std::cout << "dim.local = " << dim.local << std::endl;
-      std::cout << "dim.offset.local = " << dim.offset.local << std::endl;
-      std::cout << "dim.offset.global = " << dim.offset.global << std::endl;
+      std::cout << "dim.global = " << dim_.global << std::endl;
+      std::cout << "dim.local = " << dim_.local << std::endl;
+      std::cout << "dim.offset = " << dim_.offset << std::endl;
+      std::cout << "dim.origin = " << dim_.origin << std::endl;
       std::cout << "pixel_size = " << pixel_size_ << std::endl;
       std::cout << "flip_direction = " << flip_direction_ << std::endl;
    }
 }
+
 void PliGenerator::SetFiberBundles(
     const std::vector<fiber::Bundle> &fiber_bundles) {
    fiber_bundles_org_ = fiber_bundles;
@@ -88,17 +95,17 @@ PliGenerator::RunTissueGeneration(const bool only_label,
 
    // size fibers with pixel_size
    fiber_bundles_ = fiber_bundles_org_;
-   if (dim_.offset.global != 0)
+   if (dim_.origin != 0)
       for (auto &fb : fiber_bundles_)
-         fb.Translate(vm::cast<float>(-dim_.offset.global));
+         fb.Translate(vm::cast<float>(-dim_.origin));
 
    for (auto &fb : fiber_bundles_)
       fb.Resize(1.0 / pixel_size_);
 
    int lastProgress = 0;
    const auto volume_bb = aabb::AABB<float, 3>(
-       vm::cast<float>(dim_.offset.local),
-       vm::cast<float>(dim_.local + dim_.offset.local), true);
+       vm::cast<float>(dim_.offset),
+       vm::cast<float>(dim_.local + dim_.offset), true);
 
    size_t progress_counter = 0;
 
@@ -177,8 +184,8 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    fiber_segment_bb.min -= max_radius;
    fiber_segment_bb.max += max_radius;
    fiber_segment_bb.Intersect(aabb::AABB<float, 3>(
-       vm::cast<float>(dim_.offset.local),
-       vm::cast<float>(dim_.local + dim_.offset.local), true));
+       vm::cast<float>(dim_.offset),
+       vm::cast<float>(dim_.local + dim_.offset), true));
    const auto min = fiber_segment_bb.min;
    const auto max = fiber_segment_bb.max;
 
@@ -200,9 +207,9 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                continue;
 
             size_t ind =
-                (x - dim_.offset.local.x()) * dim_.local.y() * dim_.local.z() +
-                (y - dim_.offset.local.y()) * dim_.local.z() +
-                (z - dim_.offset.local.z());
+                (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
+                (y - dim_.offset.y()) * dim_.local.z() +
+                (z - dim_.offset.z());
             assert(ind < label_field.size());
 
             if (array_distance[ind] >= dist_squ) {

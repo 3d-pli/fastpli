@@ -17,12 +17,14 @@ pybind11_add_module(generation
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
       )
+TARGET_LINK_LIBRARIES(generation PRIVATE ${MPI_LIBRARIES})
 
 pybind11_add_module(simulation
       bindings/simulator_module.cpp
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
       )
+TARGET_LINK_LIBRARIES(simulation PRIVATE ${MPI_LIBRARIES})
 
 GET_TARGET_PROPERTY(outdir generation LIBRARY_OUTPUT_DIRECTORY)
 IF (outdir)

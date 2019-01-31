@@ -1,16 +1,17 @@
 import os
 import h5py
+from mpi4py import MPI
 import numpy as np
 from fastpli.simulation import Simpli
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
+# MPI.Init()
 simpli = Simpli()
 # PliGeneration ###
 simpli.pixel_size = 1
-simpli.dim_global = [100, 100, 100]
-simpli.dim_local = [100, 100, 100]
-simpli.dim_offset_local = [0, 0, 0]
+simpli.dim = [100, 100, 100]
+simpli.dim_origin = [0, 0, 0]
 
 simpli.ReadFiberFile('example/cube.h5')
 simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
@@ -20,7 +21,6 @@ simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
 simpli.RotateVolumeAroundPoint(np.deg2rad(
     20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
 simpli.TranslateVolume([25, -15, 50])
-
 
 with h5py.File(os.path.join(FILE_PATH, 'ref_new.h5'), 'w') as h5f:
 

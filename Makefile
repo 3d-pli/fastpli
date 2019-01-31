@@ -31,6 +31,20 @@ git-submodules:
 install: ${VENV}
 	${VENV}/bin/pip3 ${INSTALL}
 
+.PHONY: h5py-serial
+h5py-mpi:
+	${VENV}/bin/pip3 install h5py
+
+.PHONY: h5py-mpi
+h5py-mpi:
+	export CC=mpicc
+	export HDF5_MPI="ON"
+	${VENV}/bin/pip3 install --no-binary=h5py h5py
+
+.PHONY: h5py-clean
+h5py-clean:
+	${VENV}/bin/pip3 uninstall h5py -y
+
 build/:
 	mkdir build
 

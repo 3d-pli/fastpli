@@ -9,6 +9,7 @@
 #include "helper.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
+#include "my_mpi.hpp"
 #include "simulator.hpp"
 
 class PliGenerator {
@@ -18,7 +19,8 @@ class PliGenerator {
    ~PliGenerator() = default;
 
    // setter
-   void SetVolume(const Dimensions dim, const float pixel_size,
+   void SetVolume(const vm::Vec3<long long> global_dim,
+                  const vm::Vec3<float> origin, const float pixel_size,
                   const vm::Vec3<bool> flip_direction = false);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
 
@@ -33,13 +35,15 @@ class PliGenerator {
    Dimensions dim() { return dim_; };
    vm::Vec3<long long> dim_local() { return dim_.local; };
    vm::Vec3<long long> dim_global() { return dim_.global; };
-   vm::Vec3<long long> dim_offset_local() { return dim_.offset.local; };
-   vm::Vec3<double> dim_offset_global() { return dim_.offset.global; };
+   vm::Vec3<long long> dim_offset() { return dim_.offset; };
+   vm::Vec3<float> dim_origin() { return dim_.origin; };
 
  private:
    const bool debug_ = true;
    double pixel_size_{0};
    Dimensions dim_;
+
+   std::unique_ptr<MyMPI> mpi_ = std::make_unique<MyMPI>();
 
    vm::Vec3<bool> flip_direction_{false};
 

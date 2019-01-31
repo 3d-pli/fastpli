@@ -20,9 +20,8 @@ class Simpli:
         self.__sim = simulation.Simulator()
 
         # self.layer_properties = [[]]
-        self.dim_local = [0, 0, 0]
-        self.dim_global = [0, 0, 0]
-        self.dim_offset_local = [0, 0, 0]
+        self.dim = [0, 0, 0]
+        self.dim_origin = [0, 0, 0]
 
         self.pixel_size = 0
         self.setup = simulation.Setup()
@@ -92,7 +91,7 @@ class Simpli:
 
     def GenerateTissue(self, only_label=False):
         self.__gen.set_volume(
-            self.dim_global, self.dim_local, self.dim_offset_local, self.pixel_size)
+            self.dim, self.dim_origin, self.pixel_size)
         self.__CheckFiberBundleAndPropertiesLength()
         self.__gen.set_fiber_bundles(
             self.__fiber_bundles, self.__fiber_bundles_properties)
