@@ -1,5 +1,5 @@
-#ifndef SIMULATION_FIBER_CLASS_HPP_
-#define SIMULATION_FIBER_CLASS_HPP_
+#ifndef SIMULATION_FIBER_BUNDLE_HPP_
+#define SIMULATION_FIBER_BUNDLE_HPP_
 
 #include <utility>
 #include <vector>
@@ -103,4 +103,4 @@ class Bundle {
 };
 } // namespace fiber
 
-#endif // SIMULATION_FIBER_CLASS_HPP_
+#endif // SIMULATION_FIBER_BUNDLE_HPP_

@@ -5,7 +5,7 @@
 #include <tuple>
 #include <vector>
 
-#include "fiber_class.hpp"
+#include "fiber_bundle.hpp"
 #include "helper.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"

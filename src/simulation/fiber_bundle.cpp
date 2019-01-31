@@ -1,4 +1,4 @@
-#include "fiber_class.hpp"
+#include "fiber_bundle.hpp"
 
 #include <cassert>
 #include <iostream>
