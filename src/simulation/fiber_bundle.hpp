@@ -65,9 +65,10 @@ class Bundle {
    // getter
    const Fiber &fiber(size_t i) const { return fibers_[i]; }
    const std::vector<Fiber> &fibers() const { return fibers_; }
-   size_t size() const { return fibers_.size(); }
    const aabb::AABB<float, 3> &voi() const { return voi_; }
    layer::Properties layers() const { return layers_; };
+   size_t size() const { return fibers_.size(); }
+   bool empty() const { return fibers_.empty(); }
 
    // layer informations
    size_t layer_size() const { return layers_.size(); }
@@ -100,6 +101,8 @@ class Bundle {
    std::vector<Fiber> fibers_{};
    layer::Properties layers_{};
    aabb::AABB<float, 3> voi_{};
+
+   void CalculateVoi();
 };
 } // namespace fiber
 

@@ -105,6 +105,9 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    for (size_t fb_idx = 0; fb_idx < fiber_bundles_.size(); fb_idx++) {
       const auto &fb = fiber_bundles_[fb_idx];
 
+      if (!aabb::Overlap(volume_bb, fb.voi()))
+         continue;
+
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
          const auto &fiber = fb.fibers()[f_idx];
 
@@ -113,16 +116,15 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          if (fiber.size() <= 1)
             continue;
 
-         if (aabb::Overlap(volume_bb, fiber.voi())) {
-            // auto volume_fiber_bb = volume_bb.Intersection(fiber.voi);
+         if (!aabb::Overlap(volume_bb, fiber.voi()))
+            continue;
 
-            for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
-               // TODO: figure out how to incapsulate idx into fiber to only
-               // parse fiber
-               FillVoxelsAroundFiberSegment(fb_idx, f_idx, s_idx, *label_field,
-                                            *vector_field, array_distance,
-                                            only_label);
-            }
+         for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
+            // TODO: figure out how to incapsulate idx into fiber to only
+            // parse fiber segment
+            FillVoxelsAroundFiberSegment(fb_idx, f_idx, s_idx, *label_field,
+                                         *vector_field, array_distance,
+                                         only_label);
          }
 
          if (progress_bar) {
