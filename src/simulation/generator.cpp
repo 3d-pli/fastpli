@@ -103,9 +103,9 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       fb.Resize(1.0 / pixel_size_);
 
    int lastProgress = 0;
-   const auto volume_bb = aabb::AABB<float, 3>(
-       vm::cast<float>(dim_.offset),
-       vm::cast<float>(dim_.local + dim_.offset), true);
+   const auto volume_bb =
+       aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
+                            vm::cast<float>(dim_.local + dim_.offset), true);
 
    size_t progress_counter = 0;
 
@@ -183,9 +183,9 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    aabb::AABB<float, 3> fiber_segment_bb(p, q);
    fiber_segment_bb.min -= max_radius;
    fiber_segment_bb.max += max_radius;
-   fiber_segment_bb.Intersect(aabb::AABB<float, 3>(
-       vm::cast<float>(dim_.offset),
-       vm::cast<float>(dim_.local + dim_.offset), true));
+   fiber_segment_bb.Intersect(
+       aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
+                            vm::cast<float>(dim_.local + dim_.offset), true));
    const auto min = fiber_segment_bb.min;
    const auto max = fiber_segment_bb.max;
 
@@ -208,8 +208,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
 
             size_t ind =
                 (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
-                (y - dim_.offset.y()) * dim_.local.z() +
-                (z - dim_.offset.z());
+                (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
             assert(ind < label_field.size());
 
             if (array_distance[ind] >= dist_squ) {

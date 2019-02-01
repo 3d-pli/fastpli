@@ -1,6 +1,5 @@
 import os
 import h5py
-from mpi4py import MPI
 import numpy as np
 from fastpli.simulation import Simpli
 
@@ -29,7 +28,7 @@ with h5py.File(os.path.join(FILE_PATH, 'ref_new.h5'), 'w') as h5f:
 
     h5f['tissue'] = label_field
     h5f['vectorfield'] = vec_field
-    
+
     # PliSimulation ###
     simpli.setup.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.setup.light_intensity = 26000
@@ -40,7 +39,12 @@ with h5py.File(os.path.join(FILE_PATH, 'ref_new.h5'), 'w') as h5f:
     # simpli.InitSimulation(label_field, vec_field, tissue_properties)
 
     print("run_simulation: 0")
-    h5f['data/0'] = simpli.run_simulation(label_field, vec_field, tissue_properties, 0, 0)
+    h5f['data/0'] = simpli.run_simulation(
+        label_field,
+        vec_field,
+     tissue_properties,
+     0,
+     0)
 
     print("run_simulation: 1")
     h5f['data/1'] = simpli.run_simulation(
@@ -75,4 +79,9 @@ with h5py.File(os.path.join(FILE_PATH, 'ref_new.h5'), 'w') as h5f:
         np.deg2rad(270))
 
 
-os.system('h5diff ' + os.path.join(FILE_PATH, 'ref_new.h5') + ' ' + os.path.join(FILE_PATH, 'ref_68ae085.h5'))
+os.system(
+    'h5diff ' + os.path.join(
+        FILE_PATH,
+         'ref_new.h5') + ' ' + os.path.join(
+             FILE_PATH,
+             'ref_68ae085.h5'))

@@ -1,13 +1,13 @@
 #ifndef SIMULATION_MY_MPI_HPP_
 #define SIMULATION_MY_MPI_HPP_
 
-#include <mpi.h>
-
 #include <array>
 #include <vector>
 
 #include "helper.hpp"
 #include "include/vemath.hpp"
+
+#include <mpi.h>
 
 class MyMPI {
  public:
@@ -17,7 +17,6 @@ class MyMPI {
    // MPI functions
    void Barrier() { MPI_Barrier(MPI_COMM_WORLD); };
    void CreateCartGrid(vm::Vec3<long long> dim_global);
-   double Wtime() { return MPI_Wtime(); }
 
    // TODO: mpi for simulation.cpp
    // communication
@@ -45,9 +44,11 @@ class MyMPI {
    void PrintDimensions(Dimensions dim);
 
  private:
+   bool ext_mpi_init_ = false;
    int my_rank_ = -1;
    int numP_ = 0;
    const bool debug_ = true;
+
    // int num_rho_ = 0;
 
    Dimensions dim_vol_{};

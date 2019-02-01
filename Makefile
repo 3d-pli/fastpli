@@ -32,7 +32,7 @@ install: ${VENV}
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: h5py-serial
-h5py-mpi:
+h5py-serial:
 	${VENV}/bin/pip3 install h5py
 
 .PHONY: h5py-mpi

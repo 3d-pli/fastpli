@@ -16,7 +16,7 @@ class MainTest(unittest.TestCase):
         self.fiber_prop = TupleList2Layer(fiber_prop)
 
         self.generator = fastpli.simulation.generation.Generator()
-        self.generator.set_volume([10, 10, 10], [10, 10, 10], [0, 0, 0], 0.2)
+        self.generator.set_volume([10, 10, 10], [0, 0, 0], 0.2)
         self.generator.set_fiber_bundles(self.fiber_bundles, self.fiber_prop)
 
     def test_return_dimension(self):
@@ -25,7 +25,7 @@ class MainTest(unittest.TestCase):
         fiber_prop = [[(1, 0, 0, 'p')]]
         fiber_prop = TupleList2Layer(fiber_prop)
         self.generator.set_fiber_bundles(fiber_bundles, fiber_prop)
-        self.generator.set_volume([3, 5, 7], [3, 5, 7], [0, 0, 0], 1)
+        self.generator.set_volume([3, 5, 7], [0, 0, 0], 1)
 
         label_field, vec_field, tissue_properties = self.generator.run_generation(
             )

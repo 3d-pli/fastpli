@@ -110,12 +110,11 @@ class Simpli:
 
         self.__sim.set_pli_setup(self.setup)
         self.__sim.set_tissue(
-            self.dim_global, tissue_properties, self.pixel_size)
+            self.dim, tissue_properties, self.pixel_size)
 
         image = self.__sim.run_simulation(
             label_field, vec_field, theta, phi, do_untilt)
-        return image.reshape(self.dim_global[0], self.dim_global[1],
-                             len(self.setup.filter_rotations))
+        return image.reshape(self.dim[0], self.dim[1], len(self.setup.filter_rotations))
 
 
 if __name__ == "__main__":

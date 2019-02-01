@@ -14,8 +14,10 @@
 MyMPI::MyMPI() {
    int flag = 0;
    MPI_Initialized(&flag);
-   if (!flag){
-      std::cout << "WANING: calling MPI_Init inside c++" << std::endl;
+
+   if (!flag) {
+      ext_mpi_init_ = true;
+      // std::cout << "WARNING: calling MPI_Init()" << std::endl;
       MPI_Init(NULL, NULL);
    }
 
@@ -28,7 +30,12 @@ MyMPI::MyMPI() {
    // ClearBuffer();
 }
 
-MyMPI::~MyMPI() { MPI_Finalize(); }
+MyMPI::~MyMPI() {
+   if (!ext_mpi_init_) {
+      // std::cout << "WARNING: calling MPI_Finalize()" << std::endl;
+      MPI_Finalize();
+   }
+}
 
 void MyMPI::CreateCartGrid(const vm::Vec3<long long> global_dim) {
 
