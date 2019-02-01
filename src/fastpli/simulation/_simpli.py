@@ -115,6 +115,11 @@ class Simpli:
         image = self.__sim.run_simulation(
             label_field, vec_field, theta, phi, do_untilt)
         return image.reshape(self.dim[0], self.dim[1], len(self.setup.filter_rotations))
+    
+    def DimData(self):
+        dim_local = self.__gen.dim_local()
+        dim_offset = self.__gen.dim_offset()
+        return dim_local, dim_offset
 
 
 if __name__ == "__main__":
