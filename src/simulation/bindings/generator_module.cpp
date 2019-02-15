@@ -61,8 +61,8 @@ PYBIND11_MODULE(generation, m) {
                    prop_list);
             },
             py::arg("only_label") = false, py::arg("progress_bar") = false)
-       .def("dim_local", [](PliGenerator &self){ return self.dim_local.data();})
-       .def("dim_offset", [](PliGenerator &self){ return self.dim_offset.data();});
+       .def("dim_local", [](PliGenerator &self){ return self.dim_local().data();})
+       .def("dim_offset", [](PliGenerator &self){ return self.dim_offset().data();});
 
    // TODO: to objects?
    py::enum_<fiber::layer::Orientation>(m, "Orientation")

@@ -44,7 +44,7 @@ class MyMPI {
    void PrintDimensions(Dimensions dim);
 
  private:
-   bool ext_mpi_init_ = false;
+   bool ext_mpi_init_ = true;
    int my_rank_ = -1;
    int numP_ = 0;
    const bool debug_ = true;

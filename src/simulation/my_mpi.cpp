@@ -16,8 +16,8 @@ MyMPI::MyMPI() {
    MPI_Initialized(&flag);
 
    if (!flag) {
-      ext_mpi_init_ = true;
-      // std::cout << "WARNING: calling MPI_Init()" << std::endl;
+      ext_mpi_init_ = false;
+      std::cout << "WARNING: calling MPI_Init()" << std::endl;
       MPI_Init(NULL, NULL);
    }
 
@@ -32,7 +32,7 @@ MyMPI::MyMPI() {
 
 MyMPI::~MyMPI() {
    if (!ext_mpi_init_) {
-      // std::cout << "WARNING: calling MPI_Finalize()" << std::endl;
+      std::cout << "WARNING: calling MPI_Finalize()" << std::endl;
       MPI_Finalize();
    }
 }
