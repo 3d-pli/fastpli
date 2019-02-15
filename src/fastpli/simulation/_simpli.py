@@ -105,7 +105,7 @@ class Simpli:
         self.__sim.set_tissue(
             label_field, vec_field, tissue_properties, self.pixel_size)
 
-    def run_simulation(self, label_field, vec_field,
+    def RunSimulation(self, label_field, vec_field,
                        tissue_properties, theta, phi, do_untilt=True):
 
         self.__sim.set_pli_setup(self.setup)

@@ -2,7 +2,6 @@ import unittest
 import numpy as np
 
 import fastpli
-from mpi4py import MPI
 from fastpli.simulation.helper import TupleList2Layer
 
 
