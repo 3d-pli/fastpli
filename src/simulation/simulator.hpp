@@ -53,13 +53,14 @@ class PliSimulator {
    );
 
  private:
-   bool debug_ = false;
+   bool debug_ = true;
    Setup pli_setup_{};
    Dimensions dim_{};
-   // vm::Vec3<size_t> dim_{};
    object::container::NpArray<int> label_field_;
    object::container::NpArray<float> vector_field_;
    std::vector<PhyProp> properties_;
+
+   // std::vector<vm::Vec4<double>> signal_buffer_;
    // vm::Vec3<bool> flip_tissue_{false};
 
    std::unique_ptr<MyMPI> mpi_ = std::make_unique<MyMPI>();
@@ -102,7 +103,15 @@ class PliSimulator {
    std::function<vm::Vec3<double>(long long, long long)>
    GetSensorToStartTransformation(const double theta, const double phi) const;
 
+   std::vector<Coordinates> CalcPixelsUntilt(const double phi,
+                                             const double theta);
+
    vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) const;
+
+   bool CheckMPIHalo(const vm::Vec3<double> &aktPoint,
+                     const vm::Vec3<int> &shift_direct,
+                     const std::vector<vm::Vec4<double>> &S_vec,
+                     const Coordinates &startpos);
 };
 
 #endif // SIMULATION_SIMULATOR_HPP_

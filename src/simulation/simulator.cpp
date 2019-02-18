@@ -113,73 +113,104 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    const vm::Mat3x3<double> rotation =
        vm::rot_pi_cases::Mat3RotZYZ(phi, theta, -phi);
-   const vm::Vec3<double> step = TiltDirection(theta, phi) * step_size;
+
+   const vm::Vec3<double> shift = TiltDirection(theta, phi);
+   const vm::Vec3<double> step = shift * step_size;
    const auto TransformSensorPosToStart =
        GetSensorToStartTransformation(theta, phi);
 
    std::vector<float> intensity_signal(
        static_cast<size_t>(dim_.local.x()) * dim_.local.y() * n_rho, 0);
 
-   // calculate light for all (x,y) positions of the ccd-sensor
-   for (long long ccd_x = 0; ccd_x < dim_.global.x(); ++ccd_x) {
-      for (long long ccd_y = 0; ccd_y < dim_.global.y(); ++ccd_y) {
+   // calculate shift direction
+   vm::Vec3<int> shift_direct(0);
+   for (auto itr = 0u; itr < 3; itr++) {
+      if (shift[itr] > 0)
+         shift_direct[itr] = 1;
+      if (shift[itr] < 0)
+         shift_direct[itr] = -1;
+   }
 
-         auto s_vec = s_vec_0;
-         auto pos = TransformSensorPosToStart(ccd_x, ccd_y) -
-                    vm::cast<double>(dim_.offset);
-         for (; pos > -0.5 && pos < vm::cast<double>(dim_.local) - 0.5;
-              pos += step) {
+   auto scan_grid = CalcPixelsUntilt(theta, phi);
 
-            auto label = GetLabel(pos);
+   // bool flag_all_no_com = false;
+   bool flag_sending = false;
+   // while (!flag_all_no_com) {
+   while (!scan_grid.empty()) {
+      auto grid_elm = scan_grid.back();
+      flag_sending = false;
 
-            // calculate physical parameters
-            double dn = properties_[label].dn;
-            double mu = properties_[label].mu * 1e3;
-            const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
+      auto pos = grid_elm.tissue - vm::cast<double>(dim_.offset);
+      auto s_vec = s_vec_0;
 
-            if (dn == 0) {
-               if (mu == 0)
-                  continue;
+      // if (pos.z() >= 0.5){
+      //    assert(signal_buffer_.size() > 0);
+      //    s_vec = signal_buffer_.back();
+      // }
 
-               for (auto rho = 0u; rho < n_rho; rho++)
-                  s_vec[rho] *= attenuation;
-               continue;
-            }
+      // if (debug_)
+      //    std::cout << grid_elm.ccd << ": " << pos << std::endl;
 
-            auto vec = GetVec(pos, do_nn);
-            const auto d_rel = dn * 4.0 * thickness / lambda;
+      for (; pos.z() > -0.5 && pos.z() < dim_.local.z() - 0.5; pos += step) {
 
-            if (theta != 0)
-               vec = vm::dot(rotation, vec);
-
-            // calculate spherical coordinates
-            const auto alpha = asin(vec.z());
-            const auto ret =
-                M_PI_2 * d_rel * pow(cos(alpha), 2.0); // M_PI_2 = pi/2
-            const auto sin_r = sin(ret);
-            const auto cos_r = cos(ret);
-
-            const auto phii = atan2(vec.y(), vec.x());
-
-            for (auto rho = 0u; rho < n_rho; rho++) {
-               const auto beta = 2 * (pli_setup_.filter_rotations[rho] - phii);
-               const auto sin_b = sin(-beta);
-               const auto cos_b = cos(-beta);
-
-               auto a1 = s_vec[rho][1] * cos_b - s_vec[rho][2] * sin_b;
-               auto c1 = s_vec[rho][1] * sin_b + s_vec[rho][2] * cos_b;
-               auto b1 = c1 * cos_r + s_vec[rho][3] * sin_r;
-
-               // is equivalent to (R*M*R*S)*att
-               s_vec[rho] = {{s_vec[rho][0], a1 * cos_b + b1 * sin_b,
-                              -a1 * sin_b + b1 * cos_b,
-                              -c1 * sin_r + s_vec[rho][3] * cos_r}};
-               s_vec[rho] *= attenuation;
-            }
+         // check if communication is neccesary
+         flag_sending = CheckMPIHalo(pos, shift_direct, s_vec, grid_elm);
+         if (flag_sending) {
+            break;
          }
 
-         size_t ccd_idx = (ccd_x - dim_.offset.x()) * dim_.local.y() +
-                          (ccd_y - dim_.offset.y());
+         auto label = GetLabel(pos);
+
+         // calculate physical parameters
+         double dn = properties_[label].dn;
+         double mu = properties_[label].mu * 1e3;
+         const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
+
+         if (dn == 0) {
+            if (mu == 0)
+               continue;
+
+            for (auto rho = 0u; rho < n_rho; rho++)
+               s_vec[rho] *= attenuation;
+            continue;
+         }
+
+         auto vec = GetVec(pos, do_nn);
+         const auto d_rel = dn * 4.0 * thickness / lambda;
+
+         if (theta != 0)
+            vec = vm::dot(rotation, vec);
+
+         // calculate spherical coordinates
+         const auto alpha = asin(vec.z());
+         const auto ret =
+             M_PI_2 * d_rel * pow(cos(alpha), 2.0); // M_PI_2 = pi/2
+         const auto sin_r = sin(ret);
+         const auto cos_r = cos(ret);
+
+         const auto phii = atan2(vec.y(), vec.x());
+
+         for (auto rho = 0u; rho < n_rho; rho++) {
+            const auto beta = 2 * (pli_setup_.filter_rotations[rho] - phii);
+            const auto sin_b = sin(-beta);
+            const auto cos_b = cos(-beta);
+
+            auto a1 = s_vec[rho][1] * cos_b - s_vec[rho][2] * sin_b;
+            auto c1 = s_vec[rho][1] * sin_b + s_vec[rho][2] * cos_b;
+            auto b1 = c1 * cos_r + s_vec[rho][3] * sin_r;
+
+            // is equivalent to (R*M*R*S)*att
+            s_vec[rho] = {{s_vec[rho][0], a1 * cos_b + b1 * sin_b,
+                           -a1 * sin_b + b1 * cos_b,
+                           -c1 * sin_r + s_vec[rho][3] * cos_r}};
+            s_vec[rho] *= attenuation;
+         }
+      }
+
+      if (!flag_sending) {
+         size_t ccd_idx =
+             (grid_elm.ccd.x() - dim_.offset.x()) * dim_.local.y() +
+             (grid_elm.ccd.y() - dim_.offset.y());
 
          // save signal only if light beam did not leave xy border
          if (pos.x() >= -0.5 && pos.y() >= -0.5 &&
@@ -193,7 +224,10 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             }
          }
       }
+
+      scan_grid.pop_back();
    }
+   // }
 
    mpi_->Barrier();
 
@@ -341,6 +375,42 @@ PliSimulator::GetSensorToStartTransformation(const double theta,
    }
 }
 
+std::vector<Coordinates> PliSimulator::CalcPixelsUntilt(const double phi,
+                                                        const double theta) {
+
+   std::vector<Coordinates> scan_grid;
+
+   Coordinates data_point;
+   vm::Vec3<double> shift = TiltDirection(phi, theta) * (dim_.global.z() - 1);
+
+   // begin at ccd pos
+   for (long long ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
+      for (long long ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
+         // transform to bottom position
+         auto tis_x = ccd_x - shift.x();
+         auto tis_y = ccd_y - shift.y();
+
+         if (tis_x < dim_.offset.x() - 0.5 ||
+             tis_x > (dim_.offset.x() + dim_.local.x() - 0.5))
+            continue;
+         if (tis_y < dim_.offset.y() - 0.5 ||
+             tis_y > (dim_.offset.y() + dim_.local.y() - 0.5))
+            continue;
+
+         data_point.tissue = {tis_x, tis_y, 0.0};
+         data_point.ccd = {ccd_x, ccd_y};
+
+         scan_grid.push_back(data_point);
+      }
+   }
+
+   if (scan_grid.size() == 0)
+      std::cout << mpi_->my_rank() << ": Warning, scan_grid is empty"
+                << std::endl;
+
+   return scan_grid;
+}
+
 vm::Mat4x4<double> PliSimulator::RetarderMatrix(const double beta,
                                                 const double ret) const {
    vm::Mat4x4<double> M = {
@@ -350,4 +420,48 @@ vm::Mat4x4<double> PliSimulator::RetarderMatrix(const double beta,
         pow(sin(beta), 2) + cos(ret) * pow(cos(beta), 2), sin(ret) * cos(beta),
         0, sin(ret) * sin(beta), -sin(ret) * cos(beta), cos(ret)}};
    return M;
+}
+
+bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &aktPoint,
+                                const vm::Vec3<int> &shift_direct,
+                                const std::vector<vm::Vec4<double>> &S_vec,
+                                const Coordinates &startpos) {
+
+   static auto low = dim_.offset;
+   static auto up = dim_.offset + dim_.local;
+
+   // check if communication is neccesary
+   // x - halo communication:
+   if (aktPoint.x() < -0.5)
+      std::cout << aktPoint << std::endl;
+
+   bool flag = false;
+   if ((aktPoint.x() < 0 && shift_direct.x() == -1 && low.x() != 0) ||
+       (aktPoint.x() > dim_.local.x() - 1 && shift_direct.x() == 1 &&
+        up.x() != dim_.global.x() - 1)) {
+      // mpi_->PushLightToBuffer(aktPoint + vm::cast<double>(dim_vol_.low),
+      //                         startpos.ccd, S_vec, shift_direct.x() * 1);
+      // std::cout << "x-direction" << std::endl;
+      flag = true;
+
+      // y-halo communication:
+   } else if ((aktPoint.y() < 0 && shift_direct.y() == -1 && low.y() != 0) ||
+              (aktPoint.y() > dim_.local.y() - 1 && shift_direct.y() == 1 &&
+               up.y() != dim_.global.y() - 1)) {
+      // mpi_->PushLightToBuffer(aktPoint + vm::cast<double>(dim_vol_.low),
+      //                         startpos.ccd, S_vec, shift_direct.y() * 2);
+      // std::cout << "y-direction" << std::endl;
+      flag = true;
+
+      // z-halo communication:
+   } else if ((aktPoint.z() < 0 && shift_direct.z() == -1 && low.z() != 0) ||
+              (aktPoint.z() > dim_.local.z() - 1 && shift_direct.z() == 1 &&
+               up.z() != dim_.global.z() - 1)) {
+      // mpi_->PushLightToBuffer(aktPoint + vm::cast<double>(dim_vol_.low),
+      //                         startpos.ccd, S_vec, shift_direct.z() * 3);
+      // std::cout << "z-direction" << std::endl;
+      flag = true;
+   }
+
+   return flag;
 }
