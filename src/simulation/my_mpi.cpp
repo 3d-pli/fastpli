@@ -133,7 +133,8 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
       up.z() = dim_vol_.global.z() - 1;
    dim_vol_.local = up - low + 1;
 
-   // if there are to many cpus, local dimension can get negativ
+   // if there are to many threads, local dimension can get negativ
+   // setting them to 0 so they are idle
    if (dim_vol_.local.x() < 0)
       dim_vol_.local.x() = 0;
    if (dim_vol_.local.y() < 0)
