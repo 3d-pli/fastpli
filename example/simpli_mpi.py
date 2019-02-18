@@ -14,53 +14,43 @@ import os
 from fastpli.simulation import Simpli
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+FILE_NAME = os.path.join(
+    FILE_PATH,
+     'output_' + str(MPI.COMM_WORLD.Get_size()) + '.h5')
+with h5py.File(FILE_NAME, 'w', driver='mpio', comm=MPI.COMM_WORLD) as h5f:
 
+    # Read fiber data and prepair for PliGenerator
+    # TODO: write json -> parameter function
 
-# Read fiber data and prepair for PliGenerator
-# TODO: write json -> parameter function
+    global_start = time.time()
 
-global_start = time.time()
+    simpli = Simpli()
+    # PliGeneration ###
+    simpli.pixel_size = 1
+    simpli.dim = [100, 100, 100]
+    simpli.ReadFiberFile('example/cube.h5')
+    simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
+        0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]])
 
-simpli = Simpli()
-# PliGeneration ###
-simpli.pixel_size = 1
-simpli.dim = [100, 100, 100]
-simpli.ReadFiberFile('example/cube.h5')
-simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
-    0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]])
-
-# manipulation of fibers
-# simpli.RotateVolumeAroundPoint(np.deg2rad(
-#     20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
-simpli.TranslateVolume([50, 50, 50])
-
-with h5py.File(os.path.join(FILE_PATH, 'output_' + str(MPI.COMM_WORLD.Get_size()) + '.h5'), 'w', driver='mpio', comm=MPI.COMM_WORLD) as h5f:
+    # manipulation of fibers
+    # simpli.RotateVolumeAroundPoint(np.deg2rad(
+    #     20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
+    simpli.TranslateVolume([50, 50, 50])
 
     start = time.time()
     label_field, _, tissue_properties = simpli.GenerateTissue(only_label=True)
     label_field, vec_field, tissue_properties = simpli.GenerateTissue()
     dim_local, dim_offset = simpli.DimData()
 
-    print(label_field.shape)
-
-    dset = h5f.create_dataset(
-        'tissue', (simpli.dim[0], simpli.dim[1], simpli.dim[2]), dtype=np.uint16)
-    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
-         + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = label_field
-
-    dset = h5f.create_dataset(
-        'vectorfield', (simpli.dim[0], simpli.dim[1], simpli.dim[2], 3), dtype=np.uint16)
-    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
-         + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2], :] = vec_field
+    simpli.SaveAsH5(h5f, label_field, "tissue")
+    simpli.SaveAsH5(h5f, vec_field, "vectorfield")
 
     end = time.time()
-
     print("TissueGeneration:", end - start)
 
     # PliSimulation ###
     simpli.setup.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.setup.light_intensity = 26000
-    # simpli.setup.resolution = 1
     simpli.setup.untilt_sensor = True
     simpli.setup.wavelength = 525
 
@@ -68,10 +58,7 @@ with h5py.File(os.path.join(FILE_PATH, 'output_' + str(MPI.COMM_WORLD.Get_size()
     print("RunSimulation: 0")
     image = simpli.RunSimulation(
         label_field, vec_field, tissue_properties, 0, 0)
-    dset = h5f.create_dataset(
-        'data/0', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
-    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
-         + dim_local[1], :] = image
+    simpli.SaveAsH5(h5f, image, 'data/0')
 
     print("RunSimulation: 1")
     image = simpli.RunSimulation(
@@ -80,10 +67,7 @@ with h5py.File(os.path.join(FILE_PATH, 'output_' + str(MPI.COMM_WORLD.Get_size()
         tissue_properties,
         np.deg2rad(5.5),
         np.deg2rad(0))
-    dset = h5f.create_dataset(
-        'data/1', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
-    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
-         + dim_local[1], :] = image
+    simpli.SaveAsH5(h5f, image, 'data/1')
 
     print("RunSimulation: 2")
     image = simpli.RunSimulation(
@@ -92,10 +76,7 @@ with h5py.File(os.path.join(FILE_PATH, 'output_' + str(MPI.COMM_WORLD.Get_size()
         tissue_properties,
         np.deg2rad(5.5),
         np.deg2rad(90))
-    dset = h5f.create_dataset(
-        'data/2', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
-    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
-         + dim_local[1], :] = image
+    simpli.SaveAsH5(h5f, image, 'data/2')
 
     print("RunSimulation: 3")
     image = simpli.RunSimulation(
@@ -104,10 +85,7 @@ with h5py.File(os.path.join(FILE_PATH, 'output_' + str(MPI.COMM_WORLD.Get_size()
         tissue_properties,
         np.deg2rad(5.5),
         np.deg2rad(180))
-    dset = h5f.create_dataset(
-        'data/3', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
-    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
-         + dim_local[1], :] = image
+    simpli.SaveAsH5(h5f, image, 'data/3')
 
     print("RunSimulation: 4")
     image = simpli.RunSimulation(
@@ -116,13 +94,10 @@ with h5py.File(os.path.join(FILE_PATH, 'output_' + str(MPI.COMM_WORLD.Get_size()
         tissue_properties,
         np.deg2rad(5.5),
         np.deg2rad(270))
-    dset = h5f.create_dataset(
-        'data/4', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
-    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
-         + dim_local[1], :] = image
+    simpli.SaveAsH5(h5f, image, 'data/4')
 
     end = time.time()
     print("RunSimulation:", end - start)
 
-global_end = time.time()
-print("GlobalRuntime:", global_end - global_start)
+    global_end = time.time()
+    print("GlobalRuntime:", global_end - global_start)

@@ -120,3 +120,24 @@ class Simpli:
         dim_local = self.__gen.dim_local()
         dim_offset = self.__gen.dim_offset()
         return dim_local, dim_offset
+
+    def SaveAsH5(self, h5f, data, data_name):
+
+        dim_local, dim_offset = self.DimData()
+        if data_name is 'tissue':
+            dim = self.dim
+            dset = h5f.create_dataset(data_name, dim, dtype=np.uint16)
+            dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
+                 + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = data
+        elif data_name is 'vectorfield':
+            dim = [self.dim[0], self.dim[1], self.dim[2], 3]
+            dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
+            dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
+                 + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2], :] = data
+        elif 'data/' in data_name:
+            dim = [self.dim[0], self.dim[1], len(self.setup.filter_rotations)]
+            dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
+            dset[dim_offset[0]:dim_offset[0] + dim_local[0],
+                 dim_offset[1]:dim_offset[1] + dim_local[1], :] = data
+        else:
+            raise TypeError("no compatible SaveAsH5: " + data_name)
