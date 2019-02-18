@@ -22,6 +22,8 @@ class PliSimulator {
       double light_intensity{};
       double resolution{};
       double wavelength{};
+      double pixel_size{};
+
       bool untilt_sensor = true;
       std::vector<double> filter_rotations;
 
@@ -32,21 +34,18 @@ class PliSimulator {
    ~PliSimulator() = default;
 
    void SetPliSetup(const Setup pli_setup);
-   void SetTissue(const vm::Vec3<int> &dim,
-                  const std::vector<PhyProp> &properties,
-                  const double pixel_size);
+   void SetTissueProperties(const std::vector<PhyProp> &properties);
 
-   std::vector<float>
-   RunSimulation(object::container::NpArray<int> label_field,
-                 object::container::NpArray<float> vector_field,
-                 const double theta, const double phi, const double step_size,
-                 const bool do_nn
-                 //  , const bool flip_beam
+   std::vector<float> RunSimulation(
+       const vm::Vec3<int> &dim, object::container::NpArray<int> label_field,
+       object::container::NpArray<float> vector_field, const double theta,
+       const double phi, const double step_size, const bool do_nn
+       //  , const bool flip_beam
    );
 
  private:
    // bool debug_ = false;
-   double pixel_size_{};
+   // double pixel_size_{};
    Setup pli_setup_{};
    vm::Vec3<size_t> dim_{};
    object::container::NpArray<int> label_field_;
