@@ -76,11 +76,11 @@ void MyMPI::CreateCartGrid(const vm::Vec3<long long> global_dim) {
    }
 
    if (ext_mpi_init_) {
-   MPI_Cart_create(MPI_COMM_WORLD, max_dims, global_coords_.data(),
-                   period.data(), reorder, &COMM_CART_);
-   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank_);
-   MPI_Cart_coords(COMM_CART_, my_rank_, 3, my_coords_.data());
-   }else{
+      MPI_Cart_create(MPI_COMM_WORLD, max_dims, global_coords_.data(),
+                      period.data(), reorder, &COMM_CART_);
+      MPI_Comm_rank(MPI_COMM_WORLD, &my_rank_);
+      MPI_Cart_coords(COMM_CART_, my_rank_, 3, my_coords_.data());
+   } else {
       global_coords_[0] = 1;
       global_coords_[0] = 1;
       global_coords_[0] = 1;
@@ -133,12 +133,25 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
       up.z() = dim_vol_.global.z() - 1;
    dim_vol_.local = up - low + 1;
 
-   assert(dim_vol_.local.x() > 0);
-   assert(dim_vol_.local.y() > 0);
-   assert(dim_vol_.local.z() > 0);
+   // if there are to many cpus, local dimension can get negativ
+   if (dim_vol_.local.x() < 0)
+      dim_vol_.local.x() = 0;
+   if (dim_vol_.local.y() < 0)
+      dim_vol_.local.y() = 0;
+   if (dim_vol_.local.z() < 0)
+      dim_vol_.local.z() = 0;
 
-   if (debug_)
+   if (debug_) {
+      std::cout << "rank: " << my_rank_ << ", my_coords_:" << my_coords_
+                << std::endl;
       PrintDimensions(dim_vol_);
+      std::cout << "rank " << my_rank_ << ": low:\t" << low << std::endl;
+      std::cout << "rank " << my_rank_ << ": up:\t" << up << std::endl;
+   }
+
+   assert(dim_vol_.local.x() >= 0);
+   assert(dim_vol_.local.y() >= 0);
+   assert(dim_vol_.local.z() >= 0);
 
    // calculate ccd dimensions
    // dim_ccd_.low.x() = my_coords_.x() * dim_vol_.local.x();
@@ -163,6 +176,8 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
 void MyMPI::PrintDimensions(Dimensions dim) {
    std::cout << "rank " << my_rank_ << ": global:\t" << dim.global << std::endl;
    std::cout << "rank " << my_rank_ << ": local:\t" << dim.local << std::endl;
+   std::cout << "rank " << my_rank_ << ": offset:\t" << dim.offset << std::endl;
+   std::cout << "rank " << my_rank_ << ": origin:\t" << dim.origin << std::endl;
 }
 
 /*
