@@ -108,71 +108,15 @@ class Simpli:
     def RunSimulation(self, label_field, vec_field,
                       tissue_properties, theta, phi, do_untilt=True):
 
+        self.setup.pixel_size = self.pixel_size
         self.__sim.set_pli_setup(self.setup)
-        self.__sim.set_tissue(
-            self.dim, tissue_properties, self.pixel_size)
+        self.__sim.set_tissue_properties(tissue_properties)
 
-        image = self.__sim.run_simulation(
-            label_field, vec_field, theta, phi, do_untilt)
-        return image.reshape(self.dim[0], self.dim[1], len(self.setup.filter_rotations))
+        image = self.__sim.run_simulation(self.dim,
+                                          label_field, vec_field, theta, phi, do_untilt)
+        return image
 
     def DimData(self):
         dim_local = self.__gen.dim_local()
         dim_offset = self.__gen.dim_offset()
         return dim_local, dim_offset
-
-
-if __name__ == "__main__":
-
-    with h5py.File('output.h5', 'w') as h5f:
-        simpli = Simpli()
-
-        # PliGeneration ###
-        simpli.pixel_size = 1
-        simpli.dim = [100, 100, 100]
-        simpli.ReadFiberFile('example/simpli/cube.h5')
-        simpli.layer_properties = [[0.333, 0.004, 10, 1], [
-            0.666, -0.004, 5, 0], [1.0, 0.004, 1, 2]]
-
-        # manipulation of fibers
-        simpli.RotateVolumeAroundPoint(np.deg2rad(
-            20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
-        simpli.TranslateVolume([25, -15, 50])
-
-        label_field, vec_field, tissue_properties = simpli.GenerateTissue()
-
-        label_field_vis = np.transpose(label_field.asarray().astype(
-            np.uint16).reshape(simpli.dim[0], simpli.dim[1], simpli.dim[2]), (0, 1, 2))
-        label_field_vis[label_field_vis > 0] += 3
-        h5f['tissue'] = label_field_vis
-        h5f['vectorfield'] = np.transpose(vec_field.asarray().reshape(
-            simpli.dim[0], simpli.dim[1], simpli.dim[2], 3), (0, 1, 2, 3))
-
-        # PliSimulation ###
-        simpli.setup.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
-        simpli.setup.light_intensity = 26000
-        simpli.setup.resolution = 1
-        simpli.setup.untilt_sensor = True
-        simpli.setup.wavelength = 525
-
-        simpli.InitSimulation(label_field, vec_field, tissue_properties)
-
-        print("run_simulation: 0")
-        image = simpli.run_simulation(0, 0)
-        h5f['data/0'] = np.transpose(image, (0, 1, 2))
-
-        print("run_simulation: 1")
-        image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(0))
-        h5f['data/1'] = np.transpose(image, (0, 1, 2))
-
-        print("run_simulation: 2")
-        image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(90))
-        h5f['data/2'] = np.transpose(image, (0, 1, 2))
-
-        print("run_simulation: 3")
-        image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(180))
-        h5f['data/3'] = np.transpose(image, (0, 1, 2))
-
-        print("run_simulation: 4")
-        image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(270))
-        h5f['data/4'] = np.transpose(image, (0, 1, 2))

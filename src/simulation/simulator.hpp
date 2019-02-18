@@ -5,7 +5,9 @@
 #include <memory>
 #include <vector>
 
+#include "helper.hpp"
 #include "include/vemath.hpp"
+#include "my_mpi.hpp"
 #include "objects/np_array_container.hpp"
 
 class PliSimulator {
@@ -20,7 +22,6 @@ class PliSimulator {
 
    struct Setup {
       double light_intensity{};
-      double resolution{};
       double wavelength{};
       double pixel_size{};
 
@@ -36,22 +37,32 @@ class PliSimulator {
    void SetPliSetup(const Setup pli_setup);
    void SetTissueProperties(const std::vector<PhyProp> &properties);
 
-   std::vector<float> RunSimulation(
-       const vm::Vec3<int> &dim, object::container::NpArray<int> label_field,
-       object::container::NpArray<float> vector_field, const double theta,
-       const double phi, const double step_size, const bool do_nn
-       //  , const bool flip_beam
+   vm::Vec3<long long> GetImageDim() {
+      return vm::Vec3<long long>(
+          dim_.local.x(), dim_.local.y(),
+          static_cast<long long>(pli_setup_.filter_rotations.size()));
+   };
+
+   std::vector<float>
+   RunSimulation(const vm::Vec3<long long> &dim,
+                 object::container::NpArray<int> label_field,
+                 object::container::NpArray<float> vector_field,
+                 const double theta, const double phi, const double step_size,
+                 const bool do_nn
+                 //  , const bool flip_beam
    );
 
  private:
-   // bool debug_ = false;
-   // double pixel_size_{};
+   bool debug_ = false;
    Setup pli_setup_{};
-   vm::Vec3<size_t> dim_{};
+   Dimensions dim_{};
+   // vm::Vec3<size_t> dim_{};
    object::container::NpArray<int> label_field_;
    object::container::NpArray<float> vector_field_;
    std::vector<PhyProp> properties_;
    // vm::Vec3<bool> flip_tissue_{false};
+
+   std::unique_ptr<MyMPI> mpi_ = std::make_unique<MyMPI>();
 
    int GetLabel(const long long x, const long long y, const long long z) const;
    int GetLabel(const vm::Vec3<long long> p) const {

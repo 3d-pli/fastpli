@@ -57,59 +57,72 @@ with h5py.File(os.path.join(FILE_PATH, 'output_' + str(MPI.COMM_WORLD.Get_size()
 
     print("TissueGeneration:", end - start)
 
-'''
     # PliSimulation ###
     simpli.setup.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.setup.light_intensity = 26000
-    simpli.setup.resolution = 1
+    # simpli.setup.resolution = 1
     simpli.setup.untilt_sensor = True
     simpli.setup.wavelength = 525
 
     start = time.time()
-    print("run_simulation: 0")
-    image = simpli.run_simulation(
+    print("RunSimulation: 0")
+    image = simpli.RunSimulation(
         label_field, vec_field, tissue_properties, 0, 0)
-    h5f['data/0'] = image
+    dset = h5f.create_dataset(
+        'data/0', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
+    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
+         + dim_local[1], :] = image
 
-    print("run_simulation: 1")
-    image = simpli.run_simulation(
+    print("RunSimulation: 1")
+    image = simpli.RunSimulation(
         label_field,
         vec_field,
         tissue_properties,
         np.deg2rad(5.5),
         np.deg2rad(0))
-    h5f['data/1'] = image
+    dset = h5f.create_dataset(
+        'data/1', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
+    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
+         + dim_local[1], :] = image
 
-    print("run_simulation: 2")
-    image = simpli.run_simulation(
+    print("RunSimulation: 2")
+    image = simpli.RunSimulation(
         label_field,
         vec_field,
         tissue_properties,
         np.deg2rad(5.5),
         np.deg2rad(90))
-    h5f['data/2'] = image
+    dset = h5f.create_dataset(
+        'data/2', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
+    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
+         + dim_local[1], :] = image
 
-    print("run_simulation: 3")
-    image = simpli.run_simulation(
+    print("RunSimulation: 3")
+    image = simpli.RunSimulation(
         label_field,
         vec_field,
         tissue_properties,
         np.deg2rad(5.5),
         np.deg2rad(180))
-    h5f['data/3'] = image
+    dset = h5f.create_dataset(
+        'data/3', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
+    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
+         + dim_local[1], :] = image
 
-    print("run_simulation: 4")
-    image = simpli.run_simulation(
+    print("RunSimulation: 4")
+    image = simpli.RunSimulation(
         label_field,
         vec_field,
         tissue_properties,
         np.deg2rad(5.5),
         np.deg2rad(270))
-    h5f['data/4'] = image
+    dset = h5f.create_dataset(
+        'data/4', (simpli.dim[0], simpli.dim[1], len(simpli.setup.filter_rotations)), dtype=np.float32)
+    dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
+         + dim_local[1], :] = image
 
     end = time.time()
-    print("run_simulation:", end - start)
-'''
+    print("RunSimulation:", end - start)
 
 global_end = time.time()
 print("GlobalRuntime:", global_end - global_start)

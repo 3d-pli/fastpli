@@ -18,18 +18,21 @@ PYBIND11_MODULE(simulation, m) {
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue_properties", &PliSimulator::SetTissueProperties)
        .def("run_simulation",
-            [](PliSimulator &self, std::array<int, 3> dim,
+            [](PliSimulator &self, std::array<long long, 3> dim,
                py::array_t<int, py::array::c_style> label_array,
                py::array_t<float, py::array::c_style> vector_array,
                double theta, double phi, double ps, bool do_nn = true) {
                auto label_container = object::NpArray2Container(label_array);
                auto vector_container = object::NpArray2Container(vector_array);
 
-               auto result_vec = new std::vector<float>(
+               auto image = new std::vector<float>(
                    self.RunSimulation(dim, label_container, vector_container,
                                       theta, phi, ps, do_nn));
 
-               return object::Vec2NpArray(result_vec);
+               std::vector<size_t> dim_image =
+                   vm::cast<size_t>(self.GetImageDim());
+
+               return object::Vec2NpArray(image, dim_image);
             },
             py::arg("dim"), py::arg("label_field"), py::arg("vector_field"),
             py::arg("theta") = 0, py::arg("phi") = 0, py::arg("step_size") = 1,
@@ -43,7 +46,7 @@ PYBIND11_MODULE(simulation, m) {
    py::class_<PliSimulator::Setup>(m, "Setup")
        .def(py::init())
        .def_readwrite("light_intensity", &PliSimulator::Setup::light_intensity)
-       .def_readwrite("resolution", &PliSimulator::Setup::resolution)
+       .def_readwrite("pixel_size", &PliSimulator::Setup::pixel_size)
        .def_readwrite("wavelength", &PliSimulator::Setup::wavelength)
        .def_readwrite("untilt_sensor", &PliSimulator::Setup::untilt_sensor)
        .def_readwrite("filter_rotations",
