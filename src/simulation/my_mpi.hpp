@@ -47,7 +47,7 @@ class MyMPI {
    bool ext_mpi_init_ = true;
    int my_rank_ = -1;
    int numP_ = 0;
-   const bool debug_ = true;
+   const bool debug_ = false;
 
    // int num_rho_ = 0;
 

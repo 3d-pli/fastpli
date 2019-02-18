@@ -89,10 +89,6 @@ void MyMPI::CreateCartGrid(const vm::Vec3<long long> global_dim) {
       my_coords_[2] = 0;
    }
 
-   if (debug_)
-      std::cout << "rank: " << my_rank_ << ", my_coords_:" << my_coords_
-                << std::endl;
-
    CalcDimensions(global_dim);
 }
 
@@ -143,7 +139,7 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
       dim_vol_.local.z() = 0;
 
    if (debug_) {
-      std::cout << "rank: " << my_rank_ << ", my_coords_:" << my_coords_
+      std::cout << "rank " << my_rank_ << ": my_coords_:" << my_coords_
                 << std::endl;
       PrintDimensions(dim_vol_);
       std::cout << "rank " << my_rank_ << ": low:\t" << low << std::endl;
