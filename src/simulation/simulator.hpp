@@ -99,7 +99,7 @@ class PliSimulator {
 
    vm::Vec3<double> TiltDirection(const double theta, const double phi) const;
 
-   std::function<vm::Vec3<double>(int, int)>
+   std::function<vm::Vec3<double>(long long, long long)>
    GetSensorToStartTransformation(const double theta, const double phi) const;
 
    vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) const;

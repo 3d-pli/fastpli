@@ -121,15 +121,15 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
        static_cast<size_t>(dim_.local.x()) * dim_.local.y() * n_rho, 0);
 
    // calculate light for all (x,y) positions of the ccd-sensor
-   for (unsigned int ccd_x = 0; ccd_x < dim_.local.x(); ++ccd_x) {
-      for (unsigned int ccd_y = 0; ccd_y < dim_.local.y(); ++ccd_y) {
-         size_t ccd_idx = ccd_x * dim_.local.y() + ccd_y;
-         assert(ccd_idx < intensity_signal.size());
+   for (long long ccd_x = 0; ccd_x < dim_.global.x(); ++ccd_x) {
+      for (long long ccd_y = 0; ccd_y < dim_.global.y(); ++ccd_y) {
 
          auto s_vec = s_vec_0;
-         auto pos = TransformSensorPosToStart(ccd_x, ccd_y);
+         auto pos = TransformSensorPosToStart(ccd_x, ccd_y) -
+                    vm::cast<double>(dim_.offset);
          for (; pos > -0.5 && pos < vm::cast<double>(dim_.local) - 0.5;
               pos += step) {
+
             auto label = GetLabel(pos);
 
             // calculate physical parameters
@@ -178,10 +178,15 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             }
          }
 
+         size_t ccd_idx = (ccd_x - dim_.offset.x()) * dim_.local.y() +
+                          (ccd_y - dim_.offset.y());
+
          // save signal only if light beam did not leave xy border
          if (pos.x() >= -0.5 && pos.y() >= -0.5 &&
              pos.x() < static_cast<double>(dim_.local.x()) - 0.5 &&
              pos.y() < static_cast<double>(dim_.local.y()) - 0.5) {
+
+            assert(ccd_idx * n_rho < intensity_signal.size());
             for (auto rho = 0u; rho < n_rho; rho++) {
                s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
                intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
@@ -189,6 +194,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          }
       }
    }
+
+   mpi_->Barrier();
 
    return intensity_signal;
 }
@@ -300,7 +307,7 @@ vm::Vec3<double> PliSimulator::TiltDirection(const double theta,
                            cos(theta));
 }
 
-std::function<vm::Vec3<double>(int, int)>
+std::function<vm::Vec3<double>(long long, long long)>
 PliSimulator::GetSensorToStartTransformation(const double theta,
                                              const double phi) const {
 
@@ -325,12 +332,12 @@ PliSimulator::GetSensorToStartTransformation(const double theta,
              vm::Vec2<double>(tan(theta) * cos(phi), tan(theta) * sin(phi)) *
              dz;
 
-      return [=](int x, int y) -> vm::Vec3<double> {
+      return [=](long long x, long long y) -> vm::Vec3<double> {
          return vm::Vec3<double>(x - shift.x(), y - shift.y(), 0.0);
       };
    } else {
       // TODO: implement back projection
-      return std::function<vm::Vec3<double>(int, int)>();
+      return std::function<vm::Vec3<double>(long long, long long)>();
    }
 }
 
