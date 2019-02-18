@@ -106,7 +106,7 @@ class Simpli:
             label_field, vec_field, tissue_properties, self.pixel_size)
 
     def RunSimulation(self, label_field, vec_field,
-                       tissue_properties, theta, phi, do_untilt=True):
+                      tissue_properties, theta, phi, do_untilt=True):
 
         self.__sim.set_pli_setup(self.setup)
         self.__sim.set_tissue(
@@ -115,7 +115,7 @@ class Simpli:
         image = self.__sim.run_simulation(
             label_field, vec_field, theta, phi, do_untilt)
         return image.reshape(self.dim[0], self.dim[1], len(self.setup.filter_rotations))
-    
+
     def DimData(self):
         dim_local = self.__gen.dim_local()
         dim_offset = self.__gen.dim_offset()
