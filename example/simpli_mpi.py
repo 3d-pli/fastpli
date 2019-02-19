@@ -96,6 +96,15 @@ with h5py.File(FILE_NAME, 'w', driver='mpio', comm=MPI.COMM_WORLD) as h5f:
         np.deg2rad(270))
     simpli.SaveAsH5(h5f, image, 'data/4')
 
+    print("RunSimulation: 5")
+    image = simpli.RunSimulation(
+        label_field,
+        vec_field,
+        tissue_properties,
+        np.deg2rad(5.5),
+        np.deg2rad(42))
+    simpli.SaveAsH5(h5f, image, 'data/5')
+
     end = time.time()
     print("RunSimulation:", end - start)
 

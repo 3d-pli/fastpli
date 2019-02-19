@@ -135,13 +135,14 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    auto scan_grid = CalcPixelsUntilt(theta, phi);
 
    bool flag_all_no_com = false;
-   bool flag_sending = false;
    while (!flag_all_no_com) {
       while (!scan_grid.empty()) {
+
          auto grid_elm = scan_grid.back();
-         flag_sending = false;
+         bool flag_sending = false;
 
          auto local_pos = grid_elm.tissue - vm::cast<double>(dim_.offset);
+         auto ccd_pos = grid_elm.ccd;
          auto s_vec = s_vec_0;
 
          if (local_pos.z() >= 0.5) {
@@ -157,13 +158,14 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          // if (debug_)
          //    std::cout << grid_elm.ccd << ": " << pos << std::endl;
 
-         for (; local_pos.z() > -0.5 && local_pos.z() < dim_.local.z() - 0.5; local_pos += step) {
+         for (; local_pos.z() > -0.5 && local_pos.z() < dim_.local.z() - 0.5;
+              local_pos += step) {
 
             // check if communication is neccesary
-            flag_sending = CheckMPIHalo(local_pos, shift_direct, s_vec, grid_elm);
-            if (flag_sending) {
+            flag_sending =
+                CheckMPIHalo(local_pos, shift_direct, s_vec, grid_elm);
+            if (flag_sending)
                break;
-            }
 
             auto label = GetLabel(local_pos);
 
@@ -214,9 +216,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          }
 
          if (!flag_sending) {
-            size_t ccd_idx =
-                (grid_elm.ccd.x() - dim_.offset.x()) * dim_.local.y() +
-                (grid_elm.ccd.y() - dim_.offset.y());
+            size_t ccd_idx = (ccd_pos.x() - dim_.offset.x()) * dim_.local.y() +
+                             (ccd_pos.y() - dim_.offset.y());
 
             // save signal only if light beam did not leave xy border
             if (local_pos.x() >= -0.5 && local_pos.y() >= -0.5 &&
@@ -233,13 +234,13 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
          scan_grid.pop_back();
       }
+
       assert(signal_buffer_.empty());
       mpi_->CommunicateData(scan_grid, signal_buffer_);
-      flag_all_no_com = (mpi_->Allreduce(scan_grid.size()) == 0);
+      flag_all_no_com =
+          (mpi_->Allreduce(scan_grid.size() + signal_buffer_.size()) == 0);
       assert(signal_buffer_.size() == scan_grid.size() * n_rho);
    }
-
-   mpi_->Barrier();
 
    return intensity_signal;
 }
@@ -440,31 +441,27 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    static auto low = dim_.offset;
    static auto up = dim_.offset + dim_.local;
 
-   // check if communication is neccesary
-   if (local_pos.x() < -0.5)
-      std::cout << local_pos << std::endl;
-
    bool flag = false;
    // x - halo communication:
    if ((local_pos.x() < 0 && shift_direct.x() == -1 && low.x() != 0) ||
-       (local_pos.x() > dim_.local.x() - 1 && shift_direct.x() == 1 &&
-        up.x() != dim_.global.x() - 1)) {
+       (local_pos.x() > dim_.local.x() - 0.5 && shift_direct.x() == 1 &&
+        up.x() != dim_.global.x() - 0.5)) {
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.x() * 1);
       flag = true;
 
       // y-halo communication:
    } else if ((local_pos.y() < 0 && shift_direct.y() == -1 && low.y() != 0) ||
-              (local_pos.y() > dim_.local.y() - 1 && shift_direct.y() == 1 &&
-               up.y() != dim_.global.y() - 1)) {
+              (local_pos.y() > dim_.local.y() - 0.5 && shift_direct.y() == 1 &&
+               up.y() != dim_.global.y() - 0.5)) {
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.y() * 2);
       flag = true;
 
       // z-halo communication:
    } else if ((local_pos.z() < 0 && shift_direct.z() == -1 && low.z() != 0) ||
-              (local_pos.z() > dim_.local.z() - 1 && shift_direct.z() == 1 &&
-               up.z() != dim_.global.z() - 1)) {
+              (local_pos.z() > dim_.local.z() - 0.5 && shift_direct.z() == 1 &&
+               up.z() != dim_.global.z() - 0.5)) {
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.z() * 3);
       flag = true;

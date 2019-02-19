@@ -5,6 +5,7 @@ from fastpli.objects import Fiber
 from fastpli.tools import rotation
 import numpy as np
 import h5py
+from mpi4py import MPI
 
 # Read fiber data and prepair for PliGenerator
 # TODO: write json -> parameter function
@@ -133,11 +134,34 @@ class Simpli:
             dim = [self.dim[0], self.dim[1], self.dim[2], 3]
             dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
             dset[dim_offset[0]:dim_offset[0] + dim_local[0], dim_offset[1]:dim_offset[1]
-                 + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2], :] = data
+                 + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2],:] = data
         elif 'data/' in data_name:
             dim = [self.dim[0], self.dim[1], len(self.setup.filter_rotations)]
             dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
-            dset[dim_offset[0]:dim_offset[0] + dim_local[0],
-                 dim_offset[1]:dim_offset[1] + dim_local[1], :] = data
+
+            if tuple(dim) == data.shape:
+                dset[:] = data[:]
+            else:
+                mask = (np.count_nonzero(data, axis=2) != 0)
+
+                for i in range(data.shape[0]):
+
+                    first = 0
+                    for idx, elm in enumerate(mask[i,:]):
+                        if elm:
+                            first = idx
+                            break
+                    
+
+                    last = -1
+                    for idx, elm in reversed(list(enumerate(mask[i,:]))):
+                        if elm:
+                            last = idx+1
+                            break
+                    
+                    if first <= last:
+                        dset[i+dim_offset[0], first+dim_offset[1]:last+dim_offset[1],:] = data[i, first:last,:]
+                
+
         else:
             raise TypeError("no compatible SaveAsH5: " + data_name)

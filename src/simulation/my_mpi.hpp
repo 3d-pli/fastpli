@@ -23,8 +23,7 @@ class MyMPI {
    void set_num_rho(int num_rho) { num_rho_ = num_rho; };
    void ClearBuffer();
    void PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
-                          std::vector<vm::Vec4<double>> light, int
-                          direction);
+                          std::vector<vm::Vec4<double>> light, int direction);
 
    void CommunicateData(std::vector<Coordinates> &scan_xy,
                         std::vector<vm::Vec4<double>> &intensity_buffer);
@@ -40,17 +39,17 @@ class MyMPI {
    int num_of_proz() const { return numP_; };
 
    Dimensions dim_vol() const { return dim_vol_; };
-   Dimensions dim_ccd() const { return dim_ccd_; };
+   // Dimensions dim_ccd() const { return dim_ccd_; };
    void PrintDimensions(Dimensions dim);
 
  private:
    bool ext_mpi_init_ = true;
    int my_rank_ = -1;
    int numP_ = 0;
-   const bool debug_ = true;
+   const bool debug_ = false;
 
    Dimensions dim_vol_{};
-   Dimensions dim_ccd_{};
+   // Dimensions dim_ccd_{};
 
    vm::Vec3<int> my_coords_ = {-1, -1, -1};
    vm::Vec3<int> global_coords_ = {-1, -1, -1};
