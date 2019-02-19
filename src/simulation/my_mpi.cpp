@@ -149,25 +149,6 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
    assert(dim_vol_.local.x() >= 0);
    assert(dim_vol_.local.y() >= 0);
    assert(dim_vol_.local.z() >= 0);
-
-   // calculate ccd dimensions
-   // dim_ccd_.low.x() = my_coords_.x() * dim_vol_.local.x();
-   // dim_ccd_.up.x() = (my_coords_.x() + 1) * dim_vol_.local.x() - 1;
-   // dim_ccd_.local.x() = dim_ccd_.up.x() - dim_ccd_.low.x() + 1;
-   // dim_ccd_.global.x() = dim_vol_.global.x();
-
-   // dim_ccd_.low.y() = my_coords_.y() * dim_vol_.local.y();
-   // dim_ccd_.up.y() = (my_coords_.y() + 1) * dim_vol_.local.y() - 1;
-   // dim_ccd_.local.y() = dim_ccd_.up.y() - dim_ccd_.low.y() + 1;
-   // dim_ccd_.global.y() = dim_vol_.global.y();
-
-   // dim_ccd_.low.z() = 0;
-   // dim_ccd_.up.z() = 0;
-   // dim_ccd_.local.z() = 0;
-   // dim_ccd_.global.z() = 0;
-
-   // if (debug)
-   //    printDimensions(dim_ccd_);
 }
 
 void MyMPI::PrintDimensions(Dimensions dim) {
@@ -177,7 +158,6 @@ void MyMPI::PrintDimensions(Dimensions dim) {
    std::cout << "rank " << my_rank_ << ": origin:\t" << dim.origin << std::endl;
 }
 
-/*
 void MyMPI::ClearBuffer() {
 
    number_of_dests_ = 0;
@@ -193,24 +173,18 @@ void MyMPI::ClearBuffer() {
       elm = 0;
 }
 
-void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<int> ccd,
+void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
                               std::vector<vm::Vec4<double>> light,
                               int direction) {
 
-   if (direction == 0 || std::abs(direction) > 3) {
-      CERROR << "Wrong direction value: " << direction << endl;
-      exit(EXIT_FAILURE);
-   }
+   assert(direction != 0 && std::abs(direction) <= 3);
 
    // index of sending direction
    int ind = std::distance(
        send_direction_.begin(),
        std::find(send_direction_.begin(), send_direction_.end(), direction));
 
-   if (ind < 0 || ind > 5) {
-      CERROR << "Wrong index: " << ind << ", direction: " << direction << endl;
-      exit(EXIT_FAILURE);
-   }
+   assert(ind >= 0 || ind < 6);
 
    // save all data in buffer. Order is important!
    for (auto elm : pos)
@@ -223,15 +197,11 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<int> ccd,
       for (auto e : elm)
          snd_buffer_[ind].push_back(e);
 
-   if (num_rho_ != static_cast<int>(light.size())) {
-      CERROR << "2*num_rho_ != light.size(): " << 2 * num_rho_
-             << " != " << light.size() << endl;
-      exit(EXIT_FAILURE);
-   }
+   assert(num_rho_ == static_cast<int>(light.size()));
 }
 
-void MyMPI::CommunicateData(vector<Tissue2CCD> &scan_grid,
-                            vector<vm::Vec4<double>> &intensity_buffer) {
+void MyMPI::CommunicateData(std::vector<Coordinates> &scan_grid,
+                            std::vector<vm::Vec4<double>> &intensity_buffer) {
    SndRcv();
    BufferToVariable(scan_grid, intensity_buffer);
    ClearBuffer();
@@ -250,8 +220,8 @@ void MyMPI::SndRcv() {
          continue;
 
       if (debug_)
-         cout << "rank " << my_rank_ << " to " << receiver << " in direction "
-              << direction << endl;
+         std::cout << "rank " << my_rank_ << " to " << receiver
+                   << " in direction " << direction << std::endl;
 
       MPI_Issend(snd_buffer_[ind].data(), snd_buffer_[ind].size(), MPI_DOUBLE,
                  receiver, tag_ + ind, COMM_CART_, &snd_rq_[ind]);
@@ -272,15 +242,10 @@ void MyMPI::SndRcv() {
 
       MPI_Probe(sender, tag_ + ind, COMM_CART_, &status);
       MPI_Get_count(&status, MPI_DOUBLE, &count);
-      if (count == MPI_UNDEFINED) {
-         CERROR << "n == MPI_UNDEFINED" << endl;
-         exit(EXIT_FAILURE);
-      }
+      if (count == MPI_UNDEFINED)
+         throw std::runtime_error("count == MPI_UNDEFINED");
+
       rcv_buffer_[ind].resize(count);
-      if (rcv_buffer_[ind].size() != static_cast<size_t>(count)) {
-         CERROR << "resize didn't work" << endl;
-         exit(EXIT_FAILURE);
-      }
       MPI_Recv(rcv_buffer_[ind].data(), count, MPI_DOUBLE, MPI_ANY_SOURCE,
                tag_ + ind, COMM_CART_, &status);
    }
@@ -292,17 +257,14 @@ int MyMPI::Allreduce(int value) {
    return sum;
 }
 
-void MyMPI::BufferToVariable(vector<Tissue2CCD> &scan_grid,
-                             vector<vm::Vec4<double>> &intensity_buffer) {
-   scan_grid.clear();
+void MyMPI::BufferToVariable(std::vector<Coordinates> &scan_grid,
+                             std::vector<vm::Vec4<double>> &intensity_buffer) {
+   // scan_grid.clear();
    intensity_buffer.clear();
 
-   if (num_rho_ <= 0) {
-      CERROR << "num_rho_ <= 0" << endl;
-      exit(EXIT_FAILURE);
-   }
+   assert(num_rho_ > 0);
 
-   Tissue2CCD pos_ccd;
+   Coordinates pos_ccd;
    for (auto ind = 0u; ind < send_direction_.size(); ind++) {
 
       if (rcv_buffer_[ind].size() == 0)
@@ -321,10 +283,9 @@ void MyMPI::BufferToVariable(vector<Tissue2CCD> &scan_grid,
 
          for (auto j = first_elm; j < last_elm; j += 4) {
             intensity_buffer.push_back(vm::Vec4<double>(
-                {{rcv_buffer_[ind][i + j + 0], rcv_buffer_[ind][i + j + 1],
-                  rcv_buffer_[ind][i + j + 2], rcv_buffer_[ind][i + j + 3]}}));
+                rcv_buffer_[ind][i + j + 0], rcv_buffer_[ind][i + j + 1],
+                rcv_buffer_[ind][i + j + 2], rcv_buffer_[ind][i + j + 3]));
          }
       }
    }
 }
-*/

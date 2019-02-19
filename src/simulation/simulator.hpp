@@ -53,14 +53,14 @@ class PliSimulator {
    );
 
  private:
-   bool debug_ = true;
+   const bool debug_ = false;
    Setup pli_setup_{};
    Dimensions dim_{};
    object::container::NpArray<int> label_field_;
    object::container::NpArray<float> vector_field_;
    std::vector<PhyProp> properties_;
 
-   // std::vector<vm::Vec4<double>> signal_buffer_;
+   std::vector<vm::Vec4<double>> signal_buffer_;
    // vm::Vec3<bool> flip_tissue_{false};
 
    std::unique_ptr<MyMPI> mpi_ = std::make_unique<MyMPI>();
@@ -108,9 +108,9 @@ class PliSimulator {
 
    vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) const;
 
-   bool CheckMPIHalo(const vm::Vec3<double> &aktPoint,
+   bool CheckMPIHalo(const vm::Vec3<double> &local_pos,
                      const vm::Vec3<int> &shift_direct,
-                     const std::vector<vm::Vec4<double>> &S_vec,
+                     const std::vector<vm::Vec4<double>> &s_vec,
                      const Coordinates &startpos);
 };
 

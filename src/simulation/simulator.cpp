@@ -61,6 +61,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    mpi_->CreateCartGrid(global_dim);
    dim_ = mpi_->dim_vol();
+   mpi_->set_num_rho(pli_setup_.filter_rotations.size());
 
    if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 1ULL !=
        label_field.size())
@@ -72,8 +73,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
       throw std::invalid_argument("dim_.local.x() * dim_.local.y() * "
                                   "dim_.local.z()* 3 != vector_field.size()");
 
-   label_field_ = label_field;
-   vector_field_ = vector_field;
+   label_field_ = std::move(label_field);
+   vector_field_ = std::move(vector_field);
 
    if (std::abs(theta) >= M_PI_2)
       throw std::invalid_argument("illegal light path");
@@ -133,101 +134,110 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    auto scan_grid = CalcPixelsUntilt(theta, phi);
 
-   // bool flag_all_no_com = false;
+   bool flag_all_no_com = false;
    bool flag_sending = false;
-   // while (!flag_all_no_com) {
-   while (!scan_grid.empty()) {
-      auto grid_elm = scan_grid.back();
-      flag_sending = false;
+   while (!flag_all_no_com) {
+      while (!scan_grid.empty()) {
+         auto grid_elm = scan_grid.back();
+         flag_sending = false;
 
-      auto pos = grid_elm.tissue - vm::cast<double>(dim_.offset);
-      auto s_vec = s_vec_0;
+         auto local_pos = grid_elm.tissue - vm::cast<double>(dim_.offset);
+         auto s_vec = s_vec_0;
 
-      // if (pos.z() >= 0.5){
-      //    assert(signal_buffer_.size() > 0);
-      //    s_vec = signal_buffer_.back();
-      // }
-
-      // if (debug_)
-      //    std::cout << grid_elm.ccd << ": " << pos << std::endl;
-
-      for (; pos.z() > -0.5 && pos.z() < dim_.local.z() - 0.5; pos += step) {
-
-         // check if communication is neccesary
-         flag_sending = CheckMPIHalo(pos, shift_direct, s_vec, grid_elm);
-         if (flag_sending) {
-            break;
+         if (local_pos.z() >= 0.5) {
+            s_vec.clear();
+            for (auto i = 0u; i < n_rho; i++) {
+               assert(!signal_buffer_.empty());
+               s_vec.push_back(signal_buffer_.back());
+               signal_buffer_.pop_back();
+            }
+            std::reverse(s_vec.begin(), s_vec.end());
          }
 
-         auto label = GetLabel(pos);
+         // if (debug_)
+         //    std::cout << grid_elm.ccd << ": " << pos << std::endl;
 
-         // calculate physical parameters
-         double dn = properties_[label].dn;
-         double mu = properties_[label].mu * 1e3;
-         const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
+         for (; local_pos.z() > -0.5 && local_pos.z() < dim_.local.z() - 0.5; local_pos += step) {
 
-         if (dn == 0) {
-            if (mu == 0)
+            // check if communication is neccesary
+            flag_sending = CheckMPIHalo(local_pos, shift_direct, s_vec, grid_elm);
+            if (flag_sending) {
+               break;
+            }
+
+            auto label = GetLabel(local_pos);
+
+            // calculate physical parameters
+            double dn = properties_[label].dn;
+            double mu = properties_[label].mu * 1e3;
+            const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
+
+            if (dn == 0) {
+               if (mu == 0)
+                  continue;
+
+               for (auto rho = 0u; rho < n_rho; rho++)
+                  s_vec[rho] *= attenuation;
                continue;
+            }
 
-            for (auto rho = 0u; rho < n_rho; rho++)
-               s_vec[rho] *= attenuation;
-            continue;
-         }
+            auto vec = GetVec(local_pos, do_nn);
+            const auto d_rel = dn * 4.0 * thickness / lambda;
 
-         auto vec = GetVec(pos, do_nn);
-         const auto d_rel = dn * 4.0 * thickness / lambda;
+            if (theta != 0)
+               vec = vm::dot(rotation, vec);
 
-         if (theta != 0)
-            vec = vm::dot(rotation, vec);
+            // calculate spherical coordinates
+            const auto alpha = asin(vec.z());
+            const auto ret =
+                M_PI_2 * d_rel * pow(cos(alpha), 2.0); // M_PI_2 = pi/2
+            const auto sin_r = sin(ret);
+            const auto cos_r = cos(ret);
 
-         // calculate spherical coordinates
-         const auto alpha = asin(vec.z());
-         const auto ret =
-             M_PI_2 * d_rel * pow(cos(alpha), 2.0); // M_PI_2 = pi/2
-         const auto sin_r = sin(ret);
-         const auto cos_r = cos(ret);
+            const auto phii = atan2(vec.y(), vec.x());
 
-         const auto phii = atan2(vec.y(), vec.x());
-
-         for (auto rho = 0u; rho < n_rho; rho++) {
-            const auto beta = 2 * (pli_setup_.filter_rotations[rho] - phii);
-            const auto sin_b = sin(-beta);
-            const auto cos_b = cos(-beta);
-
-            auto a1 = s_vec[rho][1] * cos_b - s_vec[rho][2] * sin_b;
-            auto c1 = s_vec[rho][1] * sin_b + s_vec[rho][2] * cos_b;
-            auto b1 = c1 * cos_r + s_vec[rho][3] * sin_r;
-
-            // is equivalent to (R*M*R*S)*att
-            s_vec[rho] = {{s_vec[rho][0], a1 * cos_b + b1 * sin_b,
-                           -a1 * sin_b + b1 * cos_b,
-                           -c1 * sin_r + s_vec[rho][3] * cos_r}};
-            s_vec[rho] *= attenuation;
-         }
-      }
-
-      if (!flag_sending) {
-         size_t ccd_idx =
-             (grid_elm.ccd.x() - dim_.offset.x()) * dim_.local.y() +
-             (grid_elm.ccd.y() - dim_.offset.y());
-
-         // save signal only if light beam did not leave xy border
-         if (pos.x() >= -0.5 && pos.y() >= -0.5 &&
-             pos.x() < static_cast<double>(dim_.local.x()) - 0.5 &&
-             pos.y() < static_cast<double>(dim_.local.y()) - 0.5) {
-
-            assert(ccd_idx * n_rho < intensity_signal.size());
             for (auto rho = 0u; rho < n_rho; rho++) {
-               s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
-               intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
+               const auto beta = 2 * (pli_setup_.filter_rotations[rho] - phii);
+               const auto sin_b = sin(-beta);
+               const auto cos_b = cos(-beta);
+
+               auto a1 = s_vec[rho][1] * cos_b - s_vec[rho][2] * sin_b;
+               auto c1 = s_vec[rho][1] * sin_b + s_vec[rho][2] * cos_b;
+               auto b1 = c1 * cos_r + s_vec[rho][3] * sin_r;
+
+               // is equivalent to (R*M*R*S)*att
+               s_vec[rho] = {{s_vec[rho][0], a1 * cos_b + b1 * sin_b,
+                              -a1 * sin_b + b1 * cos_b,
+                              -c1 * sin_r + s_vec[rho][3] * cos_r}};
+               s_vec[rho] *= attenuation;
             }
          }
-      }
 
-      scan_grid.pop_back();
+         if (!flag_sending) {
+            size_t ccd_idx =
+                (grid_elm.ccd.x() - dim_.offset.x()) * dim_.local.y() +
+                (grid_elm.ccd.y() - dim_.offset.y());
+
+            // save signal only if light beam did not leave xy border
+            if (local_pos.x() >= -0.5 && local_pos.y() >= -0.5 &&
+                local_pos.x() < static_cast<double>(dim_.local.x()) - 0.5 &&
+                local_pos.y() < static_cast<double>(dim_.local.y()) - 0.5) {
+
+               assert(ccd_idx * n_rho < intensity_signal.size());
+               for (auto rho = 0u; rho < n_rho; rho++) {
+                  s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
+                  intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
+               }
+            }
+         }
+
+         scan_grid.pop_back();
+      }
+      assert(signal_buffer_.empty());
+      mpi_->CommunicateData(scan_grid, signal_buffer_);
+      flag_all_no_com = (mpi_->Allreduce(scan_grid.size()) == 0);
+      assert(signal_buffer_.size() == scan_grid.size() * n_rho);
    }
-   // }
 
    mpi_->Barrier();
 
@@ -422,44 +432,41 @@ vm::Mat4x4<double> PliSimulator::RetarderMatrix(const double beta,
    return M;
 }
 
-bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &aktPoint,
+bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
                                 const vm::Vec3<int> &shift_direct,
-                                const std::vector<vm::Vec4<double>> &S_vec,
+                                const std::vector<vm::Vec4<double>> &s_vec,
                                 const Coordinates &startpos) {
 
    static auto low = dim_.offset;
    static auto up = dim_.offset + dim_.local;
 
    // check if communication is neccesary
-   // x - halo communication:
-   if (aktPoint.x() < -0.5)
-      std::cout << aktPoint << std::endl;
+   if (local_pos.x() < -0.5)
+      std::cout << local_pos << std::endl;
 
    bool flag = false;
-   if ((aktPoint.x() < 0 && shift_direct.x() == -1 && low.x() != 0) ||
-       (aktPoint.x() > dim_.local.x() - 1 && shift_direct.x() == 1 &&
+   // x - halo communication:
+   if ((local_pos.x() < 0 && shift_direct.x() == -1 && low.x() != 0) ||
+       (local_pos.x() > dim_.local.x() - 1 && shift_direct.x() == 1 &&
         up.x() != dim_.global.x() - 1)) {
-      // mpi_->PushLightToBuffer(aktPoint + vm::cast<double>(dim_vol_.low),
-      //                         startpos.ccd, S_vec, shift_direct.x() * 1);
-      // std::cout << "x-direction" << std::endl;
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
+                              s_vec, shift_direct.x() * 1);
       flag = true;
 
       // y-halo communication:
-   } else if ((aktPoint.y() < 0 && shift_direct.y() == -1 && low.y() != 0) ||
-              (aktPoint.y() > dim_.local.y() - 1 && shift_direct.y() == 1 &&
+   } else if ((local_pos.y() < 0 && shift_direct.y() == -1 && low.y() != 0) ||
+              (local_pos.y() > dim_.local.y() - 1 && shift_direct.y() == 1 &&
                up.y() != dim_.global.y() - 1)) {
-      // mpi_->PushLightToBuffer(aktPoint + vm::cast<double>(dim_vol_.low),
-      //                         startpos.ccd, S_vec, shift_direct.y() * 2);
-      // std::cout << "y-direction" << std::endl;
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
+                              s_vec, shift_direct.y() * 2);
       flag = true;
 
       // z-halo communication:
-   } else if ((aktPoint.z() < 0 && shift_direct.z() == -1 && low.z() != 0) ||
-              (aktPoint.z() > dim_.local.z() - 1 && shift_direct.z() == 1 &&
+   } else if ((local_pos.z() < 0 && shift_direct.z() == -1 && low.z() != 0) ||
+              (local_pos.z() > dim_.local.z() - 1 && shift_direct.z() == 1 &&
                up.z() != dim_.global.z() - 1)) {
-      // mpi_->PushLightToBuffer(aktPoint + vm::cast<double>(dim_vol_.low),
-      //                         startpos.ccd, S_vec, shift_direct.z() * 3);
-      // std::cout << "z-direction" << std::endl;
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
+                              s_vec, shift_direct.z() * 3);
       flag = true;
    }
 
