@@ -33,8 +33,8 @@ with h5py.File(FILE_NAME, 'w', driver='mpio', comm=MPI.COMM_WORLD) as h5f:
         0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]])
 
     # manipulation of fibers
-    # simpli.RotateVolumeAroundPoint(np.deg2rad(
-    #     20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
+    simpli.RotateVolumeAroundPoint(np.deg2rad(
+        20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
     simpli.TranslateVolume([50, 50, 50])
 
     start = time.time()
