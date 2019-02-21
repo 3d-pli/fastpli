@@ -42,18 +42,18 @@ with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
     # PliSimulation ###
     simpli.setup.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.setup.light_intensity = 26000
-    simpli.setup.resolution = 1
+    simpli.setup.pixel_size = 1
     simpli.setup.untilt_sensor = True
     simpli.setup.wavelength = 525
 
     start = time.time()
-    print("run_simulation: 0")
-    image = simpli.run_simulation(
+    print("RunSimulation: 0")
+    image = simpli.RunSimulation(
         label_field, vec_field, tissue_properties, 0, 0)
     h5f['data/0'] = image
 
-    print("run_simulation: 1")
-    image = simpli.run_simulation(
+    print("RunSimulation: 1")
+    image = simpli.RunSimulation(
         label_field,
         vec_field,
         tissue_properties,
@@ -61,8 +61,8 @@ with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
         np.deg2rad(0))
     h5f['data/1'] = image
 
-    print("run_simulation: 2")
-    image = simpli.run_simulation(
+    print("RunSimulation: 2")
+    image = simpli.RunSimulation(
         label_field,
         vec_field,
         tissue_properties,
@@ -70,8 +70,8 @@ with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
         np.deg2rad(90))
     h5f['data/2'] = image
 
-    print("run_simulation: 3")
-    image = simpli.run_simulation(
+    print("RunSimulation: 3")
+    image = simpli.RunSimulation(
         label_field,
         vec_field,
         tissue_properties,
@@ -79,8 +79,8 @@ with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
         np.deg2rad(180))
     h5f['data/3'] = image
 
-    print("run_simulation: 4")
-    image = simpli.run_simulation(
+    print("RunSimulation: 4")
+    image = simpli.RunSimulation(
         label_field,
         vec_field,
         tissue_properties,
@@ -89,7 +89,7 @@ with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
     h5f['data/4'] = image
 
     end = time.time()
-    print("run_simulation:", end - start)
+    print("RunSimulation:", end - start)
 
 global_end = time.time()
 print("GlobalRuntime:", global_end - global_start)
