@@ -21,11 +21,27 @@ class Simpli:
         self.__sim = simulation.Simulator()
 
         # self.layer_properties = [[]]
-        self.dim = [0, 0, 0]
-        self.dim_origin = [0, 0, 0]
+        self._dim = None
+        self._dim_origin = np.array([0, 0, 0], dtype=int)
 
         self.pixel_size = 0
         self.setup = simulation.Setup()
+
+    @property
+    def dim(self):
+        return self._dim
+    
+    @dim.setter
+    def dim(self,dim):
+        self._dim = np.array(dim)
+
+    @property
+    def dim_origin(self):
+        return self._dim_origin
+    
+    @dim_origin.setter
+    def dim_origin(self,dim_origin):
+        self._dim_origin = np.array(dim_origin)
 
     def ReadFiberFile(self, filename):
         self.__fiber_bundles = []
@@ -92,7 +108,7 @@ class Simpli:
 
     def GenerateTissue(self, only_label=False):
         self.__gen.set_volume(
-            self.dim, self.dim_origin, self.pixel_size)
+            self._dim, self.dim_origin, self.pixel_size)
         self.__CheckFiberBundleAndPropertiesLength()
         self.__gen.set_fiber_bundles(
             self.__fiber_bundles, self.__fiber_bundles_properties)
@@ -113,7 +129,7 @@ class Simpli:
         self.__sim.set_pli_setup(self.setup)
         self.__sim.set_tissue_properties(tissue_properties)
 
-        image = self.__sim.run_simulation(self.dim,
+        image = self.__sim.run_simulation(self._dim,
                                           label_field, vec_field, theta, phi, do_untilt)
         return image
 
@@ -126,7 +142,7 @@ class Simpli:
 
         dim_local, dim_offset = self.DimData()
         if data_name is 'tissue':
-            dim = self.dim
+            dim = self._dim
             dset = h5f.create_dataset(data_name, dim, dtype=np.uint16)
 
             for i in range(data.shape[0]):
@@ -134,13 +150,13 @@ class Simpli:
                  + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = data[i,:,:]
 
         elif data_name is 'vectorfield':
-            dim = [self.dim[0], self.dim[1], self.dim[2], 3]
+            dim = [self._dim[0], self._dim[1], self._dim[2], 3]
             dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
             for i in range(data.shape[0]):
                 dset[i+dim_offset[0], dim_offset[1]:dim_offset[1]
                  + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = data[i,:,:]
         elif 'data/' in data_name:
-            dim = [self.dim[0], self.dim[1], len(self.setup.filter_rotations)]
+            dim = [self._dim[0], self._dim[1], len(self.setup.filter_rotations)]
             dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
 
             if tuple(dim) == data.shape:
