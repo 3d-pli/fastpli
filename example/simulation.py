@@ -34,7 +34,10 @@ class IndexTracker(object):
 simpli = Simpli()
 # PliGeneration ###
 simpli.pixel_size = 1
-simpli.dim = [100, 100, 100]
+simpli.dim_global = [100, 100, 100]
+simpli.dim_local = [100, 100, 100]
+simpli.dim_offset_local = [0, 0, 0]
+
 simpli.ReadFiberFile('example/cube.h5')
 simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
     0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]])
@@ -47,9 +50,9 @@ simpli.TranslateVolume([25, -15, 50])
 label_field, _, tissue_properties = simpli.GenerateTissue(only_label=True)
 label_field, vec_field, tissue_properties = simpli.GenerateTissue()
 
-label_field_vis = np.transpose(label_field.astype(
-    np.uint16).reshape(simpli.dim[0], simpli.dim[1], simpli.dim[2]), (0, 1, 2))
-label_field_vis[label_field_vis > 0] += 3
+# TODO:
+# label_field_vis = label_field.copy()
+# label_field_vis[label_field > 0] += 3
 
 # PliSimulation ###
 simpli.setup.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])

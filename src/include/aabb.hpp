@@ -2,6 +2,7 @@
 #define AABB_HPP_
 
 #include <array>
+#include <limits>
 #include <ostream>
 #include <tuple>
 #include <vector>
@@ -24,11 +25,12 @@ template <typename T, int N> struct AABB {
    ~AABB() = default;
 
    // data
-   vm::Vec<T, N> min{};
-   vm::Vec<T, N> max{};
+   vm::Vec<T, N> min{std::numeric_limits<T>::max()};
+   vm::Vec<T, N> max{-std::numeric_limits<T>::max()};
 
    // function
-   bool IsEmpty() const;
+   // TODO: IsEmpty should be checked everytime?
+   bool IsEmpty() const; // if min > max
    void Unite(const AABB<T, N> &a);
    void Unite(const vm::Vec<T, N> &v);
    void Intersect(const AABB<T, N> &a);

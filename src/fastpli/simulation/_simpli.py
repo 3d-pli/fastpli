@@ -5,6 +5,7 @@ from fastpli.objects import Fiber
 from fastpli.tools import rotation
 import numpy as np
 import h5py
+from mpi4py import MPI
 
 # Read fiber data and prepair for PliGenerator
 # TODO: write json -> parameter function
@@ -20,9 +21,27 @@ class Simpli:
         self.__sim = simulation.Simulator()
 
         # self.layer_properties = [[]]
-        self.dim = [0, 0, 0]
+        self._dim = None
+        self._dim_origin = np.array([0, 0, 0], dtype=int)
+
         self.pixel_size = 0
         self.setup = simulation.Setup()
+
+    @property
+    def dim(self):
+        return self._dim
+    
+    @dim.setter
+    def dim(self, dim):
+        self._dim = np.array(dim)
+
+    @property
+    def dim_origin(self):
+        return self._dim_origin
+    
+    @dim_origin.setter
+    def dim_origin(self, dim_origin):
+        self._dim_origin = np.array(dim_origin)
 
     def ReadFiberFile(self, filename):
         self.__fiber_bundles = []
@@ -88,7 +107,8 @@ class Simpli:
                 "properties must have the same size as fiber_bundles")
 
     def GenerateTissue(self, only_label=False):
-        self.__gen.set_volume(self.dim, self.pixel_size)
+        self.__gen.set_volume(
+            self._dim, self.dim_origin, self.pixel_size)
         self.__CheckFiberBundleAndPropertiesLength()
         self.__gen.set_fiber_bundles(
             self.__fiber_bundles, self.__fiber_bundles_properties)
@@ -98,75 +118,70 @@ class Simpli:
         return label_field, vec_field, tissue_properties
 
     def InitSimulation(self, label_field, vec_field, tissue_properties):
-        print("InitSimualtion:", self.pixel_size, self.dim)
         self.__sim.set_pli_setup(self.setup)
-        self.__sim.set_tissue(label_field, vec_field, self.dim,
-                              tissue_properties, self.pixel_size)
+        self.__sim.set_tissue(
+            label_field, vec_field, tissue_properties, self.pixel_size)
 
-    def run_simulation(self, label_field, vec_field,
-                       tissue_properties, theta, phi, do_untilt=True):
+    def RunSimulation(self, label_field, vec_field,
+                      tissue_properties, theta, phi, do_untilt=True):
 
+        self.setup.pixel_size = self.pixel_size
         self.__sim.set_pli_setup(self.setup)
-        self.__sim.set_tissue(self.dim,
-                              tissue_properties, self.pixel_size)
+        self.__sim.set_tissue_properties(tissue_properties)
 
-        image = self.__sim.run_simulation(
-            label_field, vec_field, theta, phi, do_untilt)
-        return image.reshape(self.dim[0], self.dim[1],
-                             len(self.setup.filter_rotations))
+        image = self.__sim.run_simulation(self._dim,
+                                          label_field, vec_field, theta, phi, do_untilt)
+        return image
 
+    def DimData(self):
+        dim_local = self.__gen.dim_local()
+        dim_offset = self.__gen.dim_offset()
+        return dim_local, dim_offset
 
-if __name__ == "__main__":
+    def SaveAsH5(self, h5f, data, data_name):
 
-    with h5py.File('output.h5', 'w') as h5f:
-        simpli = Simpli()
+        dim_local, dim_offset = self.DimData()
+        if data_name is 'tissue':
+            dim = self._dim
+            dset = h5f.create_dataset(data_name, dim, dtype=np.uint16)
 
-        # PliGeneration ###
-        simpli.pixel_size = 1
-        simpli.dim = [100, 100, 100]
-        simpli.ReadFiberFile('example/simpli/cube.h5')
-        simpli.layer_properties = [[0.333, 0.004, 10, 1], [
-            0.666, -0.004, 5, 0], [1.0, 0.004, 1, 2]]
+            for i in range(data.shape[0]):
+                dset[i+dim_offset[0], dim_offset[1]:dim_offset[1]
+                 + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = data[i,:,:]
 
-        # manipulation of fibers
-        simpli.RotateVolumeAroundPoint(np.deg2rad(
-            20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
-        simpli.TranslateVolume([25, -15, 50])
+        elif data_name is 'vectorfield':
+            dim = [self._dim[0], self._dim[1], self._dim[2], 3]
+            dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
+            for i in range(data.shape[0]):
+                dset[i+dim_offset[0], dim_offset[1]:dim_offset[1]
+                 + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = data[i,:,:]
+        elif 'data/' in data_name:
+            dim = [self._dim[0], self._dim[1], len(self.setup.filter_rotations)]
+            dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
 
-        label_field, vec_field, tissue_properties = simpli.GenerateTissue()
+            if tuple(dim) == data.shape:
+                dset[:] = data[:]
+            else:
+                mask = (np.count_nonzero(data, axis=2) != 0)
 
-        label_field_vis = np.transpose(label_field.asarray().astype(
-            np.uint16).reshape(simpli.dim[0], simpli.dim[1], simpli.dim[2]), (0, 1, 2))
-        label_field_vis[label_field_vis > 0] += 3
-        h5f['tissue'] = label_field_vis
-        h5f['vectorfield'] = np.transpose(vec_field.asarray().reshape(
-            simpli.dim[0], simpli.dim[1], simpli.dim[2], 3), (0, 1, 2, 3))
+                for i in range(data.shape[0]):
 
-        # PliSimulation ###
-        simpli.setup.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
-        simpli.setup.light_intensity = 26000
-        simpli.setup.resolution = 1
-        simpli.setup.untilt_sensor = True
-        simpli.setup.wavelength = 525
+                    first = 0
+                    for idx, elm in enumerate(mask[i,:]):
+                        if elm:
+                            first = idx
+                            break
+                    
 
-        simpli.InitSimulation(label_field, vec_field, tissue_properties)
+                    last = -1
+                    for idx, elm in reversed(list(enumerate(mask[i,:]))):
+                        if elm:
+                            last = idx+1
+                            break
+                    
+                    if first <= last:
+                        dset[i+dim_offset[0], first+dim_offset[1]:last+dim_offset[1],:] = data[i, first:last,:]
+                
 
-        print("run_simulation: 0")
-        image = simpli.run_simulation(0, 0)
-        h5f['data/0'] = np.transpose(image, (0, 1, 2))
-
-        print("run_simulation: 1")
-        image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(0))
-        h5f['data/1'] = np.transpose(image, (0, 1, 2))
-
-        print("run_simulation: 2")
-        image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(90))
-        h5f['data/2'] = np.transpose(image, (0, 1, 2))
-
-        print("run_simulation: 3")
-        image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(180))
-        h5f['data/3'] = np.transpose(image, (0, 1, 2))
-
-        print("run_simulation: 4")
-        image = simpli.run_simulation(np.deg2rad(5.5), np.deg2rad(270))
-        h5f['data/4'] = np.transpose(image, (0, 1, 2))
+        else:
+            raise TypeError("no compatible SaveAsH5: " + data_name)

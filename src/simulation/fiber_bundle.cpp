@@ -1,4 +1,4 @@
-#include "fiber_class.hpp"
+#include "fiber_bundle.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -80,36 +80,52 @@ Bundle::Bundle(std::vector<Fiber> fibers,
    layers_.reserve(properties.size());
    for (auto const &p : properties)
       layers_.push_back(p);
+   CalculateVoi();
 }
 
 void Bundle::Resize(const float f) {
    for (auto &fiber : fibers_)
       fiber.Resize(f);
+   CalculateVoi();
 }
 void Bundle::ResizePoints(const float f) {
    for (auto &fiber : fibers_)
       fiber.ResizePoints(f);
+   CalculateVoi();
 }
 
 void Bundle::ResizeRadii(const float f) {
    for (auto &fiber : fibers_)
       fiber.ResizeRadii(f);
+   CalculateVoi();
 }
 
-void Bundle::Rotate(const std::array<float, 9> &rot_mat) {
+void Bundle::Rotate(const vm::Mat3x3<float> &rot_mat) {
    for (auto &fiber : fibers_)
       fiber.Rotate(rot_mat);
+   CalculateVoi();
 }
 
-void Bundle::RotateAroundPoint(const std::array<float, 9> &rot_mat,
-                               const std::array<float, 3> point) {
+void Bundle::RotateAroundPoint(const vm::Mat3x3<float> &rot_mat,
+                               const vm::Vec3<float> &point) {
    for (auto &fiber : fibers_)
       fiber.RotateAroundPoint(rot_mat, point);
+   CalculateVoi();
 }
 
-void Bundle::Translate(const std::array<float, 3> &translation) {
+void Bundle::Translate(const vm::Vec3<float> &translation) {
    for (auto &fiber : fibers_)
       fiber.Translate(translation);
+
+   CalculateVoi();
 }
 
+void Bundle::CalculateVoi() {
+   voi_ = aabb::AABB<float, 3>();
+   if (!fibers_.empty())
+      voi_ = fibers_.front().voi();
+
+   for (auto &fiber : fibers_)
+      voi_.Unite(fiber.voi());
+}
 } // namespace fiber

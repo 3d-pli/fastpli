@@ -6,36 +6,62 @@
 #include <tuple>
 #include <vector>
 
-#include "fiber_class.hpp"
+#include "fiber_bundle.hpp"
+#include "helper.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "simulator.hpp"
 
-void PliGenerator::SetVolumeWithArrays(
-    const std::array<int, 3> dim, const float pixel_size,
-    const std::array<bool, 3> flip_direction) {
-   auto dim_vec = vm::Vec3<int>(dim[0], dim[1], dim[2]);
-   auto flip_direction_vec =
-       vm::Vec3<bool>(flip_direction[0], flip_direction[1], flip_direction[2]);
-   SetVolume(dim_vec, pixel_size, flip_direction_vec);
-}
-
-void PliGenerator::SetVolume(const vm::Vec3<int> dim, const float pixel_size,
+void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
+                             const vm::Vec3<float> origin,
+                             const float pixel_size,
                              const vm::Vec3<bool> flip_direction) {
 
-   if (dim.x() <= 0 || dim.y() <= 0 || dim.z() <= 0)
-      throw std::invalid_argument("dim[any] <= 0: [" + std::to_string(dim.x()) +
-                                  "," + std::to_string(dim.y()) + "," +
-                                  std::to_string(dim.z()) + "]");
+   if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)
+      throw std::invalid_argument("dim.global[any] <= 0: [" +
+                                  std::to_string(global_dim.x()) + "," +
+                                  std::to_string(global_dim.y()) + "," +
+                                  std::to_string(global_dim.z()) + "]");
+
+   mpi_->CreateCartGrid(global_dim);
+
+   dim_ = mpi_->dim_vol();
+   dim_.origin = origin;
+
+   if (dim_.local.x() < 0 || dim_.local.y() < 0 || dim_.local.z() < 0)
+      throw std::invalid_argument("dim.global[any] < 0: [" +
+                                  std::to_string(dim_.local.x()) + "," +
+                                  std::to_string(dim_.local.y()) + "," +
+                                  std::to_string(dim_.local.z()) + "]");
+
+   // clang-format off
+   if (dim_.local < dim_.global)
+      throw std::invalid_argument("dim.local < dim.global: [" +
+                                  std::to_string(dim_.local.x()) + "," +
+                                  std::to_string(dim_.local.y()) + "," +
+                                  std::to_string(dim_.local.z()) + "] < [" +
+                                  std::to_string(dim_.global.x()) + "," +
+                                  std::to_string(dim_.global.y()) + "," +
+                                  std::to_string(dim_.global.z()) + "]");
+   // clang-format on
 
    if (pixel_size <= 0)
       throw std::invalid_argument("pixel_size <= 0: " +
                                   std::to_string(pixel_size));
 
-   dim_ = vm::cast<size_t>(dim);
    pixel_size_ = pixel_size;
    flip_direction_ = flip_direction;
+
+   if (debug_) {
+      std::cout << "dim.global = " << dim_.global << std::endl;
+      std::cout << "dim.local = " << dim_.local << std::endl;
+      std::cout << "dim.offset = " << dim_.offset << std::endl;
+      std::cout << "dim.origin = " << dim_.origin << std::endl;
+      std::cout << "pixel_size = " << pixel_size_ << std::endl;
+      std::cout << "flip_direction = " << flip_direction_ << std::endl;
+   }
 }
+
 void PliGenerator::SetFiberBundles(
     const std::vector<fiber::Bundle> &fiber_bundles) {
    fiber_bundles_org_ = fiber_bundles;
@@ -54,29 +80,40 @@ std::tuple<std::vector<int> *, std::vector<float> *,
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
-   auto label_field = new std::vector<int>(dim_.x() * dim_.y() * dim_.z(), 0);
+   auto label_field = new std::vector<int>(
+       dim_.local.x() * dim_.local.y() * dim_.local.z(), 0);
    auto vector_field = new std::vector<float>();
 
    if (!only_label)
-      vector_field->resize(dim_.x() * dim_.y() * dim_.z() * 3, 0);
+      vector_field->resize(dim_.local.x() * dim_.local.y() * dim_.local.z() * 3,
+                           0);
 
    // create array_distance
-   std::vector<float> array_distance(dim_.x() * dim_.y() * dim_.z(),
+   std::vector<float> array_distance(dim_.local.x() * dim_.local.y() *
+                                         dim_.local.z(),
                                      std::numeric_limits<float>::infinity());
 
    // size fibers with pixel_size
    fiber_bundles_ = fiber_bundles_org_;
+   if (dim_.origin != 0)
+      for (auto &fb : fiber_bundles_)
+         fb.Translate(vm::cast<float>(-dim_.origin));
+
    for (auto &fb : fiber_bundles_)
       fb.Resize(1.0 / pixel_size_);
 
    int lastProgress = 0;
    const auto volume_bb =
-       aabb::AABB<float, 3>(vm::Vec3<float>(0), vm::cast<float>(dim_), true);
+       aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
+                            vm::cast<float>(dim_.local + dim_.offset), true);
 
    size_t progress_counter = 0;
 
    for (size_t fb_idx = 0; fb_idx < fiber_bundles_.size(); fb_idx++) {
       const auto &fb = fiber_bundles_[fb_idx];
+
+      if (!aabb::Overlap(volume_bb, fb.voi()))
+         continue;
 
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
          const auto &fiber = fb.fibers()[f_idx];
@@ -86,16 +123,15 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          if (fiber.size() <= 1)
             continue;
 
-         if (aabb::Overlap(volume_bb, fiber.voi())) {
-            // auto volume_fiber_bb = volume_bb.Intersection(fiber.voi);
+         if (!aabb::Overlap(volume_bb, fiber.voi()))
+            continue;
 
-            for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
-               // TODO: figure out how to incapsulate idx into fiber to only
-               // parse fiber
-               FillVoxelsAroundFiberSegment(fb_idx, f_idx, s_idx, *label_field,
-                                            *vector_field, array_distance,
-                                            only_label);
-            }
+         for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
+            // TODO: figure out how to incapsulate idx into fiber to only
+            // parse fiber segment
+            FillVoxelsAroundFiberSegment(fb_idx, f_idx, s_idx, *label_field,
+                                         *vector_field, array_distance,
+                                         only_label);
          }
 
          if (progress_bar) {
@@ -148,7 +184,8 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    fiber_segment_bb.min -= max_radius;
    fiber_segment_bb.max += max_radius;
    fiber_segment_bb.Intersect(
-       aabb::AABB<float, 3>(vm::Vec3<float>(0), vm::cast<float>(dim_), true));
+       aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
+                            vm::cast<float>(dim_.local + dim_.offset), true));
    const auto min = fiber_segment_bb.min;
    const auto max = fiber_segment_bb.max;
 
@@ -169,7 +206,9 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
             if (dist_squ > f_ly_sqr * ly_r * ly_r)
                continue;
 
-            size_t ind = x * dim_.y() * dim_.z() + y * dim_.z() + z;
+            size_t ind =
+                (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
+                (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
             assert(ind < label_field.size());
 
             if (array_distance[ind] >= dist_squ) {

@@ -4,6 +4,7 @@ import numpy as np
 import fastpli
 from fastpli.simulation.helper import TupleList2Layer
 
+
 class MainTest(unittest.TestCase):
 
     def setUp(self):
@@ -15,7 +16,7 @@ class MainTest(unittest.TestCase):
         self.fiber_prop = TupleList2Layer(fiber_prop)
 
         self.generator = fastpli.simulation.generation.Generator()
-        self.generator.set_volume([10, 10, 10], 0.2)
+        self.generator.set_volume([10, 10, 10], [0, 0, 0], 0.2)
         self.generator.set_fiber_bundles(self.fiber_bundles, self.fiber_prop)
 
     def test_return_dimension(self):
@@ -24,7 +25,7 @@ class MainTest(unittest.TestCase):
         fiber_prop = [[(1, 0, 0, 'p')]]
         fiber_prop = TupleList2Layer(fiber_prop)
         self.generator.set_fiber_bundles(fiber_bundles, fiber_prop)
-        self.generator.set_volume([3, 5, 7], 1)
+        self.generator.set_volume([3, 5, 7], [0, 0, 0], 1)
 
         label_field, vec_field, tissue_properties = self.generator.run_generation(
             )
@@ -33,7 +34,7 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(vec_field.shape, [3, 5, 7, 3]))
         self.assertTrue(
             np.array_equal(label_field.shape, vec_field.shape[0:3]))
-        self.assertTrue(np.array_equal(label_field, np.array(vec_field[:,:,:, 2], dtype=np.int16)))
+        self.assertTrue(np.array_equal(label_field, np.array(vec_field[:, :,:, 2], dtype=np.int16)))
 
     def test_generator(self):
         label_field_0, vec_field, tissue_properties = self.generator.run_generation(

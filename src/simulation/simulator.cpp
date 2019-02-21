@@ -7,7 +7,9 @@
 #include <memory>
 #include <vector>
 
+#include "helper.hpp"
 #include "include/vemath.hpp"
+#include "my_mpi.hpp"
 #include "objects/np_array_container.hpp"
 
 // PliSimulator::PliSimulator() {}
@@ -15,13 +17,13 @@
 
 void PliSimulator::SetPliSetup(const Setup pli_setup) {
 
+   if (pli_setup.pixel_size <= 0)
+      throw std::invalid_argument("pixel_size <= 0: " +
+                                  std::to_string(pli_setup.pixel_size));
+
    if (pli_setup.light_intensity < 0)
       throw std::invalid_argument("light intensity < 0: " +
                                   std::to_string(pli_setup.light_intensity));
-
-   if (pli_setup.resolution <= 0)
-      throw std::invalid_argument("resolution <= 0: " +
-                                  std::to_string(pli_setup.resolution));
 
    if (pli_setup.wavelength <= 0)
       throw std::invalid_argument("wavelength <= 0: " +
@@ -33,59 +35,46 @@ void PliSimulator::SetPliSetup(const Setup pli_setup) {
    pli_setup_ = pli_setup;
 }
 
-void PliSimulator::SetTissue(const vm::Vec3<int> &dim,
-                             const std::vector<PhyProp> &properties,
-                             const double pixel_size)
+void PliSimulator::SetTissueProperties(const std::vector<PhyProp> &properties)
 
 {
-   if (pixel_size <= 0)
-      throw std::invalid_argument("pixel_size <= 0: " +
-                                  std::to_string(pixel_size));
+   if (properties.size() == 0)
+      throw std::invalid_argument("tissue properties is empty");
 
-   if (dim.x() <= 0 || dim.y() <= 0 || dim.z() <= 0)
-      throw std::invalid_argument("dim[any] <= 0: [" + std::to_string(dim.x()) +
-                                  "," + std::to_string(dim.y()) + "," +
-                                  std::to_string(dim.z()) + "]");
-
-   // auto udim = vm::cast<size_t>(dim);
-   // auto size = udim.x() * udim.y() * udim.z();
-
-   // if (size != label_field->size())
-   //    throw std::invalid_argument(
-   //        "dimension and label_field aren't consistend: " +
-   //        std::to_string(size) + " != " +
-   //        std::to_string(label_field->size()));
-
-   // if (size * 3 != vector_field.size())
-   //    throw std::invalid_argument(
-   //        "dimension and vector_field aren't consistend: " +
-   //        std::to_string(size) +
-   //        "*3 != " + std::to_string(vector_field->size()));
-
-   // auto max_label = static_cast<size_t>(
-   //     *max_element(label_field->begin(), label_field->end()));
-   // if (max_label >= properties.size())
-   //    throw std::invalid_argument(
-   //        "max(label) exits propertie.size: " + std::to_string(max_label) +
-   //        ">=" + std::to_string(properties.size()));
-
-   // label_field_ = label_field;
-   // vector_field_ = vector_field;
-   dim_ = vm::cast<size_t>(dim);
    properties_ = properties;
-   pixel_size_ = pixel_size;
 }
 
 std::vector<float>
-PliSimulator::RunSimulation(object::container::NpArray<int> label_field,
+PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
+                            object::container::NpArray<int> label_field,
                             object::container::NpArray<float> vector_field,
                             const double theta, const double phi,
                             const double step_size, const bool do_nn
                             // , const bool flip_beam
 ) {
 
-   label_field_ = label_field;
-   vector_field_ = vector_field;
+   if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)
+      throw std::invalid_argument("global_dim[any] <= 0: [" +
+                                  std::to_string(global_dim.x()) + "," +
+                                  std::to_string(global_dim.y()) + "," +
+                                  std::to_string(global_dim.z()) + "]");
+
+   mpi_->CreateCartGrid(global_dim);
+   dim_ = mpi_->dim_vol();
+   mpi_->set_num_rho(pli_setup_.filter_rotations.size());
+
+   if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 1ULL !=
+       label_field.size())
+      throw std::invalid_argument("dim_.local.x() * dim_.local.y() * "
+                                  "dim_.local.z() != label_field.size()");
+
+   if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 3ULL !=
+       vector_field.size())
+      throw std::invalid_argument("dim_.local.x() * dim_.local.y() * "
+                                  "dim_.local.z()* 3 != vector_field.size()");
+
+   label_field_ = std::move(label_field);
+   vector_field_ = std::move(vector_field);
 
    if (std::abs(theta) >= M_PI_2)
       throw std::invalid_argument("illegal light path");
@@ -96,7 +85,7 @@ PliSimulator::RunSimulation(object::container::NpArray<int> label_field,
 
    const auto n_rho = pli_setup_.filter_rotations.size();
    const double lambda = pli_setup_.wavelength * 1e-9;
-   const double thickness = pixel_size_ * 1e-6;
+   const double thickness = pli_setup_.pixel_size * 1e-6;
 
    const double pol_x = 1; // TODO: via pli_setup
    const double pol_y = 1;
@@ -125,26 +114,60 @@ PliSimulator::RunSimulation(object::container::NpArray<int> label_field,
 
    const vm::Mat3x3<double> rotation =
        vm::rot_pi_cases::Mat3RotZYZ(phi, theta, -phi);
-   const vm::Vec3<double> step = TiltDirection(theta, phi) * step_size;
+
+   const vm::Vec3<double> shift = TiltDirection(theta, phi);
+   const vm::Vec3<double> step = shift * step_size;
    const auto TransformSensorPosToStart =
        GetSensorToStartTransformation(theta, phi);
 
    std::vector<float> intensity_signal(
-       static_cast<size_t>(dim_.x()) * dim_.y() * n_rho, 0);
+       static_cast<size_t>(dim_.local.x()) * dim_.local.y() * n_rho, 0);
 
-   std::cerr << intensity_signal.size() << ", " << dim_ << ", " << n_rho
-             << std::endl;
+   // calculate shift direction
+   vm::Vec3<int> shift_direct(0);
+   for (auto itr = 0u; itr < 3; itr++) {
+      if (shift[itr] > 0)
+         shift_direct[itr] = 1;
+      if (shift[itr] < 0)
+         shift_direct[itr] = -1;
+   }
 
-   // calculate light for all (x,y) positions of the ccd-sensor
-   for (unsigned int ccd_x = 0; ccd_x < dim_.x(); ++ccd_x) {
-      for (unsigned int ccd_y = 0; ccd_y < dim_.y(); ++ccd_y) {
-         size_t ccd_idx = ccd_x * dim_.y() + ccd_y;
-         assert(ccd_idx < intensity_signal.size());
+   auto scan_grid = CalcPixelsUntilt(theta, phi);
 
+   bool flag_all_no_com = false;
+   while (!flag_all_no_com) {
+      while (!scan_grid.empty()) {
+
+         auto grid_elm = scan_grid.back();
+         bool flag_sending = false;
+
+         auto local_pos = grid_elm.tissue - vm::cast<double>(dim_.offset);
+         auto ccd_pos = grid_elm.ccd;
          auto s_vec = s_vec_0;
-         auto pos = TransformSensorPosToStart(ccd_x, ccd_y);
-         for (; pos > -0.5 && pos < vm::cast<double>(dim_) - 0.5; pos += step) {
-            auto label = GetLabel(pos);
+
+         if (local_pos.z() >= 0.5) {
+            s_vec.clear();
+            for (auto i = 0u; i < n_rho; i++) {
+               assert(!signal_buffer_.empty());
+               s_vec.push_back(signal_buffer_.back());
+               signal_buffer_.pop_back();
+            }
+            std::reverse(s_vec.begin(), s_vec.end());
+         }
+
+         // if (debug_)
+         //    std::cout << grid_elm.ccd << ": " << pos << std::endl;
+
+         for (; local_pos.z() > -0.5 && local_pos.z() < dim_.local.z() - 0.5;
+              local_pos += step) {
+
+            // check if communication is neccesary
+            flag_sending =
+                CheckMPIHalo(local_pos, shift_direct, s_vec, grid_elm);
+            if (flag_sending)
+               break;
+
+            auto label = GetLabel(local_pos);
 
             // calculate physical parameters
             double dn = properties_[label].dn;
@@ -160,7 +183,7 @@ PliSimulator::RunSimulation(object::container::NpArray<int> label_field,
                continue;
             }
 
-            auto vec = GetVec(pos, do_nn);
+            auto vec = GetVec(local_pos, do_nn);
             const auto d_rel = dn * 4.0 * thickness / lambda;
 
             if (theta != 0)
@@ -192,16 +215,31 @@ PliSimulator::RunSimulation(object::container::NpArray<int> label_field,
             }
          }
 
-         // save signal only if light beam did not leave xy border
-         if (pos.x() >= -0.5 && pos.y() >= -0.5 &&
-             pos.x() < static_cast<double>(dim_.x()) - 0.5 &&
-             pos.y() < static_cast<double>(dim_.y()) - 0.5) {
-            for (auto rho = 0u; rho < n_rho; rho++) {
-               s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
-               intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
+         if (!flag_sending) {
+            size_t ccd_idx = (ccd_pos.x() - dim_.offset.x()) * dim_.local.y() +
+                             (ccd_pos.y() - dim_.offset.y());
+
+            // save signal only if light beam did not leave xy border
+            if (local_pos.x() >= -0.5 && local_pos.y() >= -0.5 &&
+                local_pos.x() < static_cast<double>(dim_.local.x()) - 0.5 &&
+                local_pos.y() < static_cast<double>(dim_.local.y()) - 0.5) {
+
+               assert(ccd_idx * n_rho < intensity_signal.size());
+               for (auto rho = 0u; rho < n_rho; rho++) {
+                  s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
+                  intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
+               }
             }
          }
+
+         scan_grid.pop_back();
       }
+
+      assert(signal_buffer_.empty());
+      mpi_->CommunicateData(scan_grid, signal_buffer_);
+      flag_all_no_com =
+          (mpi_->Allreduce(scan_grid.size() + signal_buffer_.size()) == 0);
+      assert(signal_buffer_.size() == scan_grid.size() * n_rho);
    }
 
    return intensity_signal;
@@ -209,15 +247,16 @@ PliSimulator::RunSimulation(object::container::NpArray<int> label_field,
 
 int PliSimulator::GetLabel(const long long x, const long long y,
                            const long long z) const {
-   size_t idx = x * dim_.y() * dim_.z() + y * dim_.z() + z;
-   // assert(idx < label_field_->size());
+   size_t idx = x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
+   assert(idx < label_field_.size());
    return label_field_[idx];
 }
 
 vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
                                       const long long z) const {
-   size_t idx = x * dim_.y() * dim_.z() * 3 + y * dim_.z() * 3 + z * 3;
-   // assert(idx < vector_field_->size());
+   size_t idx =
+       x * dim_.local.y() * dim_.local.z() * 3 + y * dim_.local.z() * 3 + z * 3;
+   assert(idx < vector_field_.size());
    return vm::Vec3<double>(vector_field_[idx], vector_field_[idx + 1],
                            vector_field_[idx + 2]);
 }
@@ -246,8 +285,6 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    auto y1 = static_cast<long long>(std::ceil(y));
    auto z1 = static_cast<long long>(std::ceil(z));
 
-   auto dim = vm::cast<long long>(dim_);
-
    if (x0 < 0)
       x0 = 0;
    if (y0 < 0)
@@ -255,12 +292,12 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    if (z0 < 0)
       z0 = 0;
 
-   if (x1 >= dim.x())
-      x1 = dim.x() - 1;
-   if (y1 >= dim.y())
-      y1 = dim.y() - 1;
-   if (z1 >= dim.z())
-      z1 = dim.z() - 1;
+   if (x1 >= dim_.local.x())
+      x1 = dim_.local.x() - 1;
+   if (y1 >= dim_.local.y())
+      y1 = dim_.local.y() - 1;
+   if (z1 >= dim_.local.z())
+      z1 = dim_.local.z() - 1;
 
    if (x0 == x1 && y0 == y1 && z0 == z1)
       return GetVec(x0, y0, z0);
@@ -315,12 +352,12 @@ vm::Vec3<double> PliSimulator::TiltDirection(const double theta,
                            cos(theta));
 }
 
-std::function<vm::Vec3<double>(int, int)>
+std::function<vm::Vec3<double>(long long, long long)>
 PliSimulator::GetSensorToStartTransformation(const double theta,
                                              const double phi) const {
 
    if (pli_setup_.untilt_sensor) {
-      const auto dz = dim_.z() - 1;
+      const auto dz = dim_.local.z() - 1;
       // FIXME: const auto dz = dim_.z() - 0.5;
 
       // special tilting angles
@@ -340,13 +377,49 @@ PliSimulator::GetSensorToStartTransformation(const double theta,
              vm::Vec2<double>(tan(theta) * cos(phi), tan(theta) * sin(phi)) *
              dz;
 
-      return [=](int x, int y) -> vm::Vec3<double> {
+      return [=](long long x, long long y) -> vm::Vec3<double> {
          return vm::Vec3<double>(x - shift.x(), y - shift.y(), 0.0);
       };
    } else {
       // TODO: implement back projection
-      return std::function<vm::Vec3<double>(int, int)>();
+      return std::function<vm::Vec3<double>(long long, long long)>();
    }
+}
+
+std::vector<Coordinates> PliSimulator::CalcPixelsUntilt(const double phi,
+                                                        const double theta) {
+
+   std::vector<Coordinates> scan_grid;
+
+   Coordinates data_point;
+   vm::Vec3<double> shift = TiltDirection(phi, theta) * (dim_.global.z() - 1);
+
+   // begin at ccd pos
+   for (long long ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
+      for (long long ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
+         // transform to bottom position
+         auto tis_x = ccd_x - shift.x();
+         auto tis_y = ccd_y - shift.y();
+
+         if (tis_x < dim_.offset.x() - 0.5 ||
+             tis_x > (dim_.offset.x() + dim_.local.x() - 0.5))
+            continue;
+         if (tis_y < dim_.offset.y() - 0.5 ||
+             tis_y > (dim_.offset.y() + dim_.local.y() - 0.5))
+            continue;
+
+         data_point.tissue = {tis_x, tis_y, 0.0};
+         data_point.ccd = {ccd_x, ccd_y};
+
+         scan_grid.push_back(data_point);
+      }
+   }
+
+   if (scan_grid.size() == 0)
+      std::cout << mpi_->my_rank() << ": Warning, scan_grid is empty"
+                << std::endl;
+
+   return scan_grid;
 }
 
 vm::Mat4x4<double> PliSimulator::RetarderMatrix(const double beta,
@@ -358,4 +431,41 @@ vm::Mat4x4<double> PliSimulator::RetarderMatrix(const double beta,
         pow(sin(beta), 2) + cos(ret) * pow(cos(beta), 2), sin(ret) * cos(beta),
         0, sin(ret) * sin(beta), -sin(ret) * cos(beta), cos(ret)}};
    return M;
+}
+
+bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
+                                const vm::Vec3<int> &shift_direct,
+                                const std::vector<vm::Vec4<double>> &s_vec,
+                                const Coordinates &startpos) {
+
+   static auto low = dim_.offset;
+   static auto up = dim_.offset + dim_.local;
+
+   bool flag = false;
+   // x - halo communication:
+   if ((local_pos.x() < 0 && shift_direct.x() == -1 && low.x() != 0) ||
+       (local_pos.x() > dim_.local.x() - 0.5 && shift_direct.x() == 1 &&
+        up.x() != dim_.global.x() - 0.5)) {
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
+                              s_vec, shift_direct.x() * 1);
+      flag = true;
+
+      // y-halo communication:
+   } else if ((local_pos.y() < 0 && shift_direct.y() == -1 && low.y() != 0) ||
+              (local_pos.y() > dim_.local.y() - 0.5 && shift_direct.y() == 1 &&
+               up.y() != dim_.global.y() - 0.5)) {
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
+                              s_vec, shift_direct.y() * 2);
+      flag = true;
+
+      // z-halo communication:
+   } else if ((local_pos.z() < 0 && shift_direct.z() == -1 && low.z() != 0) ||
+              (local_pos.z() > dim_.local.z() - 0.5 && shift_direct.z() == 1 &&
+               up.z() != dim_.global.z() - 0.5)) {
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
+                              s_vec, shift_direct.z() * 3);
+      flag = true;
+   }
+
+   return flag;
 }

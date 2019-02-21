@@ -14,17 +14,21 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 make install
 ```
 
+## Known Issues:
+If you run a python script with 'mpirun' and use h5py, h5py has to be installed with 'make h5py-mpi'. Only one version of h5py can be installed.
+
 ## Required Programs:
- - CMake
  - G++/Clang
  - Make
+ - CMake
  - Python3
-
-## Optional Packages:
- - CUDA
  - HDF5
  - MPI
  - OpenMP
+
+## Optional Packages:
+ - OpenGL
+ - CUDA
 
 ## Used Libraries:
  - pybind11

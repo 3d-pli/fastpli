@@ -17,12 +17,14 @@ pybind11_add_module(generation
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
       )
+TARGET_LINK_LIBRARIES(generation PRIVATE ${MPI_LIBRARIES})
 
 pybind11_add_module(simulation
       bindings/simulator_module.cpp
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
       )
+TARGET_LINK_LIBRARIES(simulation PRIVATE ${MPI_LIBRARIES})
 
 GET_TARGET_PROPERTY(outdir generation LIBRARY_OUTPUT_DIRECTORY)
 IF (outdir)
@@ -33,3 +35,9 @@ endif()
 
 SET_TARGET_PROPERTIES(generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
 SET_TARGET_PROPERTIES(simulation PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
+
+IF ( MPI_FOUND )
+   TARGET_COMPILE_DEFINITIONS(${CoreModules} PRIVATE _FASTPLI_MPI_FOUND_)
+   TARGET_COMPILE_DEFINITIONS(generation PRIVATE _FASTPLI_MPI_FOUND_)
+   TARGET_COMPILE_DEFINITIONS(simulation PRIVATE _FASTPLI_MPI_FOUND_)
+ENDIF()

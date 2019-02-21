@@ -5,17 +5,26 @@
 #include <pybind11/stl.h>
 
 #include "../generator.hpp"
+#include "../helper.hpp"
 #include "objects/np_array_helper.hpp"
 
 namespace py = pybind11;
+
+// TODO: expose vm::vec with vec->data_ as an array
 
 PYBIND11_MODULE(generation, m) {
    m.doc() = "Generation of tissue for SimPLI";
 
    py::class_<PliGenerator>(m, "Generator")
        .def(py::init())
-       .def("set_volume", &PliGenerator::SetVolumeWithArrays, py::arg("dim"),
-            py::arg("pixel_size"),
+       .def("set_volume",
+            [](PliGenerator &self, std::array<size_t, 3> global_dim,
+               std::array<float, 3> origin, double pixel_size,
+               std::array<bool, 3> flip_direction) {
+               self.SetVolume(vm::cast<long long>(vm::Vec3<size_t>(global_dim)),
+                              origin, pixel_size, flip_direction);
+            },
+            py::arg("global_dim"), py::arg("origin"), py::arg("pixel_size"),
             py::arg("flip_direction") =
                 std::array<bool, 3>{{false, false, false}})
        .def("set_fiber_bundles",
@@ -35,15 +44,14 @@ PYBIND11_MODULE(generation, m) {
                std::vector<int> *label_field;
                std::vector<float> *vector_field;
                std::vector<PliSimulator::PhyProp> prop_list;
-               std::vector<size_t> dim;
-
                std::tie(label_field, vector_field, prop_list) =
                    self.RunTissueGeneration(only_label, progress_bar);
 
-               std::vector<size_t> dim_label_field = self.dim();
+               std::vector<size_t> dim_label_field =
+                   vm::cast<size_t>(self.dim_local());
                std::vector<size_t> dim_vector_field;
                if (!only_label) {
-                  dim_vector_field = self.dim();
+                  dim_vector_field = dim_label_field;
                   dim_vector_field.push_back(3);
                }
 
@@ -52,7 +60,11 @@ PYBIND11_MODULE(generation, m) {
                    object::Vec2NpArray(vector_field, dim_vector_field),
                    prop_list);
             },
-            py::arg("only_label") = false, py::arg("progress_bar") = false);
+            py::arg("only_label") = false, py::arg("progress_bar") = false)
+       .def("dim_local",
+            [](PliGenerator &self) { return self.dim_local().data_; })
+       .def("dim_offset",
+            [](PliGenerator &self) { return self.dim_offset().data_; });
 
    // TODO: to objects?
    py::enum_<fiber::layer::Orientation>(m, "Orientation")

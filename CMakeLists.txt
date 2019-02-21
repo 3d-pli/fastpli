@@ -35,6 +35,10 @@ ELSE ( OPENMP_FOUND )
     MESSAGE("OPENMP NOT FOUND")
 ENDIF ( OPENMP_FOUND )
 
+# MPI
+FIND_PACKAGE( MPI REQUIRED )
+INCLUDE_DIRECTORIES( AFTER ${MPI_CXX_INCLUDE_PATH} )
+
 # OpenGL
 FIND_PACKAGE( OpenGL )
 FIND_PACKAGE( GLUT )
@@ -42,7 +46,7 @@ FIND_PACKAGE( GLUT )
 ##########################################################################
 # Sources
 ##########################################################################
-INCLUDE_DIRECTORIES(src)
+INCLUDE_DIRECTORIES( AFTER src)
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/model")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/objects")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/simulation")
