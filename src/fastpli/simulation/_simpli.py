@@ -32,7 +32,7 @@ class Simpli:
         return self._dim
     
     @dim.setter
-    def dim(self,dim):
+    def dim(self, dim):
         self._dim = np.array(dim)
 
     @property
@@ -40,7 +40,7 @@ class Simpli:
         return self._dim_origin
     
     @dim_origin.setter
-    def dim_origin(self,dim_origin):
+    def dim_origin(self, dim_origin):
         self._dim_origin = np.array(dim_origin)
 
     def ReadFiberFile(self, filename):
