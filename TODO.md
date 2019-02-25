@@ -15,6 +15,7 @@ back to [readme](README.md)
     - [ ] freeze objects
   - [ ] visualizer
     - [x] static
+    - [ ] red for collision
     - [ ] interactive
 - [x] objects
   - [x] fiber

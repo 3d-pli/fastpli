@@ -153,12 +153,6 @@ bool World::Step() {
          fibers_[elm[2]].AddSpeed(elm[3], -u);
          fibers_[elm[2]].AddSpeed(elm[3] + 1, -u);
       }
-
-// move colliding objects
-#pragma omp parallel for
-      for (auto i = 0u; i < fibers_.size(); i++) {
-         fibers_[i].Move(w_parameter_.drag);
-      }
    }
 
    // check fiber boundry conditions
@@ -168,6 +162,14 @@ bool World::Step() {
       bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
 #pragma omp critical
       solved = solved && flag_length && flag_radius;
+   }
+
+   // move colliding objects
+   if (!solved) {
+#pragma omp parallel for
+      for (auto i = 0u; i < fibers_.size(); i++) {
+         fibers_[i].Move(w_parameter_.drag);
+      }
    }
 
    return solved;

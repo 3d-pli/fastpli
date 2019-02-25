@@ -118,7 +118,7 @@ vm::Vec3<float> Cone::MinDistanceVectorCones(const Cone cone) const {
    float sc, sN, sD = f;
    float tc, tN, tD = f;
 
-   if (f < 1e-9f) {
+   if (f < 1e-5f) {
       sN = 0.0;
       sD = 1.0;
       tN = e;
@@ -160,11 +160,11 @@ vm::Vec3<float> Cone::MinDistanceVectorCones(const Cone cone) const {
       }
    }
 
-   if (std::abs(sN) < 1e-9f)
+   if (std::abs(sN) < 1e-5f)
       sc = 0.0;
    else
       sc = sN / sD;
-   if (std::abs(tN) < 1e-9f)
+   if (std::abs(tN) < 1e-5f)
       tc = 0.0;
    else
       tc = tN / tD;

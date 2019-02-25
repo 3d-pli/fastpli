@@ -205,11 +205,13 @@ OctTree::TestCollision(const std::vector<size_t> &cone_ids) {
             auto const delta = cone1.cone_idx >= cone2.cone_idx
                                    ? cone1.cone_idx - cone2.cone_idx
                                    : cone2.cone_idx - cone1.cone_idx;
-            auto const mean_seg_length =
-                vm::length(cone1.p1 - cone1.p0 - cone2.p1 + cone2.p0) * 0.5;
-
+            
+            // direct neighbor
             if (delta <= 1)
                continue;
+
+            auto const mean_seg_length =
+                vm::length((cone1.p1 - cone1.p0) + (cone2.p1 - cone2.p0)) * 0.5;
 
             // check for linked chain intersection
             auto const sum_r = cone1.r + cone2.r;

@@ -37,8 +37,9 @@ std::vector<object::Cone> Fiber::Cones() const {
 void Fiber::Move(const float drag) {
    for (size_t i = 0; i < points_.size(); i++) {
       auto const norm = vm::length(speed_[i]);
-      if (norm > k_max_speed_)
-         speed_[i] *= k_max_speed_ / norm;
+      auto const max_speed = radii_[i]*0.1;
+      if (norm > max_speed)
+         speed_[i] *= max_speed / norm;
 
       points_[i] += speed_[i];
       speed_[i] *= drag;
