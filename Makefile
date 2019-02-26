@@ -28,7 +28,7 @@ git-submodules:
 	git submodule update --init
 
 .PHONY: install
-install: ${VENV}
+install: ${VENV} h5py-mpi
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: h5py-serial

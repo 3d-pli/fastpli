@@ -1,6 +1,10 @@
 
 back to [readme](README.md)
 # TODOs:
+
+## important:
+- [ ] MPI.COMM_WORLD as an argument to generation & simulation
+
 ## main structure:
 - [ ] analysis
   - [ ] epa
@@ -11,6 +15,7 @@ back to [readme](README.md)
     - [ ] freeze objects
   - [ ] visualizer
     - [x] static
+    - [ ] red for collision
     - [ ] interactive
 - [x] objects
   - [x] fiber
@@ -19,7 +24,7 @@ back to [readme](README.md)
 - [ ] simulation
   - [x] generator
   - [x] simulator
-  - [ ] *.txt output for label_field
+  - [x] *.txt output for label_field
   - [ ] apply_optic
 - [ ] tools
   - [ ] h5io

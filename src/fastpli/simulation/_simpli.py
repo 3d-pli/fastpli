@@ -14,13 +14,12 @@ from mpi4py import MPI
 class Simpli:
 
     def __init__(self):
-        self.__fiber_bundles = [[]]
-        self.__fiber_bundles_properties = [[]]
+        self._fiber_bundles = None
+        self._fiber_bundles_properties = None
 
-        self.__gen = generation.Generator()
-        self.__sim = simulation.Simulator()
+        self._gen = generation.Generator()
+        self._sim = simulation.Simulator()
 
-        # self.layer_properties = [[]]
         self._dim = None
         self._dim_origin = np.array([0, 0, 0], dtype=int)
 
@@ -43,30 +42,59 @@ class Simpli:
     def dim_origin(self, dim_origin):
         self._dim_origin = np.array(dim_origin)
 
+    @property
+    def fiber_bundles(self):
+        return self._fiber_bundles
+
+    @fiber_bundles.setter
+    def fiber_bundles(self, fbs):
+        if not isinstance(fbs, list):
+            raise TypeError("fbs is not a list")
+
+        for fb_i, fb in enumerate(fbs):
+            if not isinstance(fb, list):
+                raise TypeError("fb is not a list")
+
+            for f_i, f in enumerate(fb):
+                if isinstance(f, Fiber):
+                    continue
+                elif isinstance(f, list):
+                    f = np.array(f)        
+        
+                if isinstance(f, np.ndarray):
+                    if len(f.shape) is not 2 or f.shape[1] is not 4:
+                        raise TypeError("fiber elements has to be of dim nx4")
+                    fbs[fb_i][f_i] = Fiber(f[:, 0:-1], f[:, -1]) 
+                else:
+                    raise TypeError("fiber hast to be a objects.Fiber, 4d-list or 4d-array")
+
+        self._fiber_bundles = fbs
+
+
     def ReadFiberFile(self, filename):
-        self.__fiber_bundles = []
+        self._fiber_bundles = []
         with h5py.File(filename, 'r') as h5f:
 
             fbs = h5f['fiber_bundles']
             for fb in fbs:
-                self.__fiber_bundles.append([])
+                self._fiber_bundles.append([])
                 fb = fbs[fb]
                 for f in fb:
                     f = fb[f]
-                    self.__fiber_bundles[-1].append(
+                    self._fiber_bundles[-1].append(
                         Fiber(f['points'][:].flatten(), f['radii'][:]))
 
     def TranslateVolume(self, offset):
         if not isinstance(offset, list):
             raise TypeError("offset must be a list")
 
-        for fb in self.__fiber_bundles:
+        for fb in self._fiber_bundles:
             for f in fb:
                 f.translate(offset)
 
     def RotateVolume(self, phi, theta, psi):
         rot_mat = rotation.zyz(phi, theta, psi)
-        for fb in self.__fiber_bundles:
+        for fb in self._fiber_bundles:
             for f in fb:
                 f.rotate(list(rot_mat))
 
@@ -75,7 +103,7 @@ class Simpli:
         if offset.shape != (3,):
             raise TypeError("offset must a point")
         rot_mat = rotation.zyz(phi, theta, psi)
-        for fb in self.__fiber_bundles:
+        for fb in self._fiber_bundles:
             for f in fb:
                 f.rotate_around_point((rot_mat), offset)
 
@@ -83,59 +111,59 @@ class Simpli:
         if not isinstance(bundle_layer_properties, list):
             raise TypeError("properties must be a list(list(tuples))")
 
-        if len(self.__fiber_bundles) != len(bundle_layer_properties):
+        if len(self._fiber_bundles) != len(bundle_layer_properties):
             raise TypeError(
                 "properties must have the same size as fiber_bundles")
 
-        self.__fiber_bundles_properties = []
+        self._fiber_bundles_properties = []
         for prop in bundle_layer_properties:
             if not isinstance(prop, list):
                 raise TypeError(
                     "properties must be a list(list(tuples))")
 
-            self.__fiber_bundles_properties.append([])
+            self._fiber_bundles_properties.append([])
             for ly in prop:
                 if len(ly) != 4:
                     raise TypeError(
                         "properties must have len 4 (float, float, float, char)")
-                self.__fiber_bundles_properties[
+                self._fiber_bundles_properties[
                     -1].append(generation.LayerProperty(ly[0], ly[1], ly[2], ly[3]))
 
     def __CheckFiberBundleAndPropertiesLength(self):
-        if len(self.__fiber_bundles) != len(self.__fiber_bundles_properties):
+        if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
             raise TypeError(
                 "properties must have the same size as fiber_bundles")
 
     def GenerateTissue(self, only_label=False):
-        self.__gen.set_volume(
+        self._gen.set_volume(
             self._dim, self.dim_origin, self.pixel_size)
         self.__CheckFiberBundleAndPropertiesLength()
-        self.__gen.set_fiber_bundles(
-            self.__fiber_bundles, self.__fiber_bundles_properties)
-        label_field, vec_field, tissue_properties = self.__gen.run_generation(
+        self._gen.set_fiber_bundles(
+            self._fiber_bundles, self._fiber_bundles_properties)
+        label_field, vec_field, tissue_properties = self._gen.run_generation(
             only_label, 0)
 
         return label_field, vec_field, tissue_properties
 
     def InitSimulation(self, label_field, vec_field, tissue_properties):
-        self.__sim.set_pli_setup(self.setup)
-        self.__sim.set_tissue(
+        self._sim.set_pli_setup(self.setup)
+        self._sim.set_tissue(
             label_field, vec_field, tissue_properties, self.pixel_size)
 
     def RunSimulation(self, label_field, vec_field,
                       tissue_properties, theta, phi, do_untilt=True):
 
         self.setup.pixel_size = self.pixel_size
-        self.__sim.set_pli_setup(self.setup)
-        self.__sim.set_tissue_properties(tissue_properties)
+        self._sim.set_pli_setup(self.setup)
+        self._sim.set_tissue_properties(tissue_properties)
 
-        image = self.__sim.run_simulation(self._dim,
+        image = self._sim.run_simulation(self._dim,
                                           label_field, vec_field, theta, phi, do_untilt)
         return image
 
     def DimData(self):
-        dim_local = self.__gen.dim_local()
-        dim_offset = self.__gen.dim_offset()
+        dim_local = self._gen.dim_local()
+        dim_offset = self._gen.dim_offset()
         return dim_local, dim_offset
 
     def SaveAsH5(self, h5f, data, data_name):

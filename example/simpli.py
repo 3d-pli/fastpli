@@ -19,6 +19,7 @@ simpli = Simpli()
 simpli.pixel_size = 1
 simpli.dim = [100, 100, 100]
 simpli.ReadFiberFile('example/cube.h5')
+# simpli.fiber_bundles = [[[[0,0,30,100],[640,640,30,100]]]]
 simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
     0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]])
 
@@ -30,10 +31,11 @@ simpli.TranslateVolume([25, -15, 50])
 with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
 
     start = time.time()
-    label_field, _, tissue_properties = simpli.GenerateTissue(only_label=True)
+    # label_field, _, tissue_properties =
+    # simpli.GenerateTissue(only_label=True)
     label_field, vec_field, tissue_properties = simpli.GenerateTissue()
 
-    h5f['tissue'] = label_field
+    h5f['tissue'] = np.array(label_field, np.uint16)
     h5f['vectorfield'] = vec_field
     end = time.time()
 

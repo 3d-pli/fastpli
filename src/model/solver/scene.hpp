@@ -25,7 +25,7 @@ class Scene {
 
    GLUquadricObj *quadObj_;
    vm::Vec3<float> rotation_ = 0;
-   vm::Vec3<float> center_ = {0, 0, 0};
+   vm::Vec3<float> center_ = 0;
    vm::Vec3<float> center_new_ = center_;
    float distance_ = 0;
    float distance_new_ = 0;

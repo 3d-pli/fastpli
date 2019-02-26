@@ -53,7 +53,7 @@ class PliSimulator {
    );
 
  private:
-   const bool debug_ = false;
+   // const bool debug_ = false;
    Setup pli_setup_{};
    Dimensions dim_{};
    object::container::NpArray<int> label_field_;
