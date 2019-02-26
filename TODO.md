@@ -1,9 +1,8 @@
 
 back to [readme](README.md)
 # TODOs:
-
-## important:
 - [ ] MPI.COMM_WORLD as an argument to generation & simulation
+- [ ] git submodule to cmake
 
 ## main structure:
 - [ ] analysis

@@ -4,7 +4,7 @@ before_script:
   - apt-get update -qq && apt-get upgrade -y
   - apt-get install -y gcc g++ cmake make git
   - apt-get install -y python3-dev python3-venv
-  - apt-get install -y libopenmpi-dev freeglut3-dev
+  - apt-get install -y libopenmpi-dev freeglut3-dev libhdf5-openmpi-dev
 
 stages:
   - debug
@@ -19,6 +19,7 @@ build-debug:
     variables:
       - $CI_COMMIT_MESSAGE =~ /WIP/
   script:
+    - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
     - make git-submodules
     - make BUILD=debug install
     - make BUILD=debug test
@@ -29,6 +30,7 @@ build-release:
     - master
     - TestCI
   script:
+    - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
     - make git-submodules
     - make BUILD=release install
     - make BUILD=release test
