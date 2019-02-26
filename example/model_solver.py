@@ -1,38 +1,80 @@
-import numpy as np
 import fastpli
+from fastpli.model import bundle_generator
 
-# setup fibers
-VOLUME = 10
-NFIBER = 100
+import numpy as np
+import time
+import os
+
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 np.random.seed(42)
 
-# 2d plane with rnd seedpoints for fibers
-planes = np.empty((NFIBER, 2, 3))
-planes[:, :, 0:2] = np.random.uniform(-VOLUME, +VOLUME, (NFIBER, 2, 2))
-planes[:, 0, 2] = -VOLUME
-planes[:, 1, 2] = +VOLUME
 
+''' create fiber_bundle(s)
+'''
+
+# create fiber_bundle trajectory
+fiber_bundle_trj = []
+for phi in range(0, 91, 1):
+    fiber_bundle_trj.append(
+        [200 * np.sin(np.deg2rad(phi)),
+         200 * np.cos(np.deg2rad(phi)),
+         0,
+         1])
 fiber_bundles = [[]]
-for points in planes:
-    fiber_bundles[0].append(
-        fastpli.objects.Fiber(points, np.random.uniform(0.5, 1.0, 2)))
+fiber_bundles[-1].append(np.array(fiber_bundle_trj))
 
-# setup solver
+# fill fiber_bundle with fibers from a 2d population
+filled_fiber_bundles = [[]]
+population = bundle_generator.populate_circle(64, 1.5 * 5)
+for fb in fiber_bundles:
+    for fiber_obj in fb:
+        fibers = bundle_generator.populate_object(fiber_obj, population, 5)
+        for f in fibers:
+            filled_fiber_bundles[-1].append(f)
+
+''' setup solver
+'''
 solver = fastpli.model.Solver()
-solver.set_fiber_bundles(fiber_bundles)
-solver.set_parameters(drag=0, obj_min_radius=10, obj_mean_length=1)
-# solver.set_col_voi([0, 0, 0], [10, 10, 10])
+solver.fiber_bundles = filled_fiber_bundles
+solver.drag = 0
+solver.obj_min_radius = 0
+solver.obj_mean_length = 15
 solver.set_omp_num_threads(8)
 
-# run solver and plot results
-# vis = fastpli.model.Visualizer()
+
+# solved_fbs = solver.fiber_bundles
+# with open(os.path.join(FILE_PATH,'test.dat'), 'w') as file:
+#     for fb in solved_fbs:
+#         for f in fb:
+#             p,r = f.data
+#             for i in range(r.size):
+# file.write(str(p[i,0]) + '\t' + str(p[i,1]) + '\t' + str(p[i,2]) + '\t'
+# + str(r[i]) + '\n')
+
+#             file.write('\n')
+
+
+''' run solver
+'''
 for i in range(1000):
-    print("step:", i, solver.num_obj, solver.num_col_obj)
+    solver.step()
 
-    if solver.step():
-        break
-
-    if i % 25 == 0:
-        # vis.set_fbs(solver.get_fiber_bundles())
-        # vis.draw()
+    if i % 10 == 0:
+        print("step:", i, solver.num_obj, solver.num_col_obj)
         solver.draw_scene()
+
+# solver.draw_scene()
+# while(True):
+#     time.sleep(0.1)
+
+
+# solved_fbs = solver.fiber_bundles
+# with open(os.path.join(FILE_PATH,'test.dat'), 'w') as file:
+#     for fb in solved_fbs:
+#         for f in fb:
+#             p,r = f.data
+#             for i in range(r.size):
+# file.write(str(p[i,0]) + '\t' + str(p[i,1]) + '\t' + str(p[i,2]) + '\t'
+# + str(r[i]) + '\n')
+
+#             file.write('\n')

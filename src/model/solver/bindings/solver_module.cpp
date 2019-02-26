@@ -17,8 +17,6 @@ PYBIND11_MODULE(_solver_cpp, m) {
 
    py::class_<World>(m, "_SolverCPP")
        .def(py::init())
-       //  .def_property("fiber_bundles", &World::get_fibers,
-       //  &World::set_fibers)
        .def("get_fiber_bundles", &World::get_fibers)
        .def("set_fiber_bundles", &World::set_fibers)
        .def("set_omp_num_threads", &World::set_omp_num_threads)

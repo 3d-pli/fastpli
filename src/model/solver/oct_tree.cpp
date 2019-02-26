@@ -205,7 +205,7 @@ OctTree::TestCollision(const std::vector<size_t> &cone_ids) {
             auto const delta = cone1.cone_idx >= cone2.cone_idx
                                    ? cone1.cone_idx - cone2.cone_idx
                                    : cone2.cone_idx - cone1.cone_idx;
-            
+
             // direct neighbor
             if (delta <= 1)
                continue;
