@@ -146,12 +146,13 @@ bool World::Step() {
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
 
-         auto u = fibers_[elm[0]].Cone(elm[1]).PushConesApart(
+         vm::Vec3<float> f0, f1, f2, f3;
+         std::tie(f0, f1, f2, f3) = fibers_[elm[0]].Cone(elm[1]).PushConesApart(
              fibers_[elm[2]].Cone(elm[3]));
-         fibers_[elm[0]].AddSpeed(elm[1], u);
-         fibers_[elm[0]].AddSpeed(elm[1] + 1, u);
-         fibers_[elm[2]].AddSpeed(elm[3], -u);
-         fibers_[elm[2]].AddSpeed(elm[3] + 1, -u);
+         fibers_[elm[0]].AddSpeed(elm[1], f0);
+         fibers_[elm[0]].AddSpeed(elm[1] + 1, f1);
+         fibers_[elm[2]].AddSpeed(elm[3], f2);
+         fibers_[elm[2]].AddSpeed(elm[3] + 1, f3);
       }
    }
 
