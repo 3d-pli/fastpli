@@ -134,6 +134,11 @@ bool World::Step() {
    auto colliding_list = otree.Run();
    num_col_obj_ = colliding_list.size();
 
+#pragma omp parallel for
+   for (auto i = 0u; i < fibers_.size(); i++) {
+      fibers_[i].ResetCollision();
+   }
+
    if (!colliding_list.empty()) {
       solved = false;
 
@@ -151,8 +156,10 @@ bool World::Step() {
              fibers_[elm[2]].Cone(elm[3]));
          fibers_[elm[0]].AddSpeed(elm[1], f0);
          fibers_[elm[0]].AddSpeed(elm[1] + 1, f1);
+         fibers_[elm[0]].MarkCollision(elm[1]);
          fibers_[elm[2]].AddSpeed(elm[3], f2);
          fibers_[elm[2]].AddSpeed(elm[3] + 1, f3);
+         fibers_[elm[0]].MarkCollision(elm[3]);
       }
    }
 
