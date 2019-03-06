@@ -42,7 +42,8 @@ class Fiber : public object::fiber::Fiber {
  protected:
    std::vector<vm::Vec3<float>> speed_;
    size_t fiber_idx_;
-   const float k_max_speed_ = 0.1; // TODO: should be dependend on min obj size
+   // const float k_max_speed_ = 0.1; // TODO: should be dependend on min obj
+   // size
 };
 } // namespace geometry
 

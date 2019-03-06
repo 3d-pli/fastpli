@@ -1,5 +1,6 @@
 #include "fiber_class.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
@@ -78,12 +79,15 @@ bool Fiber::CheckRadius(const float obj_min_radius) {
       if (r < obj_min_radius || gamma < 60.0f / 180.0f * M_PI) {
          // std::cout << "i:" << i << " " << r << "<" << obj_min_radius << ", "
          // << k_max_speed_ << std::endl;
+
+         auto max_speed =
+             std::min(radii_[i - 1], std::min(radii_[i], radii_[i + 1])) * 0.2;
          auto const v1 = p1 - p2;
          auto const v2 = p3 - p2;
          auto dv = v1 + v2;
          vm::normalize(dv);
 
-         pos_new[i] = points_[i] + dv * k_max_speed_ * 0.1;
+         pos_new[i] = points_[i] + dv * max_speed;
 
          solved = false;
       }
