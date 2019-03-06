@@ -72,7 +72,7 @@ void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
       for (size_t i = 0; i < fiber.size() - 1; i++) {
          auto const &points = fiber.points();
          auto const &radii = fiber.radii();
-         auto const &collision = fiber.collision();
+         auto const &speed = fiber.speed();
 
          auto dp = points[i + 1] - points[i];
          auto h = vm::length(dp);
@@ -81,7 +81,8 @@ void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
          auto phi = std::atan2(unit.y(), unit.x()) / M_PI * 180;
 
          glColor3f(0.8f, 0.8f, 0.8f);
-         if (collision[i])
+
+         if (speed[i] != vm::Vec3<float>(0))
             glColor3f(0.8f, 0.0f, 0.0f);
 
          glPushMatrix();

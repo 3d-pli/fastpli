@@ -23,7 +23,6 @@ class Fiber : public object::fiber::Fiber {
    // getter
    const size_t &fiber_idx() const { return fiber_idx_; }
    const std::vector<vm::Vec3<float>> &speed() const { return speed_; }
-   const std::vector<bool> &collision() const { return collision_; }
 
    // cones
    size_t ConeSize() const;
@@ -31,11 +30,10 @@ class Fiber : public object::fiber::Fiber {
    std::vector<object::Cone> Cones() const;
 
    // manipulators
-   void Move(const float drag = 1);
+   void Move();
+   void Drag(const float drag = 1);
    bool CheckRadius(const float obj_min_radius);
    bool CheckLength(const float obj_mean_length);
-   void MarkCollision(const size_t idx);
-   void ResetCollision(void);
 
    void Split(size_t idx);
    void Combine(size_t idx);
@@ -44,7 +42,6 @@ class Fiber : public object::fiber::Fiber {
 
  protected:
    std::vector<vm::Vec3<float>> speed_;
-   std::vector<bool> collision_;
    size_t fiber_idx_;
 
    // const float k_max_speed_ = 0.1; // TODO: should be dependend on min obj

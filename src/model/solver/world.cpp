@@ -136,7 +136,7 @@ bool World::Step() {
 
 #pragma omp parallel for
    for (auto i = 0u; i < fibers_.size(); i++) {
-      fibers_[i].ResetCollision();
+      fibers_[i].Drag(w_parameter_.drag);
    }
 
    if (!colliding_list.empty()) {
@@ -156,10 +156,8 @@ bool World::Step() {
              fibers_[elm[2]].Cone(elm[3]));
          fibers_[elm[0]].AddSpeed(elm[1], f0);
          fibers_[elm[0]].AddSpeed(elm[1] + 1, f1);
-         fibers_[elm[0]].MarkCollision(elm[1]);
          fibers_[elm[2]].AddSpeed(elm[3], f2);
          fibers_[elm[2]].AddSpeed(elm[3] + 1, f3);
-         fibers_[elm[0]].MarkCollision(elm[3]);
       }
    }
 
@@ -176,7 +174,7 @@ bool World::Step() {
    if (!solved) {
 #pragma omp parallel for
       for (auto i = 0u; i < fibers_.size(); i++) {
-         fibers_[i].Move(w_parameter_.drag);
+         fibers_[i].Move();
       }
    }
 

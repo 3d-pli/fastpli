@@ -14,7 +14,6 @@ Fiber::Fiber(const object::fiber::Fiber &fiber, const size_t f_idx)
 
    fiber_idx_ = f_idx;
    speed_.assign(points_.size(), vm::Vec3<float>(0));
-   collision_.assign(points_.size(), false);
 }
 
 size_t Fiber::ConeSize() const {
@@ -36,7 +35,7 @@ std::vector<object::Cone> Fiber::Cones() const {
    return data;
 }
 
-void Fiber::Move(const float drag) {
+void Fiber::Move() {
    for (size_t i = 0; i < points_.size(); i++) {
       auto const norm = vm::length(speed_[i]);
       auto const max_speed = radii_[i] * 0.1;
@@ -44,6 +43,11 @@ void Fiber::Move(const float drag) {
          speed_[i] *= max_speed / norm;
 
       points_[i] += speed_[i];
+   }
+}
+
+void Fiber::Drag(const float drag) {
+   for (size_t i = 0; i < points_.size(); i++) {
       speed_[i] *= drag;
    }
 }
@@ -132,7 +136,6 @@ void Fiber::Split(size_t idx) {
    points_.insert(points_.begin() + idx + 1, pos_new);
    radii_.insert(radii_.begin() + idx + 1, r_new);
    speed_.insert(speed_.begin() + idx + 1, v_new);
-   collision_.insert(collision_.begin() + idx + 1, false);
 }
 
 void Fiber::Combine(size_t idx) {
@@ -146,19 +149,16 @@ void Fiber::Combine(size_t idx) {
       points_.erase(points_.begin() + 1);
       radii_.erase(radii_.begin() + 1);
       speed_.erase(speed_.begin() + 1);
-      collision_.erase(collision_.begin() + 1);
    } else if (idx == points_.size() - 2) {
       // don't erase last point
       points_.erase(points_.end() - 2);
       radii_.erase(radii_.end() - 2);
       speed_.erase(speed_.end() - 2);
-      collision_.erase(collision_.begin() - 2);
    } else {
       // erase midpoint
       points_.erase(points_.begin() + idx + 1);
       radii_.erase(radii_.begin() + idx + 1);
       speed_.erase(speed_.begin() + idx + 1);
-      collision_.erase(collision_.begin() + idx + 1);
 
       // TODO: check
       // auto const pos_new = (points_[idx] + points_[idx + 1]) * 0.5;
@@ -177,13 +177,4 @@ void Fiber::Combine(size_t idx) {
 
 void Fiber::AddSpeed(size_t idx, const vm::Vec3<float> &v) { speed_[idx] += v; }
 
-void Fiber::MarkCollision(const size_t idx) {
-   assert(collision_.size() == points_.size());
-   collision_[idx] = true;
-}
-
-void Fiber::ResetCollision(void) {
-   assert(collision_.size() == points_.size());
-   std::fill(collision_.begin(), collision_.end(), false);
-}
 } // namespace geometry
