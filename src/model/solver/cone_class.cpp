@@ -129,7 +129,9 @@ Cone::PushConesApart(const Cone cone) const {
    }
 
    auto delta_speed =
-       0.2 * std::min(r0, std::min(r1, std::min(cone.r0, cone.r1)));
+       0.05 * std::min(r0, std::min(r1, std::min(cone.r0, cone.r1)));
+
+   // auto f = (P - Q) / vm::length(P - Q) * delta_speed;
 
    auto f0 =
        delta / norm * delta_speed * vm::length(P - p1) / vm::length(p1 - p0);
@@ -142,6 +144,7 @@ Cone::PushConesApart(const Cone cone) const {
              vm::length(cone.p1 - cone.p0);
 
    return std::make_tuple(f0, f1, f2, f3);
+   // return std::make_tuple(f, f, -f, -f);
 }
 
 } // namespace object
