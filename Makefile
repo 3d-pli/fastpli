@@ -1,4 +1,5 @@
-.DEFAULT: help
+.PHONY: default
+default: install
 
 .PHONY: help
 help:

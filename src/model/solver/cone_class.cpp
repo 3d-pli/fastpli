@@ -136,9 +136,9 @@ Cone::PushConesApart(const Cone cone) const {
    auto f1 =
        delta / norm * delta_speed * vm::length(P - p0) / vm::length(p1 - p0);
 
-   auto f2 = -delta / norm * delta_speed * vm::length(P - cone.p1) /
+   auto f2 = -delta / norm * delta_speed * vm::length(Q - cone.p1) /
              vm::length(cone.p1 - cone.p0);
-   auto f3 = -delta / norm * delta_speed * vm::length(P - cone.p0) /
+   auto f3 = -delta / norm * delta_speed * vm::length(Q - cone.p0) /
              vm::length(cone.p1 - cone.p0);
 
    return std::make_tuple(f0, f1, f2, f3);
