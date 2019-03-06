@@ -217,7 +217,7 @@ OctTree::TestCollision(const std::vector<size_t> &cone_ids) {
             auto const sum_r = cone1.r + cone2.r;
 
             // TODO: assumption radii did not change much
-            if (mean_seg_length * delta < sum_r)
+            if (2.0 / 3.0 * mean_seg_length * delta < sum_r * 2) // 2 for safety
                continue;
          }
          if (cone1.CollideWith(cone2)) {
