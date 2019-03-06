@@ -82,7 +82,8 @@ void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
 
          glColor3f(0.8f, 0.8f, 0.8f);
 
-         if (speed[i] != vm::Vec3<float>(0))
+         if (speed[i] != vm::Vec3<float>(0) ||
+             speed[i + 1] != vm::Vec3<float>(0))
             glColor3f(0.8f, 0.0f, 0.0f);
 
          glPushMatrix();
