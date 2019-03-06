@@ -128,7 +128,8 @@ Cone::PushConesApart(const Cone cone) const {
           vm::Vec3<float>(dis(gen), dis(gen), dis(gen)) * 0.1);
    }
 
-   auto delta_speed = 0.1;
+   auto delta_speed =
+       0.2 * std::min(r0, std::min(r1, std::min(cone.r0, cone.r1)));
 
    auto f0 =
        delta / norm * delta_speed * vm::length(P - p1) / vm::length(p1 - p0);
