@@ -10,12 +10,19 @@
 
 namespace cell {
 
-struct Property {
+class Property {
+ public:
    Property() = default;
-   Property(float m) : mu(m) {}
+   Property(float s, float m) : scale_(s), mu_(m) { scale_sqr_ = s * s; }
 
-   // could be more
-   float mu{};
+   float scale() const { return scale_; }
+   float scale_sqr() const { return scale_sqr_; }
+   float mu() const { return mu_; }
+
+ private:
+   float scale_{0};
+   float scale_sqr_{0};
+   float mu_{0};
 };
 
 class Population {
@@ -31,7 +38,9 @@ class Population {
    bool empty() const { return cells_.empty(); }
 
    // properties
-   float mu() const { return property_.mu; }
+   float scale() const { return property_.scale(); }
+   float scale_sqr() const { return property_.scale_sqr(); }
+   float mu() const { return property_.mu(); }
 
    // manipulator
    void Resize(const float f);
