@@ -9,6 +9,8 @@
 
 #include "../world.hpp"
 #include "objects/fiber.hpp"
+#include "objects/np_array_container.hpp"
+#include "objects/np_array_helper.hpp"
 
 namespace py = pybind11;
 
@@ -17,10 +19,10 @@ PYBIND11_MODULE(_solver_cpp, m) {
 
    py::class_<World>(m, "_SolverCPP")
        .def(py::init())
-       .def("get_fiber_bundles", &World::get_fibers)
-       .def("set_fiber_bundles", &World::set_fibers)
-       .def("set_omp_num_threads", &World::set_omp_num_threads)
-       .def("set_parameters",
+       .def("_set_fiber_bundles", &World::set_fibers)
+       .def("_get_fiber_bundles", &World::get_fibers)
+       .def("_set_omp_num_threads", &World::set_omp_num_threads)
+       .def("_set_parameters",
             [](World &self, float drag, float obj_min_radius,
                float obj_mean_length) {
                World::WorldParameter wp;
@@ -31,14 +33,14 @@ PYBIND11_MODULE(_solver_cpp, m) {
             },
             py::arg("drag") = 0, py::arg("obj_min_radius") = 10,
             py::arg("obj_mean_length") = 10)
-       .def("get_parameters",
+       .def("_get_parameters",
             [](World &self) {
                auto p = self.get_parameter();
                return std::make_tuple(p.drag, p.obj_min_radius,
                                       p.obj_mean_length);
             })
        .def(
-           "set_col_voi",
+           "_set_col_voi",
            [](World &self, std::array<float, 3> min, std::array<float, 3> max) {
               self.set_colliding_voi(aabb::AABB<float, 3>(min, max));
            })

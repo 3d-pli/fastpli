@@ -14,7 +14,7 @@ np.random.seed(42)
 
 # create fiber_bundle trajectory
 fiber_bundle_trj = []
-for phi in range(0, 91, 1):
+for phi in range(0, 91, 5):
     fiber_bundle_trj.append(
         [200 * np.sin(np.deg2rad(phi)),
          200 * np.cos(np.deg2rad(phi)),
@@ -39,7 +39,7 @@ solver.fiber_bundles = filled_fiber_bundles
 solver.drag = 0
 solver.obj_min_radius = 0
 solver.obj_mean_length = 15
-solver.set_omp_num_threads(8)
+solver.omp_num_threads = 8
 
 
 # solved_fbs = solver.fiber_bundles

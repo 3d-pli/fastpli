@@ -8,17 +8,18 @@ import fastpli
 class MainTest(unittest.TestCase):
 
     def setUp(self):
-        self.fiber = fastpli.objects.Fiber([0, 0, 0, 0, 0, 1], [1, 2])
-        self.fiberbundles = [[self.fiber]]
+        self._test_fiber = fastpli.objects.Fiber([0, 0, 0, 0, 0, 1], [1, 2])
+        self._test_fiberbundles = [[self._test_fiber]]
         self.solver = fastpli.model.Solver()
-        self.solver.set_fiber_bundles(self.fiberbundles)
+        self.solver.fiber_bundles = self._test_fiberbundles
 
     def test_number_of_fibers(self):
         self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=0)
         self.solver.step()
-        fb = self.solver.get_fiber_bundles()
-        self.assertTrue(np.array_equal(self.fiber.points, fb[0][0].points))
-        self.assertTrue(np.array_equal(self.fiber.radii, fb[0][0].radii))
+        fb = self.solver.fiber_bundles
+        self.assertTrue(
+            np.array_equal(self._test_fiber.points, fb[0][0].points))
+        self.assertTrue(np.array_equal(self._test_fiber.radii, fb[0][0].radii))
 
     def test_fiber_bundle_property(self):
         self.solver.parameters = (0, 0, 0)
@@ -31,17 +32,17 @@ class MainTest(unittest.TestCase):
         self.solver.set_parameters(
             drag=0, obj_min_radius=0, obj_mean_length=0.5)
         self.solver.step()
-        fb = self.solver.get_fiber_bundles()
+        fb = self.solver.fiber_bundles
         self.assertTrue(fb[0][0].radii[1] == 1.5)
 
     def test_combine(self):
         self.fiber = fastpli.objects.Fiber(
             [0, 0, 0, 0, 0, 1, 0, 0, 2], [1, 1, 1])
-        self.fiberbundles = [[self.fiber]]
-        self.solver.set_fiber_bundles(self.fiberbundles)
+        self._test_fiberbundles = [[self._test_fiber]]
+        self.solver.fiber_bundles = self._test_fiberbundles
         self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=2)
         self.solver.step()
-        fb = self.solver.get_fiber_bundles()
+        fb = self.solver.fiber_bundles
         self.assertTrue(fb[0][0].radii.shape[0] == 2)
 
         self.solver.set_parameters(
@@ -49,7 +50,7 @@ class MainTest(unittest.TestCase):
             obj_min_radius=0,
             obj_mean_length=20)
         self.solver.step()
-        fb = self.solver.get_fiber_bundles()
+        fb = self.solver.fiber_bundles
         self.assertTrue(fb[0][0].radii.shape[0] == 2)
 
     def test_fibers(self):
@@ -87,21 +88,21 @@ class MainTest(unittest.TestCase):
         fiber_1 = fastpli.objects.Fiber([0, 0, 0.1, 0, 0, 1.1], [1, 2])
         self.solver.fiber_bundles = [[fiber_0], [fiber_1]]
 
-        self.solver.set_col_voi([-10, -10, -10], [-9, -9, -9])
+        self.solver.col_voi = ([-10, -10, -10], [-9, -9, -9])
         self.solver.step()
         fbs = self.solver.fiber_bundles
         self.assertTrue(np.array_equal(fiber_0.points, fbs[0][0].points))
         self.assertTrue(np.array_equal(fiber_0.radii, fbs[0][0].radii))
 
-        self.solver.set_col_voi([0, 0, 0], [1, 1, 1])
+        self.solver.col_voi = ([0, 0, 0], [1, 1, 1])
         self.solver.step()
         fbs = self.solver.fiber_bundles
         self.assertFalse(np.array_equal(fiber_0.points, fbs[0][0].points))
         self.assertTrue(np.array_equal(fiber_0.radii, fbs[0][0].radii))
 
     def test_openmp(self):
-        i = self.solver.set_omp_num_threads(2)
-        self.assertTrue(i >= 0)
+        self.solver.omp_num_threads = 2
+        self.assertTrue(self.solver.omp_num_threads >= 0)
 
     def test_opengl(self):
         display = ""
