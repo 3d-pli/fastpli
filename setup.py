@@ -10,13 +10,16 @@ from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from shutil import copyfile, copymode
 
+
 class CMakeExtension(Extension):
+
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
 
 
 class CMakeBuild(build_ext):
+
     def run(self):
         try:
             out = subprocess.check_output(['cmake', '--version'])
@@ -72,7 +75,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='fastpli',
-    version='0.8.1',
+    version='0.8.2',
     description='Fiber Architecture Simulation Toolbox for PLI',
     long_description='',
     author='Felix Matuschke',
