@@ -26,19 +26,19 @@ inline void omp_set_num_threads(int i) {
 }
 #endif
 
-object::fiber::Bundles World::get_fibers() const {
-   object::fiber::Bundles fiber_bundles;
+object::FiberBundles World::get_fibers() const {
+   object::FiberBundles fiber_bundles;
 
    if (fibers_.empty())
       return fiber_bundles;
 
-   fiber_bundles.push_back(std::vector<object::fiber::Fiber>());
+   fiber_bundles.push_back(object::FiberBundle());
    fiber_bundles[0].push_back(fibers_[0]);
 
    // fiber order does not change, therefore map has the same order
    for (size_t i = 1; i < fibers_.size(); i++) {
       if (map_fb_idx_.at(i - 1).first != map_fb_idx_.at(i).first)
-         fiber_bundles.push_back(std::vector<object::fiber::Fiber>());
+         fiber_bundles.push_back(object::FiberBundle());
 
       fiber_bundles.back().push_back(fibers_[i]);
    }
@@ -46,8 +46,7 @@ object::fiber::Bundles World::get_fibers() const {
    return fiber_bundles;
 }
 
-void World::set_fibers(
-    const std::vector<std::vector<object::fiber::Fiber>> &fiber_bundles) {
+void World::set_fibers(const object::FiberBundles &fiber_bundles) {
 
    // free memory
    fibers_ = std::vector<geometry::Fiber>();

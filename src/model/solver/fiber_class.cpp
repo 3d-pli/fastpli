@@ -9,8 +9,8 @@
 
 namespace geometry {
 
-Fiber::Fiber(const object::fiber::Fiber &fiber, const size_t f_idx)
-    : object::fiber::Fiber(fiber) {
+Fiber::Fiber(const object::Fiber &fiber, const size_t f_idx)
+    : object::Fiber(fiber) {
 
    fiber_idx_ = f_idx;
    speed_.assign(points_.size(), vm::Vec3<float>(0));

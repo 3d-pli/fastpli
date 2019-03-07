@@ -28,7 +28,19 @@ PYBIND11_MODULE(generation, m) {
             py::arg("flip_direction") =
                 std::array<bool, 3>{{false, false, false}})
        .def("set_fiber_bundles",
-            [](PliGenerator &self, object::fiber::Bundles fbs,
+            [](PliGenerator &self, object::FiberBundles fbs,
+               std::vector<std::vector<fiber::layer::Property>> prs) {
+               if (fbs.size() != prs.size())
+                  throw py::value_error("fbs and prs not the same size");
+
+               std::vector<fiber::Bundle> fiber_bundles;
+               for (size_t i = 0; i < fbs.size(); i++)
+                  fiber_bundles.emplace_back(fiber::Bundle(fbs[i], prs[i]));
+
+               self.SetFiberBundles(fiber_bundles);
+            })
+       .def("set_cells",
+            [](PliGenerator &self, object::FiberBundles fbs,
                std::vector<std::vector<fiber::layer::Property>> prs) {
                if (fbs.size() != prs.size())
                   throw py::value_error("fbs and prs not the same size");

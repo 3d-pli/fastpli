@@ -67,7 +67,7 @@ void Properties::push_back(Property p) {
 /**
  * FiberBundle
  */
-Bundle::Bundle(std::vector<Fiber> fibers,
+Bundle::Bundle(std::vector<object::Fiber> fibers,
                std::vector<layer::Property> properties) {
    fibers_.swap(fibers);
 

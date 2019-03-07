@@ -8,7 +8,7 @@
 #include "include/vemath.hpp"
 
 namespace py = pybind11;
-using Fiber = object::fiber::Fiber;
+using Fiber = object::Fiber;
 
 PYBIND11_MODULE(_fiber_cpp, m) {
    m.doc() = "c++ fiber classes for containing fiber and fiberbundle data";
