@@ -1,6 +1,7 @@
 .test/
 .nfs*
 *.h5
+debug*.*
 
 # Created by https://www.gitignore.io/api/c++,python,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=c++,python,virtualenv,visualstudiocode
