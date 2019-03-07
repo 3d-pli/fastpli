@@ -16,6 +16,9 @@ class Simpli:
     def __init__(self):
         self._fiber_bundles = None
         self._fiber_bundles_properties = None
+        self._cells = None
+        self._cells_properties = None
+
 
         self._gen = generation.Generator()
         self._sim = simulation.Simulator()
@@ -48,17 +51,17 @@ class Simpli:
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
-        if not isinstance(fbs, list):
+        if not isinstance(fbs, (list, tuple)):
             raise TypeError("fbs is not a list")
 
         for fb_i, fb in enumerate(fbs):
-            if not isinstance(fb, list):
+            if not isinstance(fb, (list, tuple)):
                 raise TypeError("fb is not a list")
 
             for f_i, f in enumerate(fb):
                 if isinstance(f, Fiber):
                     continue
-                elif isinstance(f, list):
+                elif isinstance(f, (list, tuple)):
                     f = np.array(f)        
         
                 if isinstance(f, np.ndarray):
@@ -69,6 +72,80 @@ class Simpli:
                     raise TypeError("fiber hast to be a objects.Fiber, 4d-list or 4d-array")
 
         self._fiber_bundles = fbs
+
+    @property
+    def fiber_bundles_properties(self):
+        return self._fiber_bundles_properties
+
+    @fiber_bundles_properties.setter
+    def fiber_bundles_properties(self, bundle_layer_properties):
+        if not isinstance(bundle_layer_properties, (list, tuple)):
+            raise TypeError("properties must be a list(list(tuples))")
+
+        if len(self._fiber_bundles) != len(bundle_layer_properties):
+            raise TypeError(
+                "properties must have the same size as fiber_bundles")
+
+        self._fiber_bundles_properties = []
+        for prop in bundle_layer_properties:
+            if not isinstance(prop, (list, tuple)):
+                raise TypeError(
+                    "properties must be a list(list(tuples))")
+
+            self._fiber_bundles_properties.append([])
+            for ly in prop:
+                if len(ly) != 4:
+                    raise TypeError(
+                        "properties must have len 4 (float, float, float, char)")
+                self._fiber_bundles_properties[
+                    -1].append(generation.LayerProperty(ly[0], ly[1], ly[2], ly[3]))
+
+    @property
+    def cells(self):
+        return self._cells
+
+    @cells.setter
+    def cells(self, fbs):
+        if not isinstance(fbs, (list, tuple)):
+            raise TypeError("fbs is not a list")
+
+        for fb_i, fb in enumerate(fbs):
+            if not isinstance(fb, (list, tuple)):
+                raise TypeError("fb is not a list")
+
+            for f_i, f in enumerate(fb):
+                if isinstance(f, Fiber):
+                    continue
+                elif isinstance(f, (list, tuple)):
+                    f = np.array(f)        
+        
+                if isinstance(f, np.ndarray):
+                    if len(f.shape) is not 2 or f.shape[1] is not 4:
+                        raise TypeError("fiber elements has to be of dim nx4")
+                    fbs[fb_i][f_i] = Fiber(f[:, 0:-1], f[:, -1]) 
+                else:
+                    raise TypeError("cell hast to be a objects.Cell, 4d-list or 4d-array")
+
+        self._cells = fbs
+
+    @property
+    def cells_properties(self):
+        return self._cells_properties
+
+    @cells_properties.setter
+    def cells_properties(self, cells_properties):
+        if not isinstance(cells_properties, (list, tuple)):
+            raise TypeError("properties must be a list(list(tuples))")
+
+        if len(self._cells) != len(cells_properties):
+            raise TypeError("properties must have the same size as cells")
+
+        self._cells_properties = []
+        for prop in cells_properties:
+            if not isinstance(prop, (int, float)):
+                raise TypeError("properties must be a number per cell population")
+
+            self._cells_properties.append(prop)
 
 
     def ReadFiberFile(self, filename):
@@ -85,7 +162,7 @@ class Simpli:
                         Fiber(f['points'][:].flatten(), f['radii'][:]))
 
     def TranslateVolume(self, offset):
-        if not isinstance(offset, list):
+        if not isinstance(offset, (list, tuple)):
             raise TypeError("offset must be a list")
 
         for fb in self._fiber_bundles:
@@ -107,39 +184,19 @@ class Simpli:
             for f in fb:
                 f.rotate_around_point((rot_mat), offset)
 
-    def SetFiberProperties(self, bundle_layer_properties):
-        if not isinstance(bundle_layer_properties, list):
-            raise TypeError("properties must be a list(list(tuples))")
-
-        if len(self._fiber_bundles) != len(bundle_layer_properties):
-            raise TypeError(
-                "properties must have the same size as fiber_bundles")
-
-        self._fiber_bundles_properties = []
-        for prop in bundle_layer_properties:
-            if not isinstance(prop, list):
-                raise TypeError(
-                    "properties must be a list(list(tuples))")
-
-            self._fiber_bundles_properties.append([])
-            for ly in prop:
-                if len(ly) != 4:
-                    raise TypeError(
-                        "properties must have len 4 (float, float, float, char)")
-                self._fiber_bundles_properties[
-                    -1].append(generation.LayerProperty(ly[0], ly[1], ly[2], ly[3]))
-
     def __CheckFiberBundleAndPropertiesLength(self):
         if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
             raise TypeError(
                 "properties must have the same size as fiber_bundles")
 
     def GenerateTissue(self, only_label=False):
-        self._gen.set_volume(
-            self._dim, self.dim_origin, self.pixel_size)
+        self._gen.set_volume(self._dim, self.dim_origin, self.pixel_size)
         self.__CheckFiberBundleAndPropertiesLength()
-        self._gen.set_fiber_bundles(
-            self._fiber_bundles, self._fiber_bundles_properties)
+        if self._fiber_bundles:
+            self._gen.set_fiber_bundles(
+                self._fiber_bundles, self._fiber_bundles_properties)
+        if self._cells:
+            self._gen.set_cells(self._cells, self._cells_properties)
         label_field, vec_field, tissue_properties = self._gen.run_generation(
             only_label, 0)
 
@@ -157,8 +214,7 @@ class Simpli:
         self._sim.set_pli_setup(self.setup)
         self._sim.set_tissue_properties(tissue_properties)
 
-        image = self._sim.run_simulation(self._dim,
-                                          label_field, vec_field, theta, phi, do_untilt)
+        image = self._sim.run_simulation(self._dim, label_field, vec_field, theta, phi, do_untilt)
         return image
 
     def DimData(self):
