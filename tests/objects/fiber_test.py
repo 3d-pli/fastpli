@@ -33,12 +33,12 @@ class MainTest(unittest.TestCase):
         points = self.fiber.points
         rot = fastpli.tools.rotation.theta_phi(
             np.deg2rad(30), np.deg2rad(60))
-        self.fiber.rotate_fiber(rot)
+        self.fiber.rotate(rot)
         self.assertFalse(np.array_equal(self.fiber.points, points))
 
         rot = fastpli.tools.rotation.theta_phi(
             np.deg2rad(-30), np.deg2rad(60))
-        self.fiber.rotate_fiber(rot)
+        self.fiber.rotate(rot)
         self.assertTrue(np.sum(self.fiber.points - points) < 1e-7)
 
     def test_rotate_around_point(self):
