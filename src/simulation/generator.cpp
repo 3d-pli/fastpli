@@ -28,22 +28,10 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
    dim_ = mpi_->dim_vol();
    dim_.origin = origin;
 
-   if (dim_.local.x() < 0 || dim_.local.y() < 0 || dim_.local.z() < 0)
-      throw std::invalid_argument("dim.global[any] < 0: [" +
-                                  std::to_string(dim_.local.x()) + "," +
-                                  std::to_string(dim_.local.y()) + "," +
-                                  std::to_string(dim_.local.z()) + "]");
-
-   // clang-format off
-   if (dim_.local < dim_.global)
-      throw std::invalid_argument("dim.local < dim.global: [" +
-                                  std::to_string(dim_.local.x()) + "," +
-                                  std::to_string(dim_.local.y()) + "," +
-                                  std::to_string(dim_.local.z()) + "] < [" +
-                                  std::to_string(dim_.global.x()) + "," +
-                                  std::to_string(dim_.global.y()) + "," +
-                                  std::to_string(dim_.global.z()) + "]");
-   // clang-format on
+   assert(dim_.local.x() >= 0);
+   assert(dim_.local.y() >= 0);
+   assert(dim_.local.z() >= 0);
+   assert(dim_.local <= dim_.global);
 
    if (pixel_size <= 0)
       throw std::invalid_argument("pixel_size <= 0: " +
