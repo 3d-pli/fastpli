@@ -1,10 +1,10 @@
-from ._fiber_cpp import _FiberCPP, _CellCPP
+from .__objects import _Fiber, _Cell
 import numpy as np
 
 # TODO: clean up
 
 
-class Fiber(_FiberCPP):
+class Fiber(_Fiber):
 
     def __init__(self, points, radii):
         points = np.asarray(points, dtype=np.float32)
@@ -24,7 +24,7 @@ class Fiber(_FiberCPP):
         super().rotate_around_point(mat, p)
 
 
-class Cell(_CellCPP):
+class Cell(_Cell):
 
     def __init__(self, points, radii):
         points = np.asarray(points, dtype=np.float32)

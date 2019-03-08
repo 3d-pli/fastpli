@@ -2,19 +2,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../fiber.hpp"
-#include "include/aabb.hpp"
-#include "include/vemath.hpp"
+#include "../cell.hpp"
 
 namespace py = pybind11;
-using Fiber = object::Fiber;
-// using Cell = object::Cell;
+using Cell = object::Cell;
 
-// TODO: rewrite with container!, do wrapping in python
-
-void fiber_class(py::module &m) {
-   py::class_<Fiber>(m, "_Fiber")
-
+void cell_class(py::module &m) {
+   py::class_<Cell>(m, "_Cell")
        // Constructors
        .def(py::init<const std::vector<float> &, const std::vector<float> &>())
        .def(py::init([](py::array_t<float, py::array::c_style> &p,
@@ -38,13 +32,13 @@ void fiber_class(py::module &m) {
 
           std::vector<float> points_vec(data_ptr, data_ptr + size);
 
-          return new Fiber(points_vec, r);
+          return new Cell(points_vec, r);
        }))
 
        // Getter
        .def_property_readonly(
            "points",
-           [](const Fiber &self) {
+           [](const Cell &self) {
               auto data = vm::flatten(self.points());
               return py::array_t<float>(
                   std::vector<ptrdiff_t>{
@@ -52,28 +46,28 @@ void fiber_class(py::module &m) {
                   data.data());
            })
        .def_property_readonly("radii",
-                              [](const Fiber &self) {
+                              [](const Cell &self) {
                                  return py::array(self.radii().size(),
                                                   self.radii().data());
                               })
-       .def("size", &Fiber::size)
+       .def("size", &Cell::size)
 
        // Manipulators
        .def("rotate",
-            [](Fiber &self, const std::array<float, 9> &mat) {
+            [](Cell &self, const std::array<float, 9> &mat) {
                self.Rotate(vm::Mat3x3<float>(mat));
             })
        .def("rotate_around_point",
-            [](Fiber &self, const std::array<float, 9> &mat,
+            [](Cell &self, const std::array<float, 9> &mat,
                const std::array<float, 3> &point) {
                self.RotateAroundPoint(vm::Mat3x3<float>(mat),
                                       vm::Vec3<float>(point));
             })
        .def("translate",
-            [](Fiber &self, const std::array<float, 3> &offset) {
+            [](Cell &self, const std::array<float, 3> &offset) {
                self.Translate(vm::Vec3<float>(offset));
             })
-       .def("resize", &Fiber::Resize)
-       .def("resize_points", &Fiber::ResizePoints)
-       .def("resize_radii", &Fiber::ResizeRadii);
+       .def("resize", &Cell::Resize)
+       .def("resize_points", &Cell::ResizePoints)
+       .def("resize_radii", &Cell::ResizeRadii);
 }
