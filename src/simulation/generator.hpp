@@ -5,6 +5,7 @@
 #include <tuple>
 #include <vector>
 
+#include "cell_population.hpp"
 #include "fiber_bundle.hpp"
 #include "helper.hpp"
 #include "include/aabb.hpp"
@@ -23,6 +24,8 @@ class PliGenerator {
                   const vm::Vec3<float> origin, const float pixel_size,
                   const vm::Vec3<bool> flip_direction = false);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
+   void
+   SetCellPopulations(const std::vector<cell::Population> &cell_populations);
 
    std::tuple<std::vector<int> *, std::vector<float> *,
               std::vector<PliSimulator::PhyProp>>
@@ -50,8 +53,13 @@ class PliGenerator {
    std::vector<fiber::Bundle> fiber_bundles_org_;
    std::vector<fiber::Bundle> fiber_bundles_;
 
+   std::vector<cell::Population> cell_populations_org_;
+   std::vector<cell::Population> cell_populations_;
+
    size_t num_fibers_ = 0;
+   size_t num_fiber_bundles_ = 0;
    int max_layer_ = 0;
+   size_t num_cells_ = 0;
 
    void FillVoxelsAroundFiberSegment(const size_t fb_idx, const size_t f_idx,
                                      const size_t s_idx,
@@ -59,6 +67,10 @@ class PliGenerator {
                                      std::vector<float> &vector_field,
                                      std::vector<float> &array_distance,
                                      const bool only_label);
+   void FillVoxelsAroundSphere(const size_t cp_idx, const size_t c_idx,
+                               const size_t s_idx,
+                               std::vector<int> &label_field,
+                               std::vector<float> &array_distance);
    std::tuple<vm::Vec3<float>, float>
    ShortestPointToLineSegmentVecCalculation(const vm::Vec3<float> &p,
                                             const vm::Vec3<float> &s0,

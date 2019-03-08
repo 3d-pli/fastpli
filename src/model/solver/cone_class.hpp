@@ -26,8 +26,11 @@ struct Cone {
 
    // colliding solving functions
    bool CollideWith(const Cone cone) const;
-   std::tuple<vm::Vec3<float>, vm::Vec3<float>> MinDistanceVectorCones(const Cone cone) const;
-   std::tuple<vm::Vec3<float>, vm::Vec3<float>, vm::Vec3<float>, vm::Vec3<float>> PushConesApart(const Cone cone) const;
+   std::tuple<vm::Vec3<float>, vm::Vec3<float>>
+   MinDistanceVectorCones(const Cone cone) const;
+   std::tuple<vm::Vec3<float>, vm::Vec3<float>, vm::Vec3<float>,
+              vm::Vec3<float>>
+   PushConesApart(const Cone cone) const;
 
    vm::Vec3<float> p0, p1;
    float r0, r1, r; // TODO: check if r0, r1 are needed

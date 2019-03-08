@@ -54,17 +54,15 @@ class Properties {
 
 } // namespace layer
 
-using Fiber = object::fiber::Fiber;
-
 class Bundle {
  public:
-   Bundle(std::vector<object::fiber::Fiber> fibers,
+   Bundle(std::vector<object::Fiber> fibers,
           std::vector<layer::Property> properties);
    ~Bundle() = default;
 
    // getter
-   const Fiber &fiber(size_t i) const { return fibers_[i]; }
-   const std::vector<Fiber> &fibers() const { return fibers_; }
+   const object::Fiber &fiber(size_t i) const { return fibers_[i]; }
+   const std::vector<object::Fiber> &fibers() const { return fibers_; }
    const aabb::AABB<float, 3> &voi() const { return voi_; }
    layer::Properties layers() const { return layers_; };
    size_t size() const { return fibers_.size(); }
@@ -98,7 +96,7 @@ class Bundle {
    void Translate(const vm::Vec3<float> &translation);
 
  private:
-   std::vector<Fiber> fibers_{};
+   object::FiberBundle fibers_{};
    layer::Properties layers_{};
    aabb::AABB<float, 3> voi_{};
 

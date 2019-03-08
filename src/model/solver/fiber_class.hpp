@@ -8,7 +8,7 @@
 #include "objects/fiber.hpp"
 
 namespace geometry {
-class Fiber : public object::fiber::Fiber {
+class Fiber : public object::Fiber {
  public:
    // defaults
    Fiber(Fiber &&) = default;
@@ -18,7 +18,7 @@ class Fiber : public object::fiber::Fiber {
    ~Fiber() = default;
 
    // constructors
-   Fiber(const object::fiber::Fiber &fiber, const size_t fiber_idx);
+   Fiber(const object::Fiber &fiber, const size_t fiber_idx);
 
    // getter
    const size_t &fiber_idx() const { return fiber_idx_; }

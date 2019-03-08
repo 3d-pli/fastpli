@@ -6,6 +6,8 @@
 
 #include "../generator.hpp"
 #include "../helper.hpp"
+#include "objects/cell.hpp"
+#include "objects/fiber.hpp"
 #include "objects/np_array_helper.hpp"
 
 namespace py = pybind11;
@@ -28,7 +30,7 @@ PYBIND11_MODULE(generation, m) {
             py::arg("flip_direction") =
                 std::array<bool, 3>{{false, false, false}})
        .def("set_fiber_bundles",
-            [](PliGenerator &self, object::fiber::Bundles fbs,
+            [](PliGenerator &self, object::FiberBundles fbs,
                std::vector<std::vector<fiber::layer::Property>> prs) {
                if (fbs.size() != prs.size())
                   throw py::value_error("fbs and prs not the same size");
@@ -39,11 +41,26 @@ PYBIND11_MODULE(generation, m) {
 
                self.SetFiberBundles(fiber_bundles);
             })
+       .def("set_cell_populations",
+            [](PliGenerator &self, object::CellPopulations cell_pops,
+               std::vector<cell::Property> cell_prop) {
+               if (cell_pops.size() != cell_prop.size())
+                  throw py::value_error(
+                      "cell_populations and properties not the same size");
+
+               std::vector<cell::Population> cell_populations;
+               for (size_t i = 0; i < cell_pops.size(); i++)
+                  cell_populations.emplace_back(
+                      cell::Population(cell_pops[i], cell_prop[i]));
+
+               self.SetCellPopulations(cell_populations);
+            })
        .def("run_generation",
             [](PliGenerator &self, bool only_label, bool progress_bar) {
                std::vector<int> *label_field;
                std::vector<float> *vector_field;
                std::vector<PliSimulator::PhyProp> prop_list;
+
                std::tie(label_field, vector_field, prop_list) =
                    self.RunTissueGeneration(only_label, progress_bar);
 
@@ -80,4 +97,6 @@ PYBIND11_MODULE(generation, m) {
        .def_readwrite("mu", &fiber::layer::Property::mu)
        .def_readwrite("layer_orientation",
                       &fiber::layer::Property::orientation);
+
+   py::class_<cell::Property>(m, "CellProperty").def(py::init<float, float>());
 }

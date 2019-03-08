@@ -11,7 +11,6 @@ np.random.seed(42)
 
 ''' create fiber_bundle(s)
 '''
-
 # create fiber_bundle trajectory
 fiber_bundle_trj = []
 for phi in range(0, 91, 5):

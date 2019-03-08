@@ -8,7 +8,6 @@
 #include "include/vemath.hpp"
 
 namespace object {
-namespace fiber {
 
 class Fiber {
  public:
@@ -51,10 +50,9 @@ class Fiber {
    void CalculateVoi();
 };
 
-using Bundle = std::vector<Fiber>;
-using Bundles = std::vector<Bundle>;
+using FiberBundle = std::vector<Fiber>;
+using FiberBundles = std::vector<FiberBundle>;
 
-} // namespace fiber
 } // namespace object
 
 #endif // FIBER_HPP_

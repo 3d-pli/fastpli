@@ -9,7 +9,6 @@
 #include "include/vemath.hpp"
 
 namespace object {
-namespace fiber {
 Fiber::Fiber(const std::vector<float> &points,
              const std::vector<float> &radii) {
 
@@ -61,7 +60,7 @@ void Fiber::CalculateVoi() {
       return;
    }
 
-   voi_ = aabb::AABB<float, 3>(points_[0], points_[0]);
+   voi_ = aabb::AABB<float, 3>(points_[0] - radii_[0], points_[0] + radii_[0]);
    for (size_t i = 0; i < points_.size() - 1; i++) {
       auto r_max = std::max(radii_[i], radii_[i + 1]);
       auto tmp_voi = aabb::AABB<float, 3>(points_[i], points_[i + 1]);
@@ -119,5 +118,4 @@ void Fiber::ResizeRadii(const float f) {
    CalculateVoi();
 }
 
-} // namespace fiber
 } // namespace object

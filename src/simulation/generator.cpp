@@ -67,12 +67,22 @@ void PliGenerator::SetFiberBundles(
    fiber_bundles_org_ = fiber_bundles;
 
    num_fibers_ = 0;
+   num_fiber_bundles_ = fiber_bundles.size();
    max_layer_ = 0;
    for (const auto &fb : fiber_bundles) {
       num_fibers_ += fb.size();
       if (static_cast<size_t>(max_layer_) < fb.layer_size())
          max_layer_ = fb.layer_size();
    }
+}
+
+void PliGenerator::SetCellPopulations(
+    const std::vector<cell::Population> &cell_populations) {
+   cell_populations_org_ = cell_populations;
+
+   // num_cells_ = 0;
+   num_cells_ = cell_populations.size();
+   // for (const auto &cp : cell_populations)
 }
 
 std::tuple<std::vector<int> *, std::vector<float> *,
@@ -95,20 +105,29 @@ PliGenerator::RunTissueGeneration(const bool only_label,
 
    // size fibers with pixel_size
    fiber_bundles_ = fiber_bundles_org_;
-   if (dim_.origin != 0)
+   cell_populations_ = cell_populations_org_;
+   if (dim_.origin != 0) {
       for (auto &fb : fiber_bundles_)
          fb.Translate(vm::cast<float>(-dim_.origin));
+      for (auto &cp : cell_populations_)
+         cp.Translate(vm::cast<float>(-dim_.origin));
+   }
 
    for (auto &fb : fiber_bundles_)
       fb.Resize(1.0 / pixel_size_);
+   for (auto &cp : cell_populations_)
+      cp.Resize(1.0 / pixel_size_);
 
    int lastProgress = 0;
    const auto volume_bb =
        aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
                             vm::cast<float>(dim_.local + dim_.offset), true);
 
-   size_t progress_counter = 0;
+   // fibers
+   if (debug_)
+      std::cout << "generating fibers: " << num_fibers_ << std::endl;
 
+   size_t progress_counter = 0;
    for (size_t fb_idx = 0; fb_idx < fiber_bundles_.size(); fb_idx++) {
       const auto &fb = fiber_bundles_[fb_idx];
 
@@ -136,10 +155,63 @@ PliGenerator::RunTissueGeneration(const bool only_label,
 
          if (progress_bar) {
             int barWidth = 60;
-            int progress = (progress_counter + 1) * 100 / num_fibers_;
+            int progress =
+                (progress_counter + 1) * 100 / (num_fibers_ + num_cells_);
 
             if (progress - lastProgress > 5 ||
-                progress_counter == num_fibers_ - 1 || progress_counter == 0) {
+                progress_counter == (num_fibers_ + num_cells_) - 1 ||
+                progress_counter == 0) {
+               std::cout << ": [";
+               int pos = barWidth * progress / 100;
+               for (int pb = 0; pb < barWidth; ++pb) {
+                  if (pb < pos)
+                     std::cout << "=";
+                  else if (pb == pos)
+                     std::cout << ">";
+                  else
+                     std::cout << " ";
+               }
+               std::cout << "] " << progress << " %\r";
+               std::cout.flush();
+               lastProgress = progress;
+            }
+         }
+      }
+   }
+
+   // cells
+   if (debug_)
+      std::cout << "generating cells: " << num_cells_ << std::endl;
+
+   for (size_t cp_idx = 0; cp_idx < cell_populations_.size(); cp_idx++) {
+      const auto &cp = cell_populations_[cp_idx];
+
+      if (!aabb::Overlap(volume_bb, cp.voi()))
+         continue;
+
+      for (size_t c_idx = 0; c_idx < cp.cells().size(); c_idx++) {
+         const auto &cell = cp.cells()[c_idx];
+
+         progress_counter++;
+
+         if (!aabb::Overlap(volume_bb, cell.voi()))
+            continue;
+
+         for (auto s_idx = 0u; s_idx < cell.size(); s_idx++) {
+            // TODO: figure out how to incapsulate idx into fiber to only
+            // parse fiber segment
+            FillVoxelsAroundSphere(cp_idx, c_idx, s_idx, *label_field,
+                                   array_distance);
+         }
+
+         if (progress_bar) {
+            int barWidth = 60;
+            int progress =
+                (progress_counter + 1) * 100 / (num_fibers_ + num_cells_);
+
+            if (progress - lastProgress > 5 ||
+                progress_counter == (num_fibers_ + num_cells_) - 1 ||
+                progress_counter == 0) {
                std::cout << ": [";
                int pos = barWidth * progress / 100;
                for (int pb = 0; pb < barWidth; ++pb) {
@@ -251,6 +323,57 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    }
 }
 
+void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
+                                          const size_t c_idx,
+                                          const size_t s_idx,
+                                          std::vector<int> &label_field,
+                                          std::vector<float> &array_distance) {
+
+   assert(cp_idx < cell_populations_.size());
+   const auto &cp = cell_populations_[cp_idx];
+
+   assert(c_idx < cp.cells().size());
+   const auto &cell = cp.cells()[c_idx];
+
+   assert(s_idx < cell.size());
+   const auto &p = cell.points()[s_idx];
+
+   aabb::AABB<float, 3> cell_sphere_bb(p - cell.radii()[s_idx],
+                                       p + cell.radii()[s_idx]);
+   cell_sphere_bb.Intersect(
+       aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
+                            vm::cast<float>(dim_.local + dim_.offset), true));
+   const auto min = cell_sphere_bb.min;
+   const auto max = cell_sphere_bb.max;
+
+   const auto scale_sqr = cp.scale_sqr();
+   for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
+      for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
+         for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
+
+            vm::Vec3<float> point(x, y, z);
+
+            auto dist_squ = vm::length2(p - point);
+            auto r = cell.radii()[s_idx];
+
+            if (dist_squ > scale_sqr * r * r)
+               continue;
+
+            size_t ind =
+                (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
+                (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
+            assert(ind < label_field.size());
+
+            if (array_distance[ind] >= dist_squ) {
+               array_distance[ind] = dist_squ;
+               label_field[ind] = cp_idx + max_layer_ * num_fiber_bundles_ +
+                                  1; // +1 for background
+            }
+         }
+      }
+   }
+}
+
 std::tuple<vm::Vec3<float>, float>
 PliGenerator::ShortestPointToLineSegmentVecCalculation(
     const vm::Vec3<float> &p, const vm::Vec3<float> &s0,
@@ -281,7 +404,8 @@ PliGenerator::CalcVisualLabelField(std::vector<int> label_field) const {
 
 std::vector<PliSimulator::PhyProp> PliGenerator::GetPropertyList() const {
    std::vector<PliSimulator::PhyProp> properties(
-       fiber_bundles_org_.size() * max_layer_ + 1);
+       fiber_bundles_org_.size() * max_layer_ + 1 +
+       cell_populations_org_.size());
 
    // background
    // TODO: set background properties
@@ -295,6 +419,13 @@ std::vector<PliSimulator::PhyProp> PliGenerator::GetPropertyList() const {
          auto id = 1 + l + f * max_layer_; //+1 for brackground
          properties.at(id) = PliSimulator::PhyProp(dn, mu);
       }
+   }
+
+   for (size_t c = 0; c < cell_populations_org_.size(); c++) {
+      auto dn = 0;
+      auto mu = cell_populations_org_[c].mu();
+      auto id = 1 + num_fiber_bundles_ * max_layer_ + c; //+1 for brackground
+      properties.at(id) = PliSimulator::PhyProp(dn, mu);
    }
 
    return properties;
