@@ -3,13 +3,10 @@
 #include <pybind11/stl.h>
 
 #include "../fiber.hpp"
-#include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
 namespace py = pybind11;
 using Fiber = object::Fiber;
-
-// TODO: rewrite with container!, do wrapping in python
 
 PYBIND11_MODULE(__fiber, m) {
    py::class_<Fiber>(m, "__Fiber")

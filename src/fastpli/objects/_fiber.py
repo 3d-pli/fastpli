@@ -4,18 +4,14 @@ import numpy as np
 class Fiber(__Fiber):
 
     def __init__(self, points, radii):
-        points = np.asarray(points, dtype=np.float32)
-        radii = np.asarray(radii, dtype=np.float32)
-        super().__init__(points, radii)
+        super().__init__(np.asarray(points, dtype=np.float32), np.asarray(radii, dtype=np.float32))
 
     @property
     def data(self):
         return (self.points, self.radii)
 
     def rotate(self, mat):
-        mat = mat.flatten()
-        super().rotate(mat)
+        super().rotate(mat.flatten())
 
     def rotate_around_point(self, mat, p):
-        mat = mat.flatten()
-        super().rotate_around_point(mat, p)
+        super().rotate_around_point(mat.flatten(), p)
