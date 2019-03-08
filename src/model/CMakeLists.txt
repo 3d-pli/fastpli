@@ -18,21 +18,21 @@ IF ( OPENGL_FOUND AND GLUT_FOUND )
 ENDIF ( OPENGL_FOUND AND GLUT_FOUND )
 
 # building python modules
-pybind11_add_module(_solver_cpp
+pybind11_add_module(__solver
       solver/bindings/solver_module.cpp
       $<TARGET_OBJECTS:${CoreModules}>
       $<TARGET_OBJECTS:objectsCoreModules>
       )
-TARGET_LINK_LIBRARIES(_solver_cpp PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+TARGET_LINK_LIBRARIES(__solver PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
-GET_TARGET_PROPERTY(outdir _solver_cpp LIBRARY_OUTPUT_DIRECTORY)
+GET_TARGET_PROPERTY(outdir __solver LIBRARY_OUTPUT_DIRECTORY)
 IF (outdir)
    SET(outdir "${outdir}/${subdir}")
 ELSE()
    SET(outdir "${subdir}")
 endif()
 
-SET_TARGET_PROPERTIES(_solver_cpp PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
+SET_TARGET_PROPERTIES(__solver PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
 IF ( OPENGL_FOUND AND GLUT_FOUND )
-   TARGET_COMPILE_DEFINITIONS(_solver_cpp PRIVATE _VIS_LIBRARIES)
+   TARGET_COMPILE_DEFINITIONS(__solver PRIVATE _VIS_LIBRARIES)
 ENDIF ( OPENGL_FOUND AND GLUT_FOUND )

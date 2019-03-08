@@ -14,10 +14,10 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(_solver_cpp, m) {
+PYBIND11_MODULE(__solver, m) {
    m.doc() = "Fiber Volume Colliding Solver";
 
-   py::class_<World>(m, "_SolverCPP")
+   py::class_<World>(m, "__Solver")
        .def(py::init())
        .def("_set_fiber_bundles", &World::set_fibers)
        .def("_get_fiber_bundles", &World::get_fibers)
