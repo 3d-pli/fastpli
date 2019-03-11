@@ -11,9 +11,8 @@ from mpi4py import MPI
 
 # print(__generation)
 
-
-
 # TODO: write json -> parameter function
+
 
 class Simpli:
 
@@ -38,7 +37,7 @@ class Simpli:
     @property
     def dim(self):
         return self._dim
-    
+
     @dim.setter
     def dim(self, dim):
         self._dim = np.array(dim)
@@ -46,7 +45,7 @@ class Simpli:
     @property
     def dim_origin(self):
         return self._dim_origin
-    
+
     @dim_origin.setter
     def dim_origin(self, dim_origin):
         self._dim_origin = np.array(dim_origin)
@@ -136,14 +135,15 @@ class Simpli:
                 if isinstance(f, Fiber):
                     continue
                 elif isinstance(f, (list, tuple)):
-                    f = np.array(f)        
-        
+                    f = np.array(f)
+
                 if isinstance(f, np.ndarray):
                     if len(f.shape) is not 2 or f.shape[1] is not 4:
                         raise TypeError("fiber elements has to be of dim nx4")
-                    fbs[fb_i][f_i] = Fiber(f[:, 0:-1], f[:, -1]) 
+                    fbs[fb_i][f_i] = Fiber(f[:, 0:-1], f[:, -1])
                 else:
-                    raise TypeError("fiber hast to be a objects.Fiber, 4d-list or 4d-array")
+                    raise TypeError(
+                        "fiber hast to be a objects.Fiber, 4d-list or 4d-array")
 
         self._fiber_bundles = fbs
 
@@ -163,16 +163,16 @@ class Simpli:
         self._fiber_bundles_properties = []
         for prop in bundle_layer_properties:
             if not isinstance(prop, (list, tuple)):
-                raise TypeError(
-                    "properties must be a list(list(tuples))")
+                raise TypeError("properties must be a list(list(tuples))")
 
             self._fiber_bundles_properties.append([])
             for ly in prop:
                 if len(ly) != 4:
                     raise TypeError(
-                        "properties must have len 4 (float, float, float, char)")
-                self._fiber_bundles_properties[
-                    -1].append(_LayerProperty(ly[0], ly[1], ly[2], ly[3]))
+                        "properties must have len 4 (float, float, float, char)"
+                    )
+                self._fiber_bundles_properties[-1].append(
+                    _LayerProperty(ly[0], ly[1], ly[2], ly[3]))
 
     @property
     def cells_populations(self):
@@ -191,14 +191,15 @@ class Simpli:
                 if isinstance(c, Cell):
                     continue
                 elif isinstance(c, (list, tuple)):
-                    c = np.array(c)        
-        
+                    c = np.array(c)
+
                 if isinstance(c, np.ndarray):
                     if len(c.shape) is not 2 or c.shape[1] is not 4:
                         raise TypeError("cell elements has to be of dim nx4")
-                    cps[cp_i][c_i] = Cell(c[:, 0:-1], c[:, -1]) 
+                    cps[cp_i][c_i] = Cell(c[:, 0:-1], c[:, -1])
                 else:
-                    raise TypeError("cell hast to be a objects.Cell, 4d-list or 4d-array")
+                    raise TypeError(
+                        "cell hast to be a objects.Cell, 4d-list or 4d-array")
 
         self._cells_populations = cps
 
@@ -221,8 +222,8 @@ class Simpli:
             if len(prop) != 2:
                 raise TypeError("properties must be a list of 2 arguments")
 
-            self._cells_populations_properties.append(generation.__CellProperty(prop[0], prop[1]))
-
+            self._cells_populations_properties.append(
+                generation.__CellProperty(prop[0], prop[1]))
 
     def ReadFiberFile(self, filename):
         self._fiber_bundles = []
@@ -250,7 +251,7 @@ class Simpli:
                     Fiber(f['points'][:].flatten(), f['radii'][:]))
 
             self._cells_populations = []
-            
+
             cells = h5f['cells/astrocytes']
             self._cells_populations.append([])
             for c in cells:
@@ -289,25 +290,28 @@ class Simpli:
                 f.rotate_around_point((rot_mat), offset)
 
     def _CheckDataLength(self):
-        if(self._fiber_bundles):
+        if (self._fiber_bundles):
             if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
                 raise TypeError(
                     "properties must have the same size as fiber_bundles")
 
-        if(self._cells_populations):
-            if len(self._cells_populations) != len(self._cells_populations_properties):
+        if (self._cells_populations):
+            if len(self._cells_populations) != len(
+                    self._cells_populations_properties):
                 raise TypeError(
                     "properties must have the same size as cell_populations")
 
-    def GenerateTissue(self, only_label=False, progress_bar = False):
+    def GenerateTissue(self, only_label=False, progress_bar=False):
         self._gen.set_volume(self._dim, self.dim_origin, self.pixel_size)
         self._CheckDataLength()
         if self._fiber_bundles:
-            self._gen.set_fiber_bundles(
-                self._fiber_bundles, self._fiber_bundles_properties)
+            self._gen.set_fiber_bundles(self._fiber_bundles,
+                                        self._fiber_bundles_properties)
         if self._cells_populations:
-            self._gen.set_cell_populations(self._cells_populations, self._cells_populations_properties)
-        label_field, vec_field, tissue_properties = self._gen.run_generation(only_label, progress_bar)
+            self._gen.set_cell_populations(self._cells_populations,
+                                           self._cells_populations_properties)
+        label_field, vec_field, tissue_properties = self._gen.run_generation(
+            only_label, progress_bar)
 
         return label_field, vec_field, tissue_properties
 
@@ -320,12 +324,18 @@ class Simpli:
         setup.filter_rotations = self._filter_rotations
         self._sim.set_pli_setup(setup)
 
-    def RunSimulation(self, label_field, vec_field,
-                      tissue_properties, theta, phi, do_untilt=True):
+    def RunSimulation(self,
+                      label_field,
+                      vec_field,
+                      tissue_properties,
+                      theta,
+                      phi,
+                      do_untilt=True):
 
         self.InitSimulation()
         self._sim.set_tissue_properties(tissue_properties)
-        image = self._sim.run_simulation(self._dim, label_field, vec_field, theta, phi, do_untilt)
+        image = self._sim.run_simulation(self._dim, label_field, vec_field,
+                                         theta, phi, do_untilt)
         return image
 
     def DimData(self):
@@ -341,15 +351,17 @@ class Simpli:
             dset = h5f.create_dataset(data_name, dim, dtype=np.uint16)
 
             for i in range(data.shape[0]):
-                dset[i+dim_offset[0], dim_offset[1]:dim_offset[1]
-                 + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = data[i,:,:]
+                dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
+                     dim_local[1], dim_offset[2]:dim_offset[2] +
+                     dim_local[2]] = data[i, :, :]
 
         elif data_name is 'vectorfield':
             dim = [self._dim[0], self._dim[1], self._dim[2], 3]
             dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
             for i in range(data.shape[0]):
-                dset[i+dim_offset[0], dim_offset[1]:dim_offset[1]
-                 + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = data[i,:,:]
+                dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
+                     dim_local[1], dim_offset[2]:dim_offset[2] +
+                     dim_local[2]] = data[i, :, :]
         elif 'data/' in data_name:
             dim = [self._dim[0], self._dim[1], self._filter_rotations.size]
             dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
@@ -362,21 +374,20 @@ class Simpli:
                 for i in range(data.shape[0]):
 
                     first = 0
-                    for idx, elm in enumerate(mask[i,:]):
+                    for idx, elm in enumerate(mask[i, :]):
                         if elm:
                             first = idx
                             break
-                    
 
                     last = -1
-                    for idx, elm in reversed(list(enumerate(mask[i,:]))):
+                    for idx, elm in reversed(list(enumerate(mask[i, :]))):
                         if elm:
-                            last = idx+1
+                            last = idx + 1
                             break
-                    
+
                     if first <= last:
-                        dset[i+dim_offset[0], first+dim_offset[1]:last+dim_offset[1],:] = data[i, first:last,:]
-                
+                        dset[i + dim_offset[0], first + dim_offset[1]:last +
+                             dim_offset[1], :] = data[i, first:last, :]
 
         else:
             raise TypeError("no compatible SaveAsH5: " + data_name)

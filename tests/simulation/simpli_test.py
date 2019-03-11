@@ -19,8 +19,8 @@ class MainTest(unittest.TestCase):
         self.simpli.pixel_size = 0.2
 
     def test_return_dimension(self):
-        self.simpli.fiber_bundles = [[[[1,3,0,2],[1,3,7,2]]]]
-        self.simpli.fiber_bundles_properties = [[(1,0,0,'p')]]
+        self.simpli.fiber_bundles = [[[[1, 3, 0, 2], [1, 3, 7, 2]]]]
+        self.simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
         self.simpli.dim = [3, 5, 7]
         self.simpli.origin = [0, 0, 0]
         self.simpli.pixel_size = 1

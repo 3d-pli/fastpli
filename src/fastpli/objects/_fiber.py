@@ -1,10 +1,13 @@
 from .__fiber import _Fiber
 import numpy as np
 
+
 class Fiber(_Fiber):
 
     def __init__(self, points, radii):
-        super().__init__(np.asarray(points, dtype=np.float32), np.asarray(radii, dtype=np.float32))
+        super().__init__(
+            np.asarray(points, dtype=np.float32),
+            np.asarray(radii, dtype=np.float32))
 
     @property
     def data(self):

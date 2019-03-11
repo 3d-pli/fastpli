@@ -16,9 +16,8 @@ class Solver(_Solver):
         fiber_bundles = super()._get_fiber_bundles()
         for i in range(len(fiber_bundles)):
             for j in range(len(fiber_bundles[i])):
-                fiber_bundles[i][j] = Fiber(
-                    fiber_bundles[i][j].points,
-                    fiber_bundles[i][j].radii)
+                fiber_bundles[i][j] = Fiber(fiber_bundles[i][j].points,
+                                            fiber_bundles[i][j].radii)
         return fiber_bundles
 
     @fiber_bundles.setter
@@ -53,10 +52,8 @@ class Solver(_Solver):
     @drag.setter
     def drag(self, value):
         self._drag = value
-        super()._set_parameters(
-            self._drag,
-            self._obj_min_radius,
-            self._obj_mean_length)
+        super()._set_parameters(self._drag, self._obj_min_radius,
+                                self._obj_mean_length)
 
     @property
     def obj_min_radius(self):
@@ -65,10 +62,8 @@ class Solver(_Solver):
     @obj_min_radius.setter
     def obj_min_radius(self, value):
         self._obj_min_radius = value
-        super()._set_parameters(
-            self._drag,
-            self._obj_min_radius,
-            self._obj_mean_length)
+        super()._set_parameters(self._drag, self._obj_min_radius,
+                                self._obj_mean_length)
 
     @property
     def obj_mean_length(self):
@@ -77,10 +72,8 @@ class Solver(_Solver):
     @obj_mean_length.setter
     def obj_mean_length(self, value):
         self._obj_mean_length = value
-        super()._set_parameters(
-            self._drag,
-            self._obj_min_radius,
-            self._obj_mean_length)
+        super()._set_parameters(self._drag, self._obj_min_radius,
+                                self._obj_mean_length)
 
     @property
     def parameters(self):

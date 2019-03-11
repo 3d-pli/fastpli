@@ -8,7 +8,6 @@ from fastpli.simulation import Simpli
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-
 # Read fiber data and prepair for PliGenerator
 # TODO: write json -> parameter function
 
@@ -20,12 +19,12 @@ simpli.pixel_size = 1
 simpli.dim = [100, 100, 100]
 simpli.ReadFiberFile('example/cube.h5')
 # simpli.fiber_bundles = [[[[0,0,30,100],[640,640,30,100]]]]
-simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
-    0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]])
+simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (0.666, -0.004, 5, 'b'),
+                            (1.0, 0.004, 1, 'r')]])
 
 # manipulation of fibers
-simpli.RotateVolumeAroundPoint(np.deg2rad(
-    20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
+simpli.RotateVolumeAroundPoint(
+    np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
 simpli.TranslateVolume([25, -15, 50])
 
 with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
@@ -50,44 +49,28 @@ with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
 
     start = time.time()
     print("RunSimulation: 0")
-    image = simpli.RunSimulation(
-        label_field, vec_field, tissue_properties, 0, 0)
+    image = simpli.RunSimulation(label_field, vec_field, tissue_properties, 0,
+                                 0)
     h5f['data/0'] = image
 
     print("RunSimulation: 1")
-    image = simpli.RunSimulation(
-        label_field,
-        vec_field,
-        tissue_properties,
-        np.deg2rad(5.5),
-        np.deg2rad(0))
+    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
+                                 np.deg2rad(5.5), np.deg2rad(0))
     h5f['data/1'] = image
 
     print("RunSimulation: 2")
-    image = simpli.RunSimulation(
-        label_field,
-        vec_field,
-        tissue_properties,
-        np.deg2rad(5.5),
-        np.deg2rad(90))
+    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
+                                 np.deg2rad(5.5), np.deg2rad(90))
     h5f['data/2'] = image
 
     print("RunSimulation: 3")
-    image = simpli.RunSimulation(
-        label_field,
-        vec_field,
-        tissue_properties,
-        np.deg2rad(5.5),
-        np.deg2rad(180))
+    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
+                                 np.deg2rad(5.5), np.deg2rad(180))
     h5f['data/3'] = image
 
     print("RunSimulation: 4")
-    image = simpli.RunSimulation(
-        label_field,
-        vec_field,
-        tissue_properties,
-        np.deg2rad(5.5),
-        np.deg2rad(270))
+    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
+                                 np.deg2rad(5.5), np.deg2rad(270))
     h5f['data/4'] = image
 
     end = time.time()

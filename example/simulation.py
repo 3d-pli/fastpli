@@ -1,6 +1,5 @@
 import numpy as np
 from fastpli.simulation import Simpli
-
 '''
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots(1, 1)
@@ -39,12 +38,12 @@ simpli.dim_local = [100, 100, 100]
 simpli.dim_offset_local = [0, 0, 0]
 
 simpli.ReadFiberFile('example/cube.h5')
-simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (
-    0.666, -0.004, 5, 'b'), (1.0, 0.004, 1, 'r')]])
+simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (0.666, -0.004, 5, 'b'),
+                            (1.0, 0.004, 1, 'r')]])
 
 # manipulation of fibers
-simpli.RotateVolumeAroundPoint(np.deg2rad(
-    20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
+simpli.RotateVolumeAroundPoint(
+    np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
 simpli.TranslateVolume([25, -15, 50])
 
 label_field, _, tissue_properties = simpli.GenerateTissue(only_label=True)
@@ -67,37 +66,20 @@ print("run_simulation: 0")
 image = simpli.run_simulation(label_field, vec_field, tissue_properties, 0, 0)
 
 print("run_simulation: 1")
-image = simpli.run_simulation(
-    label_field,
-    vec_field,
-    tissue_properties,
-    np.deg2rad(5.5),
-    np.deg2rad(0))
+image = simpli.run_simulation(label_field, vec_field, tissue_properties,
+                              np.deg2rad(5.5), np.deg2rad(0))
 
 print("run_simulation: 2")
-image = simpli.run_simulation(
-    label_field,
-    vec_field,
-    tissue_properties,
-    np.deg2rad(5.5),
-    np.deg2rad(90))
+image = simpli.run_simulation(label_field, vec_field, tissue_properties,
+                              np.deg2rad(5.5), np.deg2rad(90))
 
 print("run_simulation: 3")
-image = simpli.run_simulation(
-    label_field,
-    vec_field,
-    tissue_properties,
-    np.deg2rad(5.5),
-    np.deg2rad(180))
+image = simpli.run_simulation(label_field, vec_field, tissue_properties,
+                              np.deg2rad(5.5), np.deg2rad(180))
 
 print("run_simulation: 4")
-image = simpli.run_simulation(
-    label_field,
-    vec_field,
-    tissue_properties,
-    np.deg2rad(5.5),
-    np.deg2rad(270))
-
+image = simpli.run_simulation(label_field, vec_field, tissue_properties,
+                              np.deg2rad(5.5), np.deg2rad(270))
 '''
 tracker = IndexTracker(ax,image)
 fig.canvas.mpl_connect('scroll_event', tracker.onscroll)

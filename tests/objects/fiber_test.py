@@ -15,14 +15,13 @@ class MainTest(unittest.TestCase):
     def test_init(self):
         self.assertIsInstance(self.fiber.points, (np.ndarray))
         self.assertIsInstance(self.fiber.radii, (np.ndarray))
-        self.assertTrue(np.array_equal(
-            np.array(self.points, dtype=np.float32).reshape(-1, 3), self.fiber.points))
         self.assertTrue(
             np.array_equal(
-                np.array(
-                    self.radii,
-                    dtype=np.float32),
-                self.fiber.radii))
+                np.array(self.points, dtype=np.float32).reshape(-1, 3),
+                self.fiber.points))
+        self.assertTrue(
+            np.array_equal(
+                np.array(self.radii, dtype=np.float32), self.fiber.radii))
 
     # def test_cast_base_class(self):
     #     test = fastpli.objects._fiber_cpp._FiberCPP([],[])
@@ -31,19 +30,18 @@ class MainTest(unittest.TestCase):
 
     def test_rotation(self):
         points = self.fiber.points
-        rot = fastpli.tools.rotation.theta_phi(
-            np.deg2rad(30), np.deg2rad(60))
+        rot = fastpli.tools.rotation.theta_phi(np.deg2rad(30), np.deg2rad(60))
         self.fiber.rotate(rot)
         self.assertFalse(np.array_equal(self.fiber.points, points))
 
-        rot = fastpli.tools.rotation.theta_phi(
-            np.deg2rad(-30), np.deg2rad(60))
+        rot = fastpli.tools.rotation.theta_phi(np.deg2rad(-30), np.deg2rad(60))
         self.fiber.rotate(rot)
         self.assertTrue(np.sum(self.fiber.points - points) < 1e-7)
 
     def test_rotate_around_point(self):
-        self.fiber.rotate_around_point(fastpli.tools.rotation.theta_phi(
-            np.deg2rad(30), np.deg2rad(60)), [0, 0, 0])
+        self.fiber.rotate_around_point(
+            fastpli.tools.rotation.theta_phi(np.deg2rad(30), np.deg2rad(60)),
+            [0, 0, 0])
 
     def test_translate(self):
         self.fiber.translate([0, 0, 0])

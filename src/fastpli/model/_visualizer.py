@@ -10,7 +10,6 @@ DISTANCE_FACTOR = 2.5
 
 
 class Visualizer:
-
     """
     None interactive visualization of FiberBundles.
 
@@ -26,8 +25,7 @@ class Visualizer:
     center = np.empty((3), np.float32)
     center_new = center
 
-    def __init__(self, width=800, height=600,
-                 title='fastpli.model.Visualizer'):
+    def __init__(self, width=800, height=600, title='fastpli.model.Visualizer'):
         self._glut_init(width, height, title)
 
     def _glut_init(self, width, height, title):
@@ -66,8 +64,8 @@ class Visualizer:
                     glTranslatef(points[i, 0], points[i, 1], points[i, 2])
                     glRotatef(phi, 0.0, 0.0, 1.0)
                     glRotatef(theta, 0.0, 1.0, 0.0)
-                    gluCylinder(
-                        quadObj, radii[i], radii[i + 1], height, NUM_POLYGON, 1)
+                    gluCylinder(quadObj, radii[i], radii[i + 1], height,
+                                NUM_POLYGON, 1)
                     glPopMatrix()
 
     def _auto_volume(self):

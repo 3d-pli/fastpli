@@ -74,7 +74,7 @@ def _local_dimensions(dim, rank, size):
 
     global_coords = np.ceil(g_dim / local_dim_size).astype(int)
 
-    my_coords = np.array(
-        (rank % global_coords[0], rank // global_coords[0]), np.int)
+    my_coords = np.array((rank % global_coords[0], rank // global_coords[0]),
+                         np.int)
 
     return local_dim_size, my_coords, global_coords

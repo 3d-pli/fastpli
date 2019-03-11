@@ -17,13 +17,20 @@ else
    echo "no clang-format found"
 fi
 
-if hash autopep8 2>/dev/null; then
-   autopep="autopep8"
-   if [ -z "$1" ] || [ "$1" = "p" ]; then
-      $autopep -i -a -r -j 8 $script_dir/src
-      $autopep -i -a -r -j 8 $script_dir/tests
-      $autopep -i -a -r -j 8 $script_dir/example
-   fi
+if [ -e .venv/bin/python3 ]; then
+   python=.venv/bin/python3
+elif [ -e .env/bin/python3 ] ; then
+   python=.env/bin/python3
+elif hash python3 2> /dev/null; then
+   python=python3
 else
-   echo "no autopep found"
+   echo "no python found"
+fi
+
+if [ -n "$python" ]; then
+   if [ -z "$1" ] || [ "$1" = "p" ]; then
+      $python -m yapf -i -r -p --style google $script_dir/src
+      $python -m yapf -i -r -p --style google $script_dir/tests
+      $python -m yapf -i -r -p --style google $script_dir/example
+   fi
 fi

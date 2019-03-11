@@ -24,8 +24,9 @@ class MainTest(unittest.TestCase):
     def test_fiber_bundle_property(self):
         self.solver.parameters = (0, 0, 0)
         _ = self.solver.parameters
-        self.solver.fiber_bundles = [
-            [fastpli.objects.Fiber([0, 0, 0, 0, 0, 2], [1, 3])]]
+        self.solver.fiber_bundles = [[
+            fastpli.objects.Fiber([0, 0, 0, 0, 0, 2], [1, 3])
+        ]]
         test = self.solver.fiber_bundles
 
     def test_split(self):
@@ -36,8 +37,8 @@ class MainTest(unittest.TestCase):
         self.assertTrue(fb[0][0].radii[1] == 1.5)
 
     def test_combine(self):
-        self.fiber = fastpli.objects.Fiber(
-            [0, 0, 0, 0, 0, 1, 0, 0, 2], [1, 1, 1])
+        self.fiber = fastpli.objects.Fiber([0, 0, 0, 0, 0, 1, 0, 0, 2],
+                                           [1, 1, 1])
         self._test_fiberbundles = [[self._test_fiber]]
         self.solver.fiber_bundles = self._test_fiberbundles
         self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=2)
@@ -45,10 +46,7 @@ class MainTest(unittest.TestCase):
         fb = self.solver.fiber_bundles
         self.assertTrue(fb[0][0].radii.shape[0] == 2)
 
-        self.solver.set_parameters(
-            drag=0,
-            obj_min_radius=0,
-            obj_mean_length=20)
+        self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=20)
         self.solver.step()
         fb = self.solver.fiber_bundles
         self.assertTrue(fb[0][0].radii.shape[0] == 2)
