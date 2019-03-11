@@ -26,7 +26,8 @@ ${VENV}:
 
 .PHONY: git-submodules
 git-submodules:
-	git submodule update --init --recursive
+	git submodule update --init
+	# git submodule update --init --recursive // breaks docker
 
 .PHONY: install
 install: ${VENV} git-submodules h5py-mpi
