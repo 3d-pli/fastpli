@@ -1,9 +1,6 @@
 # from . import __generation as generation
 from .__generation import _Generator, _LayerProperty
-from .__simulation import _Simulator
-
-# from fastpli.simulation import __generation
-# from fastpli.simulation import __simulation
+from .__simulation import _Simulator, _Setup
 
 from fastpli.objects import Fiber, Cell
 from fastpli.tools import rotation
@@ -32,7 +29,11 @@ class Simpli:
         self._dim_origin = np.array([0, 0, 0], dtype=int)
         self._pixel_size = 0
         self._flip_direction = np.array([0, 0, 0], dtype=bool)
-        self._filter_rotations = []
+
+        self._filter_rotations = None
+        self._light_intensity = None
+        self._wavelength = None
+        self._untilt_sensor = None
 
     @property
     def dim(self):
@@ -87,11 +88,36 @@ class Simpli:
 
         filter_rotations = np.array(filter_rotations, dtype=float)
 
-        if filter_rotations.size >= 0 or filter_rotations.shape != 1:
+        if filter_rotations.size == 0 or filter_rotations.ndim != 1:
+            print(filter_rotations)
+            print(filter_rotations.shape)
             raise TypeError("filter_rotations : nx1")
 
-        self._flip_direction = flip_direction
+        self._filter_rotations = filter_rotations
 
+    @property
+    def light_intensity(self):
+        return self._light_intensity
+
+    @light_intensity.setter
+    def light_intensity(self, light_intensity):
+        self._light_intensity = light_intensity
+
+    @property
+    def wavelength(self):
+        return self._wavelength
+
+    @wavelength.setter
+    def wavelength(self, wavelength):
+        self._wavelength = wavelength
+
+    @property
+    def untilt_sensor(self):
+        return self._untilt_sensor
+
+    @untilt_sensor.setter
+    def untilt_sensor(self, untilt_sensor):
+        self._untilt_sensor = untilt_sensor
 
     @property
     def fiber_bundles(self):
@@ -262,7 +288,7 @@ class Simpli:
             for f in fb:
                 f.rotate_around_point((rot_mat), offset)
 
-    def __CheckDataLength(self):
+    def _CheckDataLength(self):
         if(self._fiber_bundles):
             if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
                 raise TypeError(
@@ -275,7 +301,7 @@ class Simpli:
 
     def GenerateTissue(self, only_label=False, progress_bar = False):
         self._gen.set_volume(self._dim, self.dim_origin, self.pixel_size)
-        self.__CheckDataLength()
+        self._CheckDataLength()
         if self._fiber_bundles:
             self._gen.set_fiber_bundles(
                 self._fiber_bundles, self._fiber_bundles_properties)
@@ -286,7 +312,7 @@ class Simpli:
         return label_field, vec_field, tissue_properties
 
     def InitSimulation(self):
-        setup = __simulation.__Setup
+        setup = _Setup()
         setup.light_intensity = self._light_intensity
         setup.pixel_size = self._pixel_size
         setup.wavelength = self._wavelength
@@ -325,7 +351,7 @@ class Simpli:
                 dset[i+dim_offset[0], dim_offset[1]:dim_offset[1]
                  + dim_local[1], dim_offset[2]:dim_offset[2] + dim_local[2]] = data[i,:,:]
         elif 'data/' in data_name:
-            dim = [self._dim[0], self._dim[1], len(self.setup.filter_rotations)]
+            dim = [self._dim[0], self._dim[1], self._filter_rotations.size]
             dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
 
             if tuple(dim) == data.shape:
