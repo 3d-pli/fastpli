@@ -1,33 +1,38 @@
-#!/usr/bin/python3
+# from . import __generation as generation
+from .__generation import __Generator as Generator
+from .__simulation import __Simulator as Simulator
 
-from fastpli.simulation import generation, simulation
+# from fastpli.simulation import __generation
+# from fastpli.simulation import __simulation
+
 from fastpli.objects import Fiber, Cell
 from fastpli.tools import rotation
+
 import numpy as np
 import h5py
 from mpi4py import MPI
 
-# Read fiber data and prepair for PliGenerator
-# TODO: write json -> parameter function
+# print(__generation)
 
+
+
+# TODO: write json -> parameter function
 
 class Simpli:
 
     def __init__(self):
+
+        self._gen = Generator()
+        self._sim = Simulator()
         self._fiber_bundles = None
         self._fiber_bundles_properties = None
         self._cells_populations = None
         self._cells_populations_properties = None
-
-
-        self._gen = generation.Generator()
-        self._sim = simulation.Simulator()
-
-        self._dim = None
+        self._dim = np.array([0, 0, 0], dtype=int)
         self._dim_origin = np.array([0, 0, 0], dtype=int)
-
-        self.pixel_size = 0
-        self.setup = simulation.Setup()
+        self._pixel_size = 0
+        self._flip_direction = np.array([0, 0, 0], dtype=bool)
+        self._filter_rotations = []
 
     @property
     def dim(self):
@@ -44,6 +49,49 @@ class Simpli:
     @dim_origin.setter
     def dim_origin(self, dim_origin):
         self._dim_origin = np.array(dim_origin)
+
+    @property
+    def pixel_size(self):
+        return (self._pixel_size)
+
+    @pixel_size.setter
+    def pixel_size(self, pixel_size):
+        if not isinstance(pixel_size, (int, float)):
+            raise TypeError("pixel_size : (int, float)")
+
+        if pixel_size <= 0:
+            raise ValueError("pixel_size !> 0")
+
+        self._pixel_size = pixel_size
+
+    @property
+    def flip_direction(self):
+        return (self._flip_direction)
+
+    @flip_direction.setter
+    def flip_direction(self, flip_direction):
+
+        flip_direction = np.array(flip_direction, dtype=bool)
+
+        if flip_direction.size != 3 or flip_direction.shape != 1:
+            raise TypeError("flip_direction : 3d bool")
+
+        self._flip_direction = flip_direction
+
+    @property
+    def filter_rotations(self):
+        return (self._filter_rotations)
+
+    @filter_rotations.setter
+    def filter_rotations(self, filter_rotations):
+
+        filter_rotations = np.array(filter_rotations, dtype=float)
+
+        if filter_rotations.size >= 0 or filter_rotations.shape != 1:
+            raise TypeError("filter_rotations : nx1")
+
+        self._flip_direction = flip_direction
+
 
     @property
     def fiber_bundles(self):
@@ -98,7 +146,7 @@ class Simpli:
                     raise TypeError(
                         "properties must have len 4 (float, float, float, char)")
                 self._fiber_bundles_properties[
-                    -1].append(generation.LayerProperty(ly[0], ly[1], ly[2], ly[3]))
+                    -1].append(__generation.__LayerProperty(ly[0], ly[1], ly[2], ly[3]))
 
     @property
     def cells_populations(self):
@@ -147,7 +195,7 @@ class Simpli:
             if len(prop) != 2:
                 raise TypeError("properties must be a list of 2 arguments")
 
-            self._cells_populations_properties.append(generation.CellProperty(prop[0], prop[1]))
+            self._cells_populations_properties.append(generation.__CellProperty(prop[0], prop[1]))
 
 
     def ReadFiberFile(self, filename):
@@ -237,18 +285,20 @@ class Simpli:
 
         return label_field, vec_field, tissue_properties
 
-    def InitSimulation(self, label_field, vec_field, tissue_properties):
-        self._sim.set_pli_setup(self.setup)
-        self._sim.set_tissue(
-            label_field, vec_field, tissue_properties, self.pixel_size)
+    def InitSimulation(self):
+        setup = __simulation.__Setup
+        setup.light_intensity = self._light_intensity
+        setup.pixel_size = self._pixel_size
+        setup.wavelength = self._wavelength
+        setup.untilt_sensor = self._untilt_sensor
+        setup.filter_rotations = self._filter_rotations
+        self._sim.set_pli_setup(setup)
 
     def RunSimulation(self, label_field, vec_field,
                       tissue_properties, theta, phi, do_untilt=True):
 
-        self.setup.pixel_size = self.pixel_size
-        self._sim.set_pli_setup(self.setup)
+        self.InitSimulation()
         self._sim.set_tissue_properties(tissue_properties)
-
         image = self._sim.run_simulation(self._dim, label_field, vec_field, theta, phi, do_untilt)
         return image
 

@@ -1,7 +1,7 @@
-from .__fiber import __Fiber
+from .__cell import __Cell
 import numpy as np
 
-class Fiber(__Fiber):
+class Cell(__Cell):
 
     def __init__(self, points, radii):
         super().__init__(np.asarray(points, dtype=np.float32), np.asarray(radii, dtype=np.float32))

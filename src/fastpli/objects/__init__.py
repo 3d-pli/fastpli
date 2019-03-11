@@ -1,1 +1,2 @@
-from ._fiber import Fiber, Cell
+from ._fiber import Fiber
+from ._cell import Cell

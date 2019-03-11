@@ -1,10 +1,10 @@
-from ._solver_cpp import _SolverCPP
+from .__solver import __Solver
 from ..objects import Fiber
 
 import numpy as np
 
 
-class Solver(_SolverCPP):
+class Solver(__Solver):
 
     _drag = 0
     _obj_min_radius = 0
