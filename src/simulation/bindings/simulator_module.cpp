@@ -13,7 +13,7 @@ namespace py = pybind11;
 PYBIND11_MODULE(__simulation, m) {
    m.doc() = "Simulation of 3D-PLI images";
 
-   py::class_<PliSimulator>(m, "__Simulator")
+   py::class_<PliSimulator>(m, "_Simulator")
        .def(py::init())
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue_properties", &PliSimulator::SetTissueProperties)
@@ -38,12 +38,12 @@ PYBIND11_MODULE(__simulation, m) {
             py::arg("theta") = 0, py::arg("phi") = 0, py::arg("step_size") = 1,
             py::arg("do_nn_intp") = true);
 
-   py::class_<PliSimulator::PhyProp>(m, "__PhyProp")
+   py::class_<PliSimulator::PhyProp>(m, "_PhyProp")
        .def(py::init())
        .def_readwrite("dn", &PliSimulator::PhyProp::dn)
        .def_readwrite("mu", &PliSimulator::PhyProp::mu);
 
-   py::class_<PliSimulator::Setup>(m, "__Setup")
+   py::class_<PliSimulator::Setup>(m, "_Setup")
        .def(py::init())
        .def_readwrite("light_intensity", &PliSimulator::Setup::light_intensity)
        .def_readwrite("pixel_size", &PliSimulator::Setup::pixel_size)

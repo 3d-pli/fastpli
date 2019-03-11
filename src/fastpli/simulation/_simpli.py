@@ -1,6 +1,6 @@
 # from . import __generation as generation
-from .__generation import __Generator as Generator
-from .__simulation import __Simulator as Simulator
+from .__generation import _Generator, _LayerProperty
+from .__simulation import _Simulator
 
 # from fastpli.simulation import __generation
 # from fastpli.simulation import __simulation
@@ -22,8 +22,8 @@ class Simpli:
 
     def __init__(self):
 
-        self._gen = Generator()
-        self._sim = Simulator()
+        self._gen = _Generator()
+        self._sim = _Simulator()
         self._fiber_bundles = None
         self._fiber_bundles_properties = None
         self._cells_populations = None
@@ -146,7 +146,7 @@ class Simpli:
                     raise TypeError(
                         "properties must have len 4 (float, float, float, char)")
                 self._fiber_bundles_properties[
-                    -1].append(__generation.__LayerProperty(ly[0], ly[1], ly[2], ly[3]))
+                    -1].append(_LayerProperty(ly[0], ly[1], ly[2], ly[3]))
 
     @property
     def cells_populations(self):
