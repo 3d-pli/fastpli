@@ -26,10 +26,10 @@ ${VENV}:
 
 .PHONY: git-submodules
 git-submodules:
-	git submodule update --init
+	git submodule update --init --recursive
 
 .PHONY: install
-install: ${VENV} h5py-mpi
+install: ${VENV} git-submodules h5py-mpi
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: h5py-serial
@@ -51,14 +51,14 @@ build/:
 
 .PHONY: build
 .ONESHELL:
-build: build/
+build: build/ git-submodules
 	cd build
 	cmake ..
 	make
 
 .PHONY: build-j
 .ONESHELL:
-build-j: build/
+build-j: build/ git-submodules
 	cd build
 	cmake ..
 	make -j
