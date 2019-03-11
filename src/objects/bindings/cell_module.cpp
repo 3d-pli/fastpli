@@ -8,7 +8,7 @@ namespace py = pybind11;
 using Cell = object::Cell;
 
 PYBIND11_MODULE(__cell, m) {
-   py::class_<Cell>(m, "__Cell")
+   py::class_<Cell>(m, "_Cell")
        // Constructors
        .def(py::init<const std::vector<float> &, const std::vector<float> &>())
        .def(py::init([](py::array_t<float, py::array::c_style> &p,

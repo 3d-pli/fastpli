@@ -9,7 +9,7 @@ namespace py = pybind11;
 using Fiber = object::Fiber;
 
 PYBIND11_MODULE(__fiber, m) {
-   py::class_<Fiber>(m, "__Fiber")
+   py::class_<Fiber>(m, "_Fiber")
 
        // Constructors
        .def(py::init<const std::vector<float> &, const std::vector<float> &>())

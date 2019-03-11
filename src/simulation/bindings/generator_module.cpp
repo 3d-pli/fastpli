@@ -17,7 +17,7 @@ namespace py = pybind11;
 PYBIND11_MODULE(__generation, m) {
    m.doc() = "Generation of tissue for SimPLI";
 
-   py::class_<PliGenerator>(m, "__Generator")
+   py::class_<PliGenerator>(m, "_Generator")
        .def(py::init())
        .def("set_volume",
             [](PliGenerator &self, std::array<size_t, 3> global_dim,
@@ -84,12 +84,12 @@ PYBIND11_MODULE(__generation, m) {
             [](PliGenerator &self) { return self.dim_offset().data_; });
 
    // TODO: to objects?
-   py::enum_<fiber::layer::Orientation>(m, "__Orientation")
+   py::enum_<fiber::layer::Orientation>(m, "_Orientation")
        .value("background", fiber::layer::Orientation::background)
        .value("parallel", fiber::layer::Orientation::parallel)
        .value("radial", fiber::layer::Orientation::radial);
 
-   py::class_<fiber::layer::Property>(m, "__LayerProperty")
+   py::class_<fiber::layer::Property>(m, "_LayerProperty")
        .def(py::init<float, float, float, char>())
        .def(py::init<float, float, float, fiber::layer::Orientation>())
        .def_readwrite("scale", &fiber::layer::Property::scale)
@@ -98,6 +98,5 @@ PYBIND11_MODULE(__generation, m) {
        .def_readwrite("layer_orientation",
                       &fiber::layer::Property::orientation);
 
-   py::class_<cell::Property>(m, "__CellProperty")
-       .def(py::init<float, float>());
+   py::class_<cell::Property>(m, "_CellProperty").def(py::init<float, float>());
 }
