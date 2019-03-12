@@ -10,6 +10,12 @@ class Solver(_Solver):
     _obj_min_radius = 0
     _obj_mean_length = 0
     _col_voi = None
+    _omp_num_threads = 1
+
+    def __init__(self):
+        super().__init__()
+        self._omp_num_threads = super()._set_omp_num_threads(
+            self._omp_num_threads)
 
     @property
     def fiber_bundles(self):
@@ -100,3 +106,13 @@ class Solver(_Solver):
             raise TypeError("col_voi := (min, max)")
         self._col_voi = voi
         super()._set_col_voi(self._col_voi[0], self._col_voi[1])
+
+    @property
+    def omp_num_threads(self):
+        return self._omp_num_threads
+
+    @omp_num_threads.setter
+    def omp_num_threads(self, num):
+        self._omp_num_threads = int(num)
+        self._omp_num_threads = super()._set_omp_num_threads(
+            self._omp_num_threads)
