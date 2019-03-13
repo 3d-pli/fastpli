@@ -19,8 +19,9 @@ simpli.pixel_size = 1
 simpli.dim = [100, 100, 100]
 simpli.ReadFiberFile('example/cube.h5')
 # simpli.fiber_bundles = [[[[0,0,30,100],[640,640,30,100]]]]
-simpli.SetFiberProperties([[(0.333, 0.004, 10, 'p'), (0.666, -0.004, 5, 'b'),
-                            (1.0, 0.004, 1, 'r')]])
+simpli.fiber_bundles_properties = [[(0.333, 0.004, 10, 'p'),
+                                    (0.666, -0.004, 5, 'b'), (1.0, 0.004, 1,
+                                                              'r')]]
 
 # manipulation of fibers
 simpli.RotateVolumeAroundPoint(
@@ -41,11 +42,11 @@ with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
     print("TissueGeneration:", end - start)
 
     # PliSimulation ###
-    simpli.setup.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
-    simpli.setup.light_intensity = 26000
-    simpli.setup.pixel_size = 1
-    simpli.setup.untilt_sensor = True
-    simpli.setup.wavelength = 525
+    simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
+    simpli.light_intensity = 26000
+    simpli.pixel_size = 1
+    simpli.untilt_sensor = True
+    simpli.wavelength = 525
 
     start = time.time()
     print("RunSimulation: 0")
