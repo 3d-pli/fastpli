@@ -74,6 +74,33 @@ int World::set_omp_num_threads(int i) {
    return omp_get_max_threads();
 }
 
+bool World::BoundryChecking(int max_steps) {
+   // check fiber boundry conditions
+
+   std::cout << "boundry conditions\n";
+   bool solved = false;
+   while (!solved && max_steps != 0) {
+
+      for (auto const &fiber : fibers_)
+         std::cout << fiber.size() << ", ";
+
+#pragma omp parallel for
+      for (auto i = 0u; i < fibers_.size(); i++) {
+         bool flag_length =
+             fibers_[i].CheckLength(w_parameter_.obj_mean_length);
+         bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
+#pragma omp critical
+         solved = flag_length && flag_radius;
+      }
+
+      max_steps--;
+
+      std::cout << std::endl;
+   }
+
+   return solved;
+}
+
 bool World::Step() {
 
    bool solved = true;
@@ -110,16 +137,16 @@ bool World::Step() {
    //       w_parameter_.obj_mean_length = 3 / 2 * smallest_radius;
 
    auto max_obj_size = 0;
-      for (auto const &fiber : fibers_) {
-         if (fiber.size() >= 2) {
-            for (size_t i = 0; i < fiber.size() - 1; i++) {
+   for (auto const &fiber : fibers_) {
+      if (fiber.size() >= 2) {
+         for (size_t i = 0; i < fiber.size() - 1; i++) {
             auto delta = vm::length(fiber.points()[i + 1] - fiber.points()[i]);
-               delta += std::max(fiber.radii()[i + 1], fiber.radii()[i]);
-               if (max_obj_size < delta)
-                  max_obj_size = delta;
-            }
+            delta += std::max(fiber.radii()[i + 1], fiber.radii()[i]);
+            if (max_obj_size < delta)
+               max_obj_size = delta;
          }
       }
+   }
 
    // TODO: min_radius sollte gr;-er sein als gleichseitiges dreieck,
    // R=sqrt(3)/3.0*mean_...

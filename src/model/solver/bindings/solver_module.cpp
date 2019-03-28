@@ -45,6 +45,7 @@ PYBIND11_MODULE(__solver, m) {
               self.set_colliding_voi(aabb::AABB<float, 3>(min, max));
            })
        .def("step", (bool (World::*)(void)) & World::Step)
+       .def("boundry_checking", &World::BoundryChecking, py::arg("steps") = -1)
        .def_property_readonly("num_obj", &World::NumObj)
        .def_property_readonly("num_col_obj", &World::NumColObj)
        .def("draw_scene", &World::DrawScene, py::arg("rot_x") = 30,
