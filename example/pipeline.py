@@ -1,14 +1,19 @@
 import fastpli.io
 import fastpli.model
+import fastpli.simulation
 
+import h5py
 import numpy as np
 import os
 
-FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+INPUT_FILE = '/localdata/data/xy-crossing_90deg.dat'
+OUTPUT_FILE_FIBER = '/tmp/test.dat'
+OUTPUT_FILE_TISSUE = '/tmp/test.h5'
+# FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # read fiber_bundle file
 print('loading files')
-fiber_bundles = fastpli.io.fiber.read('/localdata/data/xy-crossing_90deg.dat')
+fiber_bundles = fastpli.io.fiber.read(INPUT_FILE)
 
 # rnd movement
 for fiber_bundle in fiber_bundles:
@@ -40,4 +45,21 @@ for i in range(MAX_SOVLER_STEPS):
         solver.draw_scene()
 
 # save data
-fastpli.io.fiber.save('/tmp/test.dat', solver.fiber_bundles)
+if OUTPUT_FILE_FIBER:
+    fastpli.io.fiber.save(OUTPUT_FILE_FIBER, solver.fiber_bundles)
+
+# tissue generation
+simpli = fastpli.simulation.Simpli()
+simpli.pixel_size = 1
+simpli.dim = [100, 100, 100]
+simpli.dim_origin = -simpli.dim / simpli.pixel_size / 2.0  # in mu-meter
+simpli.fiber_bundles = solver.fiber_bundles
+simpli.fiber_bundles_properties = [[(0, 0, 0, 'p')]]
+
+label_field, _, _ = simpli.GenerateTissue(only_label=True)
+
+if OUTPUT_FILE_TISSUE:
+    with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
+        dset = h5f.create_dataset(
+            'tissue', simpli.dim, dtype=np.uint16, compression="gzip")
+        dset[:] = label_field
