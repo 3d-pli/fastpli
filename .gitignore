@@ -1,6 +1,7 @@
 .test/
 .nfs*
 *.h5
+*.dat
 debug*.*
 
 # Created by https://www.gitignore.io/api/c++,python,virtualenv,visualstudiocode
@@ -130,8 +131,8 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
-.venv
+.env*
+.venv*
 env/
 venv/
 ENV/
