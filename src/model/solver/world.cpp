@@ -109,20 +109,17 @@ bool World::Step() {
    //    if (w_parameter_.obj_mean_length < 3 / 2 * smallest_radius)
    //       w_parameter_.obj_mean_length = 3 / 2 * smallest_radius;
 
-   auto max_obj_size = 3 * w_parameter_.obj_mean_length;
-   if (max_obj_size == 0) {
+   auto max_obj_size = 0;
       for (auto const &fiber : fibers_) {
          if (fiber.size() >= 2) {
             for (size_t i = 0; i < fiber.size() - 1; i++) {
-               auto delta =
-                   vm::length(fiber.points()[i + 1] - fiber.points()[i]);
+            auto delta = vm::length(fiber.points()[i + 1] - fiber.points()[i]);
                delta += std::max(fiber.radii()[i + 1], fiber.radii()[i]);
                if (max_obj_size < delta)
                   max_obj_size = delta;
             }
          }
       }
-   }
 
    // TODO: min_radius sollte gr;-er sein als gleichseitiges dreieck,
    // R=sqrt(3)/3.0*mean_...
