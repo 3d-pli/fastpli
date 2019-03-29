@@ -38,7 +38,8 @@ std::vector<object::Cone> Fiber::Cones() const {
 void Fiber::Move() {
    for (size_t i = 0; i < points_.size(); i++) {
       auto const norm = vm::length(speed_[i]);
-      auto const max_speed = radii_[i] * 0.1;
+      auto const max_speed =
+          radii_[i] * 0.1; // TODO: small fibers are to small ....
       if (norm > max_speed)
          speed_[i] *= max_speed / norm;
 

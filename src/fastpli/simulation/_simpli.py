@@ -84,7 +84,6 @@ class Simpli:
 
     @property
     def voi(self):
-        print("calling voi getter")
         if self._voi is None:
             if self._pixel_size is None:
                 return None
@@ -103,7 +102,6 @@ class Simpli:
 
     @voi.setter
     def voi(self, voi):
-        print("setting self._voi")
         voi = np.array(voi)
         if voi.size != 6 or voi.shape[0] != 6:
             raise TypeError("voi: wrong shape, has to be (6,)")
@@ -125,7 +123,6 @@ class Simpli:
         self._dim = np.array(
             (int(tmp[1] - tmp[0]), int(tmp[3] - tmp[2]), int(tmp[5] - tmp[4])),
             dtype=int)
-        print("self._dim", self._dim)
         self._dim_origin = self._voi[::2]
 
         self.print_debug("dim and dim_origin recalculated")
