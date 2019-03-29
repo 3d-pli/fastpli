@@ -28,7 +28,7 @@ simpli.RotateVolumeAroundPoint(
     np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
 simpli.TranslateVolume([25, -15, 50])
 
-with h5py.File(os.path.join(FILE_PATH, 'output.h5'), 'w') as h5f:
+with h5py.File('/tmp/fastpli.example.simpli.h5', 'w') as h5f:
 
     start = time.time()
     # label_field, _, tissue_properties =
