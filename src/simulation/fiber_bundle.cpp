@@ -21,6 +21,21 @@ Property::Property(float s, float n, float m, char o) : scale(s), dn(n), mu(m) {
       orientation = Orientation::radial;
    else
       throw std::invalid_argument("Orientation must be \"b\", \"p\", or \"r\"");
+
+   if (s <= 0)
+      std::cout << "Warning: scale <= 0 detected\n";
+
+   if (mu <= 0)
+      std::cout << "Warning: absorption mu <= 0 detected\n";
+}
+
+Property::Property(float s, float n, float m, Orientation o)
+    : scale(s), dn(n), mu(m), orientation(o) {
+   if (s <= 0)
+      std::cout << "Warning: scale <= 0 detected\n";
+
+   if (m <= 0)
+      std::cout << "Warning: absorption mu <= 0 detected\n";
 }
 
 size_t Properties::size() const {
