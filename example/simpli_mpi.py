@@ -14,8 +14,8 @@ import os
 from fastpli.simulation import Simpli
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-FILE_NAME = os.path.join(FILE_PATH,
-                         'output_' + str(MPI.COMM_WORLD.Get_size()) + '.h5')
+FILE_NAME = '/tmp/fastpli.example.simpli_mpi.' + str(
+    MPI.COMM_WORLD.Get_size()) + '.h5'
 with h5py.File(FILE_NAME, 'w', driver='mpio', comm=MPI.COMM_WORLD) as h5f:
 
     # Read fiber data and prepair for PliGenerator

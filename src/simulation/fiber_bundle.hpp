@@ -15,8 +15,7 @@ enum class Orientation { background, parallel, radial };
 
 struct Property {
    Property(float s, float n, float m, char o);
-   Property(float s, float n, float m, Orientation o)
-       : scale(s), dn(n), mu(m), orientation(o) {}
+   Property(float s, float n, float m, Orientation o);
 
    float scale{};
    float dn{};

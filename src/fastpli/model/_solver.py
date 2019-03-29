@@ -20,6 +20,8 @@ class Solver(_Solver):
     @property
     def fiber_bundles(self):
         fiber_bundles = super()._get_fiber_bundles()
+
+        # convert to python Fiber-class
         for i in range(len(fiber_bundles)):
             for j in range(len(fiber_bundles[i])):
                 fiber_bundles[i][j] = Fiber(fiber_bundles[i][j].points,
