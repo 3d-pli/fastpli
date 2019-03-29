@@ -26,13 +26,13 @@ solver = fastpli.model.Solver()
 solver.fiber_bundles = fiber_bundles
 solver.drag = 0
 solver.obj_min_radius = 5
-solver.obj_mean_length = 2
+solver.obj_mean_length = 1
 solver.omp_num_threads = 8
 
 # run solver
 print('running solver')
 i = 0
-MAX_SOVLER_STEPS = 2
+MAX_SOVLER_STEPS = 200
 
 for i in range(MAX_SOVLER_STEPS):
     solved = solver.step()
@@ -50,11 +50,11 @@ if OUTPUT_FILE_FIBER:
 
 # tissue generation
 simpli = fastpli.simulation.Simpli()
-simpli.pixel_size = 1
-simpli.dim = [100, 100, 100]
-simpli.dim_origin = -simpli.dim / simpli.pixel_size / 2.0  # in mu-meter
+simpli.pixel_size = 0.125
+simpli.dim = [400, 400, 240]
+# simpli.dim_origin = -simpli.dim * simpli.pixel_size / 2.0  # position of coordinate (0,0,0) in mu-meter
 simpli.fiber_bundles = solver.fiber_bundles
-simpli.fiber_bundles_properties = [[(0, 0, 0, 'p')]]
+simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
 
 label_field, _, _ = simpli.GenerateTissue(only_label=True)
 
