@@ -365,7 +365,7 @@ class Simpli:
                     "properties must have the same size as cell_populations")
 
     def GenerateTissue(self, only_label=False, progress_bar=False):
-        self._gen.set_volume(self._dim, self.dim_origin, self.pixel_size)
+        self._gen.set_volume(self._dim, self._dim_origin, self._pixel_size)
         self._CheckDataLength()
         if self._fiber_bundles:
             self._gen.set_fiber_bundles(self._fiber_bundles,
