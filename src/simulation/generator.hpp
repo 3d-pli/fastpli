@@ -42,7 +42,7 @@ class PliGenerator {
    vm::Vec3<float> dim_origin() { return dim_.origin; };
 
  private:
-   const bool debug_ = true;
+   const bool debug_ = false;
    double pixel_size_{0};
    Dimensions dim_;
 

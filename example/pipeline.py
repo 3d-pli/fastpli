@@ -11,7 +11,6 @@ np.random.seed(42)
 INPUT_FILE = '/localdata/data/xy-crossing_90deg.dat'
 OUTPUT_FILE_FIBER = '/tmp/test.dat'
 OUTPUT_FILE_TISSUE = '/tmp/test.h5'
-# FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # read fiber_bundle file
 print('loading files')
@@ -54,22 +53,20 @@ if OUTPUT_FILE_FIBER:
 simpli = fastpli.simulation.Simpli()
 simpli.debug = False
 
-simpli.pixel_size = 0.025
-# simpli.dim = [400, 400, 240]
-# simpli.dim_origin = -simpli.dim * simpli.pixel_size / 2.0  # position of coordinate (0,0,0) in mu-meter
-print("simpli.voi:", simpli.voi)
-# simpli.voi in mu-meter, can also be setted, dim and origin will be changed accordingly
-simpli.voi = [25, 30, 15, 20, 15, 20]
+# tissue generation
+simpli = fastpli.simulation.Simpli()
+simpli.debug = False
+
+simpli.pixel_size = 0.025  # in mu-meter
+simpli.dim = [200, 200, 200]  # num of voxels
+simpli.dim_origin = [25, 15, 15]  # in mu-meter
+# or: simpli.voi = [25, 30, 15, 20, 15, 20] in mu-meter
 
 simpli.fiber_bundles = solver.fiber_bundles
 simpli.fiber_bundles_properties = [[(0.6, 0, 0, 'p'), (0.8, 0, 0, 'p'),
                                     (1, 0, 0, 'p')]]
 
 label_field, _, _ = simpli.GenerateTissue(only_label=True)
-
-print(simpli.dim)
-print(simpli.dim_origin)
-print(simpli.voi)
 
 if OUTPUT_FILE_TISSUE:
     with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
