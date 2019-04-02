@@ -53,14 +53,18 @@ if OUTPUT_FILE_FIBER:
 simpli = fastpli.simulation.Simpli()
 simpli.debug = False
 
-# tissue generation
-simpli = fastpli.simulation.Simpli()
-simpli.debug = False
-
 simpli.pixel_size = 0.025  # in mu-meter
 simpli.dim = [200, 200, 200]  # num of voxels
 simpli.dim_origin = [25, 15, 15]  # in mu-meter
-# or: simpli.voi = [25, 30, 15, 20, 15, 20] in mu-meter
+# simpli.set_voi([25, 30, 15, 20, 15, 20])  # in mu-meter
+
+print(simpli.dim)
+print(simpli.dim_origin)
+print(simpli.get_voi())
+simpli.dim[1] = 345.5
+print(simpli.dim)
+print(simpli.dim_origin)
+print(simpli.get_voi())
 
 simpli.fiber_bundles = solver.fiber_bundles
 simpli.fiber_bundles_properties = [[(0.6, 0, 0, 'p'), (0.8, 0, 0, 'p'),

@@ -25,7 +25,6 @@ class Simpli:
         self._dim = None
         self._dim_origin = np.array([0, 0, 0], dtype=float)
         self._pixel_size = None
-        self._voi = None
         self._flip_direction = np.array([0, 0, 0], dtype=bool)
 
         self._filter_rotations = None
@@ -58,10 +57,6 @@ class Simpli:
         if not np.array_equal(self._dim, dim):
             raise ValueError("dim would changed because it was not an integer")
 
-        if self._pixel_size is not None:
-            self._calculate_voi()
-            self.print_debug("voi recalculated")
-
     @property
     def dim_origin(self):
         return self._dim_origin
@@ -69,10 +64,6 @@ class Simpli:
     @dim_origin.setter
     def dim_origin(self, dim_origin):
         self._dim_origin = np.array(dim_origin, dtype=float)
-
-        if self._pixel_size is not None and self._dim is not None:
-            self._calculate_voi()
-            self.print_debug("voi recalculated")
 
     @property
     def pixel_size(self):
@@ -88,11 +79,15 @@ class Simpli:
 
         self._pixel_size = float(pixel_size)
 
-        if self._dim is not None:
-            self._calculate_voi()
-            self.print_debug("voi recalculated")
+    @property
+    def voi(self):
+        raise NotImplementedError("voi has to be get/set via get/set_voi()")
 
-    def _calculate_voi(self):
+    @voi.setter
+    def voi(self, voi):
+        raise NotImplementedError("voi has to be get/set via get/set_voi()")
+
+    def get_voi(self):
         if self._pixel_size is None:
             return None
             self.print_debug("pixel_size is not set, voi can't be calculated")
@@ -105,19 +100,12 @@ class Simpli:
             return None
             self.print_debug("dim_origin is not set, voi can't be calculated")
 
-        self._voi = np.zeros((6,))
-        self._voi[::2] = self._dim_origin
-        self._voi[1::2] = self._voi[::2] + self._dim * self._pixel_size
+        voi = np.zeros((6,))
+        voi[::2] = self._dim_origin
+        voi[1::2] = voi[::2] + self._dim * self._pixel_size
+        return voi
 
-    @property
-    def voi(self):
-        if self._voi is None:
-            self._calculate_voi()
-
-        return self._voi
-
-    @voi.setter
-    def voi(self, voi):
+    def set_voi(self, voi):
         voi = np.array(voi, dtype=float)
         if voi.size != 6 or voi.shape[0] != 6:
             raise TypeError("voi: wrong shape, has to be (6,)")
