@@ -9,8 +9,8 @@ import os
 np.random.seed(42)
 
 INPUT_FILE = '/localdata/data/xy-crossing_90deg.dat'
-OUTPUT_FILE_FIBER = '/tmp/test.dat'
-OUTPUT_FILE_TISSUE = '/tmp/test.h5'
+OUTPUT_FILE_FIBER = '/tmp/test_chunked.dat'
+OUTPUT_FILE_TISSUE = '/tmp/test_chunked.h5'
 # FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # read fiber_bundle file
@@ -59,19 +59,47 @@ simpli.pixel_size = 0.125
 # simpli.dim_origin = -simpli.dim * simpli.pixel_size / 2.0  # position of coordinate (0,0,0) in mu-meter
 print("simpli.voi:", simpli.voi)
 # simpli.voi in mu-meter, can also be setted, dim and origin will be changed accordingly
+# e.g. simpli.voi = [25, 75, 25, 75, 15, 45]
+
 simpli.voi = [25, 75, 25, 75, 15, 45]
 
 simpli.fiber_bundles = solver.fiber_bundles
 simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
 
-label_field, _, _ = simpli.GenerateTissue(only_label=True)
+xvoi = (simpli.voi[0], simpli.voi[1])
+X_STEP = 5
+
+if xvoi[0] % X_STEP != 0 or xvoi[1] % X_STEP != 0:
+    raise ValueError("not implemented yet")
 
 print(simpli.dim)
 print(simpli.dim_origin)
 print(simpli.voi)
 
-if OUTPUT_FILE_TISSUE:
-    with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
-        dset = h5f.create_dataset(
-            'tissue', simpli.dim, dtype=np.uint16, compression="gzip")
-        dset[:] = label_field
+with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
+    dset = h5f.create_dataset(
+        'tissue', simpli.dim, dtype=np.uint16, compression="gzip")
+
+    x_list = [(x, x + X_STEP) for x in range(xvoi[0], xvoi[1], X_STEP)]
+
+    # print(x_list)
+
+    for x0, x1 in x_list:
+        simpli.voi = [x0, x1, 25, 75, 15, 45]
+
+        xdim = (int((x0 - xvoi[0]) // simpli.pixel_size),
+                int((x1 - xvoi[0]) // simpli.pixel_size))
+
+        label_field, _, _ = simpli.GenerateTissue(only_label=True)
+
+        print(simpli.dim)
+        print(simpli.dim_origin)
+        print(simpli.voi)
+
+        # print(simpli.dim)
+        # print(simpli.voi)
+        # print(x0, x1)
+        # print(xdim[0], xdim[1])
+        # print(label_field.shape)
+
+        dset[xdim[0]:xdim[1], :, :] = label_field
