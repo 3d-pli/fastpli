@@ -54,23 +54,22 @@ if OUTPUT_FILE_FIBER:
 simpli = fastpli.simulation.Simpli()
 simpli.debug = False
 
-simpli.pixel_size = 0.125
+simpli.pixel_size = 0.025
 # simpli.dim = [400, 400, 240]
 # simpli.dim_origin = -simpli.dim * simpli.pixel_size / 2.0  # position of coordinate (0,0,0) in mu-meter
 print("simpli.voi:", simpli.voi)
 # simpli.voi in mu-meter, can also be setted, dim and origin will be changed accordingly
 # e.g. simpli.voi = [25, 75, 25, 75, 15, 45]
 
-simpli.voi = [25, 75, 25, 75, 15, 45]
+simpli.voi = [25, 30, 15, 20, 15, 20]
 
 simpli.fiber_bundles = solver.fiber_bundles
-simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
+simpli.fiber_bundles_properties = [[(0.6, 0, 0, 'p'), (0.8, 0, 0, 'p'),
+                                    (1, 0, 0, 'p')]]
 
-xvoi = (simpli.voi[0], simpli.voi[1])
-X_STEP = 5
-
-if xvoi[0] % X_STEP != 0 or xvoi[1] % X_STEP != 0:
-    raise ValueError("not implemented yet")
+x_voi = (simpli.voi[0], simpli.voi[1])
+voi = simpli.voi
+X_STEP = 1  # in mu meter
 
 print(simpli.dim)
 print(simpli.dim_origin)
@@ -80,21 +79,27 @@ with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
     dset = h5f.create_dataset(
         'tissue', simpli.dim, dtype=np.uint16, compression="gzip")
 
-    x_list = [(x, x + X_STEP) for x in range(xvoi[0], xvoi[1], X_STEP)]
-
-    # print(x_list)
+    x_list = [(x, x + X_STEP) for x in np.arange(x_voi[0], x_voi[1], X_STEP)]
+    for x in x_list:
+        print('{:.17f}'.format(x[0]), '{:.17f}'.format(x[1]))
 
     for x0, x1 in x_list:
-        simpli.voi = [x0, x1, 25, 75, 15, 45]
-
-        xdim = (int((x0 - xvoi[0]) // simpli.pixel_size),
-                int((x1 - xvoi[0]) // simpli.pixel_size))
-
-        label_field, _, _ = simpli.GenerateTissue(only_label=True)
+        voi[0] = x0
+        voi[1] = x1
+        simpli.voi = voi
 
         print(simpli.dim)
         print(simpli.dim_origin)
         print(simpli.voi)
+
+        x_offset = (x0 - x_voi[0]) / simpli.pixel_size
+        if x_offset != int(x_offset):
+            raise ValueError("not implemented yet")
+        x_offset = int(x_offset)
+
+        label_field, _, _ = simpli.GenerateTissue(only_label=True)
+
+        print("label_field.shape", label_field.shape)
 
         # print(simpli.dim)
         # print(simpli.voi)
@@ -102,4 +107,4 @@ with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
         # print(xdim[0], xdim[1])
         # print(label_field.shape)
 
-        dset[xdim[0]:xdim[1], :, :] = label_field
+        dset[x_offset:x_offset + label_field.shape[0], :, :] = label_field

@@ -54,15 +54,16 @@ if OUTPUT_FILE_FIBER:
 simpli = fastpli.simulation.Simpli()
 simpli.debug = False
 
-simpli.pixel_size = 0.125
+simpli.pixel_size = 0.025
 # simpli.dim = [400, 400, 240]
 # simpli.dim_origin = -simpli.dim * simpli.pixel_size / 2.0  # position of coordinate (0,0,0) in mu-meter
 print("simpli.voi:", simpli.voi)
 # simpli.voi in mu-meter, can also be setted, dim and origin will be changed accordingly
-simpli.voi = [25, 75, 25, 75, 15, 45]
+simpli.voi = [25, 30, 15, 20, 15, 20]
 
 simpli.fiber_bundles = solver.fiber_bundles
-simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
+simpli.fiber_bundles_properties = [[(0.6, 0, 0, 'p'), (0.8, 0, 0, 'p'),
+                                    (1, 0, 0, 'p')]]
 
 label_field, _, _ = simpli.GenerateTissue(only_label=True)
 
