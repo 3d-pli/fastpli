@@ -33,14 +33,12 @@ with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
 
     # chunking voi in x-direction
     X_STEP = 1
-    x_voi = (simpli.voi[0], simpli.voi[1])
+    x_voi = (simpli.get_voi()[0], simpli.get_voi()[1])
     x_list = [x for x in np.arange(x_voi[0], x_voi[1], X_STEP)]
     simpli.dim = [simpli.dim[0] / len(x_list), simpli.dim[1], simpli.dim[2]]
 
-    for x_id, x_pos in tqdm(enumerate(x_list)):
+    for x_id, x_pos in enumerate(tqdm(x_list)):
         simpli._dim_origin[0] = x_pos
-        simpli._calculate_voi()  # BE CAREFUL!
-        # print(x_id, simpli.voi)
         label_field, _, _ = simpli.GenerateTissue(only_label=True)
         x_offset = x_id * simpli.dim[0]
         dset[x_offset:x_offset + label_field.shape[0], :, :] = label_field
