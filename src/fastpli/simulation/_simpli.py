@@ -23,7 +23,7 @@ class Simpli:
         self._cells_populations = None
         self._cells_populations_properties = None
         self._dim = None
-        self._dim_origin = np.array([0, 0, 0], dtype=int)
+        self._dim_origin = np.array([0, 0, 0], dtype=float)
         self._pixel_size = None
         self._voi = None
         self._flip_direction = np.array([0, 0, 0], dtype=bool)
@@ -45,8 +45,7 @@ class Simpli:
 
     @debug.setter
     def debug(self, debug):
-        debug = bool(debug)
-        self._debug = debug
+        self._debug = bool(debug)
 
     @property
     def dim(self):
@@ -54,7 +53,14 @@ class Simpli:
 
     @dim.setter
     def dim(self, dim):
-        self._dim = np.array(dim)
+        self._dim = np.array(dim, dtype=int)
+
+        if not np.array_equal(self._dim, dim):
+            raise ValueError("dim would changed because it was not an integer")
+
+        if self._pixel_size is not None:
+            self._calculate_voi()
+            self.print_debug("voi recalculated")
 
     @property
     def dim_origin(self):
@@ -62,7 +68,11 @@ class Simpli:
 
     @dim_origin.setter
     def dim_origin(self, dim_origin):
-        self._dim_origin = np.array(dim_origin)
+        self._dim_origin = np.array(dim_origin, dtype=float)
+
+        if self._pixel_size is not None and self._dim is not None:
+            self._calculate_voi()
+            self.print_debug("voi recalculated")
 
     @property
     def pixel_size(self):
@@ -76,33 +86,39 @@ class Simpli:
         if pixel_size <= 0:
             raise ValueError("pixel_size !> 0")
 
-        self._pixel_size = pixel_size
+        self._pixel_size = float(pixel_size)
 
-        if self._voi is not None:
-            self.voi = self._voi
-            self.print_debug("dim and dim_origin recalculated")
+        if self._dim is not None:
+            self._calculate_voi()
+            self.print_debug("voi recalculated")
+
+    def _calculate_voi(self):
+        if self._pixel_size is None:
+            return None
+            self.print_debug("pixel_size is not set, voi can't be calculated")
+
+        if self._dim is None:
+            return None
+            self.print_debug("dim is not set, voi can't be calculated")
+
+        if self._dim_origin is None:
+            return None
+            self.print_debug("dim_origin is not set, voi can't be calculated")
+
+        self._voi = np.zeros((6,))
+        self._voi[::2] = self._dim_origin
+        self._voi[1::2] = self._voi[::2] + self._dim * self._pixel_size
 
     @property
     def voi(self):
         if self._voi is None:
-            if self._pixel_size is None:
-                return None
-                self.print_debug(
-                    "pixel_size is not set, voi can't be calculated")
-
-            if self._dim is None:
-                return None
-                self.print_debug("dim is not set, voi can't be calculated")
-
-            self._voi = np.zeros((6,))
-            self._voi[::2] = self._dim_origin + self._dim * self._pixel_size
-            self._voi[1::2] = self._voi[::2] + self._dim * self._pixel_size
+            self._calculate_voi()
 
         return self._voi
 
     @voi.setter
     def voi(self, voi):
-        voi = np.array(voi)
+        voi = np.array(voi, dtype=float)
         if voi.size != 6 or voi.shape[0] != 6:
             raise TypeError("voi: wrong shape, has to be (6,)")
 
