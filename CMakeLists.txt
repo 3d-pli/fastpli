@@ -1,25 +1,27 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
 
-PROJECT( fastPLI )
+PROJECT( fastPLI LANGUAGES CXX)
 SET(CMAKE_COLOR_MAKEFILE ON)
-# SET(CMAKE_VERBOSE_MAKEFILE ON)
+SET(CMAKE_VERBOSE_MAKEFILE OFF)
 
 ##########################################################################
 # Buildconfiguration
 ##########################################################################
-IF( NOT CMAKE_BUILD_TYPE )
-   SET( CMAKE_BUILD_TYPE Debug )
-ENDIF()
+if( NOT CMAKE_BUILD_TYPE )
+   set(CMAKE_BUILD_TYPE "debug")
+endif()
 
-SET(flags "-std=c++17 -O3 -march=native")
-# SET(flags "-std=c++17 -g")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    SET(warnings "-Wall -Wpedantic -Wextra -Wfatal-errors")
-ENDIF()
-
-SET(CMAKE_CXX_FLAGS "${warnings} ${flags}")
+   set(warnings "-Wall -Wpedantic -Wextra -Wfatal-errors")
+   set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${warnings})
+   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
+   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+endif()
 
 ##########################################################################
 # Libraries
@@ -37,9 +39,10 @@ ENDIF ( OPENMP_FOUND )
 
 # MPI
 FIND_PACKAGE( MPI REQUIRED )
-INCLUDE_DIRECTORIES( AFTER ${MPI_CXX_INCLUDE_PATH} )
+INCLUDE_DIRECTORIES(${MPI_CXX_INCLUDE_DIRS})
 
 # OpenGL
+set(OpenGL_GL_PREFERENCE "GLVND")
 FIND_PACKAGE( OpenGL )
 FIND_PACKAGE( GLUT )
 

@@ -63,8 +63,8 @@ class CMakeBuild(build_ext):
         print()  # Add an empty line for cleaner output
         print()  # Add an empty line for cleaner output
         env = os.environ.copy()
-        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(
-            env.get('CXXFLAGS', ''), self.distribution.get_version())
+        # env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(
+        #     env.get('CXXFLAGS', ''), self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         subprocess.check_call(
@@ -77,7 +77,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='fastpli',
-    version='0.12.1',
+    version='0.13',
     description='Fiber Architecture Simulation Toolbox for PLI',
     long_description='',
     author='Felix Matuschke',
