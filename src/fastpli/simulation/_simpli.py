@@ -436,9 +436,9 @@ class Simpli:
             raise ValueError('allowed is only B, kB, MB, GB')
 
         if item == 'label_field':
-            return np.prod(self._dim) * (16 + 32) / 8 / div
+            return np.prod(self._dim) * (32 + 32) / 8 / div
         elif item == 'all':
-            return np.prod(self._dim) * (16 + 32 + 3 * 32) / 8 / div
+            return np.prod(self._dim) * (32 + 32 + 3 * 32) / 8 / div
         else:
             raise ValueError('allowed is only label_field or all')
 
