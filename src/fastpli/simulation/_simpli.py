@@ -405,6 +405,31 @@ class Simpli:
                                          theta, phi, do_untilt)
         return image
 
+    def MemoryUseage(self, item='all', unit='MB'):
+        if not isinstance(item, str):
+            raise TypeError('item has to be str')
+
+        if not isinstance(unit, str):
+            raise TypeError('unit has to be str')
+
+        if unit == 'B':
+            div = 1024**0
+        elif unit == 'kB':
+            div = 1024**1
+        elif unit == 'MB':
+            div = 1024**2
+        elif unit == 'GB':
+            div = 1024**3
+        else:
+            raise ValueError('allowed is only B, kB, MB, GB')
+
+        if item == 'label_field':
+            return np.prod(self._dim) * (16 + 32) / 8 / div
+        elif item == 'all':
+            return np.prod(self._dim) * (16 + 32 + 3 * 32) / 8 / div
+        else:
+            raise ValueError('allowed is only label_field or all')
+
     def DimData(self):
         dim_local = self._gen.dim_local()
         dim_offset = self._gen.dim_offset()

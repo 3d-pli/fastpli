@@ -23,6 +23,9 @@ simpli.fiber_bundles_properties = [[(0.333, 0.004, 10, 'p'),
                                     (0.666, -0.004, 5, 'b'), (1.0, 0.004, 1,
                                                               'r')]]
 
+print(simpli.get_voi())
+print(simpli.MemoryUseage())
+
 # manipulation of fibers
 simpli.RotateVolumeAroundPoint(
     np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
