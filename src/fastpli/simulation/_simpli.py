@@ -1,6 +1,6 @@
 # from . import __generation as generation
 from .__generation import _Generator, _LayerProperty
-from .__simulation import _Simulator, _Setup
+from .__simulation import _Simulator, _Setup, _PhyProp
 
 from fastpli.objects import Fiber, Cell
 from fastpli.tools import rotation
@@ -399,7 +399,19 @@ class Simpli:
                       phi,
                       do_untilt=True):
 
+        label_field = np.array(label_field, dtype=np.uint16, copy=False)
+        vec_field = np.array(vec_field, dtype=np.float32, copy=False)
+
         self.InitSimulation()
+
+        tissue_properties = list(tissue_properties)
+
+        for i, elm in enumerate(tissue_properties):
+            if isinstance(elm, _PhyProp):
+                continue
+            elif isinstance(elm, (list, tuple)):
+                tissue_properties[i] = _PhyProp(elm[0], elm[1])
+
         self._sim.set_tissue_properties(tissue_properties)
         image = self._sim.run_simulation(self._dim, label_field, vec_field,
                                          theta, phi, do_untilt)

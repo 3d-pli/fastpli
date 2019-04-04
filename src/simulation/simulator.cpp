@@ -38,7 +38,7 @@ void PliSimulator::SetPliSetup(const Setup pli_setup) {
 void PliSimulator::SetTissueProperties(const std::vector<PhyProp> &properties)
 
 {
-   if (properties.size() == 0)
+   if (properties.empty())
       throw std::invalid_argument("tissue properties is empty");
 
    properties_ = properties;
@@ -75,6 +75,23 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    label_field_ = std::move(label_field);
    vector_field_ = std::move(vector_field);
+
+   // checking if all labels exist in properties
+   {
+      int min = std::numeric_limits<int>::max();
+      int max = std::numeric_limits<int>::min();
+
+      for (size_t i = 0; i < label_field_.size(); i++) {
+         min = std::min(min, label_field_[i]);
+         max = std::max(max, label_field_[i]);
+      }
+
+      if (min < 0 || max < 0)
+         throw std::invalid_argument("label < 0 detected");
+
+      if (static_cast<size_t>(max) >= properties_.size())
+         throw std::invalid_argument("label exceed properties.size()");
+   }
 
    if (std::abs(theta) >= M_PI_2)
       throw std::invalid_argument("illegal light path");

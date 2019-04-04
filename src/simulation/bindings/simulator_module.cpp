@@ -39,7 +39,7 @@ PYBIND11_MODULE(__simulation, m) {
             py::arg("do_nn_intp") = true);
 
    py::class_<PliSimulator::PhyProp>(m, "_PhyProp")
-       .def(py::init())
+       .def(py::init<double, double>())
        .def_readwrite("dn", &PliSimulator::PhyProp::dn)
        .def_readwrite("mu", &PliSimulator::PhyProp::mu);
 
