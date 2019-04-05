@@ -1,4 +1,3 @@
 numpy
-# h5py # mpi version !, see makefile
-tqdm
 mpi4py
+# h5py # mpi version !, see makefile

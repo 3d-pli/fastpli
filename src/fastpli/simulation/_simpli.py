@@ -2,7 +2,9 @@
 from .__generation import _Generator, _LayerProperty
 from .__simulation import _Simulator, _Setup, _PhyProp
 
+from fastpli.analysis import rofl
 from fastpli.objects import Fiber, Cell
+from fastpli.simulation import optic
 from fastpli.tools import rotation
 
 import numpy as np
@@ -495,3 +497,32 @@ class Simpli:
 
         else:
             raise TypeError("no compatible SaveAsH5: " + data_name)
+
+    def apply_optic(
+            self,
+            image_stack,
+            res_pixel_size,  # mu meter
+            delta_sigma=0.71,  # only for LAP!
+            gain_factor=3,  # only for LAP!
+            cropping=0,  # num pixel 
+            mask=None,
+            resize_mode='F'):
+
+        res_image_stack = optic.apply_stack(image_stack, self._light_intensity,
+                                            self._pixel_size, res_pixel_size,
+                                            delta_sigma, gain_factor, cropping,
+                                            mask, resize_mode)
+
+        return res_image_stack
+
+    def apply_rofl(
+            self,
+            image_stack,
+            tilt_angle=5.5,  # only LAP!
+            gain_value=3  # only LAP!
+    ):
+
+        rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = rofl.rofl_map(
+            image_stack, tilt_angle, gain_value)
+
+        return rofl_direction, rofl_incl, rofl_t_rel
