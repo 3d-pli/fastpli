@@ -153,9 +153,12 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    bool flag_all_no_com = false;
    while (!flag_all_no_com) {
-      while (!scan_grid.empty()) {
 
-         auto grid_elm = scan_grid.back();
+// TODO: profiling, mpi check
+#pragma omp parallel for
+      for (size_t s = 0; s < scan_grid.size(); s++) {
+
+         auto grid_elm = scan_grid[s];
          bool flag_sending = false;
 
          auto local_pos = grid_elm.tissue - vm::cast<double>(dim_.offset);
@@ -248,8 +251,6 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                }
             }
          }
-
-         scan_grid.pop_back();
       }
 
       assert(signal_buffer_.empty());

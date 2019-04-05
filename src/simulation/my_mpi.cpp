@@ -259,7 +259,7 @@ int MyMPI::Allreduce(int value) {
 
 void MyMPI::BufferToVariable(std::vector<Coordinates> &scan_grid,
                              std::vector<vm::Vec4<double>> &intensity_buffer) {
-   // scan_grid.clear();
+   scan_grid.clear();
    intensity_buffer.clear();
 
    assert(num_rho_ > 0);

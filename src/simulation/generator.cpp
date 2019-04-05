@@ -122,6 +122,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       if (!aabb::Overlap(volume_bb, fb.voi()))
          continue;
 
+      // TODO: #pragma omp parallel for
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
          const auto &fiber = fb.fibers()[f_idx];
 
@@ -133,6 +134,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          if (!aabb::Overlap(volume_bb, fiber.voi()))
             continue;
 
+#pragma omp parallel for
          for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
             // TODO: figure out how to incapsulate idx into fiber to only
             // parse fiber segment
@@ -271,6 +273,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                 (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
             assert(ind < label_field.size());
 
+#pragma omp critical
             if (array_distance[ind] >= dist_squ) {
                // find corresponding layer
                auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
