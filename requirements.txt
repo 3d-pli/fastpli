@@ -1,3 +1,5 @@
 numpy
 mpi4py
+scipy
+pillow
 # h5py # mpi version !, see makefile
