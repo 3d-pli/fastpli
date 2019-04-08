@@ -48,5 +48,3 @@ def save(file_name, fiber_bundles):
 
     else:
         raise TypeError(ext + ' is not implemented yet')
-
-    return fiber_bundles
