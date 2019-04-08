@@ -1,13 +1,13 @@
 
 back to [readme](README.md)
 # TODOs:
-- [ ] MPI.COMM_WORLD as an argument to generation & simulation
 - [ ] git submodule to cmake
+- [ ] 'make build' output to fastpli
 
 ## main structure:
-- [ ] analysis
-  - [ ] epa
-  - [ ] rofl
+- [x] analysis
+  - [x] epa
+  - [x] rofl
 - [ ] model
   - [ ] generator (FAconstructor)
   - [x] solver
@@ -24,10 +24,15 @@ back to [readme](README.md)
   - [x] generator
   - [x] simulator
   - [x] *.txt output for label_field
-  - [ ] apply_optic
+  - [x] apply_optic
 - [ ] tools
   - [ ] h5io
   - [x] rotation
+
+## examples:
+- [ ] model
+- [ ] simpli
+- [ ] pipeline (generation, simulation, analysis)
   
 ## comparison to older programs:
 - [ ] simulation <-> simPLI
@@ -35,7 +40,7 @@ back to [readme](README.md)
 
 ## HPC:
 - [ ] JURON
-- [ ] JURECA
+- [x] JURECA
 
 ## Tests
 - [x] CI
