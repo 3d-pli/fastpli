@@ -7,6 +7,7 @@ import os
 from fastpli.simulation import Simpli
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+FILE_NAME = os.path.splitext(os.path.basename(your_path))
 
 # Read fiber data and prepair for PliGenerator
 # TODO: write json -> parameter function
@@ -31,7 +32,7 @@ simpli.RotateVolumeAroundPoint(
     np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
 simpli.TranslateVolume([25, -15, 50])
 
-with h5py.File('/tmp/fastpli.example.simpli.h5', 'w') as h5f:
+with h5py.File('/tmp/fastpli.example.' + FILE_NAME + '.h5', 'w') as h5f:
 
     start = time.time()
     # label_field, _, tissue_properties =

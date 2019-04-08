@@ -9,22 +9,10 @@
 
 #include "fiber_class.hpp"
 #include "include/aabb.hpp"
+#include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
-
-#if defined(_OPENMP)
-#include <omp.h>
-#else
-typedef int omp_int_t;
-inline omp_int_t omp_get_thread_num() { return 0; }
-inline omp_int_t omp_get_max_threads() { return 1; }
-inline omp_int_t omp_get_num_procs() { return 1; }
-inline void omp_set_num_threads(int i) {
-   (void)i;
-   return;
-}
-#endif
 
 object::FiberBundles World::get_fibers() const {
    object::FiberBundles fiber_bundles;

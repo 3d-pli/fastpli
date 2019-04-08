@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "helper.hpp"
+#include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
 #include "objects/np_array_container.hpp"
@@ -31,7 +32,8 @@ class PliSimulator {
       // vm::Vec2<int> sensor_dim; // currently same dimension as x-y-volume
    };
 
-   PliSimulator() = default;
+   // PliSimulator() = default;
+   PliSimulator() { set_omp_num_threads(1); }
    ~PliSimulator() = default;
 
    void SetPliSetup(const Setup pli_setup);
@@ -51,6 +53,8 @@ class PliSimulator {
                  const bool do_nn
                  //  , const bool flip_beam
    );
+
+   int set_omp_num_threads(int num);
 
  private:
    // const bool debug_ = false;

@@ -8,12 +8,21 @@
 #include <vector>
 
 #include "helper.hpp"
+#include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
 #include "objects/np_array_container.hpp"
 
-// PliSimulator::PliSimulator() {}
-// PliSimulator::~PliSimulator() {}
+int PliSimulator::set_omp_num_threads(int i) {
+   if (i != 0) {
+      if (i > omp_get_num_procs())
+         omp_set_num_threads(omp_get_num_procs());
+      else
+         omp_set_num_threads(i);
+   }
+
+   return omp_get_max_threads();
+}
 
 void PliSimulator::SetPliSetup(const Setup pli_setup) {
 

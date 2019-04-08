@@ -8,6 +8,7 @@
 // include src libs
 #include "fiber_class.hpp"
 #include "include/aabb.hpp"
+#include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"

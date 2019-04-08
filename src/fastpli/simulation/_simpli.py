@@ -419,6 +419,19 @@ class Simpli:
                                          theta, phi, do_untilt)
         return image
 
+    def omp_threads(self, num_threads=2):
+        ''' num_threads = 2 seems to be optimal
+        '''
+        if not isinstance(num_threads, int):
+            raise TypeError("num_threads has to be a positiv integer")
+
+        num_threads_gen = self._gen.set_omp_num_threads(num_threads)
+        num_threads_sim = self._sim.set_omp_num_threads(num_threads)
+
+        if num_threads_gen != num_threads_sim:
+            raise ValueError("num_threads_gen != num_threads_sim")
+        return num_threads_gen
+
     def MemoryUseage(self, item='all', unit='MB'):
         if not isinstance(item, str):
             raise TypeError('item has to be str')

@@ -9,6 +9,7 @@
 #include "fiber_bundle.hpp"
 #include "helper.hpp"
 #include "include/aabb.hpp"
+#include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
 #include "simulator.hpp"
@@ -16,7 +17,8 @@
 class PliGenerator {
 
  public:
-   PliGenerator() = default;
+   // PliGenerator() = default;
+   PliGenerator() { set_omp_num_threads(1); }
    ~PliGenerator() = default;
 
    // setter
@@ -31,6 +33,7 @@ class PliGenerator {
               std::vector<PliSimulator::PhyProp>>
    RunTissueGeneration(const bool only_label = false,
                        const bool progress_bar = false);
+   int set_omp_num_threads(int num);
 
    // getter
    std::vector<unsigned short>

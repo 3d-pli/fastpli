@@ -9,8 +9,20 @@
 #include "fiber_bundle.hpp"
 #include "helper.hpp"
 #include "include/aabb.hpp"
+#include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "simulator.hpp"
+
+int PliGenerator::set_omp_num_threads(int i) {
+   if (i != 0) {
+      if (i > omp_get_num_procs())
+         omp_set_num_threads(omp_get_num_procs());
+      else
+         omp_set_num_threads(i);
+   }
+
+   return omp_get_max_threads();
+}
 
 void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                              const vm::Vec3<float> origin,
@@ -122,7 +134,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       if (!aabb::Overlap(volume_bb, fb.voi()))
          continue;
 
-      // TODO: #pragma omp parallel for
+// TODO: #pragma omp parallel for
+#pragma omp parallel for
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
          const auto &fiber = fb.fibers()[f_idx];
 
@@ -134,7 +147,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          if (!aabb::Overlap(volume_bb, fiber.voi()))
             continue;
 
-#pragma omp parallel for
+         // #pragma omp parallel for
+         // TODO: sequence order of fiber and fiber segment matters!
          for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
             // TODO: figure out how to incapsulate idx into fiber to only
             // parse fiber segment
@@ -274,39 +288,41 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
             assert(ind < label_field.size());
 
 #pragma omp critical
-            if (array_distance[ind] >= dist_squ) {
-               // find corresponding layer
-               auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
-                                              layers_scale_sqr.end(),
-                                              dist_squ / (ly_r * ly_r));
-               int ly_idx = std::distance(layers_scale_sqr.begin(), ly_itr);
+            {
+               if (array_distance[ind] >= dist_squ) {
+                  // find corresponding layer
+                  auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
+                                                 layers_scale_sqr.end(),
+                                                 dist_squ / (ly_r * ly_r));
+                  int ly_idx = std::distance(layers_scale_sqr.begin(), ly_itr);
 
-               array_distance[ind] = dist_squ;
-               label_field[ind] = ly_idx + 1 + fb_idx * max_layer_;
+                  array_distance[ind] = dist_squ;
+                  label_field[ind] = ly_idx + 1 + fb_idx * max_layer_;
 
-               if (!only_label) {
-                  auto ly = fiber_bundles_[fb_idx].layer_orientation(ly_idx);
-                  vm::Vec3<float> tmpVec(0);
+                  if (!only_label) {
+                     auto ly = fiber_bundles_[fb_idx].layer_orientation(ly_idx);
+                     vm::Vec3<float> tmpVec(0);
 
-                  if (ly != fiber::layer::Orientation::background) {
-                     if (ly == fiber::layer::Orientation::radial)
-                        tmpVec = vm::unit(point - min_point);
-                     else if (ly == fiber::layer::Orientation::parallel)
-                        tmpVec = vm::unit(q - p);
+                     if (ly != fiber::layer::Orientation::background) {
+                        if (ly == fiber::layer::Orientation::radial)
+                           tmpVec = vm::unit(point - min_point);
+                        else if (ly == fiber::layer::Orientation::parallel)
+                           tmpVec = vm::unit(q - p);
+                     }
+
+                     // TODO: flip_direction for PM
+                     // if (flip_direction_.x())
+                     //    tmpVec.x() *= -1;
+
+                     // if (flip_direction_.y())
+                     //    tmpVec.y() *= -1;
+
+                     // if (flip_direction_.z())
+                     //    tmpVec.z() *= -1;
+
+                     std::copy(tmpVec.begin(), tmpVec.end(),
+                               &vector_field[ind * 3]);
                   }
-
-                  // TODO: flip_direction for PM
-                  // if (flip_direction_.x())
-                  //    tmpVec.x() *= -1;
-
-                  // if (flip_direction_.y())
-                  //    tmpVec.y() *= -1;
-
-                  // if (flip_direction_.z())
-                  //    tmpVec.z() *= -1;
-
-                  std::copy(tmpVec.begin(), tmpVec.end(),
-                            &vector_field[ind * 3]);
                }
             }
          }

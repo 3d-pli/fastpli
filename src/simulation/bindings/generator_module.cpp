@@ -81,7 +81,8 @@ PYBIND11_MODULE(__generation, m) {
        .def("dim_local",
             [](PliGenerator &self) { return self.dim_local().data_; })
        .def("dim_offset",
-            [](PliGenerator &self) { return self.dim_offset().data_; });
+            [](PliGenerator &self) { return self.dim_offset().data_; })
+       .def("set_omp_num_threads", &PliGenerator::set_omp_num_threads);
 
    // TODO: to objects?
    py::enum_<fiber::layer::Orientation>(m, "_Orientation")

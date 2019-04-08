@@ -36,7 +36,8 @@ PYBIND11_MODULE(__simulation, m) {
             },
             py::arg("dim"), py::arg("label_field"), py::arg("vector_field"),
             py::arg("theta") = 0, py::arg("phi") = 0, py::arg("step_size") = 1,
-            py::arg("do_nn_intp") = true);
+            py::arg("do_nn_intp") = true)
+       .def("set_omp_num_threads", &PliSimulator::set_omp_num_threads);
 
    py::class_<PliSimulator::PhyProp>(m, "_PhyProp")
        .def(py::init<double, double>())
