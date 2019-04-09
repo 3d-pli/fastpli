@@ -20,9 +20,20 @@ FILE_OUTPUT = '/tmp/'
 
 simpli = Simpli()
 # PliGeneration ###
-simpli.pixel_size = 4
-simpli.dim = [160, 160, 15]
-simpli.fiber_bundles = [[np.array([[0, 0, 30, 120], [1000, 1000, 30, 120]])]]
+simpli.pixel_size = 64
+simpli.dim = [50, 50, 1]
+simpli.fiber_bundles = [[
+    np.array([[0, 0, 30, 128],
+              [
+                  simpli.dim[0] * simpli.pixel_size,
+                  simpli.dim[1] * simpli.pixel_size, 30, 128
+              ]]),
+    np.array([[0, simpli.dim[1] * simpli.pixel_size * 0.5, 30, 128],
+              [
+                  simpli.dim[0] * simpli.pixel_size,
+                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, 128
+              ], [simpli.dim[0] * simpli.pixel_size, 0, 30, 128]])
+]]
 simpli.fiber_bundles_properties = [[(1.0, 0.004, 1, 'p')]]
 
 print("MemoryUseage:", '~' + str(int(simpli.MemoryUseage())) + ' MB')
@@ -45,7 +56,6 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.h5'),
     # PliSimulation ###
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000
-    simpli.pixel_size = 1
     simpli.untilt_sensor = True
     simpli.wavelength = 525
 
@@ -105,9 +115,6 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.h5'),
         np.swapaxes(img, 0, 1))
 
     img = images.hsvblack_sphere()
-    print(img.shape)
-    print(type(img))
-    print(type(img.flatten()[0]))
     scipy.misc.imsave(
         os.path.join(FILE_OUTPUT,
                      'example.' + FILE_NAME + '.hsv_black_sphere.png'),
