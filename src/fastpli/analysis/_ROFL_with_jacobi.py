@@ -5,6 +5,7 @@ from scipy import optimize
 from numba import njit
 
 
+@njit(cache=True)
 def _invertmatrix(m):
     '''Calculates the inverse of a 3x3 matrix analytically'''
 
@@ -179,6 +180,7 @@ def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations):
     return I.flatten()
 
 
+@njit(cache=True)
 def _calc_Jacobi(phi, alpha, t_rel, num_rotations):
     '''
     Calculates Jacobi matrix of the intensity function in all tilting directions
@@ -192,18 +194,19 @@ def _calc_Jacobi(phi, alpha, t_rel, num_rotations):
     '''
     number_tilts = len(phi)
     rotation_angles = np.linspace(0, np.pi, num_rotations + 1)[:-1]
-    rotation_angles_array = np.tile(rotation_angles, (number_tilts, 1))
-    phi_array = np.tile(phi, (num_rotations, 1)).T
-    alpha_array = np.tile(alpha, (num_rotations, 1)).T
-    t_rel_array = np.tile(t_rel, (num_rotations, 1)).T
+
+    Dphi = np.empty((number_tilts, num_rotations))
+    Dalpha = np.empty((number_tilts, num_rotations))
+    Dtrel = np.empty((number_tilts, num_rotations))
 
     ###calculate derivatives
-    Dphi = -2 * np.cos(2 * (rotation_angles_array - phi_array)) * np.sin(
-        np.pi / 2 * t_rel_array * np.cos(alpha_array)**2)
-    Dalpha = -np.pi * t_rel_array * np.cos(alpha_array) * np.sin(alpha_array) * np.cos(np.pi/2 * t_rel_array * np.cos(alpha_array)**2)\
-        *np.sin(2*(rotation_angles_array - phi_array))
-    Dtrel = np.pi/2 * np.cos(alpha_array)**2*np.sin(2*(rotation_angles_array - phi_array))\
-        *np.cos(np.pi/2 * t_rel_array*np.cos(alpha_array)**2)
+    for j in range(0, number_tilts):
+        Dphi[j, :] = -2 * np.cos(2 * (rotation_angles - phi[j])) * np.sin(
+            np.pi / 2 * t_rel[j] * np.cos(alpha[j])**2)
+        Dalpha[j,:] = -np.pi * t_rel[j] * np.cos(alpha[j]) * np.sin(alpha[j]) * np.cos(np.pi/2 * t_rel[j] * np.cos(alpha[j])**2)\
+            *np.sin(2*(rotation_angles - phi[j]))
+        Dtrel[j,:] = np.pi/2 * np.cos(alpha[j])**2*np.sin(2*(rotation_angles - phi[j]))\
+            *np.cos(np.pi/2 * t_rel[j]*np.cos(alpha[j])**2)
 
     ####put Jacobian together
 

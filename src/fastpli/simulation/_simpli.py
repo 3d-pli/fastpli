@@ -580,4 +580,4 @@ class Simpli:
         rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = rofl.map(
             image_stack, tilt_angle, gain_value, mask)
 
-        return rofl_direction, rofl_incl, rofl_t_rel
+        return rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap

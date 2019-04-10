@@ -2,7 +2,6 @@ import h5py
 import numpy as np
 import sys
 import os
-import time
 
 # save images
 import scipy.misc
@@ -22,7 +21,7 @@ FILE_OUTPUT = '/tmp/'
 simpli = Simpli()
 simpli.pixel_size = 64
 simpli.resolution = 64
-simpli.set_voi([0, 1600, 0, 1600, 0, 64])
+simpli.set_voi([0, 3200, 0, 3200, 0, 64])
 fiber_bundles = [[]]
 
 # corner
@@ -30,16 +29,16 @@ fiber_bundles[-1].append(
     np.array([[0, 0, 30, 128],
               [
                   simpli.dim[0] * simpli.pixel_size,
-                  simpli.dim[1] * simpli.pixel_size, 30, 64
+                  simpli.dim[1] * simpli.pixel_size, 30, 128
               ]]))
 
 # left right up
 fiber_bundles[-1].append(
-    np.array([[0, simpli.dim[1] * simpli.pixel_size * 0.5, 30, 64],
+    np.array([[0, simpli.dim[1] * simpli.pixel_size * 0.5, 30, 128],
               [
                   simpli.dim[0] * simpli.pixel_size,
-                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, 64
-              ], [simpli.dim[0] * simpli.pixel_size, 0, 30, 64]]))
+                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, 128
+              ], [simpli.dim[0] * simpli.pixel_size, 0, 30, 128]]))
 
 # circle
 t = np.linspace(0, 2 * np.pi, 50)
@@ -105,14 +104,17 @@ with h5py.File(
     # mask = None
 
     print("Run ROFL:")
-    t0 = time.time()
-    rofl_direction, rofl_incl, rofl_t_rel = simpli.apply_rofl(
+    rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = simpli.apply_rofl(
         image_stack, mask=mask)
-
-    print("ROFL time:", time.time() - t0)
 
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
+    h5f['rofl/trel'] = np.rad2deg(rofl_t_rel)
+    h5f['rofl/dirdevmap'] = dirdevmap
+    h5f['rofl/incldevmap'] = incldevmap
+    h5f['rofl/treldevmap'] = treldevmap
+    h5f['rofl/funcmap'] = funcmap
+    h5f['rofl/itermap'] = itermap
 
     print("Unit Vectors")
     unit_x, unit_y, unit_z = images.unit_vectors(rofl_direction, rofl_incl,
