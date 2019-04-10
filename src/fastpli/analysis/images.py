@@ -55,10 +55,10 @@ def _hsvblack_from_vec(directionValue, inclinationValue):
 def hsvblack_sphere(n=128):
     sphere = np.zeros((n, n, 3), dtype=np.uint8)
 
-    for y in range(n):
-        yy = (n // 2 - y) / (n // 2)
-        for x in range(n):
-            xx = (n // 2 - x) / (n // 2)
+    for x in range(n):
+        xx = (-n // 2 + x) / (n // 2)
+        for y in range(n):
+            yy = (-n // 2 + y) / (n // 2)
             if xx**2 + yy**2 > 1:
                 continue
             zz = np.sqrt(1 - xx**2 - yy**2)
@@ -77,10 +77,10 @@ def hsvblack_sphere(n=128):
 def rgb_sphere(n=128):
     sphere = np.zeros((n, n, 3), dtype=np.uint8)
 
-    for y in range(n):
-        yy = (n // 2 - y) / (n // 2)
-        for x in range(n):
-            xx = (n // 2 - x) / (n // 2)
+    for x in range(n):
+        xx = (n // 2 - x) / (n // 2)
+        for y in range(n):
+            yy = (n // 2 - y) / (n // 2)
             if xx**2 + yy**2 > 1:
                 continue
             zz = np.sqrt(1 - xx**2 - yy**2)
@@ -90,19 +90,24 @@ def rgb_sphere(n=128):
     return sphere
 
 
-def unit_vectors(direction, inclination):
+def unit_vectors(direction, inclination, mask=None):
     UnitX = np.sin(0.5 * np.pi - inclination) * np.cos(direction)
     UnitY = np.sin(0.5 * np.pi - inclination) * np.sin(direction)
     UnitZ = np.cos(0.5 * np.pi - inclination)
+
+    if mask is not None:
+        UnitX[~mask] = 0
+        UnitY[~mask] = 0
+        UnitZ[~mask] = 0
 
     return UnitX, UnitY, UnitZ
 
 
 def fom_hsv_black(direction, inclination, mask=None):
-    if not mask:
+    if mask is None:
         mask = np.ones_like(direction, dtype=bool)
 
-    hsv = np.zeros((mask.shape[0], mask.shape[1], 3), float)
+    hsv = np.zeros((mask.shape[0], mask.shape[1], 3), np.uint8)
     for x in range(mask.shape[0]):
         for y in range(mask.shape[1]):
             if not mask[x, y]:
@@ -114,10 +119,10 @@ def fom_hsv_black(direction, inclination, mask=None):
 
 
 def fom_rgb(direction, inclination, mask=None):
-    if not mask:
+    if mask is None:
         mask = np.ones_like(direction, dtype=bool)
 
-    rgb = np.zeros((mask.shape[0], mask.shape[1], 3), float)
+    rgb = np.zeros((mask.shape[0], mask.shape[1], 3), np.uint8)
     for x in range(mask.shape[0]):
         for y in range(mask.shape[1]):
             if not mask[x, y]:

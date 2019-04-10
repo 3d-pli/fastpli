@@ -2,7 +2,7 @@
 from .__generation import _Generator, _LayerProperty
 from .__simulation import _Simulator, _Setup, _PhyProp
 
-from fastpli.analysis import rofl
+from fastpli.analysis import rofl, epa
 from fastpli.objects import Fiber, Cell
 from fastpli.simulation import optic
 from fastpli.tools import rotation
@@ -27,6 +27,7 @@ class Simpli:
         self._dim = None
         self._dim_origin = np.array([0, 0, 0], dtype=float)
         self._pixel_size = None
+        self._resolution = None
         self._flip_direction = np.array([0, 0, 0], dtype=bool)
 
         self._filter_rotations = None
@@ -77,9 +78,23 @@ class Simpli:
             raise TypeError("pixel_size : (int, float)")
 
         if pixel_size <= 0:
-            raise ValueError("pixel_size !> 0")
+            raise ValueError("pixel_size <= 0")
 
         self._pixel_size = float(pixel_size)
+
+    @property
+    def resolution(self):
+        return (self._resolution)
+
+    @pixel_size.setter
+    def resolution(self, resolution):
+        if not isinstance(resolution, (int, float)):
+            raise TypeError("resolution : (int, float)")
+
+        if resolution <= 0:
+            raise ValueError("resolution <= 0")
+
+        self._resolution = float(resolution)
 
     @property
     def voi(self):
@@ -514,28 +529,55 @@ class Simpli:
     def apply_optic(
             self,
             image_stack,
-            res_pixel_size,  # mu meter
             delta_sigma=0.71,  # only for LAP!
             gain_factor=3,  # only for LAP!
             cropping=0,  # num pixel 
-            mask=None,
             resize_mode='F'):
 
-        res_image_stack = optic.apply_stack(image_stack, self._light_intensity,
-                                            self._pixel_size, res_pixel_size,
-                                            delta_sigma, gain_factor, cropping,
-                                            mask, resize_mode)
+        if self._resolution is None:
+            raise TypeError("resolution is not set")
+
+        res_image_stack = optic.apply_stack(image_stack, self._pixel_size,
+                                            self._resolution, delta_sigma,
+                                            gain_factor, cropping, resize_mode)
 
         return res_image_stack
+
+    def apply_resize_mask(self,
+                          mask,
+                          delta_sigma=0.71,
+                          cropping=0,
+                          resize_mode='F'):
+        ''' return value of mask is float, threshold has to be applyed by user
+        '''
+
+        if self._resolution is None:
+            raise TypeError("resolution is not set")
+
+        res_mask = optic.apply(
+            np.array(mask, float), self._pixel_size, self._resolution,
+            delta_sigma, 0, cropping, resize_mode)
+
+        return res_mask
+
+    def apply_epa(self, image_stack, mask=None):
+
+        transmittance, direction, retardation = epa.map(image_stack)
+        if mask is not None:
+            transmittance[~mask] = 0
+            direction[~mask] = 0
+            retardation[~mask] = 0
+
+        return transmittance, direction, retardation
 
     def apply_rofl(
             self,
             image_stack,
-            tilt_angle=5.5,  # only LAP!
-            gain_value=3  # only LAP!
-    ):
+            tilt_angle=np.rad2deg(5.5),  # only LAP!
+            gain_value=3,  # only LAP!
+            mask=None):
 
-        rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = rofl.rofl_map(
-            image_stack, tilt_angle, gain_value)
+        rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = rofl.map(
+            image_stack, tilt_angle, gain_value, mask)
 
-        return rofl_direction, rofl_incl, rofl_t_rel
+        return rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap

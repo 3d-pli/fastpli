@@ -1,4 +1,6 @@
 numpy
+numba
+pymp-pypi
 mpi4py
 scipy
 pillow

@@ -8,6 +8,7 @@ back to [readme](README.md)
 - [x] analysis
   - [x] epa
   - [x] rofl
+  - [ ] opt_pixel_resolution
 - [ ] model
   - [ ] generator (FAconstructor)
   - [x] solver
@@ -23,10 +24,15 @@ back to [readme](README.md)
 - [ ] simulation
   - [x] generator
   - [x] simulator
+    - [ ] PM light direction 
+    - [ ] rotation angles
+    - [ ] stokes vs jones
+    - [ ] polarisation value px, py
   - [x] *.txt output for label_field
   - [x] apply_optic
 - [ ] tools
   - [ ] h5io
+    - [ ] mpi - 4gb threshold
   - [x] rotation
 
 ## examples:
