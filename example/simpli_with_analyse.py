@@ -101,20 +101,15 @@ with h5py.File(
     mask = np.sum(label_field, 2) > 0
     mask = simpli.apply_resize_mask(mask) > 0.1
     h5f['optic/mask'] = np.uint8(mask)
-    # mask = None
+    mask = None  # analyse all pixels
 
     print("Run ROFL:")
-    rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = simpli.apply_rofl(
+    rofl_direction, rofl_incl, rofl_t_rel = simpli.apply_rofl(
         image_stack, mask=mask)
 
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
     h5f['rofl/trel'] = np.rad2deg(rofl_t_rel)
-    h5f['rofl/dirdevmap'] = dirdevmap
-    h5f['rofl/incldevmap'] = incldevmap
-    h5f['rofl/treldevmap'] = treldevmap
-    h5f['rofl/funcmap'] = funcmap
-    h5f['rofl/itermap'] = itermap
 
     print("Unit Vectors")
     unit_x, unit_y, unit_z = images.unit_vectors(rofl_direction, rofl_incl,
