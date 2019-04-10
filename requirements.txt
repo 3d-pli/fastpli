@@ -4,4 +4,4 @@ pymp-pypi
 mpi4py
 scipy
 pillow
-# h5py # mpi version !, see makefile
+h5py # for mpi version see makefile

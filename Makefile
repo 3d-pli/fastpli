@@ -19,7 +19,7 @@ INSTALL.debug := install -v --global-option build --global-option --debug -e .
 INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
-${VENV}:
+${VENV}: 
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
 	${VENV}/bin/pip3 install -r requirements.txt -q
@@ -32,8 +32,8 @@ git-submodules:
 requirements: 
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
-.PHONY: install requirements
-install: ${VENV} git-submodules h5py-mpi
+.PHONY: install 
+install: ${VENV} git-submodules requirements
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: h5py-serial
