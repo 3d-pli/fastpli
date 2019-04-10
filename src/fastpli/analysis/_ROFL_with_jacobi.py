@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 from scipy import optimize
 
-#from numba import jit
+from numba import njit
 
 
 def _invertmatrix(m):
@@ -57,7 +57,7 @@ def _calc_centered_vals(stack_2d, gain):
     return centered_stack, 1 / sigma_stack
 
 
-#@jit('float64[:,:](float64,float64)')
+@njit(cache=True)
 def _symmetrize_angles(direction, inclination):
     '''
     Warps angles back into PLI coordinate system in case they are out of bonds
@@ -83,7 +83,7 @@ def _create_rotation_matrix(psi_t, tau):
     return R
 
 
-#@jit('float64[:](float64,float64)')
+@njit(cache=True)
 def _create_orientation_vector(phi, alpha):
     '''
     returns orientation vector out of direction angle phi and inclination angle alpha
@@ -98,7 +98,6 @@ def _create_orientation_vector(phi, alpha):
     ])
 
 
-#@jit('double[:,:,:](int8,float64)')#@jit(f8[:,:,](i8,f8))#
 def _list_all_tilt_matrices(number_of_tilts, tau):
     '''
     returns an array of rotation matrices
@@ -116,7 +115,7 @@ def _list_all_tilt_matrices(number_of_tilts, tau):
     return array_of_matrices
 
 
-#@jit('float64(float64[:])','float64(float64[:])')
+@njit(cache=True)
 def _get_direction_inclination(vector):
     '''returns direction nand inclination angle from orientation vector
     Params:
@@ -127,7 +126,7 @@ def _get_direction_inclination(vector):
     return phi, alpha
 
 
-#@jit('float64[:](float64,float64,int8,float64)','float64[:](float64,float64,int8,float64)')
+@njit(cache=True)
 def _calculate_rotated_fiber_params(phi, alpha, t_rel, array_matrices, tau):
     '''
     Params:
@@ -150,18 +149,20 @@ def _calculate_rotated_fiber_params(phi, alpha, t_rel, array_matrices, tau):
         tilted_params[tilt + 1, :] = _get_direction_inclination(
             np.dot(array_matrices[tilt], orientation_vec))
     tilted_params[0, :] = [phi, alpha]
-    t_rel_array = np.full_like(tiltangles, t_rel / np.cos(tau))
-    t_rel_array = np.insert(t_rel_array, 0, t_rel)
+    t_rel_array = np.empty(tiltangles.size + 1)
+    t_rel_array[1:] = np.full_like(tiltangles, t_rel / np.cos(tau))
+    t_rel_array[0] = t_rel
     return tilted_params.T[0, :], tilted_params.T[1, :], t_rel_array
 
 
+@njit(cache=True)
 def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations):
     '''
     Calculates intensity curves in all tilting directions
     @Params:
-    phi - float
-    alpha - float
-    t_rel - float
+    phi - np.array(float)
+    alpha - np.array(float)
+    t_rel - np.array(float)
     num_rotations - int
     =====
     Returns: flattened array of size len(phi)  * num_rotations
@@ -170,12 +171,11 @@ def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations):
     t_rel = np.abs(t_rel)
     number_tilts = len(phi)
     rotation_angles = np.linspace(0, np.pi, num_rotations + 1)[:-1]
-    rotation_angles_array = np.tile(rotation_angles, (number_tilts, 1))
-    phi_array = np.tile(phi, (num_rotations, 1)).T
-    alpha_array = np.tile(alpha, (num_rotations, 1)).T
-    t_rel_array = np.tile(t_rel, (num_rotations, 1)).T
-    I = np.sin(np.pi / 2 * t_rel_array * np.cos(alpha_array)**2) * np.sin(
-        2 * (rotation_angles_array - phi_array))
+
+    I = np.empty((number_tilts, num_rotations))
+    for j in range(0, number_tilts):
+        I[j, :] = np.sin(np.pi / 2 * t_rel[j] * np.cos(alpha[j])**2) * np.sin(
+            2 * (rotation_angles - phi[j]))
     return I.flatten()
 
 
@@ -198,7 +198,6 @@ def _calc_Jacobi(phi, alpha, t_rel, num_rotations):
     t_rel_array = np.tile(t_rel, (num_rotations, 1)).T
 
     ###calculate derivatives
-
     Dphi = -2 * np.cos(2 * (rotation_angles_array - phi_array)) * np.sin(
         np.pi / 2 * t_rel_array * np.cos(alpha_array)**2)
     Dalpha = -np.pi * t_rel_array * np.cos(alpha_array) * np.sin(alpha_array) * np.cos(np.pi/2 * t_rel_array * np.cos(alpha_array)**2)\
@@ -352,6 +351,7 @@ def _brute_force_grid(phi,
     return (phi, gridlist[min_arg][0], gridlist[min_arg][1])
 
 
+@njit(cache=True)
 def _model(p, array_of_matrices, tau, number_rotations):
     dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
         p[0], p[1], p[2], array_of_matrices, tau)
@@ -368,6 +368,7 @@ def _model_jacobi(p, array_of_matrices, tau, number_rotations, weights, data):
     return J
 
 
+@njit(cache=True)
 def _residuum(p, array_of_matrices, tau, number_rotations, measures, weights):
     return weights * (
         _model(p, array_of_matrices, tau, number_rotations) - measures)

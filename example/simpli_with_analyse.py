@@ -2,6 +2,7 @@ import h5py
 import numpy as np
 import sys
 import os
+import time
 
 # save images
 import scipy.misc
@@ -11,15 +12,17 @@ import nibabel as nib
 from fastpli.simulation import Simpli
 from fastpli.analysis import images
 
+np.random.seed(42)
+
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 FILE_NAME = os.path.splitext(os.path.basename(__file__))[0]
 FILE_OUTPUT = '/tmp/'
 
 # PliGeneration ###
 simpli = Simpli()
-simpli.pixel_size = 8
+simpli.pixel_size = 64
 simpli.resolution = 64
-simpli.set_voi([0, 3200, 0, 3200, 0, 64])
+simpli.set_voi([0, 1600, 0, 1600, 0, 64])
 fiber_bundles = [[]]
 
 # corner
@@ -27,16 +30,16 @@ fiber_bundles[-1].append(
     np.array([[0, 0, 30, 128],
               [
                   simpli.dim[0] * simpli.pixel_size,
-                  simpli.dim[1] * simpli.pixel_size, 30, 128
+                  simpli.dim[1] * simpli.pixel_size, 30, 64
               ]]))
 
 # left right up
 fiber_bundles[-1].append(
-    np.array([[0, simpli.dim[1] * simpli.pixel_size * 0.5, 30, 128],
+    np.array([[0, simpli.dim[1] * simpli.pixel_size * 0.5, 30, 64],
               [
                   simpli.dim[0] * simpli.pixel_size,
-                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, 128
-              ], [simpli.dim[0] * simpli.pixel_size, 0, 30, 128]]))
+                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, 64
+              ], [simpli.dim[0] * simpli.pixel_size, 0, 30, 64]]))
 
 # circle
 t = np.linspace(0, 2 * np.pi, 50)
@@ -51,8 +54,9 @@ simpli.fiber_bundles_properties = [[(1.0, 0.004, 1, 'p')]]
 
 print("MemoryUseage:", '~' + str(int(simpli.MemoryUseage())) + ' MB')
 
-with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.h5'),
-               'w') as h5f:
+with h5py.File(
+        os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
+        'w') as h5f:
 
     with open(os.path.abspath(__file__), 'r') as f:
         h5f['script'] = f.read()
@@ -98,14 +102,17 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.h5'),
     mask = np.sum(label_field, 2) > 0
     mask = simpli.apply_resize_mask(mask) > 0.1
     h5f['optic/mask'] = np.uint8(mask)
-    mask = None
+    # mask = None
 
     print("Run ROFL:")
+    t0 = time.time()
     rofl_direction, rofl_incl, rofl_t_rel = simpli.apply_rofl(
         image_stack, mask=mask)
+
+    print("ROFL time:", time.time() - t0)
+
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
-    h5f['rofl/t_rel'] = rofl_t_rel
 
     print("Unit Vectors")
     unit_x, unit_y, unit_z = images.unit_vectors(rofl_direction, rofl_incl,
