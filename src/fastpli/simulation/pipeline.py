@@ -10,7 +10,7 @@ def optic_and_rofl(
         org_pixel_size,  # mu meter
         res_pixel_size,  # mu meter
         delta_sigma=0.71,  # only for LAP!
-        gain_factor=3,  # only for LAP!
+        gain=3,  # only for LAP!
         cropping=0,  # num pixel 
         mask=None,
         resize_mode='F',
@@ -19,11 +19,11 @@ def optic_and_rofl(
 
     res_image_stack = optic.apply_stack(
         image_stack, org_intensity, org_pixel_size, res_pixel_size, delta_sigma,
-        gain_factor, cropping, mask, resize_mode)
+        gain, cropping, mask, resize_mode)
 
     direction_map = calc_direction_map(res_image_stack)
 
     rofl_direction, rofl_incl, rofl_t_rel, _, _, _, _, _ = rofl_map(
-        res_image_stack, direction_map, tilt_angle, gain_value)
+        res_image_stack, direction_map, tilt_angle, gain)
 
     return rofl_direction, rofl_incl, rofl_t_rel, res_image_stack

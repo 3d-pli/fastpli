@@ -530,7 +530,7 @@ class Simpli:
             self,
             image_stack,
             delta_sigma=0.71,  # only for LAP!
-            gain_factor=3,  # only for LAP!
+            gain=3,  # only for LAP!
             cropping=0,  # num pixel 
             resize_mode='F'):
 
@@ -538,8 +538,8 @@ class Simpli:
             raise TypeError("resolution is not set")
 
         res_image_stack = optic.apply_stack(image_stack, self._pixel_size,
-                                            self._resolution, delta_sigma,
-                                            gain_factor, cropping, resize_mode)
+                                            self._resolution, delta_sigma, gain,
+                                            cropping, resize_mode)
 
         return res_image_stack
 
@@ -574,10 +574,10 @@ class Simpli:
             self,
             image_stack,
             tilt_angle=np.rad2deg(5.5),  # only LAP!
-            gain_value=3,  # only LAP!
+            gain=3,  # only LAP!
             mask=None):
 
         rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = rofl.map(
-            image_stack, tilt_angle, gain_value, mask)
+            image_stack, tilt_angle, gain, mask)
 
         return rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap
