@@ -90,4 +90,3 @@ if __name__ == '__main__':
     img = images.fom_rgb(rofl_direction, rofl_incl, mask)
     img = images.hsvblack_sphere(n=64)
     img = images.rgb_sphere(n=64)
-

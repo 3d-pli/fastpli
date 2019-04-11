@@ -3,6 +3,10 @@ back to [readme](README.md)
 # TODOs:
 - [ ] git submodule to cmake
 - [ ] 'make build' output to fastpli
+- [ ] simpli.voxel_size
+- [ ] check filter rotations
+- [ ] check tilt direction
+- [ ] enlarge simulation for tilting <-> crop results
 
 ## main structure:
 - [x] analysis

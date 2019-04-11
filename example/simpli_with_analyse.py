@@ -19,26 +19,38 @@ FILE_OUTPUT = '/tmp/'
 
 # PliGeneration ###
 simpli = Simpli()
-simpli.pixel_size = 64
-simpli.resolution = 64
-simpli.set_voi([0, 3200, 0, 3200, 0, 64])
+simpli.omp_threads(2)
+simpli.pixel_size = 6
+simpli.resolution = 60
+simpli.set_voi([0, 3000, 0, 3000, 0, 60])
 fiber_bundles = [[]]
 
 # corner
 fiber_bundles[-1].append(
-    np.array([[0, 0, 30, 128],
+    np.array([[0, 0, 30, 120],
               [
                   simpli.dim[0] * simpli.pixel_size,
-                  simpli.dim[1] * simpli.pixel_size, 30, 128
+                  simpli.dim[1] * simpli.pixel_size, 30, 120
               ]]))
 
 # left right up
 fiber_bundles[-1].append(
-    np.array([[0, simpli.dim[1] * simpli.pixel_size * 0.5, 30, 128],
+    np.array([[0, simpli.dim[1] * simpli.pixel_size * 0.5, 30, 120],
               [
                   simpli.dim[0] * simpli.pixel_size,
-                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, 128
-              ], [simpli.dim[0] * simpli.pixel_size, 0, 30, 128]]))
+                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, 120
+              ], [simpli.dim[0] * simpli.pixel_size, 0, 30, 120]]))
+
+# inc = 60 degree, phi = 30 degree
+fiber_bundles[-1].append(
+    np.array([[0 + 240, simpli.dim[1] * simpli.pixel_size - 240, 0, 120],
+              [
+                  0 + 240 + (simpli.dim[2] * simpli.pixel_size) / np.tan(
+                      np.deg2rad(60)) * np.cos(np.deg2rad(30)),
+                  simpli.dim[1] * simpli.pixel_size - 240 + (simpli.dim[2] * simpli.pixel_size) / np.tan(
+                      np.deg2rad(60)) * np.sin(np.deg2rad(30)),
+                  simpli.dim[2] * simpli.pixel_size, 120
+              ]]))
 
 # circle
 t = np.linspace(0, 2 * np.pi, 50)
@@ -49,7 +61,7 @@ r = t * 0 + 128
 fiber_bundles[-1].append(np.array([x, y, z, r]).T)
 
 simpli.fiber_bundles = fiber_bundles
-simpli.fiber_bundles_properties = [[(1.0, 0.004, 1, 'p')]]
+simpli.fiber_bundles_properties = [[(1.0, -0.001, 1, 'p')]] # scale, dn, mu, orientation
 
 print("MemoryUseage:", '~' + str(int(simpli.MemoryUseage())) + ' MB')
 
@@ -68,12 +80,13 @@ with h5py.File(
     h5f['vectorfield'] = vec_field
 
     # PliSimulation ###
-    simpli.filter_rotations = np.deg2rad([90, 120, 150, 0, 30, 60])
+    simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000
     simpli.untilt_sensor = True
     simpli.wavelength = 525
 
     tilts = [(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]
+
     image_stack = []
 
     mask = None
@@ -87,7 +100,7 @@ with h5py.File(
                                      np.deg2rad(theta), np.deg2rad(phi))
         h5f['data/' + str(t)] = image
 
-        image = simpli.apply_optic(image)
+        image = simpli.apply_optic(image, gain=3)
         h5f['optic/' + str(t)] = image
 
         epa = simpli.apply_epa(image)
@@ -104,12 +117,12 @@ with h5py.File(
     mask = None  # analyse all pixels
 
     print("Run ROFL:")
-    rofl_direction, rofl_incl, rofl_t_rel = simpli.apply_rofl(
-        image_stack, mask=mask)
+    rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
+        image_stack, tilt_angle = np.deg2rad(5.5), gain=3, mask=mask)
 
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
-    h5f['rofl/trel'] = np.rad2deg(rofl_t_rel)
+    h5f['rofl/trel'] = rofl_t_rel
 
     print("Unit Vectors")
     unit_x, unit_y, unit_z = images.unit_vectors(rofl_direction, rofl_incl,
@@ -145,3 +158,12 @@ with h5py.File(
     scipy.misc.imsave(
         os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.rgb_sphere.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
+
+    test = np.zeros((256, 256, 3), np.uint8)
+    test[0, 0, :] = [0, 0, 255]
+    test[-1, 0, :] = [255, 0, 0]
+    test[0, -1, :] = [0, 255, 0]
+    test[-1, -1, :] = [255, 255, 0]
+    scipy.misc.imsave(
+        os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.test.png'),
+        np.swapaxes(np.flip(test, 1), 0, 1))

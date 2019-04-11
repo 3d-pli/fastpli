@@ -573,11 +573,13 @@ class Simpli:
     def apply_rofl(
             self,
             image_stack,
-            tilt_angle=np.rad2deg(5.5),  # only LAP!
+            tilt_angle=np.deg2rad(5.5),  # only LAP!
             gain=3,  # only LAP!
             mask=None):
 
         rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = rofl.map(
             image_stack, tilt_angle, gain, mask)
 
-        return rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap
+        return rofl_direction, rofl_incl, rofl_t_rel, (dirdevmap, incldevmap,
+                                                       treldevmap, funcmap,
+                                                       itermap)
