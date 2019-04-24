@@ -1,5 +1,6 @@
 import fastpli
 from fastpli.model import bundle_generator
+import fastpli.io
 
 import numpy as np
 import time
@@ -25,6 +26,9 @@ for fb in fiber_bundles:
         fibers = bundle_generator.populate_object(fiber_obj, population, 5)
         for f in fibers:
             filled_fiber_bundles[-1].append(f)
+
+fastpli.io.fiber.save('/tmp/fastpli.example.model_solver.dat', fiber_bundles)
+
 ''' setup solver
 '''
 solver = fastpli.model.Solver()
@@ -34,7 +38,9 @@ solver.obj_min_radius = 0
 solver.obj_mean_length = 15
 solver.omp_num_threads = 8
 
-# solved_fbs = solver.fiber_bundles
+solved_fbs = solver.fiber_bundles
+fastpli.io.fiber.save('/tmp/fastpli.example.model_solver_.dat', solved_fbs)
+
 # with open(os.path.join(FILE_PATH,'test.dat'), 'w') as file:
 #     for fb in solved_fbs:
 #         for f in fb:

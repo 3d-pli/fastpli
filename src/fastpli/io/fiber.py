@@ -1,6 +1,6 @@
 import os
 import numpy as np
-
+import fastpli.objects
 
 def read(file_name):
     _, ext = os.path.splitext(file_name)
@@ -37,7 +37,20 @@ def save(file_name, fiber_bundles):
         with open(file_name, 'w') as file:
             for fb, fiber_bundle in enumerate(fiber_bundles):
                 for fiber in fiber_bundle:
-                    pos, radii = fiber.data
+                    if isinstance(fiber, fastpli.objects.Fiber):
+                        pos, radii = fiber.data
+                    else:
+                        if isinstance(fiber, list):
+                            fiber = np.array(fiber)
+                        if not isinstance(fiber, np.ndarray):
+                            raise TypeError('Wrong input datatype')
+
+                        if fiber.shape[1] != 4 or len(fiber.shape) != 2:
+                            raise TypeError('Wrong shape')
+
+                        pos = fiber[:,0:3]
+                        radii = fiber[:,-1]
+                        
                     for i in range(len(pos)):
                         file.write(
                             str(pos[i, 0]) + " " + str(pos[i, 1]) + " " +
