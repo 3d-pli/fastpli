@@ -1,5 +1,5 @@
-#ifndef VEMATH_HPP_
-#define VEMATH_HPP_
+#ifndef INCLUDE_VEMATH_HPP_
+#define INCLUDE_VEMATH_HPP_
 
 #include <algorithm>
 #include <array>

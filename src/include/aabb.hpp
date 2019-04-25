@@ -1,5 +1,5 @@
-#ifndef AABB_HPP_
-#define AABB_HPP_
+#ifndef INCLUDE_AABB_HPP_
+#define INCLUDE_AABB_HPP_
 
 #include <array>
 #include <limits>

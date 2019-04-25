@@ -9,7 +9,7 @@ help:
 	@echo ""
 	@echo "make build -- for compile checking"
 
-BUILD := debug
+BUILD := release
 
 VENV.debug := .venv
 VENV.release := .env
