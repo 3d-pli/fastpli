@@ -19,10 +19,9 @@ def apply(
 
     resize = res_pixel_size / org_pixel_size
 
-    res_image = imresize(
-        gaussian_filter(image, delta_sigma * resize),
-        1 / resize,
-        mode=resize_mode)
+    res_image = imresize(gaussian_filter(image, delta_sigma * resize),
+                         1 / resize,
+                         mode=resize_mode)
 
     # add noise
     if gain > 0:
@@ -42,8 +41,8 @@ def resize_img(image, org_pixel_size, res_pixel_size, resize_mode='F'):
 
     resize = res_pixel_size / org_pixel_size
 
-    res_image = np.array(
-        imresize(image, 1 / resize, mode=resize_mode), dtype=image.dtype)
+    res_image = np.array(imresize(image, 1 / resize, mode=resize_mode),
+                         dtype=image.dtype)
 
     return res_image
 

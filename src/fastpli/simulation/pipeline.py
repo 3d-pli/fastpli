@@ -17,9 +17,10 @@ def optic_and_rofl(
         tilt_angle=5.5  # in degree
 ):
 
-    res_image_stack = optic.apply_stack(
-        image_stack, org_intensity, org_pixel_size, res_pixel_size, delta_sigma,
-        gain, cropping, mask, resize_mode)
+    res_image_stack = optic.apply_stack(image_stack, org_intensity,
+                                        org_pixel_size, res_pixel_size,
+                                        delta_sigma, gain, cropping, mask,
+                                        resize_mode)
 
     direction_map = calc_direction_map(res_image_stack)
 

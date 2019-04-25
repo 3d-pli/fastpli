@@ -28,8 +28,10 @@ simpli.fiber_bundles_properties = [[(0.6, 0, 0, 'p'), (0.8, 0, 0, 'p'),
                                     (1, 0, 0, 'p')]]
 
 with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
-    dset = h5f.create_dataset(
-        'tissue', simpli.dim, dtype=np.uint16, compression="gzip")
+    dset = h5f.create_dataset('tissue',
+                              simpli.dim,
+                              dtype=np.uint16,
+                              compression="gzip")
 
     # chunking voi in x-direction
     X_STEP = 1

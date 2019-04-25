@@ -554,9 +554,9 @@ class Simpli:
         if self._resolution is None:
             raise TypeError("resolution is not set")
 
-        res_mask = optic.apply(
-            np.array(mask, float), self._pixel_size, self._resolution,
-            delta_sigma, 0, cropping, resize_mode)
+        res_mask = optic.apply(np.array(mask, float), self._pixel_size,
+                               self._resolution, delta_sigma, 0, cropping,
+                               resize_mode)
 
         return res_mask
 

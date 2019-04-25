@@ -23,8 +23,9 @@ def rofl(data, tilt_angle=np.deg2rad(5.5), gain=3):
 
     direction = epa.direction(data)
 
-    params, params_conf, func, n_iter = _execute_fit(
-        direction, 6, 6, tilt_angle, data[:, x, y, :], gain)
+    params, params_conf, func, n_iter = _execute_fit(direction, 6, 6,
+                                                     tilt_angle,
+                                                     data[:, x, y, :], gain)
 
     return params[0], params[1], params[2], params_conf[0], params_conf[
         1], params_conf[2], func, n_iter

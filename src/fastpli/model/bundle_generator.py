@@ -35,8 +35,9 @@ def populate_object(object, population, radius_fibers):
     '''
 
     if population.shape[1] == 2:
-        points = np.append(
-            population, np.zeros((population.shape[0], 1)), axis=1)
+        points = np.append(population,
+                           np.zeros((population.shape[0], 1)),
+                           axis=1)
     elif population.shape[1] == 3:
         points = population.copy()
     if population.shape[1] != 3:

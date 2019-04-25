@@ -74,6 +74,8 @@ label_field, _, _ = simpli.GenerateTissue(only_label=True)
 
 if OUTPUT_FILE_TISSUE:
     with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
-        dset = h5f.create_dataset(
-            'tissue', simpli.dim, dtype=np.uint16, compression="gzip")
+        dset = h5f.create_dataset('tissue',
+                                  simpli.dim,
+                                  dtype=np.uint16,
+                                  compression="gzip")
         dset[:] = label_field

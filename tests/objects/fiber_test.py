@@ -20,8 +20,8 @@ class MainTest(unittest.TestCase):
                 np.array(self.points, dtype=np.float32).reshape(-1, 3),
                 self.fiber.points))
         self.assertTrue(
-            np.array_equal(
-                np.array(self.radii, dtype=np.float32), self.fiber.radii))
+            np.array_equal(np.array(self.radii, dtype=np.float32),
+                           self.fiber.radii))
 
     # def test_cast_base_class(self):
     #     test = fastpli.objects._fiber_cpp._FiberCPP([],[])

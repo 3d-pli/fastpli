@@ -26,10 +26,11 @@ def label_to_binary(data, file_name, gray_level, replace=[]):
     data = np.array(data, dtype=np.int8)
     print("writing binary header")
     with open(file_name + '.header.txt', 'w') as file:
-        file.write(
-            '{:12d}'.format(data.shape[0]) + '{:12d}'.format(data.shape[1]) +
-            '{:12d}'.format(data.shape[2]) + '{:12d}'.format(gray_level) +
-            ", ImageLx,ImageLy,ImageLz,ImageGray\n")
+        file.write('{:12d}'.format(data.shape[0]) +
+                   '{:12d}'.format(data.shape[1]) +
+                   '{:12d}'.format(data.shape[2]) +
+                   '{:12d}'.format(gray_level) +
+                   ", ImageLx,ImageLy,ImageLz,ImageGray\n")
         file.write(file_name + ".binary , name of file in binary format\n")
 
     print("writing binary")

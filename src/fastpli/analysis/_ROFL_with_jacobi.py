@@ -63,8 +63,9 @@ def _symmetrize_angles(direction, inclination):
     '''
     Warps angles back into PLI coordinate system in case they are out of bonds
     '''
-    inclination = (((inclination + np.pi / 2.) % np.pi) - np.pi / 2.
-                  ) * np.sign(-(np.floor(direction / np.pi) % 2) + 0.5)
+    inclination = (
+        ((inclination + np.pi / 2.) % np.pi) -
+        np.pi / 2.) * np.sign(-(np.floor(direction / np.pi) % 2) + 0.5)
     direction = direction % np.pi
     return direction, inclination
 
@@ -266,8 +267,8 @@ def _brute_force_grid(phi,
 
         number_gridpoints = number_inclination_steps**2 * number_t_rel_steps
 
-        grid_intensities_output = np.empty((number_gridpoints,
-                                            number_measurements))
+        grid_intensities_output = np.empty(
+            (number_gridpoints, number_measurements))
 
         j = 0
 
@@ -310,8 +311,8 @@ def _brute_force_grid(phi,
 
         number_gridpoints = number_inclination_steps * number_t_rel_steps
 
-        grid_intensities_output = np.empty((number_gridpoints,
-                                            number_measurements))
+        grid_intensities_output = np.empty(
+            (number_gridpoints, number_measurements))
 
         j = 0
 
@@ -342,8 +343,8 @@ def _brute_force_grid(phi,
 
         #calculate squared deviation
 
-        square_diff = np.square(
-            weights * (grid_intensities_output - measures_repeat))
+        square_diff = np.square(weights *
+                                (grid_intensities_output - measures_repeat))
 
         ##find index of minimal value
 
@@ -373,8 +374,8 @@ def _model_jacobi(p, array_of_matrices, tau, number_rotations, weights, data):
 
 @njit(cache=True)
 def _residuum(p, array_of_matrices, tau, number_rotations, measures, weights):
-    return weights * (
-        _model(p, array_of_matrices, tau, number_rotations) - measures)
+    return weights * (_model(p, array_of_matrices, tau, number_rotations) -
+                      measures)
 
 
 def _execute_fit(phi_start,

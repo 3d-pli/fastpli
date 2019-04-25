@@ -45,11 +45,11 @@ fiber_bundles[-1].append(
 fiber_bundles[-1].append(
     np.array([[0 + 240, simpli.dim[1] * simpli.pixel_size - 240, 0, 120],
               [
-                  0 + 240 + (simpli.dim[2] * simpli.pixel_size) / np.tan(
-                      np.deg2rad(60)) * np.cos(np.deg2rad(30)),
-                  simpli.dim[1] * simpli.pixel_size - 240 + (simpli.dim[2] * simpli.pixel_size) / np.tan(
-                      np.deg2rad(60)) * np.sin(np.deg2rad(30)),
-                  simpli.dim[2] * simpli.pixel_size, 120
+                  0 + 240 + (simpli.dim[2] * simpli.pixel_size) /
+                  np.tan(np.deg2rad(60)) * np.cos(np.deg2rad(30)),
+                  simpli.dim[1] * simpli.pixel_size - 240 +
+                  (simpli.dim[2] * simpli.pixel_size) / np.tan(np.deg2rad(60)) *
+                  np.sin(np.deg2rad(30)), simpli.dim[2] * simpli.pixel_size, 120
               ]]))
 
 # circle
@@ -61,13 +61,13 @@ r = t * 0 + 128
 fiber_bundles[-1].append(np.array([x, y, z, r]).T)
 
 simpli.fiber_bundles = fiber_bundles
-simpli.fiber_bundles_properties = [[(1.0, -0.001, 1, 'p')]] # scale, dn, mu, orientation
+simpli.fiber_bundles_properties = [[(1.0, -0.001, 1, 'p')]
+                                  ]  # scale, dn, mu, orientation
 
 print("MemoryUseage:", '~' + str(int(simpli.MemoryUseage())) + ' MB')
 
-with h5py.File(
-        os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
-        'w') as h5f:
+with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
+               'w') as h5f:
 
     with open(os.path.abspath(__file__), 'r') as f:
         h5f['script'] = f.read()
@@ -118,7 +118,7 @@ with h5py.File(
 
     print("Run ROFL:")
     rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
-        image_stack, tilt_angle = np.deg2rad(5.5), gain=3, mask=mask)
+        image_stack, tilt_angle=np.deg2rad(5.5), gain=3, mask=mask)
 
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)

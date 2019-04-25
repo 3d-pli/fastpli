@@ -21,15 +21,15 @@ simpli.dim = [100, 100, 100]
 simpli.ReadFiberFile('example/cube.h5')
 # simpli.fiber_bundles = [[[[0,0,30,100],[640,640,30,100]]]]
 simpli.fiber_bundles_properties = [[(0.333, 0.004, 10, 'p'),
-                                    (0.666, -0.004, 5, 'b'), (1.0, 0.004, 1,
-                                                              'r')]]
+                                    (0.666, -0.004, 5, 'b'),
+                                    (1.0, 0.004, 1, 'r')]]
 
 print(simpli.get_voi())
 print(simpli.MemoryUseage())
 
 # manipulation of fibers
-simpli.RotateVolumeAroundPoint(
-    np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
+simpli.RotateVolumeAroundPoint(np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5),
+                               [10, -5, 7.5])
 simpli.TranslateVolume([25, -15, 50])
 
 with h5py.File('/tmp/fastpli.example.' + FILE_NAME + '.h5', 'w') as h5f:

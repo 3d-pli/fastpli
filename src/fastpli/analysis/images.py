@@ -129,8 +129,9 @@ def fom_rgb(direction, inclination, mask=None):
                 continue
 
             rgb[x, y, :] = _color_rgb(
-                np.sin(0.5 * np.pi - inclination[x, y]) * np.cos(
-                    direction[x, y]),
-                np.sin(0.5 * np.pi - inclination[x, y]) * np.sin(
-                    direction[x, y]), np.cos(0.5 * np.pi - inclination[x, y]))
+                np.sin(0.5 * np.pi - inclination[x, y]) *
+                np.cos(direction[x, y]),
+                np.sin(0.5 * np.pi - inclination[x, y]) *
+                np.sin(direction[x, y]),
+                np.cos(0.5 * np.pi - inclination[x, y]))
     return rgb

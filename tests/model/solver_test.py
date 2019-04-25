@@ -17,8 +17,8 @@ class MainTest(unittest.TestCase):
         self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=0)
         self.solver.step()
         fb = self.solver.fiber_bundles
-        self.assertTrue(
-            np.array_equal(self._test_fiber.points, fb[0][0].points))
+        self.assertTrue(np.array_equal(self._test_fiber.points,
+                                       fb[0][0].points))
         self.assertTrue(np.array_equal(self._test_fiber.radii, fb[0][0].radii))
 
     def test_fiber_bundle_property(self):
@@ -30,8 +30,9 @@ class MainTest(unittest.TestCase):
         test = self.solver.fiber_bundles
 
     def test_split(self):
-        self.solver.set_parameters(
-            drag=0, obj_min_radius=0, obj_mean_length=0.5)
+        self.solver.set_parameters(drag=0,
+                                   obj_min_radius=0,
+                                   obj_mean_length=0.5)
         self.solver.step()
         fb = self.solver.fiber_bundles
         self.assertTrue(fb[0][0].radii[1] == 1.5)

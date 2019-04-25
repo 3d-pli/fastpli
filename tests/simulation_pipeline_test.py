@@ -78,8 +78,8 @@ if __name__ == '__main__':
     mask = simpli.apply_resize_mask(mask) > 0.1
 
     # print("Run ROFL:")
-    rofl_direction, rofl_incl, rofl_t_rel = simpli.apply_rofl(
-        image_stack, mask=mask)
+    rofl_direction, rofl_incl, rofl_t_rel = simpli.apply_rofl(image_stack,
+                                                              mask=mask)
 
     # print("Unit Vectors")
     unit_x, unit_y, unit_z = images.unit_vectors(rofl_direction, rofl_incl,
