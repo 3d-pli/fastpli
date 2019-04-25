@@ -28,7 +28,6 @@ for fb in fiber_bundles:
             filled_fiber_bundles[-1].append(f)
 
 fastpli.io.fiber.save('/tmp/fastpli.example.model_solver.dat', fiber_bundles)
-
 ''' setup solver
 '''
 solver = fastpli.model.Solver()
@@ -40,36 +39,17 @@ solver.omp_num_threads = 8
 
 solved_fbs = solver.fiber_bundles
 fastpli.io.fiber.save('/tmp/fastpli.example.model_solver_.dat', solved_fbs)
-
-# with open(os.path.join(FILE_PATH,'test.dat'), 'w') as file:
-#     for fb in solved_fbs:
-#         for f in fb:
-#             p,r = f.data
-#             for i in range(r.size):
-# file.write(str(p[i,0]) + '\t' + str(p[i,1]) + '\t' + str(p[i,2]) + '\t'
-# + str(r[i]) + '\n')
-
-#             file.write('\n')
 ''' run solver
 '''
 for i in range(1000):
-    solver.step()
+
+    solved = solver.step()
 
     if i % 10 == 0:
         print("step:", i, solver.num_obj, solver.num_col_obj)
         solver.draw_scene()
 
-# solver.draw_scene()
-# while(True):
-#     time.sleep(0.1)
-
-# solved_fbs = solver.fiber_bundles
-# with open(os.path.join(FILE_PATH,'test.dat'), 'w') as file:
-#     for fb in solved_fbs:
-#         for f in fb:
-#             p,r = f.data
-#             for i in range(r.size):
-# file.write(str(p[i,0]) + '\t' + str(p[i,1]) + '\t' + str(p[i,2]) + '\t'
-# + str(r[i]) + '\n')
-
-#             file.write('\n')
+    if solved:
+        print("step:", i, solver.num_obj, solver.num_col_obj)
+        solver.draw_scene()
+        break
