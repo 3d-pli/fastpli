@@ -19,9 +19,8 @@ template <typename T> class NpArray {
        : data_{ptr}, size_(n), shape_(shape) {
 
       assert(shape.size() > 0);
-      auto v = std::accumulate(shape.begin(), shape.end(), 1ULL,
-                               std::multiplies<size_t>());
-      assert(v == n);
+      assert(std::accumulate(shape.begin(), shape.end(), 1ULL,
+                               std::multiplies<size_t>()) == n);
    };
 
    NpArray() = default;

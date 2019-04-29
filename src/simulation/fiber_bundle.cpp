@@ -60,7 +60,7 @@ void Properties::reserve(size_t i) {
    dn_.reserve(i);
    mu_.reserve(i);
    orientation_.reserve(i);
-};
+}
 
 void Properties::resize(size_t i) {
    scale_.resize(i);
@@ -68,7 +68,7 @@ void Properties::resize(size_t i) {
    dn_.resize(i);
    mu_.resize(i);
    orientation_.resize(i);
-};
+}
 
 void Properties::push_back(Property p) {
    scale_.push_back(p.scale);
