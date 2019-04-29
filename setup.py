@@ -78,7 +78,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='fastpli',
-    version='0.18.3',
+    version='0.18.4',
     description='Fiber Architecture Simulation Toolbox for PLI',
     long_description='',
     author='Felix Matuschke',
