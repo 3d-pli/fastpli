@@ -14,7 +14,7 @@ OUTPUT_FILE_TISSUE = '/tmp/test.h5'
 
 # read fiber_bundle file
 print('loading files')
-fiber_bundles = fastpli.io.fiber.read(INPUT_FILE)
+fiber_bundles = fastpli.io.fiber.load(INPUT_FILE)
 
 # rnd movement
 for fiber_bundle in fiber_bundles:

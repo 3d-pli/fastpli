@@ -23,7 +23,7 @@ simpli.dim = [200, 200, 200]  # num of voxels
 simpli.dim_origin = [25, 15, 15]  # in mu-meter
 # or: simpli.voi = [25, 30, 15, 20, 15, 20] in mu-meter
 
-simpli.fiber_bundles = fastpli.io.fiber.read(INPUT_FILE_FIBER)
+simpli.fiber_bundles = fastpli.io.fiber.load(INPUT_FILE_FIBER)
 simpli.fiber_bundles_properties = [[(0.6, 0, 0, 'p'), (0.8, 0, 0, 'p'),
                                     (1, 0, 0, 'p')]]
 

@@ -3,7 +3,7 @@ import numpy as np
 from .. import objects
 
 
-def read(file_name):
+def load(file_name):
     _, ext = os.path.splitext(file_name)
 
     fiber_bundles = [[]]
