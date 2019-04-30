@@ -51,7 +51,7 @@ class Solver(_Solver):
                     raise TypeError(
                         "fiber hast to be a objects.Fiber, 4d-list or 4d-array")
 
-            super()._set_fiber_bundles(fbs)
+        super()._set_fiber_bundles(fbs)
 
     @property
     def drag(self):
