@@ -32,6 +32,10 @@ git-submodules:
 requirements: 
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
+.PHONY: example
+example: 
+	${VENV}/bin/pip3 install -r example/requirements.txt -q
+
 .PHONY: install 
 install: ${VENV} git-submodules requirements
 	${VENV}/bin/pip3 ${INSTALL}
