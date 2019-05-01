@@ -112,6 +112,7 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
    std::vector<size_t> ids, all_ids;
    all_ids.resize(cones_.size());
    std::iota(all_ids.begin(), all_ids.end(), 0);
+   max_level_ = 0;
 
    for (auto id : all_ids) {
       // TODO: test impact of aabb::Overlap
@@ -142,6 +143,9 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
    if (ids.size() < max_particle_ ||
        (cube.max.x() - cube.min.x()) < 2 * min_cube_size_) {
       tree_ids.push_back(ids);
+      if (max_level_ < level) {
+         max_level_ = level;
+      }
    } else {
 
       // TODO: if (level < ceil(log(num_threads_) / log(8))) {

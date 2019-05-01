@@ -38,6 +38,7 @@ example:
 
 .PHONY: install 
 install: ${VENV} git-submodules requirements
+	rm -rf build/
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: h5py-serial

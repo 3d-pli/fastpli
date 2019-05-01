@@ -16,6 +16,8 @@ class OctTree {
            const float min_cube_size, const aabb::AABB<float, 3> col_voi);
    std::set<std::array<size_t, 4>> Run();
 
+   int max_level() { return max_level_; };
+
  private:
    std::vector<std::vector<size_t>>
    GenerateLeafs(const std::vector<size_t> &ids,
@@ -24,7 +26,7 @@ class OctTree {
    TestCollision(const std::vector<size_t> &cone_ids);
 
    std::vector<object::Cone> cones_;
-   // TODO: int num_threads_ = 0;
+   int max_level_ = 0;
    float min_cube_size_ = 0;
    aabb::AABB<float, 3> main_cube_;
    static constexpr long long max_particle_ = 10;

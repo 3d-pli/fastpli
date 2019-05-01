@@ -65,12 +65,8 @@ int World::set_omp_num_threads(int i) {
 bool World::BoundryChecking(int max_steps) {
    // check fiber boundry conditions
 
-   std::cout << "boundry conditions\n";
    bool solved = false;
    while (!solved && max_steps != 0) {
-
-      for (auto const &fiber : fibers_)
-         std::cout << fiber.size() << ", ";
 
 #pragma omp parallel for
       for (auto i = 0u; i < fibers_.size(); i++) {
@@ -82,8 +78,6 @@ bool World::BoundryChecking(int max_steps) {
       }
 
       max_steps--;
-
-      std::cout << std::endl;
    }
 
    return solved;
@@ -93,36 +87,25 @@ bool World::Step() {
 
    bool solved = true;
 
-   // calculate voi
-   aabb::AABB<float, 3> voi{};
-   // get first valid voi
-   for (auto const &fiber : fibers_) {
-      if (!fiber.points().empty()) {
-         voi = aabb::AABB<float, 3>(fiber.points()[0]);
-         break;
-      }
-   }
-   // combine all vois
-   num_obj_ = 0;
-   for (auto const &fiber : fibers_) {
-      num_obj_ += fiber.ConeSize();
-      for (size_t i = 0; i < fiber.size(); i++)
-         voi.Unite(aabb::AABB<float, 3>(fiber.points()[i] - fiber.radii()[i],
-                                        fiber.points()[i] + fiber.radii()[i],
-                                        true));
-   }
-
-   // auto smallest_radius = std::numeric_limits<float>::max();
-   // auto max_radius = std::numeric_limits<float>::max();
-   // for (auto const &fiber : fibers_)
-   //    for (auto const &r : fiber.radii)
-   //       if (smallest_radius > r)
-   //          smallest_radius = r;
-
-   // TODO:
-   // if (w_parameter_.obj_mean_length != 0)
-   //    if (w_parameter_.obj_mean_length < 3 / 2 * smallest_radius)
-   //       w_parameter_.obj_mean_length = 3 / 2 * smallest_radius;
+   // // calculate voi
+   // aabb::AABB<float, 3> voi{};
+   // // get first valid voi
+   // for (auto const &fiber : fibers_) {
+   //    if (!fiber.points().empty()) {
+   //       voi = aabb::AABB<float, 3>(fiber.points()[0]);
+   //       break;
+   //    }
+   // }
+   // // combine all vois
+   // num_obj_ = 0;
+   // for (auto const &fiber : fibers_) {
+   //    num_obj_ += fiber.ConeSize();
+   //    for (size_t i = 0; i < fiber.size(); i++)
+   //       voi.Unite(aabb::AABB<float, 3>(fiber.points()[i] - fiber.radii()[i],
+   //                                      fiber.points()[i] + fiber.radii()[i],
+   //                                      true));
+   // }
+   // std::cout << "voi: " << voi << std::endl;
 
    auto max_obj_size = 0;
    for (auto const &fiber : fibers_) {
@@ -141,14 +124,10 @@ bool World::Step() {
 
    // create OctTree and calculate colliding objects in each leaf
    // TODO: num_threads
-   OctTree otree(fibers_, 2 * max_obj_size, col_voi_);
+   OctTree otree(fibers_, 1.5 * max_obj_size, col_voi_);
    auto colliding_list = otree.Run();
+   // std::cout << "otree.max_level(): " << otree.max_level() << std::endl;
    num_col_obj_ = colliding_list.size();
-
-#pragma omp parallel for
-   for (auto i = 0u; i < fibers_.size(); i++) {
-      fibers_[i].Drag(w_parameter_.drag);
-   }
 
    if (!colliding_list.empty()) {
       solved = false;
@@ -157,7 +136,7 @@ bool World::Step() {
       std::vector<std::array<size_t, 4>> colliding_vec(colliding_list.begin(),
                                                        colliding_list.end());
 
-      // set speed of colliding objects
+// set speed of colliding objects
 #pragma omp parallel for
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
@@ -165,6 +144,8 @@ bool World::Step() {
          vm::Vec3<float> f0, f1, f2, f3;
          std::tie(f0, f1, f2, f3) = fibers_[elm[0]].Cone(elm[1]).PushConesApart(
              fibers_[elm[2]].Cone(elm[3]));
+
+         // WARNING: not thread safe
          fibers_[elm[0]].AddSpeed(elm[1], f0);
          fibers_[elm[0]].AddSpeed(elm[1] + 1, f1);
          fibers_[elm[2]].AddSpeed(elm[3], f2);
@@ -187,6 +168,11 @@ bool World::Step() {
       for (auto i = 0u; i < fibers_.size(); i++) {
          fibers_[i].Move();
       }
+   }
+
+#pragma omp parallel for
+   for (auto i = 0u; i < fibers_.size(); i++) {
+      fibers_[i].Drag(w_parameter_.drag);
    }
 
    return solved;
