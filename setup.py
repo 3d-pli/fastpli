@@ -78,12 +78,13 @@ class CMakeBuild(build_ext):
 
 setup(
     name='fastpli',
-    version='0.19',
+    version='0.20',
     description='Fiber Architecture Simulation Toolbox for PLI',
     long_description='',
     author='Felix Matuschke',
     author_email='f.matuschke@fz-juelich.de',
-    url='http://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html',
+    url=
+    'http://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     ext_modules=[CMakeExtension('fastpli/fastpli')],

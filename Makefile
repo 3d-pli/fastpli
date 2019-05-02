@@ -20,10 +20,12 @@ INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
 ${VENV}/bin/pip3: 
+	rm -rf ${VENV}
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
 
-${VENV}/bin/python3: 
+${VENV}/bin/python3:
+	rm -rf ${VENV}
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
 
