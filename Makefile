@@ -19,10 +19,15 @@ INSTALL.debug := install -v --global-option build --global-option --debug -e .
 INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
-${VENV}: 
+${VENV}/bin/pip3: 
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
-	${VENV}/bin/pip3 install -r requirements.txt -q
+
+${VENV}/bin/python3: 
+	python3 -m venv ${VENV}/
+	${VENV}/bin/pip3 install --upgrade pip -q
+
+${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
 
 .PHONY: git-submodules
 git-submodules:
