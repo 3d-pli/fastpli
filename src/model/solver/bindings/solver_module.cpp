@@ -49,5 +49,6 @@ PYBIND11_MODULE(__solver, m) {
        .def_property_readonly("num_obj", &World::NumObj)
        .def_property_readonly("num_col_obj", &World::NumColObj)
        .def("draw_scene", &World::DrawScene, py::arg("rot_x") = 30,
-            py::arg("rot_y") = 30, py::arg("rot_z") = 0);
+            py::arg("rot_y") = 30, py::arg("rot_z") = 0,
+            py::arg("only_col") = false);
 }

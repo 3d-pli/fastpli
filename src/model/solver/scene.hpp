@@ -15,7 +15,8 @@ class Scene {
    ~Scene() = default;
 
    void SetViewAngle(const float x, const float y, const float z);
-   void DrawScene(const std::vector<geometry::Fiber> &fibers);
+   void DrawScene(const std::vector<geometry::Fiber> &fibers,
+                  const bool only_col = false);
    void SavePPM(const char *fname, int start_x = 0, int start_y = 0);
 
  private:
@@ -24,6 +25,7 @@ class Scene {
    void CheckWindowSize();
 
    GLUquadricObj *quadObj_;
+   bool only_col_ = false;
    vm::Vec3<float> rotation_ = 0;
    vm::Vec3<float> center_ = 0;
    vm::Vec3<float> center_new_ = center_;

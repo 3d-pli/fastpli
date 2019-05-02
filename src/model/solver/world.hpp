@@ -48,7 +48,8 @@ class World {
    // world
    bool Step();
    bool BoundryChecking(int max_steps);
-   void DrawScene(float rot_x = 0, float rot_y = 0, float rot_z = 0);
+   void DrawScene(float rot_x = 0, float rot_y = 0, float rot_z = 0,
+                  bool only_col = false);
 
  private:
    std::vector<geometry::Fiber> fibers_;

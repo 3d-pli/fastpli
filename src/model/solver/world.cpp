@@ -107,6 +107,13 @@ bool World::Step() {
    // }
    // std::cout << "voi: " << voi << std::endl;
 
+#pragma omp parallel for
+   // applying drag before so that velocity is an idicator for colored
+   // visualization
+   for (auto i = 0u; i < fibers_.size(); i++) {
+      fibers_[i].Drag(w_parameter_.drag);
+   }
+
    auto max_obj_size = 0;
    for (auto const &fiber : fibers_) {
       if (fiber.size() >= 2) {
@@ -170,17 +177,12 @@ bool World::Step() {
       }
    }
 
-#pragma omp parallel for
-   for (auto i = 0u; i < fibers_.size(); i++) {
-      fibers_[i].Drag(w_parameter_.drag);
-   }
-
    return solved;
 }
 
 #if _VIS_LIBRARIES
 #include "scene.hpp"
-void World::DrawScene(float rot_x, float rot_y, float rot_z) {
+void World::DrawScene(float rot_x, float rot_y, float rot_z, bool only_col) {
    if (scene_ == nullptr) {
       char arg0[] = "model.solver";
       char *argv[] = {arg0, nullptr};
@@ -188,13 +190,14 @@ void World::DrawScene(float rot_x, float rot_y, float rot_z) {
       scene_ = std::make_unique<Scene>(argc, argv);
    }
    scene_->SetViewAngle(rot_x, rot_y, rot_z);
-   scene_->DrawScene(fibers_);
+   scene_->DrawScene(fibers_, only_col);
 }
 #else
-void World::DrawScene(float rot_x, float rot_y, float rot_z) {
+void World::DrawScene(float rot_x, float rot_y, float rot_z, bool only_col) {
    (void)rot_x;
    (void)rot_y;
    (void)rot_z;
+   (void)only_col;
 
    static bool flag = false;
 

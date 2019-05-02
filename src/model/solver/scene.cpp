@@ -39,8 +39,10 @@ Scene::Scene(int argc, char **argv) {
    quadObj_ = gluNewQuadric();
 }
 
-void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers) {
+void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers,
+                      const bool only_col) {
 
+   only_col_ = only_col;
    AutoVolume(fibers);
    CheckWindowSize();
 
@@ -85,6 +87,8 @@ void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
          if (speed[i] != vm::Vec3<float>(0) ||
              speed[i + 1] != vm::Vec3<float>(0))
             glColor3f(0.8f, 0.0f, 0.0f);
+         else if (only_col_)
+            continue;
 
          glPushMatrix();
          glTranslatef(points[i].x(), points[i].y(), points[i].z());
