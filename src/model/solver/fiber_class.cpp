@@ -79,7 +79,7 @@ bool Fiber::CheckRadius(const float obj_min_radius) {
 
       // TODO: min_radius sollte gr;-er sein als gleichseitiges dreieck,
       // R=sqrt(3)/3.0*mean_...
-      // TODO: therefore if angle < 60 dann 'ndern
+      // TODO: therefore if angle < 60
       auto const gamma = std::acos((c * c - a * a - b * b) / (-2.0f * a * b));
 
       if (r < obj_min_radius || gamma < 60.0f / 180.0f * M_PI) {
@@ -94,6 +94,8 @@ bool Fiber::CheckRadius(const float obj_min_radius) {
          vm::normalize(dv);
 
          pos_new[i] = points_[i] + dv * max_speed;
+         pos_new[i - 1] = points_[i - 1] - dv * max_speed * 0.25;
+         pos_new[i + 1] = points_[i + 1] - dv * max_speed * 0.25;
 
          solved = false;
       }
