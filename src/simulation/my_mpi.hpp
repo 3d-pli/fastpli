@@ -11,7 +11,7 @@
 
 class MyMPI {
  public:
-   MyMPI();
+   MyMPI(const MPI_Comm comm);
    ~MyMPI();
 
    // MPI functions
@@ -43,9 +43,9 @@ class MyMPI {
    void PrintDimensions(Dimensions dim);
 
  private:
-   bool ext_mpi_init_ = true;
-   int my_rank_ = -1;
-   int numP_ = 0;
+   MPI_Comm my_comm_;
+   int my_rank_ = 0;
+   int numP_ = 1;
    const bool debug_ = false;
 
    Dimensions dim_vol_{};

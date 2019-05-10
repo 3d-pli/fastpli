@@ -28,6 +28,7 @@ class PliGenerator {
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
    void
    SetCellPopulations(const std::vector<cell::Population> &cell_populations);
+   void SetMPIComm(const MPI_Comm comm);
 
    std::tuple<std::vector<int> *, std::vector<float> *,
               std::vector<PliSimulator::PhyProp>>
@@ -45,11 +46,11 @@ class PliGenerator {
    vm::Vec3<float> dim_origin() { return dim_.origin; };
 
  private:
-   const bool debug_ = false;
+   const bool debug_ = true;
    double pixel_size_{0};
    Dimensions dim_;
 
-   std::unique_ptr<MyMPI> mpi_ = std::make_unique<MyMPI>();
+   std::unique_ptr<MyMPI> mpi_ = nullptr;
 
    vm::Vec3<bool> flip_direction_{false};
 

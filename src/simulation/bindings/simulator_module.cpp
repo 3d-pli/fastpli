@@ -4,6 +4,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <iostream>
+#include <mpi.h>
+
 #include "../simulator.hpp"
 #include "objects/np_array_container.hpp"
 #include "objects/np_array_helper.hpp"
@@ -17,6 +20,10 @@ PYBIND11_MODULE(__simulation, m) {
        .def(py::init())
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue_properties", &PliSimulator::SetTissueProperties)
+       .def("set_mpi_comm",
+            [](PliSimulator &self, int address) {
+               std::cout << address << std::endl;
+            })
        .def("run_simulation",
             [](PliSimulator &self, std::array<long long, 3> dim,
                py::array_t<int, py::array::c_style> label_array,

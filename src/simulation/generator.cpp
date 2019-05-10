@@ -35,9 +35,14 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                                   std::to_string(global_dim.y()) + "," +
                                   std::to_string(global_dim.z()) + "]");
 
-   mpi_->CreateCartGrid(global_dim);
-
-   dim_ = mpi_->dim_vol();
+   if (mpi_) {
+      mpi_->CreateCartGrid(global_dim);
+      dim_ = mpi_->dim_vol();
+   } else {
+      dim_.local = global_dim;
+      dim_.global = global_dim;
+      dim_.offset = vm::Vec3<long long>(0);
+   }
    dim_.origin = origin;
 
    assert(dim_.local.x() >= 0);
@@ -83,6 +88,14 @@ void PliGenerator::SetCellPopulations(
    // num_cells_ = 0;
    num_cells_ = cell_populations.size();
    // for (const auto &cp : cell_populations)
+}
+
+void PliGenerator::SetMPIComm(const MPI_Comm comm) {
+
+   if (comm == MPI_COMM_WORLD)
+      std::cout << "comm == MPI_COMM_WORLD" << std::endl;
+
+   mpi_ = std::make_unique<MyMPI>(comm);
 }
 
 std::tuple<std::vector<int> *, std::vector<float> *,

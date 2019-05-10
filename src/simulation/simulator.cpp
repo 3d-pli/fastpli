@@ -24,6 +24,10 @@ int PliSimulator::set_omp_num_threads(int i) {
    return omp_get_max_threads();
 }
 
+void PliSimulator::SetMPIComm(const MPI_Comm comm) {
+   mpi_ = std::make_unique<MyMPI>(comm);
+}
+
 void PliSimulator::SetPliSetup(const Setup pli_setup) {
 
    if (pli_setup.pixel_size <= 0)
@@ -68,9 +72,15 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                                   std::to_string(global_dim.y()) + "," +
                                   std::to_string(global_dim.z()) + "]");
 
-   mpi_->CreateCartGrid(global_dim);
-   dim_ = mpi_->dim_vol();
-   mpi_->set_num_rho(pli_setup_.filter_rotations.size());
+   if (mpi_) {
+      mpi_->CreateCartGrid(global_dim);
+      dim_ = mpi_->dim_vol();
+      mpi_->set_num_rho(pli_setup_.filter_rotations.size());
+   } else {
+      dim_.local = global_dim;
+      dim_.global = global_dim;
+      dim_.offset = vm::Vec3<long long>(0);
+   }
 
    if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 1ULL !=
        label_field.size())
@@ -262,11 +272,13 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          }
       }
 
-      assert(signal_buffer_.empty());
-      mpi_->CommunicateData(scan_grid, signal_buffer_);
-      flag_all_no_com =
-          (mpi_->Allreduce(scan_grid.size() + signal_buffer_.size()) == 0);
-      assert(signal_buffer_.size() == scan_grid.size() * n_rho);
+      if (mpi_) {
+         assert(signal_buffer_.empty());
+         mpi_->CommunicateData(scan_grid, signal_buffer_);
+         flag_all_no_com =
+             (mpi_->Allreduce(scan_grid.size() + signal_buffer_.size()) == 0);
+         assert(signal_buffer_.size() == scan_grid.size() * n_rho);
+      }
    }
 
    return intensity_signal;
@@ -442,9 +454,13 @@ std::vector<Coordinates> PliSimulator::CalcPixelsUntilt(const double phi,
       }
    }
 
-   if (scan_grid.size() == 0)
-      std::cout << mpi_->my_rank() << ": Warning, scan_grid is empty"
-                << std::endl;
+   if (scan_grid.size() == 0) {
+      if (mpi_)
+         std::cout << mpi_->my_rank() << ": Warning, scan_grid is empty"
+                   << std::endl;
+      else
+         std::cout << 0 << ": Warning, scan_grid is empty" << std::endl;
+   }
 
    return scan_grid;
 }
@@ -464,6 +480,9 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
                                 const vm::Vec3<int> &shift_direct,
                                 const std::vector<vm::Vec4<double>> &s_vec,
                                 const Coordinates &startpos) {
+
+   if (!mpi_)
+      return false;
 
    static auto low = dim_.offset;
    static auto up = dim_.offset + dim_.local;

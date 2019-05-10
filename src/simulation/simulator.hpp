@@ -36,6 +36,7 @@ class PliSimulator {
    PliSimulator() { set_omp_num_threads(1); }
    ~PliSimulator() = default;
 
+   void SetMPIComm(const MPI_Comm comm);
    void SetPliSetup(const Setup pli_setup);
    void SetTissueProperties(const std::vector<PhyProp> &properties);
 
@@ -67,7 +68,7 @@ class PliSimulator {
    std::vector<vm::Vec4<double>> signal_buffer_;
    // vm::Vec3<bool> flip_tissue_{false};
 
-   std::unique_ptr<MyMPI> mpi_ = std::make_unique<MyMPI>();
+   std::unique_ptr<MyMPI> mpi_;
 
    int GetLabel(const long long x, const long long y, const long long z) const;
    int GetLabel(const vm::Vec3<long long> p) const {

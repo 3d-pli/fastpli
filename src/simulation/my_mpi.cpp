@@ -11,37 +11,16 @@
 
 #include "include/vemath.hpp"
 
-MyMPI::MyMPI() {
-   int flag = 0;
-   MPI_Initialized(&flag);
-
-   if (!flag) {
-      ext_mpi_init_ = false;
-      // std::cerr << "WARNING: calling MPI_Init(): " << flag << std::endl;
-      // MPI_Init(NULL, NULL);
-      // std::cerr << "WARNING: called MPI_Init()" << std::endl;
-   }
-
-   if (ext_mpi_init_) {
-      MPI_Comm_rank(MPI_COMM_WORLD, &my_rank_);
-      MPI_Comm_size(MPI_COMM_WORLD, &numP_);
-   } else {
-      my_rank_ = 0;
-      numP_ = 1;
-   }
+MyMPI::MyMPI(const MPI_Comm comm) {
+   my_comm_ = comm;
+   MPI_Comm_rank(my_comm_, &my_rank_);
+   MPI_Comm_size(my_comm_, &numP_);
 
    if (debug_)
       std::cerr << "rank: " << my_rank_ << ", numP: " << numP_ << std::endl;
-
-   // ClearBuffer();
 }
 
-MyMPI::~MyMPI() {
-   // if (!ext_mpi_init_) {
-   //    std::cout << "WARNING: calling MPI_Finalize()" << std::endl;
-   //    MPI_Finalize();
-   // }
-}
+MyMPI::~MyMPI() {}
 
 void MyMPI::CreateCartGrid(const vm::Vec3<long long> global_dim) {
 
@@ -75,19 +54,10 @@ void MyMPI::CreateCartGrid(const vm::Vec3<long long> global_dim) {
       }
    }
 
-   if (ext_mpi_init_) {
-      MPI_Cart_create(MPI_COMM_WORLD, max_dims, global_coords_.data(),
-                      period.data(), reorder, &COMM_CART_);
-      MPI_Comm_rank(MPI_COMM_WORLD, &my_rank_);
-      MPI_Cart_coords(COMM_CART_, my_rank_, 3, my_coords_.data());
-   } else {
-      global_coords_[0] = 1;
-      global_coords_[0] = 1;
-      global_coords_[0] = 1;
-      my_coords_[0] = 0;
-      my_coords_[1] = 0;
-      my_coords_[2] = 0;
-   }
+   MPI_Cart_create(my_comm_, max_dims, global_coords_.data(), period.data(),
+                   reorder, &COMM_CART_);
+   MPI_Comm_rank(my_comm_, &my_rank_);
+   MPI_Cart_coords(COMM_CART_, my_rank_, 3, my_coords_.data());
 
    CalcDimensions(global_dim);
 }

@@ -4,6 +4,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <mpi.h>
+
 #include "../generator.hpp"
 #include "../helper.hpp"
 #include "objects/cell.hpp"
@@ -54,6 +56,12 @@ PYBIND11_MODULE(__generation, m) {
                       cell::Population(cell_pops[i], cell_prop[i]));
 
                self.SetCellPopulations(cell_populations);
+            })
+       .def("set_mpi_comm",
+            [](PliGenerator &self, long comm_address) {
+               MPI_Comm comm = *static_cast<MPI_Comm *>(
+                   reinterpret_cast<void *>(comm_address));
+               self.SetMPIComm(comm);
             })
        .def("run_generation",
             [](PliGenerator &self, bool only_label, bool progress_bar) {
