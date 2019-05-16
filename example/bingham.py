@@ -1,64 +1,75 @@
-import h5py
-import numpy as np
-import sys
-import os
+import fastpli.model
+import fastpli.simulation
+import fastpli.io
+import fastpli.analysis
 
-# save images
 import scipy.misc
 import nibabel as nib
+import h5py
 
-# fastpli
-from fastpli.simulation import Simpli
-from fastpli.analysis import images
+import numpy as np
+import time
+import os
 
-np.random.seed(42)
+import apsg
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 FILE_NAME = os.path.splitext(os.path.basename(__file__))[0]
 FILE_OUTPUT = '/tmp/'
 
-# PliGeneration ###
-simpli = Simpli()
-simpli.omp_threads(2)
-simpli.pixel_size = 6
-simpli.resolution = 60 
-simpli.set_voi([0, 3000, 0, 3000, 0, 60])
+np.random.seed(42)
+''' create fiber_bundle(s)
+'''
+# create fiber_bundle trajectory
 fiber_bundles = [[]]
+# fiber_bundles[-1].append([[0, 0, 0, 1], [10, 10, 10, 1]])
+# fiber_bundles[-1].append([[0, 0, 0, 1], [0, 10, 10, 1]])
 
-# corner
-fiber_bundles[-1].append(
-    np.array([[0, 0, 30, 120],
-              [
-                  simpli.dim[0] * simpli.pixel_size,
-                  simpli.dim[1] * simpli.pixel_size, 30, 120
-              ]]))
+kent = apsg.helpers.KentDistribution((1, 0, 0), (0, 1, 0), (0, 0, 1), 16, 5)
 
-# left right up
-fiber_bundles[-1].append(
-    np.array([[0, simpli.dim[1] * simpli.pixel_size * 0.5, 30, 120],
-              [
-                  simpli.dim[0] * simpli.pixel_size,
-                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, 120
-              ], [simpli.dim[0] * simpli.pixel_size, 0, 30, 120]]))
+# v = np.random.uniform(-100, 100, (100, 3))
+v = kent.rvs(1000) * 300
+for i in range(v.shape[0]):
+    offset = np.random.uniform(-100, 100, (3,))
+    fiber_bundles[-1].append(
+        [[-v[i, 0] + offset[0], -v[i, 1] + offset[1], -v[i, 2] + offset[2], 5],
+         [v[i, 0] + offset[0], v[i, 1] + offset[1], v[i, 2] + offset[2], 5]])
 
-# inc = 60 degree, phi = 30 degree
-fiber_bundles[-1].append(
-    np.array([[0 + 240, simpli.dim[1] * simpli.pixel_size - 240, 0, 120],
-              [
-                  0 + 240 + (simpli.dim[2] * simpli.pixel_size) /
-                  np.tan(np.deg2rad(60)) * np.cos(np.deg2rad(30)),
-                  simpli.dim[1] * simpli.pixel_size - 240 +
-                  (simpli.dim[2] * simpli.pixel_size) / np.tan(np.deg2rad(60)) *
-                  np.sin(np.deg2rad(30)), simpli.dim[2] * simpli.pixel_size, 120
-              ]]))
+# print(fiber_bundles)
 
-# circle
-t = np.linspace(0, 2 * np.pi, 50)
-x = (np.sin(t) * (simpli.dim[0] // 3) + simpli.dim[0] // 2) * simpli.pixel_size
-y = (np.cos(t) * (simpli.dim[1] // 3) + simpli.dim[1] // 2) * simpli.pixel_size
-z = t * 0 + simpli.dim[2] * simpli.pixel_size / 2
-r = t * 0 + 128
-fiber_bundles[-1].append(np.array([x, y, z, r]).T)
+fastpli.io.fiber.save('/tmp/fastpli.example.model_solver.dat', fiber_bundles)
+''' setup solver
+'''
+solver = fastpli.model.Solver()
+solver.fiber_bundles = fiber_bundles
+solver.drag = 0
+solver.obj_min_radius = 0
+solver.obj_mean_length = 15
+solver.omp_num_threads = 8
+
+solved_fbs = solver.fiber_bundles
+fastpli.io.fiber.save('/tmp/fastpli.example.model_solver_.dat', solved_fbs)
+''' run solver
+'''
+for i in range(250):
+
+    solved = solver.step()
+
+    if i % 25 == 0:
+        print("step:", i, solver.num_obj, solver.num_col_obj)
+        solver.draw_scene()
+
+    if solved:
+        print("step:", i, solver.num_obj, solver.num_col_obj)
+        solver.draw_scene()
+        break
+
+# PliGeneration ###
+simpli = fastpli.simulation.Simpli()
+simpli.omp_threads(2)
+simpli.pixel_size = 1
+simpli.resolution = 20
+simpli.set_voi([-250, 250, -250, 250, -30, 30])
 
 simpli.fiber_bundles = fiber_bundles
 simpli.fiber_bundles_properties = [[(1.0, -0.001, 1, 'p')]
@@ -125,8 +136,8 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
     h5f['rofl/trel'] = rofl_t_rel
 
     print("Unit Vectors")
-    unit_x, unit_y, unit_z = images.unit_vectors(rofl_direction, rofl_incl,
-                                                 mask)
+    unit_x, unit_y, unit_z = fastpli.analysis.images.unit_vectors(
+        rofl_direction, rofl_incl, mask)
     img = nib.Nifti1Image(unit_x, np.eye(4))
     nib.save(img,
              os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.UnitX.nii'))
@@ -138,23 +149,23 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
              os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.UnitZ.nii'))
 
     print("FOMs")
-    img = images.fom_hsv_black(rofl_direction, rofl_incl, mask)
+    img = fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl, mask)
     scipy.misc.imsave(
         os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.hsv_black.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
 
-    img = images.fom_rgb(rofl_direction, rofl_incl, mask)
+    img = fastpli.analysis.images.fom_rgb(rofl_direction, rofl_incl, mask)
     scipy.misc.imsave(
         os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.rgb.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
 
-    img = images.hsvblack_sphere()
+    img = fastpli.analysis.images.hsvblack_sphere()
     scipy.misc.imsave(
         os.path.join(FILE_OUTPUT,
                      'example.' + FILE_NAME + '.hsv_black_sphere.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
 
-    img = images.rgb_sphere()
+    img = fastpli.analysis.images.rgb_sphere()
     scipy.misc.imsave(
         os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.rgb_sphere.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
