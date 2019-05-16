@@ -29,7 +29,8 @@ class OctTree {
    int max_level_ = 0;
    float min_cube_size_ = 0;
    aabb::AABB<float, 3> main_cube_;
-   static constexpr long long max_particle_ = 10;
+   const size_t kMaxParticle_ = 10;
+   const int kMaxThreadLevel_ = 1;
 };
 
 #endif // OCT_TREE_HPP_
