@@ -140,17 +140,15 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
 
    std::vector<std::vector<size_t>> tree_ids;
 
-   if (ids.size() < max_particle_ ||
+   if (ids.size() < kMaxParticle_ ||
        (cube.max.x() - cube.min.x()) < 2 * min_cube_size_) {
       tree_ids.push_back(ids);
       if (max_level_ < level) {
+#pragma omp critical
          max_level_ = level;
       }
    } else {
-
-      // TODO: if (level < ceil(log(num_threads_) / log(8))) {
-      if (level <= 1) {
-
+      if (level <= kMaxThreadLevel_) {
          auto sub_cubes = SplitInto8Cubes(cube);
 
 #pragma omp parallel for schedule(static)
@@ -171,7 +169,6 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
             }
          }
       } else {
-
          auto sub_cubes = SplitInto8Cubes(cube);
 
          for (auto i = 0; i < 8; i++) {
