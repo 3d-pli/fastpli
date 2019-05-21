@@ -4,7 +4,7 @@ import sys
 import os
 
 # save images
-import scipy.misc
+import imageio
 import nibabel as nib
 
 # fastpli
@@ -21,7 +21,7 @@ FILE_OUTPUT = '/tmp/'
 simpli = Simpli()
 simpli.omp_threads(2)
 simpli.pixel_size = 6
-simpli.resolution = 60 
+simpli.resolution = 60
 simpli.set_voi([0, 3000, 0, 3000, 0, 60])
 fiber_bundles = [[]]
 
@@ -101,6 +101,7 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
         h5f['data/' + str(t)] = image
 
         image = simpli.apply_optic(image, gain=3)
+
         h5f['optic/' + str(t)] = image
 
         epa = simpli.apply_epa(image)
@@ -139,31 +140,22 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
 
     print("FOMs")
     img = images.fom_hsv_black(rofl_direction, rofl_incl, mask)
-    scipy.misc.imsave(
+    imageio.imwrite(
         os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.hsv_black.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
 
     img = images.fom_rgb(rofl_direction, rofl_incl, mask)
-    scipy.misc.imsave(
+    imageio.imwrite(
         os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.rgb.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
 
     img = images.hsvblack_sphere()
-    scipy.misc.imsave(
+    imageio.imwrite(
         os.path.join(FILE_OUTPUT,
                      'example.' + FILE_NAME + '.hsv_black_sphere.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
 
     img = images.rgb_sphere()
-    scipy.misc.imsave(
+    imageio.imwrite(
         os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.rgb_sphere.png'),
         np.swapaxes(np.flip(img, 1), 0, 1))
-
-    test = np.zeros((256, 256, 3), np.uint8)
-    test[0, 0, :] = [0, 0, 255]
-    test[-1, 0, :] = [255, 0, 0]
-    test[0, -1, :] = [0, 255, 0]
-    test[-1, -1, :] = [255, 255, 0]
-    scipy.misc.imsave(
-        os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.test.png'),
-        np.swapaxes(np.flip(test, 1), 0, 1))

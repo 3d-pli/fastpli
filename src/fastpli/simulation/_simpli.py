@@ -9,6 +9,7 @@ from fastpli.tools import rotation
 
 import numpy as np
 import h5py
+from PIL import Image
 from mpi4py import MPI
 
 # TODO: write json -> parameter function
@@ -239,6 +240,9 @@ class Simpli:
     def fiber_bundles_properties(self, bundle_layer_properties):
         if not isinstance(bundle_layer_properties, (list, tuple)):
             raise TypeError("properties must be a list(list(tuples))")
+
+        if not self._fiber_bundles:
+            raise ValueError("fiber_bundles have not been set yet")
 
         if len(self._fiber_bundles) != len(bundle_layer_properties):
             raise TypeError(
@@ -532,14 +536,14 @@ class Simpli:
             delta_sigma=0.71,  # only for LAP!
             gain=3,  # only for LAP!
             cropping=0,  # num pixel 
-            resize_mode='F'):
+            resample_mode=Image.BILINEAR):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
 
         res_image_stack = optic.apply_stack(image_stack, self._pixel_size,
                                             self._resolution, delta_sigma, gain,
-                                            cropping, resize_mode)
+                                            cropping, resample_mode)
 
         return res_image_stack
 
@@ -547,7 +551,7 @@ class Simpli:
                           mask,
                           delta_sigma=0.71,
                           cropping=0,
-                          resize_mode='F'):
+                          resample_mode=Image.BILINEAR):
         ''' return value of mask is float, threshold has to be applyed by user
         '''
 
@@ -556,7 +560,7 @@ class Simpli:
 
         res_mask = optic.apply(np.array(mask, float), self._pixel_size,
                                self._resolution, delta_sigma, 0, cropping,
-                               resize_mode)
+                               resample_mode)
 
         return res_mask
 
