@@ -56,7 +56,7 @@ h5py-serial:
 h5py-mpi:
 	export CC=mpicc
 	export HDF5_MPI="ON"
-	${VENV}/bin/pip3 install --no-binary=h5py h5py
+	HDF5_DIR=${HDF5_DIR} ${VENV}/bin/pip3 install --no-binary=h5py h5py
 
 .PHONY: h5py-clean
 h5py-clean:
