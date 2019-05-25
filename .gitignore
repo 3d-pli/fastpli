@@ -5,6 +5,7 @@
 *debug*
 .tmux.sh
 .worktrees/
+*env*/
 
 # Created by https://www.gitignore.io/api/c++,python,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=c++,python,virtualenv,visualstudiocode
