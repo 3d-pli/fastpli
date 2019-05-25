@@ -1,6 +1,6 @@
 import numpy as np
 
-from scipy.misc import imresize
+from PIL import Image
 from scipy.ndimage.filters import gaussian_filter
 
 
@@ -11,17 +11,18 @@ def apply(
         delta_sigma=0.71,  # only for LAP!
         gain=3,  # only for LAP!
         cropping=0,
-        resize_mode='F'):
+        resample_mode=Image.BILINEAR):
 
     if res_pixel_size % org_pixel_size != 0:
         print('WARNING: OPTIC: res_pixel_size % org_pixel_size:',
-              res_pixel_size, org_pixel_size)
+              res_pixel_size, org_pixel_size)  #
 
     resize = res_pixel_size / org_pixel_size
+    new_size = np.array(np.array(image.shape) // resize, dtype=int)
 
-    res_image = imresize(gaussian_filter(image, delta_sigma * resize),
-                         1 / resize,
-                         mode=resize_mode)
+    res_image = np.array(
+        Image.fromarray(gaussian_filter(image, delta_sigma * resize)).resize(
+            new_size, resample_mode))
 
     # add noise
     if gain > 0:
@@ -34,15 +35,18 @@ def apply(
     return res_image
 
 
-def resize_img(image, org_pixel_size, res_pixel_size, resize_mode='F'):
+def resize_img(image,
+               org_pixel_size,
+               res_pixel_size,
+               resample_mode=Image.BILINEAR):
     if res_pixel_size % org_pixel_size != 0:
         print('WARNING: OPTIC: res_pixel_size % org_pixel_size:',
               res_pixel_size, org_pixel_size)
 
     resize = res_pixel_size / org_pixel_size
+    new_size = np.array(np.array(image.shape) // resize, dtype=int)
 
-    res_image = np.array(imresize(image, 1 / resize, mode=resize_mode),
-                         dtype=image.dtype)
+    res_image = np.array(Image.fromarray(image).resize(new_size, resample_mode))
 
     return res_image
 
