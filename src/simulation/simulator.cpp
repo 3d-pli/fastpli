@@ -278,6 +278,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          flag_all_no_com =
              (mpi_->Allreduce(scan_grid.size() + signal_buffer_.size()) == 0);
          assert(signal_buffer_.size() == scan_grid.size() * n_rho);
+      } else {
+         flag_all_no_com = true;
       }
    }
 

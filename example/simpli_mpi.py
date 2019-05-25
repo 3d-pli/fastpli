@@ -38,8 +38,8 @@ with h5py.File(FILE_NAME, 'w', driver='mpio', comm=MPI.COMM_WORLD) as h5f:
     # simpli.TranslateVolume([50, 50, 50])
 
     start = time.time()
-    label_field, _, tissue_properties = simpli.GenerateTissue(only_label=True)
-    label_field, vec_field, tissue_properties = simpli.GenerateTissue()
+    label_field, vec_field, tissue_properties = simpli.GenerateTissue(
+        only_label=False)
     dim_local, dim_offset = simpli.DimData()
 
     simpli.SaveAsH5(h5f, label_field, "tissue")
