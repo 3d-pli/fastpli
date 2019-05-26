@@ -23,10 +23,11 @@ with h5py.File(FILE_NAME, 'w', driver='mpio', comm=MPI.COMM_WORLD) as h5f:
 
     global_start = time.time()
 
-    simpli = Simpli()
+    simpli = Simpli(MPI.COMM_WORLD)
+
     # PliGeneration ###
     simpli.pixel_size = 1
-    simpli.dim = [100, 100, 100]
+    simpli.set_voi([-50, 50, -50, 50, -50, 50])
     simpli.ReadFiberFile(os.path.join(FILE_PATH, 'cube.h5'))
     simpli.fiber_bundles_properties = ([[(0.333, 0.004, 10, 'p'),
                                          (0.666, -0.004, 5, 'b'),

@@ -21,8 +21,10 @@ PYBIND11_MODULE(__simulation, m) {
        .def("set_pli_setup", &PliSimulator::SetPliSetup)
        .def("set_tissue_properties", &PliSimulator::SetTissueProperties)
        .def("set_mpi_comm",
-            [](PliSimulator &self, int address) {
-               std::cout << address << std::endl;
+            [](PliSimulator &self, long long comm_address) {
+               MPI_Comm comm = *static_cast<MPI_Comm *>(
+                   reinterpret_cast<void *>(comm_address));
+               self.SetMPIComm(comm);
             })
        .def("run_simulation",
             [](PliSimulator &self, std::array<long long, 3> dim,

@@ -10,17 +10,21 @@ from fastpli.tools import rotation
 import numpy as np
 import h5py
 from PIL import Image
-from mpi4py import MPI
 
 # TODO: write json -> parameter function
 
 
 class Simpli:
 
-    def __init__(self):
+    def __init__(self, mpi_comm=None):
 
         self._gen = _Generator()
         self._sim = _Simulator()
+        if mpi_comm:
+            from mpi4py import MPI
+            self._gen.set_mpi_comm(MPI._addressof(mpi_comm))
+            self._sim.set_mpi_comm(MPI._addressof(mpi_comm))
+
         self._fiber_bundles = None
         self._fiber_bundles_properties = None
         self._cells_populations = None

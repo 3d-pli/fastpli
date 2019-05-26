@@ -58,7 +58,7 @@ PYBIND11_MODULE(__generation, m) {
                self.SetCellPopulations(cell_populations);
             })
        .def("set_mpi_comm",
-            [](PliGenerator &self, long comm_address) {
+            [](PliGenerator &self, long long comm_address) {
                MPI_Comm comm = *static_cast<MPI_Comm *>(
                    reinterpret_cast<void *>(comm_address));
                self.SetMPIComm(comm);

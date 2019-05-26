@@ -91,10 +91,6 @@ void PliGenerator::SetCellPopulations(
 }
 
 void PliGenerator::SetMPIComm(const MPI_Comm comm) {
-
-   if (comm == MPI_COMM_WORLD)
-      std::cout << "comm == MPI_COMM_WORLD" << std::endl;
-
    mpi_ = std::make_unique<MyMPI>(comm);
 }
 
