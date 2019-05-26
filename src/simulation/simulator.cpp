@@ -151,34 +151,24 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    const vm::Mat3x3<double> rotation =
        vm::rot_pi_cases::Mat3RotZYZ(phi, theta, -phi);
 
-   const vm::Vec3<double> shift = TiltDirection(theta, phi);
-   const vm::Vec3<double> step = shift * step_size;
+   const vm::Vec3<double> light_dir_vec = LightDirectionUnitVector(theta, phi);
+   const vm::Vec3<int> light_dir_unit = LightDirectionComponent(light_dir_vec);
+   const vm::Vec3<double> light_step = light_dir_vec * step_size;
    const auto TransformSensorPosToStart =
        GetSensorToStartTransformation(theta, phi);
 
    std::vector<float> intensity_signal(
        static_cast<size_t>(dim_.local.x()) * dim_.local.y() * n_rho, 0);
 
-   // calculate shift direction
-   vm::Vec3<int> shift_direct(0);
-   for (auto itr = 0u; itr < 3; itr++) {
-      if (shift[itr] > 0)
-         shift_direct[itr] = 1;
-      if (shift[itr] < 0)
-         shift_direct[itr] = -1;
-   }
-
    auto scan_grid = CalcPixelsUntilt(theta, phi);
 
-   bool flag_all_no_com = false;
-   while (!flag_all_no_com) {
-
-// TODO: profiling, mpi check
-#pragma omp parallel for
+   bool flag_all_done = false;
+   while (!flag_all_done) {
+      // #pragma omp parallel for // POP_BACK not thread safe !!!
       for (size_t s = 0; s < scan_grid.size(); s++) {
 
          auto grid_elm = scan_grid[s];
-         bool flag_sending = false;
+         bool flag_ray_sended = false;
 
          auto local_pos = grid_elm.tissue - vm::cast<double>(dim_.offset);
          auto ccd_pos = grid_elm.ccd;
@@ -187,6 +177,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          if (local_pos.z() >= 0.5) {
             s_vec.clear();
             for (auto i = 0u; i < n_rho; i++) {
+               // NOT THREAD SAGE !!!
                assert(!signal_buffer_.empty());
                s_vec.push_back(signal_buffer_.back());
                signal_buffer_.pop_back();
@@ -194,16 +185,15 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             std::reverse(s_vec.begin(), s_vec.end());
          }
 
-         // if (debug_)
-         //    std::cout << grid_elm.ccd << ": " << pos << std::endl;
-
          for (; local_pos.z() > -0.5 && local_pos.z() < dim_.local.z() - 0.5;
-              local_pos += step) {
+              local_pos += light_step) {
 
             // check if communication is neccesary
-            flag_sending =
-                CheckMPIHalo(local_pos, shift_direct, s_vec, grid_elm);
-            if (flag_sending)
+            flag_ray_sended =
+                CheckMPIHalo(local_pos, light_dir_unit, s_vec, grid_elm);
+
+            if (flag_ray_sended)
+               // next light ray
                break;
 
             auto label = GetLabel(local_pos);
@@ -254,7 +244,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             }
          }
 
-         if (!flag_sending) {
+         if (!flag_ray_sended) {
+            // save only, if light ray has reached the end of the volume
             size_t ccd_idx = (ccd_pos.x() - dim_.offset.x()) * dim_.local.y() +
                              (ccd_pos.y() - dim_.offset.y());
 
@@ -275,11 +266,17 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
       if (mpi_) {
          assert(signal_buffer_.empty());
          mpi_->CommunicateData(scan_grid, signal_buffer_);
-         flag_all_no_com =
-             (mpi_->Allreduce(scan_grid.size() + signal_buffer_.size()) == 0);
+         int num_communications =
+             mpi_->Allreduce(scan_grid.size() + signal_buffer_.size());
          assert(signal_buffer_.size() == scan_grid.size() * n_rho);
+         flag_all_done = num_communications == 0;
+
+         if (debug_)
+            std::cout << "rank " << mpi_->my_rank()
+                      << ": num_communications: " << num_communications
+                      << std::endl;
       } else {
-         flag_all_no_com = true;
+         flag_all_done = true;
       }
    }
 
@@ -374,8 +371,9 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    return c0 * (1 - zd) + c1 * zd;
 }
 
-vm::Vec3<double> PliSimulator::TiltDirection(const double theta,
-                                             const double phi) const {
+vm::Vec3<double>
+PliSimulator::LightDirectionUnitVector(const double theta,
+                                       const double phi) const {
 
    // special tilting angles
    if (theta == 0)
@@ -391,6 +389,18 @@ vm::Vec3<double> PliSimulator::TiltDirection(const double theta,
 
    return vm::Vec3<double>(cos(phi) * sin(theta), sin(phi) * sin(theta),
                            cos(theta));
+}
+
+vm::Vec3<int>
+PliSimulator::LightDirectionComponent(const vm::Vec3<double> &dir_vec) const {
+   vm::Vec3<int> dir_comp(0);
+   for (auto itr = 0u; itr < 3; itr++) {
+      if (dir_vec[itr] > 0)
+         dir_comp[itr] = 1;
+      if (dir_vec[itr] < 0)
+         dir_comp[itr] = -1;
+   }
+   return dir_comp;
 }
 
 std::function<vm::Vec3<double>(long long, long long)>
@@ -433,7 +443,8 @@ std::vector<Coordinates> PliSimulator::CalcPixelsUntilt(const double phi,
    std::vector<Coordinates> scan_grid;
 
    Coordinates data_point;
-   vm::Vec3<double> shift = TiltDirection(phi, theta) * (dim_.global.z() - 1);
+   vm::Vec3<double> shift =
+       LightDirectionUnitVector(phi, theta) * (dim_.global.z() - 1);
 
    // begin at ccd pos
    for (long long ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {

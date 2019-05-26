@@ -58,7 +58,12 @@ class PliSimulator {
    int set_omp_num_threads(int num);
 
  private:
-   // const bool debug_ = false;
+#ifndef NDEBUG
+   const bool debug_ = true;
+#else
+   const bool debug_ = false;
+#endif
+
    Setup pli_setup_{};
    Dimensions dim_{};
    object::container::NpArray<int> label_field_;
@@ -103,7 +108,10 @@ class PliSimulator {
       return InterpolateVec(p.x(), p.y(), p.z(), do_nn);
    };
 
-   vm::Vec3<double> TiltDirection(const double theta, const double phi) const;
+   vm::Vec3<double> LightDirectionUnitVector(const double theta,
+                                             const double phi) const;
+   vm::Vec3<int>
+   LightDirectionComponent(const vm::Vec3<double> &direction_vec) const;
 
    std::function<vm::Vec3<double>(long long, long long)>
    GetSensorToStartTransformation(const double theta, const double phi) const;

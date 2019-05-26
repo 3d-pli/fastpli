@@ -35,6 +35,7 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                                   std::to_string(global_dim.y()) + "," +
                                   std::to_string(global_dim.z()) + "]");
 
+   dim_.origin = origin;
    if (mpi_) {
       mpi_->CreateCartGrid(global_dim);
       dim_ = mpi_->dim_vol();
@@ -42,8 +43,16 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
       dim_.local = global_dim;
       dim_.global = global_dim;
       dim_.offset = vm::Vec3<long long>(0);
+
+      if (debug_) {
+         std::cout << "dim.global = " << dim_.global << std::endl;
+         std::cout << "dim.local = " << dim_.local << std::endl;
+         std::cout << "dim.offset = " << dim_.offset << std::endl;
+         std::cout << "dim.origin = " << dim_.origin << std::endl;
+         std::cout << "pixel_size = " << pixel_size_ << std::endl;
+         std::cout << "flip_direction = " << flip_direction_ << std::endl;
+      }
    }
-   dim_.origin = origin;
 
    assert(dim_.local.x() >= 0);
    assert(dim_.local.y() >= 0);
@@ -56,15 +65,6 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
 
    pixel_size_ = pixel_size;
    flip_direction_ = flip_direction;
-
-   if (debug_) {
-      std::cout << "dim.global = " << dim_.global << std::endl;
-      std::cout << "dim.local = " << dim_.local << std::endl;
-      std::cout << "dim.offset = " << dim_.offset << std::endl;
-      std::cout << "dim.origin = " << dim_.origin << std::endl;
-      std::cout << "pixel_size = " << pixel_size_ << std::endl;
-      std::cout << "flip_direction = " << flip_direction_ << std::endl;
-   }
 }
 
 void PliGenerator::SetFiberBundles(
@@ -409,13 +409,6 @@ PliGenerator::ShortestPointToLineSegmentVecCalculation(
    auto pb = s0 + v * b;
 
    return std::make_tuple(pb, b);
-}
-
-std::vector<unsigned short>
-PliGenerator::CalcVisualLabelField(std::vector<int> label_field) const {
-   // TODO: visual label_vield
-   std::vector<unsigned short> vis(label_field.begin(), label_field.end());
-   return vis;
 }
 
 std::vector<PliSimulator::PhyProp> PliGenerator::GetPropertyList() const {

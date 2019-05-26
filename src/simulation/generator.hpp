@@ -37,16 +37,19 @@ class PliGenerator {
    int set_omp_num_threads(int num);
 
    // getter
-   std::vector<unsigned short>
-   CalcVisualLabelField(std::vector<int> label_field) const;
-   Dimensions dim() { return dim_; };
-   vm::Vec3<long long> dim_local() { return dim_.local; };
-   vm::Vec3<long long> dim_global() { return dim_.global; };
-   vm::Vec3<long long> dim_offset() { return dim_.offset; };
-   vm::Vec3<float> dim_origin() { return dim_.origin; };
+   Dimensions dim() const { return dim_; };
+   vm::Vec3<long long> dim_local() const { return dim_.local; };
+   vm::Vec3<long long> dim_global() const { return dim_.global; };
+   vm::Vec3<long long> dim_offset() const { return dim_.offset; };
+   vm::Vec3<float> dim_origin() const { return dim_.origin; };
 
  private:
+#ifndef NDEBUG
    const bool debug_ = true;
+#else
+   const bool debug_ = false;
+#endif
+
    double pixel_size_{0};
    Dimensions dim_;
 

@@ -43,10 +43,15 @@ class MyMPI {
    void PrintDimensions(Dimensions dim);
 
  private:
+#ifndef NDEBUG
+   const bool debug_ = true;
+#else
+   const bool debug_ = false;
+#endif
+
    MPI_Comm my_comm_;
    int my_rank_ = 0;
    int numP_ = 1;
-   const bool debug_ = false;
 
    Dimensions dim_vol_{};
    // Dimensions dim_ccd_{};

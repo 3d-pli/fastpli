@@ -59,21 +59,22 @@ h5py-mpi:
 h5py-clean:
 	${VENV}/bin/pip3 uninstall h5py -y
 
+.ONESHELL:
 build/:
 	mkdir build
+	cd build
+	cmake ..
 
 .PHONY: build
 .ONESHELL:
 build: build/ git-submodules
 	cd build
-	cmake ..
 	make
 
 .PHONY: build-j
 .ONESHELL:
 build-j: build/ git-submodules
 	cd build
-	cmake ..
 	make -j
 
 .PHONY: test
