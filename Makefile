@@ -10,10 +10,7 @@ help:
 	@echo "make build -- for compile checking"
 
 BUILD := release
-
-VENV.debug := .venv
-VENV.release := .env
-VENV := ${VENV.${BUILD}}
+VENV := env
 PYTHON := ${VENV}/bin/python3
 INSTALL.debug := install -v --global-option build --global-option --debug -e .
 INSTALL.release := install . -q
