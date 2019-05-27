@@ -1,6 +1,5 @@
 #include "simulator.hpp"
 
-#include <cassert>
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -152,7 +151,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
        vm::rot_pi_cases::Mat3RotZYZ(phi, theta, -phi);
 
    const vm::Vec3<double> light_dir_vec = LightDirectionUnitVector(theta, phi);
-   const vm::Vec3<int> light_dir_unit = LightDirectionComponent(light_dir_vec);
+   const vm::Vec3<int> light_dir_comp = LightDirectionComponent(light_dir_vec);
    const vm::Vec3<double> light_step = light_dir_vec * step_size;
    const auto TransformSensorPosToStart =
        GetSensorToStartTransformation(theta, phi);
@@ -165,6 +164,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    bool flag_all_done = false;
    while (!flag_all_done) {
       // #pragma omp parallel for // POP_BACK not thread safe !!!
+
       for (size_t s = 0; s < scan_grid.size(); s++) {
 
          auto grid_elm = scan_grid[s];
@@ -177,8 +177,16 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          if (local_pos.z() >= 0.5) {
             s_vec.clear();
             for (auto i = 0u; i < n_rho; i++) {
-               // NOT THREAD SAGE !!!
-               assert(!signal_buffer_.empty());
+               // NOT THREAD SAFE !!!
+#ifndef NDEBUG
+               if (signal_buffer_.empty())
+                  if (mpi_) {
+                     MPI_Abort(mpi_->comm(), 3111);
+                  } else {
+                     throw std::invalid_argument(
+                         "signal_buffer_.empty() and no mpi process");
+                  }
+#endif
                s_vec.push_back(signal_buffer_.back());
                signal_buffer_.pop_back();
             }
@@ -190,7 +198,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
             // check if communication is neccesary
             flag_ray_sended =
-                CheckMPIHalo(local_pos, light_dir_unit, s_vec, grid_elm);
+                CheckMPIHalo(local_pos, light_dir_comp, s_vec, grid_elm);
 
             if (flag_ray_sended)
                // next light ray
@@ -254,7 +262,10 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                 local_pos.x() < static_cast<double>(dim_.local.x()) - 0.5 &&
                 local_pos.y() < static_cast<double>(dim_.local.y()) - 0.5) {
 
-               assert(ccd_idx * n_rho < intensity_signal.size());
+#ifndef NDEBUG
+               if (ccd_idx * n_rho >= intensity_signal.size())
+                  MPI_Abort(mpi_->comm(), 3112);
+#endif
                for (auto rho = 0u; rho < n_rho; rho++) {
                   s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
                   intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
@@ -264,13 +275,19 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
       }
 
       if (mpi_) {
-         assert(signal_buffer_.empty());
+#ifndef NDEBUG
+         if (!signal_buffer_.empty())
+            MPI_Abort(mpi_->comm(), 3113);
+#endif
          mpi_->CommunicateData(scan_grid, signal_buffer_);
          int num_communications =
              mpi_->Allreduce(scan_grid.size() + signal_buffer_.size());
-         assert(signal_buffer_.size() == scan_grid.size() * n_rho);
-         flag_all_done = num_communications == 0;
 
+#ifndef NDEBUG
+         if (signal_buffer_.size() != scan_grid.size() * n_rho)
+            MPI_Abort(mpi_->comm(), 3114);
+#endif
+         flag_all_done = num_communications == 0;
          if (debug_)
             std::cout << "rank " << mpi_->my_rank()
                       << ": num_communications: " << num_communications
@@ -286,7 +303,10 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 int PliSimulator::GetLabel(const long long x, const long long y,
                            const long long z) const {
    size_t idx = x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
-   assert(idx < label_field_.size());
+#ifndef NDEBUG
+   if (idx >= label_field_.size())
+      MPI_Abort(mpi_->comm(), 3115);
+#endif
    return label_field_[idx];
 }
 
@@ -294,7 +314,10 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
                                       const long long z) const {
    size_t idx =
        x * dim_.local.y() * dim_.local.z() * 3 + y * dim_.local.z() * 3 + z * 3;
-   assert(idx < vector_field_.size());
+#ifndef NDEBUG
+   if (idx >= vector_field_.size())
+      MPI_Abort(mpi_->comm(), 3116);
+#endif
    return vm::Vec3<double>(vector_field_[idx], vector_field_[idx + 1],
                            vector_field_[idx + 2]);
 }
@@ -497,8 +520,13 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    if (!mpi_)
       return false;
 
-   static auto low = dim_.offset;
-   static auto up = dim_.offset + dim_.local;
+   // this can happen, because CalcPixelsUntilt() is not sensitiv to the
+   // mpi-halo yet
+   if (local_pos.z() == 0)
+      return true;
+
+   const auto low = dim_.offset;
+   const auto up = dim_.offset + dim_.local;
 
    bool flag = false;
    // x - halo communication:

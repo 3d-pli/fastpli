@@ -54,6 +54,14 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
          std::cout << "rank " << mpi_->my_rank()
                    << ": flip_direction = " << flip_direction_ << std::endl;
       }
+#ifndef NDEBUG
+      if (vm::any_of(dim_.local, [&](long long i) { return i < 0; })) {
+         MPI_Abort(mpi_->comm(), 2111);
+      }
+      if (dim_.local > dim_.global) {
+         MPI_Abort(mpi_->comm(), 2112);
+      }
+#endif
    } else {
       dim_.local = global_dim;
       dim_.global = global_dim;
@@ -67,12 +75,11 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
          std::cout << "pixel_size = " << pixel_size_ << std::endl;
          std::cout << "flip_direction = " << flip_direction_ << std::endl;
       }
+      assert(dim_.local.x() >= 0);
+      assert(dim_.local.y() >= 0);
+      assert(dim_.local.z() >= 0);
+      assert(dim_.local <= dim_.global);
    }
-
-   assert(dim_.local.x() >= 0);
-   assert(dim_.local.y() >= 0);
-   assert(dim_.local.z() >= 0);
-   assert(dim_.local <= dim_.global);
 
    if (pixel_size <= 0)
       throw std::invalid_argument("pixel_size <= 0: " +

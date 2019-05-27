@@ -33,14 +33,13 @@ class MyMPI {
    int Allreduce(int value);
 
    // getter
+   MPI_Comm comm() const { return my_comm_; };
    int my_rank() const { return my_rank_; };
+   int num_of_proz() const { return numP_; };
    vm::Vec3<int> my_coords() const { return my_coords_; };
    vm::Vec3<int> global_coords() const { return global_coords_; };
-   int num_of_proz() const { return numP_; };
 
    Dimensions dim_vol() const { return dim_vol_; };
-   // Dimensions dim_ccd() const { return dim_ccd_; };
-   void PrintDimensions(Dimensions dim);
 
  private:
 #ifndef NDEBUG

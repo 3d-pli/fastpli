@@ -1,7 +1,6 @@
 #include "my_mpi.hpp"
 
 #include <array>
-#include <cassert>
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
@@ -17,7 +16,7 @@ MyMPI::MyMPI(const MPI_Comm comm) {
    MPI_Comm_size(my_comm_, &numP_);
 
    if (debug_)
-      std::cerr << "rank: " << my_rank_ << ", numP: " << numP_
+      std::cout << "rank: " << my_rank_ << ", numP: " << numP_
                 << ", comm: " << comm << std::endl;
 }
 
@@ -86,9 +85,9 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
    up.y() = (my_coords_.y() + 1) * dim_vol_.local.y() - 1 + 1;
    up.z() = (my_coords_.z() + 1) * dim_vol_.local.z() - 1 + 1;
 
-   assert(low.x() >= 0);
-   assert(low.y() >= 0);
-   assert(low.z() >= 0);
+   if (vm::any_of(low, [&](long long i) { return i < 0; })) {
+      MPI_Abort(my_comm_, 1111);
+   }
 
    dim_vol_.offset = low;
 
@@ -110,22 +109,15 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
       dim_vol_.local.z() = 0;
 
    if (debug_) {
-      std::cout << "rank " << my_rank_ << ": my_coords_:" << my_coords_
+      std::cout << "rank " << my_rank_ << ": my_coords: " << my_coords_
                 << std::endl;
-      std::cout << "rank " << my_rank_ << ": low:\t" << low << std::endl;
-      std::cout << "rank " << my_rank_ << ": up:\t" << up << std::endl;
+      std::cout << "rank " << my_rank_ << ": low: " << low << std::endl;
+      std::cout << "rank " << my_rank_ << ": up: " << up << std::endl;
    }
 
-   assert(dim_vol_.local.x() >= 0);
-   assert(dim_vol_.local.y() >= 0);
-   assert(dim_vol_.local.z() >= 0);
-}
-
-void MyMPI::PrintDimensions(Dimensions dim) {
-   std::cout << "rank " << my_rank_ << ": global:\t" << dim.global << std::endl;
-   std::cout << "rank " << my_rank_ << ": local:\t" << dim.local << std::endl;
-   std::cout << "rank " << my_rank_ << ": offset:\t" << dim.offset << std::endl;
-   std::cout << "rank " << my_rank_ << ": origin:\t" << dim.origin << std::endl;
+   if (vm::any_of(dim_vol_.local, [&](long long i) { return i < 0; })) {
+      MPI_Abort(my_comm_, 1112);
+   }
 }
 
 void MyMPI::ClearBuffer() {
@@ -147,14 +139,20 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
                               std::vector<vm::Vec4<double>> light,
                               int direction) {
 
-   assert(direction != 0 && std::abs(direction) <= 3);
+#ifndef NDEBUG
+   if (direction == 0 || std::abs(direction) > 3)
+      MPI_Abort(my_comm_, 1113);
+#endif
 
    // index of sending direction
    int ind = std::distance(
        send_direction_.begin(),
        std::find(send_direction_.begin(), send_direction_.end(), direction));
 
-   assert(ind >= 0 || ind < 6);
+#ifndef NDEBUG
+   if (ind < 0 || ind >= 6)
+      MPI_Abort(my_comm_, 1114);
+#endif
 
    // save all data in buffer. Order is important!
    for (auto elm : pos)
@@ -167,7 +165,10 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
       for (auto e : elm)
          snd_buffer_[ind].push_back(e);
 
-   assert(num_rho_ == static_cast<int>(light.size()));
+#ifndef NDEBUG
+   if (num_rho_ != static_cast<int>(light.size()))
+      MPI_Abort(my_comm_, 1114);
+#endif
 }
 
 void MyMPI::CommunicateData(std::vector<Coordinates> &scan_grid,
@@ -178,20 +179,25 @@ void MyMPI::CommunicateData(std::vector<Coordinates> &scan_grid,
 }
 
 void MyMPI::SndRcv() {
+   int sender, receiver;
+
    // Start non blocking Isend:
    for (auto ind = 0u; ind < send_direction_.size(); ind++) {
 
       int direction = std::abs(send_direction_[ind]) - 1;
-      int dispersion = send_direction_[ind] > 0 ? 1 : -1;
-      int sender, receiver;
+      if (send_direction_[ind] == 0)
+         continue;
 
-      MPI_Cart_shift(COMM_CART_, direction, dispersion, &sender, &receiver);
+      int displacement = send_direction_[ind] > 0 ? 1 : -1;
+
+      MPI_Cart_shift(COMM_CART_, direction, displacement, &sender, &receiver);
       if (receiver == MPI_PROC_NULL)
          continue;
 
       if (debug_)
          std::cout << "rank " << my_rank_ << " to " << receiver
-                   << " in direction " << direction << std::endl;
+                   << " in direction " << direction
+                   << ": size: " << snd_buffer_[ind].size() << std::endl;
 
       MPI_Issend(snd_buffer_[ind].data(), snd_buffer_[ind].size(), MPI_DOUBLE,
                  receiver, tag_ + ind, COMM_CART_, &snd_rq_[ind]);
@@ -203,17 +209,23 @@ void MyMPI::SndRcv() {
 
    for (auto ind = 0u; ind < send_direction_.size(); ind++) {
       int direction = std::abs(send_direction_[ind]) - 1;
-      int dispersion = send_direction_[ind] > 0 ? 1 : -1;
-      int sender, receiver;
+      if (send_direction_[ind] == 0)
+         continue;
+      int displacement = send_direction_[ind] > 0 ? 1 : -1;
 
-      MPI_Cart_shift(COMM_CART_, direction, dispersion, &sender, &receiver);
+      MPI_Cart_shift(COMM_CART_, direction, displacement, &sender, &receiver);
       if (sender == MPI_PROC_NULL)
          continue;
 
       MPI_Probe(sender, tag_ + ind, COMM_CART_, &status);
       MPI_Get_count(&status, MPI_DOUBLE, &count);
       if (count == MPI_UNDEFINED)
-         throw std::runtime_error("count == MPI_UNDEFINED");
+         MPI_Abort(my_comm_, 1110);
+
+      if (debug_)
+         std::cout << "rank " << my_rank_ << " from " << sender
+                   << " in direction " << direction << ": size: " << count
+                   << std::endl;
 
       rcv_buffer_[ind].resize(count);
       MPI_Recv(rcv_buffer_[ind].data(), count, MPI_DOUBLE, MPI_ANY_SOURCE,
@@ -229,10 +241,14 @@ int MyMPI::Allreduce(int value) {
 
 void MyMPI::BufferToVariable(std::vector<Coordinates> &scan_grid,
                              std::vector<vm::Vec4<double>> &intensity_buffer) {
+   // TODO: should be return value
    scan_grid.clear();
    intensity_buffer.clear();
 
-   assert(num_rho_ > 0);
+#ifndef NDEBUG
+   if (num_rho_ <= 0)
+      MPI_Abort(my_comm_, 1115);
+#endif
 
    Coordinates pos_ccd;
    for (auto ind = 0u; ind < send_direction_.size(); ind++) {
@@ -257,5 +273,9 @@ void MyMPI::BufferToVariable(std::vector<Coordinates> &scan_grid,
                 rcv_buffer_[ind][i + j + 2], rcv_buffer_[ind][i + j + 3]));
          }
       }
+#ifndef NDEBUG
+      if (scan_grid.size() * num_rho_ != intensity_buffer.size())
+         MPI_Abort(my_comm_, 1116);
+#endif
    }
 }
