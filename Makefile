@@ -36,12 +36,8 @@ git-submodules:
 requirements: 
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
-.PHONY: example
-example: 
-	${VENV}/bin/pip3 install -r example/requirements.txt -q
-
 .PHONY: install 
-install: ${VENV} git-submodules requirements
+install: ${VENV} git-submodules requirements clean-src
 	rm -rf build/
 	${VENV}/bin/pip3 ${INSTALL}
 
@@ -51,9 +47,9 @@ h5py-serial:
 
 .PHONY: h5py-mpi
 h5py-mpi:
-	export CC=mpicc
-	export HDF5_MPI="ON"
-	HDF5_DIR=${HDF5_DIR} ${VENV}/bin/pip3 install --no-binary=h5py h5py
+	${VENV}/bin/pip3 uninstall h5py
+	HDF5_DIR=${HDF5_DIR} CC=mpicc HDF5_MPI="ON" ${VENV}/bin/pip3 install --no-binary=h5py h5py
+	# e.g. HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi
 
 .PHONY: h5py-clean
 h5py-clean:
