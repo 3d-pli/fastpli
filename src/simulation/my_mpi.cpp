@@ -17,7 +17,8 @@ MyMPI::MyMPI(const MPI_Comm comm) {
    MPI_Comm_size(my_comm_, &numP_);
 
    if (debug_)
-      std::cerr << "rank: " << my_rank_ << ", numP: " << numP_ << std::endl;
+      std::cerr << "rank: " << my_rank_ << ", numP: " << numP_
+                << ", comm: " << comm << std::endl;
 }
 
 MyMPI::~MyMPI() {}
@@ -111,7 +112,6 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
    if (debug_) {
       std::cout << "rank " << my_rank_ << ": my_coords_:" << my_coords_
                 << std::endl;
-      PrintDimensions(dim_vol_);
       std::cout << "rank " << my_rank_ << ": low:\t" << low << std::endl;
       std::cout << "rank " << my_rank_ << ": up:\t" << up << std::endl;
    }

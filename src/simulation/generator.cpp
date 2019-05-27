@@ -35,15 +35,30 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                                   std::to_string(global_dim.y()) + "," +
                                   std::to_string(global_dim.z()) + "]");
 
-   dim_.origin = origin;
+   dim_ = Dimensions();
    if (mpi_) {
       mpi_->CreateCartGrid(global_dim);
       dim_ = mpi_->dim_vol();
+      dim_.origin = origin;
+      if (debug_) {
+         std::cout << "rank " << mpi_->my_rank()
+                   << ": dim.global = " << dim_.global << std::endl;
+         std::cout << "rank " << mpi_->my_rank()
+                   << ": dim.local = " << dim_.local << std::endl;
+         std::cout << "rank " << mpi_->my_rank()
+                   << ": dim.offset = " << dim_.offset << std::endl;
+         std::cout << "rank " << mpi_->my_rank()
+                   << ": dim.origin = " << dim_.origin << std::endl;
+         std::cout << "rank " << mpi_->my_rank()
+                   << ": pixel_size = " << pixel_size_ << std::endl;
+         std::cout << "rank " << mpi_->my_rank()
+                   << ": flip_direction = " << flip_direction_ << std::endl;
+      }
    } else {
       dim_.local = global_dim;
       dim_.global = global_dim;
+      dim_.origin = origin;
       dim_.offset = vm::Vec3<long long>(0);
-
       if (debug_) {
          std::cout << "dim.global = " << dim_.global << std::endl;
          std::cout << "dim.local = " << dim_.local << std::endl;
