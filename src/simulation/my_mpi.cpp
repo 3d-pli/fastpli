@@ -159,7 +159,7 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
       snd_buffer_[ind].push_back(elm);
 
    for (auto elm : ccd)
-      snd_buffer_[ind].push_back(static_cast<double>(elm));
+      snd_buffer_[ind].push_back(*reinterpret_cast<double *>(&elm));
 
    for (auto elm : light)
       for (auto e : elm)
@@ -260,8 +260,11 @@ void MyMPI::BufferToVariable(std::vector<Coordinates> &scan_grid,
 
          pos_ccd.tissue = {rcv_buffer_[ind][i], rcv_buffer_[ind][i + 1],
                            rcv_buffer_[ind][i + 2]};
-         pos_ccd.ccd = {static_cast<int>(std::round(rcv_buffer_[ind][i + 3])),
-                        static_cast<int>(std::round(rcv_buffer_[ind][i + 4]))};
+
+         pos_ccd.ccd.x() =
+             *reinterpret_cast<long long *>(&rcv_buffer_[ind][i + 3]);
+         pos_ccd.ccd.y() =
+             *reinterpret_cast<long long *>(&rcv_buffer_[ind][i + 4]);
          scan_grid.push_back(pos_ccd);
 
          size_t first_elm = 5;

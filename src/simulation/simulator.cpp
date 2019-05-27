@@ -420,7 +420,7 @@ PliSimulator::LightDirectionComponent(const vm::Vec3<double> &dir_vec) const {
    for (auto itr = 0u; itr < 3; itr++) {
       if (dir_vec[itr] > 0)
          dir_comp[itr] = 1;
-      if (dir_vec[itr] < 0)
+      else if (dir_vec[itr] < 0)
          dir_comp[itr] = -1;
    }
    return dir_comp;
