@@ -1,4 +1,1 @@
-# from . import model
-# from . import objects
-# from . import simulation
-# from . import tools
+from version import __version__
