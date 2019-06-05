@@ -179,13 +179,14 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             for (auto i = 0u; i < n_rho; i++) {
                // NOT THREAD SAFE !!!
 #ifndef NDEBUG
-               if (signal_buffer_.empty())
+               if (signal_buffer_.empty()) {
                   if (mpi_) {
                      MPI_Abort(mpi_->comm(), 3111);
                   } else {
                      throw std::invalid_argument(
                          "signal_buffer_.empty() and no mpi process");
                   }
+               }
 #endif
                s_vec.push_back(signal_buffer_.back());
                signal_buffer_.pop_back();
