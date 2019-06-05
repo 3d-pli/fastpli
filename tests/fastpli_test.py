@@ -10,6 +10,8 @@ class MainTest(unittest.TestCase):
         import fastpli.model
         import fastpli.simulation
 
+        print(fastpli.__version__)
+
 
 if __name__ == '__main__':
     unittest.main()

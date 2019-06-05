@@ -1,1 +1,0 @@
-__version__ = "Package: fastpli\nBranch: @GIT_BRANCH@\nHash: @GIT_COMMIT_HASH@"
