@@ -100,8 +100,7 @@ clean-build:
 
 .PHONY: clean-venv
 clean-venv:
-	rm -rf .env
-	rm -rf .venv
+	rm -rf ${VENV}
 
 .PHONY: clean-src
 clean-src:
