@@ -76,9 +76,14 @@ class CMakeBuild(build_ext):
         print()  # Add an empty line for cleaner output
 
 
+if os.path.isdir('.git'):
+    tag_version = os.system("git describe")
+else:
+    tag_version = 'no-version-found'
+
 setup(
     name='fastpli',
-    version='0.21.0',
+    version=tag_version,
     description='Fiber Architecture Simulation Toolbox for PLI',
     long_description='',
     author='Felix Matuschke',
