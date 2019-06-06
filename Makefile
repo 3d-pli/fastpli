@@ -12,8 +12,8 @@ help:
 BUILD := release
 VENV := env
 PYTHON := ${VENV}/bin/python3
-INSTALL.debug := install -v --global-option build --global-option --debug -e .
-INSTALL.release := install . -q
+INSTALL.debug := install -v --global-option build --global-option --debug -e build/.
+INSTALL.release := install build/. -q
 INSTALL := ${INSTALL.${BUILD}}
 
 ${VENV}/bin/pip3: 
@@ -37,8 +37,7 @@ requirements:
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
 .PHONY: install 
-install: ${VENV} git-submodules requirements clean-src
-	rm -rf build/
+install: ${VENV} git-submodules requirements build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: h5py-serial
@@ -58,6 +57,12 @@ h5py-clean:
 .ONESHELL:
 build/:
 	mkdir build
+	cd build
+	cmake ..
+
+.PHONY: cmake
+.ONESHELL:
+cmake: build/ git-submodules
 	cd build
 	cmake ..
 
@@ -89,10 +94,7 @@ docker: docker-build
 	docker start -i fastpli-test
 
 .PHONY: clean
-clean: clean-src clean-build
-
-.PHONY: clean-all
-clean-all: clean-git clean-src clean-build clean-venv
+clean: clean-venv clean-build
 
 .PHONY: clean-build
 clean-build:
@@ -101,18 +103,3 @@ clean-build:
 .PHONY: clean-venv
 clean-venv:
 	rm -rf ${VENV}
-
-.PHONY: clean-src
-clean-src:
-	find src/ -name "*egg-info" -exec rm -r {} +
-	find src/ -name "*.so" -exec rm {} +
-	find src/ -name "__pycache__" -exec rm -r {} +
-	find tests/ -name "__pycache__" -exec rm -r {} +
-
-.PHONY: clean-git
-clean-git: check
-	git clean src/ -d -f -x -q
-
-.PHONY: check
-check:
-	@echo -n "Are you sure? [y/N] " && read ans && [ $$ans = y ]

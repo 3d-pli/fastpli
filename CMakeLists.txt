@@ -24,28 +24,28 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
 endif()
 
 ##########################################################################
-# Versioning
+# CONFIGURE FILES
 ##########################################################################
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
    execute_process(
-   COMMAND git rev-parse --abbrev-ref HEAD
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-   OUTPUT_VARIABLE GIT_BRANCH
-   OUTPUT_STRIP_TRAILING_WHITESPACE
+      COMMAND git rev-parse --abbrev-ref HEAD
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      OUTPUT_VARIABLE GIT_BRANCH
+      OUTPUT_STRIP_TRAILING_WHITESPACE
    )
 
    execute_process(
-   COMMAND git log -1 --format=%h
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-   OUTPUT_VARIABLE GIT_COMMIT_HASH
-   OUTPUT_STRIP_TRAILING_WHITESPACE
+      COMMAND git log -1 --format=%h
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      OUTPUT_VARIABLE GIT_COMMIT_HASH
+      OUTPUT_STRIP_TRAILING_WHITESPACE
    )
 
    execute_process(
-   COMMAND git describe
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-   OUTPUT_VARIABLE GIT_DESCRIBE_LOG
-   OUTPUT_STRIP_TRAILING_WHITESPACE
+      COMMAND git describe
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      OUTPUT_VARIABLE GIT_DESCRIBE_LOG
+      OUTPUT_STRIP_TRAILING_WHITESPACE
    )
 else(EXISTS "${CMAKE_SOURCE_DIR}/.git")
    set(GIT_BRANCH "")
@@ -53,17 +53,24 @@ else(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 
 configure_file(
-${CMAKE_SOURCE_DIR}/cmake/version.in.hpp
-${CMAKE_SOURCE_DIR}/src/include/version.hpp
+   ${CMAKE_SOURCE_DIR}/cmake/version.hpp
+   ${CMAKE_SOURCE_DIR}/src/include/version.hpp
 )
 configure_file(
-${CMAKE_SOURCE_DIR}/cmake/version.in.py
-${CMAKE_SOURCE_DIR}/src/fastpli/version.py
+   ${CMAKE_SOURCE_DIR}/cmake/version.py
+   ${CMAKE_SOURCE_DIR}/src/fastpli/version.py
+)
+configure_file(
+   ${CMAKE_SOURCE_DIR}/cmake/setup.py
+   ${CMAKE_CURRENT_BINARY_DIR}/setup.py
 )
 
 ##########################################################################
 # Libraries
 ##########################################################################
+# Pybind11
+FIND_PACKAGE(PythonInterp 3)
+FIND_PACKAGE(PythonLibs   3)
 ADD_SUBDIRECTORY(lib/pybind11)
 
 # OpenMP
@@ -91,3 +98,6 @@ INCLUDE_DIRECTORIES( AFTER src)
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/model")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/objects")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/simulation")
+
+# move py package into build folder for setup.py
+FILE(COPY ${PROJECT_SOURCE_DIR}/src/fastpli DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

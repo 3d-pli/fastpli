@@ -26,15 +26,8 @@ pybind11_add_module(__simulation
       )
 TARGET_LINK_LIBRARIES(__simulation PRIVATE ${MPI_LIBRARIES})
 
-GET_TARGET_PROPERTY(outdir __generation LIBRARY_OUTPUT_DIRECTORY)
-IF (outdir)
-   SET(outdir "${outdir}/${subdir}")
-ELSE()
-   SET(outdir "${subdir}")
-endif()
-
-SET_TARGET_PROPERTIES(__generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
-SET_TARGET_PROPERTIES(__simulation PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${outdir})
+SET_TARGET_PROPERTIES(__generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/fastpli/${subdir}")
+SET_TARGET_PROPERTIES(__simulation PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/fastpli/${subdir}")
 
 IF ( MPI_FOUND )
    TARGET_COMPILE_DEFINITIONS(${CoreModules} PRIVATE _FASTPLI_MPI_FOUND_)
