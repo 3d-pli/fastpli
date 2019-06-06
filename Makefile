@@ -6,13 +6,19 @@ help:
 	@echo "make install"
 	@echo "make test"
 	@echo "make clean"
-	@echo ""
-	@echo "make build -- for compile checking"
 
 BUILD := release
 VENV := env
-PYTHON := ${VENV}/bin/python3
-INSTALL.debug := install -v --global-option build --global-option --debug -e build/.
+
+CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug 
+CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release 
+CMAKE := ${CMAKE.${BUILD}}
+
+MAKE.debug := make
+MAKE.release := make -j
+MAKE := ${MAKE.${BUILD}}
+
+INSTALL.debug := install  build/.
 INSTALL.release := install build/. -q
 INSTALL := ${INSTALL.${BUILD}}
 
@@ -37,8 +43,28 @@ requirements:
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
 .PHONY: install 
-install: ${VENV} git-submodules requirements build
+install: ${VENV} git-submodules requirements cmake build
 	${VENV}/bin/pip3 ${INSTALL}
+
+.ONESHELL:
+build/:
+	mkdir build
+
+.PHONY: cmake
+.ONESHELL:
+cmake: build/
+	cd build
+	${CMAKE}
+
+.PHONY: build
+.ONESHELL:
+build: build/
+	cd build
+	${MAKE}
+
+.PHONY: test
+test:
+	${VENV}/bin/python3 -m unittest discover -s tests -p '*_test.py'
 
 .PHONY: h5py-serial
 h5py-serial:
@@ -53,34 +79,6 @@ h5py-mpi:
 .PHONY: h5py-clean
 h5py-clean:
 	${VENV}/bin/pip3 uninstall h5py -y
-
-.ONESHELL:
-build/:
-	mkdir build
-	cd build
-	cmake ..
-
-.PHONY: cmake
-.ONESHELL:
-cmake: build/ git-submodules
-	cd build
-	cmake ..
-
-.PHONY: build
-.ONESHELL:
-build: build/ git-submodules
-	cd build
-	make
-
-.PHONY: build-j
-.ONESHELL:
-build-j: build/ git-submodules
-	cd build
-	make -j
-
-.PHONY: test
-test:
-	${PYTHON} -m unittest discover -s tests -p '*_test.py'
 
 .PHONY: docker-build
 docker-build:
