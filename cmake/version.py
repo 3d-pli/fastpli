@@ -1,3 +1,4 @@
 __version__ = "fastpli: @GIT_DESCRIBE_LOG@\n" \
               "Branch: @GIT_BRANCH@\n" \
-              "Hash: @GIT_COMMIT_HASH@"
+              "Hash: @GIT_COMMIT_HASH@\n" \
+              "Build: @CMAKE_BUILD_TYPE@"

@@ -8,7 +8,7 @@ if sys.version_info < (3, 0):
 
 setup(
     name='fastpli',
-    version='@GIT_DESCRIBE_LOG@',
+    version='@GIT_DESCRIBE_LOG@-${CMAKE_BUILD_TYPE}',
     description='Fiber Architecture Simulation Toolbox for PLI',
     long_description='',
     author='Felix Matuschke',
