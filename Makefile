@@ -43,7 +43,7 @@ requirements:
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
 .PHONY: install 
-install: ${VENV} git-submodules requirements cmake build
+install: ${VENV} git-submodules cmake build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .ONESHELL:

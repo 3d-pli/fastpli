@@ -1,11 +1,3 @@
-numpy
-numba
-pymp-pypi
-mpi4py
-scipy
-pillow
-h5py # for mpi version see makefile
-
 # additional requirements for developing
 yapf
 tqdm
