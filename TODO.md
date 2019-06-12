@@ -1,25 +1,36 @@
 
 back to [readme](README.md)
+
+# KNOWN ISSUES:
+* memory usage of simpli unknown if voi is set before pixel_size
+* simpli.resolution does not call property
+* nan values detected in light signal (for 90degree fibers?)
+
 # TODOs:
-- [ ] git submodule to cmake
-- [ ] 'make build' output to fastpli
+- [x] git submodule to cmake
+- [x] 'make build' output to fastpli
 - [ ] simpli.voxel_size
 - [ ] check filter rotations
 - [ ] check tilt direction
 - [ ] enlarge simulation for tilting <-> crop results
+- [ ] to many arguments as property
+- [ ] optic: new_size = np.array(np.array(image.shape) // resize, dtype=int)
+- [ ] memory warning for fiber_bundles (gets quite big for small segment lengths)
+  - [ ] non linear splitting and merging
+- [ ] multisampling 
 
 ## main structure:
 - [x] analysis
   - [x] epa
   - [x] rofl
-  - [ ] opt_pixel_resolution
+  - [ ] opt_pixel_resolution <- redo
 - [ ] model
   - [ ] generator (FAconstructor)
   - [x] solver
     - [ ] freeze objects
   - [ ] visualizer
     - [x] static
-    - [ ] red for collision
+    - [x] red for collision
     - [ ] interactive
 - [x] objects
   - [x] fiber
