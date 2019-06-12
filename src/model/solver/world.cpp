@@ -87,25 +87,9 @@ bool World::Step() {
 
    bool solved = true;
 
-   // // calculate voi
-   // aabb::AABB<float, 3> voi{};
-   // // get first valid voi
-   // for (auto const &fiber : fibers_) {
-   //    if (!fiber.points().empty()) {
-   //       voi = aabb::AABB<float, 3>(fiber.points()[0]);
-   //       break;
-   //    }
-   // }
-   // // combine all vois
-   // num_obj_ = 0;
-   // for (auto const &fiber : fibers_) {
-   //    num_obj_ += fiber.ConeSize();
-   //    for (size_t i = 0; i < fiber.size(); i++)
-   //       voi.Unite(aabb::AABB<float, 3>(fiber.points()[i] - fiber.radii()[i],
-   //                                      fiber.points()[i] + fiber.radii()[i],
-   //                                      true));
-   // }
-   // std::cout << "voi: " << voi << std::endl;
+   num_obj_ = 0;
+   for (auto const &fiber : fibers_)
+      num_obj_ += fiber.ConeSize();
 
 #pragma omp parallel for
    // applying drag before so that velocity is an idicator for colored
