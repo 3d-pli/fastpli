@@ -23,12 +23,12 @@ INSTALL.release := install build/. -q
 INSTALL := ${INSTALL.${BUILD}}
 
 ${VENV}/bin/pip3: 
-	rm -rf ${VENV}
+	@rm -rf ${VENV}
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
 
 ${VENV}/bin/python3:
-	rm -rf ${VENV}
+	@rm -rf ${VENV}
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
 
@@ -47,26 +47,29 @@ example/requirements:
 	${VENV}/bin/pip3 install -r example/requirements.txt -q
 
 .PHONY: install 
-install: ${VENV} git-submodules cmake build
+install: ${VENV} git-submodules build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: development 
-development: ${VENV} git-submodules requirements example/requirements cmake build
+development: ${VENV} git-submodules requirements example/requirements clean-cmake build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .ONESHELL:
 build/:
 	mkdir build
 
-.PHONY: cmake
 .ONESHELL:
-cmake: build/
-	cd build
-	${CMAKE}
+build/Makefile: build/
+	@if [ ! -f build/Makefile ]
+	then
+		cd build
+		echo ${CMAKE} 
+		${CMAKE}
+	fi
 
 .PHONY: build
 .ONESHELL:
-build: build/
+build: build/ build/Makefile
 	cd build
 	${MAKE}
 
@@ -105,6 +108,10 @@ clean: clean-venv clean-build
 .PHONY: clean-build
 clean-build:
 	rm -rf build
+
+.PHONY: clean-cmake
+clean-cmake:
+	rm build/Makefile
 
 .PHONY: clean-venv
 clean-venv:
