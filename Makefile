@@ -42,8 +42,16 @@ git-submodules:
 requirements: 
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
+.PHONY: example/requirements
+example/requirements: 
+	${VENV}/bin/pip3 install -r example/requirements.txt -q
+
 .PHONY: install 
 install: ${VENV} git-submodules cmake build
+	${VENV}/bin/pip3 ${INSTALL}
+
+.PHONY: development 
+development: ${VENV} git-submodules requirements example/requirements cmake build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .ONESHELL:
