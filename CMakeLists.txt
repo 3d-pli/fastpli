@@ -69,8 +69,8 @@ configure_file(
 # Libraries
 ##########################################################################
 # Pybind11
-FIND_PACKAGE(PythonInterp 3)
-FIND_PACKAGE(PythonLibs   3)
+FIND_PACKAGE(PythonInterp 3 REQUIRED)
+FIND_PACKAGE(PythonLibs   3 REQUIRED)
 ADD_SUBDIRECTORY(lib/pybind11)
 
 # OpenMP
@@ -98,6 +98,3 @@ INCLUDE_DIRECTORIES( AFTER src)
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/model")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/objects")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/simulation")
-
-# move py package into build folder for setup.py
-FILE(COPY ${PROJECT_SOURCE_DIR}/src/fastpli DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

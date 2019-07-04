@@ -109,10 +109,6 @@ clean: clean-venv clean-build
 clean-build:
 	rm -rf build
 
-.PHONY: clean-cmake
-clean-cmake:
-	rm build/Makefile
-
 .PHONY: clean-venv
 clean-venv:
 	rm -rf ${VENV}
