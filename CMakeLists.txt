@@ -8,7 +8,7 @@ SET(CMAKE_VERBOSE_MAKEFILE OFF)
 # Buildconfiguration
 ##########################################################################
 if( NOT CMAKE_BUILD_TYPE )
-   set(CMAKE_BUILD_TYPE "debug")
+   set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
 set(CMAKE_CXX_STANDARD 14)

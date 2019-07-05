@@ -18,7 +18,7 @@ MAKE.debug := make
 MAKE.release := make -j
 MAKE := ${MAKE.${BUILD}}
 
-INSTALL.debug := install  build/.
+INSTALL.debug := install build/.
 INSTALL.release := install build/. -q
 INSTALL := ${INSTALL.${BUILD}}
 
@@ -103,7 +103,7 @@ docker: docker-build
 	docker start -i fastpli-test
 
 .PHONY: clean
-clean: clean-venv clean-build
+clean: clean-build clean-venv #clean-src
 
 .PHONY: clean-build
 clean-build:
@@ -112,3 +112,11 @@ clean-build:
 .PHONY: clean-venv
 clean-venv:
 	rm -rf ${VENV}
+
+.PHONY: clean-src
+clean-src:
+	@echo rm src/**/*.so
+	@find src/ -name "*egg-info" -exec rm -r {} +
+	@find src/ -name "*.so" -exec rm {} +
+	@find src/ -name "__pycache__" -exec rm -r {} +
+	@find tests/ -name "__pycache__" -exec rm -r {} +

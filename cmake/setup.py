@@ -1,5 +1,3 @@
-from distutils.core import setup
-
 import os
 import sys
 import setuptools
@@ -10,7 +8,7 @@ if sys.version_info < (3, 0):
 # copy src files into build folder
 os.system('cp -r ${CMAKE_SOURCE_DIR}/src/fastpli ${CMAKE_CURRENT_BINARY_DIR}/')
 
-setup(
+setuptools.setup(
     name='fastpli',
     version='@GIT_DESCRIBE_LOG@-${CMAKE_BUILD_TYPE}',
     description='Fiber Architecture Simulation Toolbox for PLI',
