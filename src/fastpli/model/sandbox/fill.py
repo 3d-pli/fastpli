@@ -16,9 +16,9 @@ def rectangle(a, b, spacing, mode='center'):
     dy = np.cos(np.deg2rad(30)) * spacing
 
     points_0 = np.mgrid[x0:x0 + a + spacing / 2:spacing, y0:y0 + b +
-                        spacing / 2:spacing].reshape(2, -1)
+                        spacing / 2:2 * dy].reshape(2, -1)
     points_1 = np.mgrid[x0 + dx:x0 + spacing / 2 + a:spacing, y0 + dy:y0 + b +
-                        spacing / 2:spacing].reshape(2, -1)
+                        spacing / 2:2 * dy].reshape(2, -1)
 
     points = np.concatenate((points_0, points_1), axis=1).T
     points = np.concatenate((points, np.zeros((points.shape[0], 1))), axis=1)
@@ -32,9 +32,9 @@ def circle(radius, spacing):
     dy = np.cos(np.deg2rad(30)) * spacing
 
     points_0 = np.mgrid[-radius:radius + spacing / 2:spacing, -radius:radius +
-                        spacing / 2:spacing].reshape(2, -1)
+                        spacing / 2:2 * dy].reshape(2, -1)
     points_1 = np.mgrid[-radius + dx:radius + spacing / 2:spacing, -radius +
-                        dy:radius + spacing / 2:spacing].reshape(2, -1)
+                        dy:radius + spacing / 2:2 * dy].reshape(2, -1)
 
     points = np.concatenate((points_0, points_1), axis=1)
     dr2 = points[0, :]**2 + points[1, :]**2
