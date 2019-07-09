@@ -47,7 +47,7 @@ def save(file_name, fiber_bundles):
                             raise TypeError('Wrong input datatype')
 
                         if fiber.shape[1] != 4 or len(fiber.shape) != 2:
-                            raise TypeError('Wrong shape')
+                            raise TypeError('Wrong shape:', fiber.shape)
 
                         pos = fiber[:, 0:3]
                         radii = fiber[:, -1]

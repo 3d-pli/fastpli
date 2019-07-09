@@ -41,19 +41,19 @@ def set_axes_equal(ax):
     ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
-p0 = (0, 0, 0)
-p1 = (100, 100, 100)
+p0 = (0, 80, 0)
+p1 = (0, 80, 100)
 r0 = 20
 r1 = 40
-alpha = np.deg2rad(22.5)
-beta = alpha + np.deg2rad(90)
-mode = 'radial'
+alpha = np.deg2rad(0)
+beta = alpha + np.deg2rad(360)
+mode = 'circular'
 spacing = 5
 steps = 100
 radius = 1
 
 data = fastpli.model.sandbox.shape.cylinder(p0, p1, r0, r1, alpha, beta, mode,
-                                            spacing, radius, steps)
+                                            spacing, steps)
 
 for d in data:
     ax.plot(d[:, 0], d[:, 1], d[:, 2])
