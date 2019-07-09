@@ -41,8 +41,13 @@ def euler(psi, theta_, phi_):
 
 
 def a_on_b(a, b):
+    a = a / np.linalg.norm(a)
+    b = b / np.linalg.norm(b)
+    if np.all(a == b):
+        return np.identity(3)
+
     v = np.cross(a, b)
-    s = np.linalg.norm(v) + 1e-9
+    s = np.linalg.norm(v)
     c = np.dot(a, b)
     vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
     R = np.identity(3, float) + vx + np.dot(vx, vx) * (1 - c) / s**2
