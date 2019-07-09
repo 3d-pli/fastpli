@@ -4,6 +4,14 @@ from . import fill
 
 
 def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
+    # project angles -> [0, 2*np.pi)
+    alpha = alpha % (2.0 * np.pi)
+    if alpha < 0:
+        alpha += 2.0 * np.pi
+    beta = beta % (2.0 * np.pi)
+    if beta < 0:
+        beta += 2.0 * np.pi
+
     p0 = np.array(p0)
     p1 = np.array(p1)
     dp = p1 - p0
@@ -18,12 +26,6 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
         phi = np.arctan2(points[:, 1], points[:, 0])
 
         # project angles -> [0, 2*np.pi)
-        alpha = alpha % (2.0 * np.pi)
-        if alpha < 0:
-            alpha += 2.0 * np.pi
-        beta = beta % (2.0 * np.pi)
-        if beta < 0:
-            beta += 2.0 * np.pi
         phi = phi % (2.0 * np.pi)
         phi[phi < 0] = phi[phi < 0] + 2.0 * np.pi
 
@@ -71,8 +73,34 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
             data[i] = data[i] + (p0.T + p1.T) * 0.5
 
     elif mode == 'radial' or mode == 'r':
-        print("not implemented yet")
-        pass
+        a = r0 * (beta - alpha)
+        b = np.linalg.norm(dp)
+        points = fill.rectangle(a, b, spacing, 'center')
+        points[:, 0] += a / 2
+
+        for p in points:
+            x0 = r0 * np.cos(p[0] / a * (beta - alpha))
+            y0 = r0 * np.sin(p[0] / a * (beta - alpha))
+            x1 = r1 * np.cos(p[0] / a * (beta - alpha))
+            y1 = r1 * np.sin(p[0] / a * (beta - alpha))
+
+            x = np.interp(np.arange(steps), [0, steps - 1], [x0, x1])
+            y = np.interp(np.arange(steps), [0, steps - 1], [y0, y1])
+            z = np.ones(x.size) * p[1]
+
+            data.append(np.array([x, y, z]).T)
+
+        # rotate cylinder into final position
+        rot = rotation.z(alpha)
+        for i in range(len(data)):
+            data[i] = np.dot(rot, data[i].T).T
+
+        rot = rotation.a_on_b(np.array((0, 0, 1)), dp)
+        for i in range(len(data)):
+            data[i] = np.dot(rot, data[i].T).T
+
+        for i in range(len(data)):
+            data[i] = data[i] + (p0.T + p1.T) * 0.5
 
     else:
         raise ValueError('mode has to be "parallel" or "radial"')
