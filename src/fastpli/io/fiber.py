@@ -25,6 +25,8 @@ def load(file_name):
                         fiber = []
                     else:  # new bundle with double empty line
                         flag_fiber_bundle_end = True
+            if fiber:
+                fiber_bundles[-1].append(np.array(fiber))
     else:
         raise TypeError(ext + ' is not implemented yet')
 
