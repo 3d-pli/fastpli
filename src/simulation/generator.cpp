@@ -154,7 +154,6 @@ PliGenerator::RunTissueGeneration(const bool only_label,
        aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
                             vm::cast<float>(dim_.local + dim_.offset), true);
 
-   // fibers
    if (debug_)
       std::cout << "generating fibers: " << num_fibers_ << std::endl;
 
@@ -165,11 +164,9 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       if (!aabb::Overlap(volume_bb, fb.voi()))
          continue;
 
-      // #pragma omp parallel for
+#pragma omp parallel for
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
          const auto &fiber = fb.fibers()[f_idx];
-
-         progress_counter++;
 
          if (fiber.size() <= 1)
             continue;
@@ -177,7 +174,6 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          if (!aabb::Overlap(volume_bb, fiber.voi()))
             continue;
 
-#pragma omp parallel for
          for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
             // TODO: figure out how to incapsulate idx into fiber to only
             // parse fiber segment
@@ -187,26 +183,31 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          }
 
          if (progress_bar) {
-            int barWidth = 60;
-            int progress =
-                (progress_counter + 1) * 100 / (num_fibers_ + num_cells_);
+#pragma omp critical
+            {
+               progress_counter++;
 
-            if (progress - lastProgress > 5 ||
-                progress_counter == (num_fibers_ + num_cells_) - 1 ||
-                progress_counter == 0) {
-               std::cout << ": [";
-               int pos = barWidth * progress / 100;
-               for (int pb = 0; pb < barWidth; ++pb) {
-                  if (pb < pos)
-                     std::cout << "=";
-                  else if (pb == pos)
-                     std::cout << ">";
-                  else
-                     std::cout << " ";
+               const int barWidth = 60;
+               const int progress =
+                   (progress_counter + 1) * 100 / (num_fibers_ + num_cells_);
+
+               if (progress - lastProgress > 5 ||
+                   progress_counter == (num_fibers_ + num_cells_) - 1 ||
+                   progress_counter == 0) {
+                  std::cout << ": [";
+                  const int pos = barWidth * progress / 100;
+                  for (int pb = 0; pb < barWidth; ++pb) {
+                     if (pb < pos)
+                        std::cout << "=";
+                     else if (pb == pos)
+                        std::cout << ">";
+                     else
+                        std::cout << " ";
+                  }
+                  std::cout << "] " << progress << " %\r";
+                  std::cout.flush();
+                  lastProgress = progress;
                }
-               std::cout << "] " << progress << " %\r";
-               std::cout.flush();
-               lastProgress = progress;
             }
          }
       }
@@ -222,10 +223,9 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       if (!aabb::Overlap(volume_bb, cp.voi()))
          continue;
 
+#pragma omp parallel for
       for (size_t c_idx = 0; c_idx < cp.cells().size(); c_idx++) {
          const auto &cell = cp.cells()[c_idx];
-
-         progress_counter++;
 
          if (!aabb::Overlap(volume_bb, cell.voi()))
             continue;
@@ -237,28 +237,31 @@ PliGenerator::RunTissueGeneration(const bool only_label,
                                    array_distance);
          }
 
-         // TODO: not thread safe
          if (progress_bar) {
-            int barWidth = 60;
-            int progress =
-                (progress_counter + 1) * 100 / (num_fibers_ + num_cells_);
+#pragma omp critical
+            {
+               progress_counter++;
+               int barWidth = 60;
+               int progress =
+                   (progress_counter + 1) * 100 / (num_fibers_ + num_cells_);
 
-            if (progress - lastProgress > 5 ||
-                progress_counter == (num_fibers_ + num_cells_) - 1 ||
-                progress_counter == 0) {
-               std::cout << ": [";
-               int pos = barWidth * progress / 100;
-               for (int pb = 0; pb < barWidth; ++pb) {
-                  if (pb < pos)
-                     std::cout << "=";
-                  else if (pb == pos)
-                     std::cout << ">";
-                  else
-                     std::cout << " ";
+               if (progress - lastProgress > 5 ||
+                   progress_counter == (num_fibers_ + num_cells_) - 1 ||
+                   progress_counter == 0) {
+                  std::cout << ": [";
+                  int pos = barWidth * progress / 100;
+                  for (int pb = 0; pb < barWidth; ++pb) {
+                     if (pb < pos)
+                        std::cout << "=";
+                     else if (pb == pos)
+                        std::cout << ">";
+                     else
+                        std::cout << " ";
+                  }
+                  std::cout << "] " << progress << " %\r";
+                  std::cout.flush();
+                  lastProgress = progress;
                }
-               std::cout << "] " << progress << " %\r";
-               std::cout.flush();
-               lastProgress = progress;
             }
          }
       }
@@ -432,10 +435,15 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
                 (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
             assert(ind < label_field.size());
 
-            if (array_distance[ind] >= dist_squ) {
+            int new_label = cp_idx + max_layer_ * num_fiber_bundles_ +
+                            1; // +1 for background
+
+#pragma omp critical
+            if (array_distance[ind] > dist_squ ||
+                (array_distance[ind] == dist_squ &&
+                 label_field[ind] < new_label)) {
                array_distance[ind] = dist_squ;
-               label_field[ind] = cp_idx + max_layer_ * num_fiber_bundles_ +
-                                  1; // +1 for background
+               label_field[ind] = new_label;
             }
          }
       }

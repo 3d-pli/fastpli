@@ -71,7 +71,7 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.h5'),
     with open(os.path.abspath(__file__), 'r') as f:
         h5f['script'] = f.read()
 
-    label_field, vec_field, tissue_properties = simpli.GenerateTissue()
+    label_field, vec_field, tissue_properties = simpli.GenerateTissue(progress_bar = True)
 
     h5f['tissue'] = label_field.astype(np.uint16)
     h5f['vectorfield'] = vec_field
