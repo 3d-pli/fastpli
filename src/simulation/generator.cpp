@@ -266,8 +266,25 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          }
       }
    }
-   if (progress_bar)
+
+   if (progress_bar) {
+      const int barWidth = 60;
+      const int progress = 100;
+
+      std::cout << ": [";
+      const int pos = (barWidth * progress) / 100;
+      for (int pb = 0; pb < barWidth; ++pb) {
+         if (pb < pos)
+            std::cout << "=";
+         else if (pb == pos)
+            std::cout << ">";
+         else
+            std::cout << " ";
+      }
+      std::cout << "] " << progress << " %\r";
+      std::cout.flush();
       std::cout << std::endl;
+   }
 
    return std::make_tuple(label_field, vector_field, GetPropertyList());
 }
