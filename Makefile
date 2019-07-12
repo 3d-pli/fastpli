@@ -108,8 +108,8 @@ clean: clean-build clean-venv #clean-src
 .PHONY: clean-build
 clean-build:
 	rm -rf build
-	rm src/fastpli/version.py
-	rm src/include/version.hpp
+	rm -f src/fastpli/version.py
+	rm -f src/include/version.hpp
 
 .PHONY: clean-venv
 clean-venv:
