@@ -165,8 +165,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       if (!aabb::Overlap(volume_bb, fb.voi()))
          continue;
 
-// TODO: #pragma omp parallel for
-#pragma omp parallel for
+      // #pragma omp parallel for
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
          const auto &fiber = fb.fibers()[f_idx];
 
@@ -178,8 +177,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          if (!aabb::Overlap(volume_bb, fiber.voi()))
             continue;
 
-         // #pragma omp parallel for
-         // TODO: sequence order of fiber and fiber segment matters!
+#pragma omp parallel for
          for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
             // TODO: figure out how to incapsulate idx into fiber to only
             // parse fiber segment

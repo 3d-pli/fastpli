@@ -10,7 +10,7 @@ from fastpli.analysis import images
 
 np.random.seed(42)
 
-OMP_NUM_THREADS = 1
+OMP_NUM_THREADS = 5
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 FILE_NAME = os.path.splitext(
     os.path.basename(__file__))[0] + "." + str(OMP_NUM_THREADS)
