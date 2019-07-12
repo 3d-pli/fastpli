@@ -34,3 +34,6 @@ IF ( MPI_FOUND )
    TARGET_COMPILE_DEFINITIONS(__generation PRIVATE _FASTPLI_MPI_FOUND_)
    TARGET_COMPILE_DEFINITIONS(__simulation PRIVATE _FASTPLI_MPI_FOUND_)
 ENDIF()
+
+add_dependencies(__generation build_version)
+add_dependencies(__simulation build_version)
