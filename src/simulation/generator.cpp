@@ -189,13 +189,13 @@ PliGenerator::RunTissueGeneration(const bool only_label,
 
                const int barWidth = 60;
                const int progress =
-                   (progress_counter + 1) * 100 / (num_fibers_ + num_cells_);
+                   progress_counter * 100 / (num_fibers_ + num_cells_);
 
-               if (progress - lastProgress > 5 ||
-                   progress_counter == (num_fibers_ + num_cells_) - 1 ||
-                   progress_counter == 0) {
+               if (progress - lastProgress > 1 ||
+                   progress_counter == (num_fibers_ + num_cells_) ||
+                   progress_counter == 1) {
                   std::cout << ": [";
-                  const int pos = barWidth * progress / 100;
+                  const int pos = (barWidth * progress) / 100;
                   for (int pb = 0; pb < barWidth; ++pb) {
                      if (pb < pos)
                         std::cout << "=";
@@ -243,13 +243,13 @@ PliGenerator::RunTissueGeneration(const bool only_label,
                progress_counter++;
                int barWidth = 60;
                int progress =
-                   (progress_counter + 1) * 100 / (num_fibers_ + num_cells_);
+                   progress_counter * 100 / (num_fibers_ + num_cells_);
 
-               if (progress - lastProgress > 5 ||
-                   progress_counter == (num_fibers_ + num_cells_) - 1 ||
-                   progress_counter == 0) {
+               if (progress - lastProgress > 1 ||
+                   progress_counter == (num_fibers_ + num_cells_) ||
+                   progress_counter == 1) {
                   std::cout << ": [";
-                  int pos = barWidth * progress / 100;
+                  int pos = (barWidth * progress) / 100;
                   for (int pb = 0; pb < barWidth; ++pb) {
                      if (pb < pos)
                         std::cout << "=";
