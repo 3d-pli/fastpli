@@ -163,8 +163,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    bool flag_all_done = false;
    while (!flag_all_done) {
-      // #pragma omp parallel for // POP_BACK not thread safe !!!
 
+#pragma omp parallel for // TODO: check thread safe with MPI!
       for (size_t s = 0; s < scan_grid.size(); s++) {
 
          auto grid_elm = scan_grid[s];
@@ -174,6 +174,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          auto ccd_pos = grid_elm.ccd;
          auto s_vec = s_vec_0;
 
+#pragma omp critical
          if (local_pos.z() >= 0.5) {
             s_vec.clear();
             for (auto i = 0u; i < n_rho; i++) {
@@ -275,6 +276,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          }
       }
 
+#pragma omp critical
       if (mpi_) {
 #ifndef NDEBUG
          if (!signal_buffer_.empty())
@@ -534,6 +536,7 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    if ((local_pos.x() < 0 && shift_direct.x() == -1 && low.x() != 0) ||
        (local_pos.x() > dim_.local.x() - 0.5 && shift_direct.x() == 1 &&
         up.x() != dim_.global.x() - 0.5)) {
+#pragma omp critical
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.x() * 1);
       flag = true;
@@ -542,6 +545,7 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    } else if ((local_pos.y() < 0 && shift_direct.y() == -1 && low.y() != 0) ||
               (local_pos.y() > dim_.local.y() - 0.5 && shift_direct.y() == 1 &&
                up.y() != dim_.global.y() - 0.5)) {
+#pragma omp critical
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.y() * 2);
       flag = true;
@@ -550,6 +554,7 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    } else if ((local_pos.z() < 0 && shift_direct.z() == -1 && low.z() != 0) ||
               (local_pos.z() > dim_.local.z() - 0.5 && shift_direct.z() == 1 &&
                up.z() != dim_.global.z() - 0.5)) {
+#pragma omp critical
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.z() * 3);
       flag = true;

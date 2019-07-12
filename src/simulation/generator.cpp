@@ -239,6 +239,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
                                    array_distance);
          }
 
+         // TODO: not thread safe
          if (progress_bar) {
             int barWidth = 60;
             int progress =
@@ -326,33 +327,64 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                                                  layers_scale_sqr.end(),
                                                  dist_squ / (ly_r * ly_r));
                   int ly_idx = std::distance(layers_scale_sqr.begin(), ly_itr);
+                  int new_label = ly_idx + 1 + fb_idx * max_layer_;
 
-                  array_distance[ind] = dist_squ;
-                  label_field[ind] = ly_idx + 1 + fb_idx * max_layer_;
+                  // thread safe operation -> favour higher rated objects (if
+                  // distance equal) or closer objects
+                  if ((new_label >= label_field[ind] &&
+                       array_distance[ind] == dist_squ) ||
+                      array_distance[ind] > dist_squ) {
 
-                  if (!only_label) {
-                     auto ly = fiber_bundles_[fb_idx].layer_orientation(ly_idx);
-                     vm::Vec3<float> tmpVec(0);
+                     if (!only_label) {
+                        auto ly =
+                            fiber_bundles_[fb_idx].layer_orientation(ly_idx);
+                        vm::Vec3<float> new_vec(0);
 
-                     if (ly != fiber::layer::Orientation::background) {
-                        if (ly == fiber::layer::Orientation::radial)
-                           tmpVec = vm::unit(point - min_point);
-                        else if (ly == fiber::layer::Orientation::parallel)
-                           tmpVec = vm::unit(q - p);
+                        if (ly != fiber::layer::Orientation::background) {
+                           if (ly == fiber::layer::Orientation::radial)
+                              new_vec = vm::unit(point - min_point);
+                           else if (ly == fiber::layer::Orientation::parallel)
+                              new_vec = vm::unit(q - p);
+                        }
+
+                        // TODO: flip_direction for PM
+                        // if (flip_direction_.x())
+                        //    new_vec.x() *= -1;
+
+                        // if (flip_direction_.y())
+                        //    new_vec.y() *= -1;
+
+                        // if (flip_direction_.z())
+                        //    new_vec.z() *= -1;
+
+                        // thread safe operation -> favour z-y-x vectors
+                        bool flag = false;
+                        if (array_distance[ind] == dist_squ) {
+                           if (std::abs(new_vec.z()) >
+                               std::abs(vector_field[ind * 3 + 2])) {
+                              flag = true;
+                           } else if (std::abs(new_vec.z()) ==
+                                      std::abs(vector_field[ind * 3 + 2])) {
+                              if (std::abs(new_vec.y()) >
+                                  std::abs(vector_field[ind * 3 + 1]))
+                                 flag = true;
+                              else if (std::abs(new_vec.y()) ==
+                                       std::abs(vector_field[ind * 3 + 1])) {
+                                 if (std::abs(new_vec.x()) >
+                                     std::abs(vector_field[ind * 3 + 0]))
+                                    flag = true;
+                              }
+                           }
+                        } else {
+                           flag = true;
+                        }
+                        if (flag)
+                           std::copy(new_vec.begin(), new_vec.end(),
+                                     &vector_field[ind * 3]);
                      }
 
-                     // TODO: flip_direction for PM
-                     // if (flip_direction_.x())
-                     //    tmpVec.x() *= -1;
-
-                     // if (flip_direction_.y())
-                     //    tmpVec.y() *= -1;
-
-                     // if (flip_direction_.z())
-                     //    tmpVec.z() *= -1;
-
-                     std::copy(tmpVec.begin(), tmpVec.end(),
-                               &vector_field[ind * 3]);
+                     array_distance[ind] = dist_squ;
+                     label_field[ind] = new_label;
                   }
                }
             }

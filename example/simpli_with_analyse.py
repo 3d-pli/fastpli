@@ -1,11 +1,8 @@
 import h5py
 import numpy as np
-import sys
 import os
 
 # save images
-import imageio
-import nibabel as nib
 
 # fastpli
 from fastpli.simulation import Simpli
@@ -13,13 +10,15 @@ from fastpli.analysis import images
 
 np.random.seed(42)
 
+OMP_NUM_THREADS = 1
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-FILE_NAME = os.path.splitext(os.path.basename(__file__))[0]
+FILE_NAME = os.path.splitext(
+    os.path.basename(__file__))[0] + "." + str(OMP_NUM_THREADS)
 FILE_OUTPUT = '/tmp/'
 
 # PliGeneration ###
 simpli = Simpli()
-simpli.omp_threads(2)
+simpli.omp_threads(OMP_NUM_THREADS)
 simpli.pixel_size = 6
 simpli.resolution = 60
 simpli.set_voi([0, 3000, 0, 3000, 0, 60])
@@ -66,7 +65,7 @@ simpli.fiber_bundles_properties = [[(1.0, -0.001, 1, 'p')]
 
 print("MemoryUseage:", '~' + str(int(simpli.MemoryUseage())) + ' MB')
 
-with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
+with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.h5'),
                'w') as h5f:
 
     with open(os.path.abspath(__file__), 'r') as f:
@@ -74,9 +73,7 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
 
     label_field, vec_field, tissue_properties = simpli.GenerateTissue()
 
-    dset = h5f.create_dataset('tissue', label_field.shape, np.uint16)
-    dset[:] = label_field
-
+    h5f['tissue'] = label_field.astype(np.uint16)
     h5f['vectorfield'] = vec_field
 
     # PliSimulation ###
@@ -89,10 +86,6 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
 
     image_stack = []
 
-    mask = None
-    # mask = np.sum(label_field, 2) > 0
-    # mask = simpli.apply_resize_mask(mask) > 0.1
-
     print("Run Simulations:")
     for t, (theta, phi) in enumerate(tilts):
         print('Step:', t, theta, phi)
@@ -101,7 +94,6 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
         h5f['data/' + str(t)] = image
 
         image = simpli.apply_optic(image, gain=3)
-
         h5f['optic/' + str(t)] = image
 
         epa = simpli.apply_epa(image)
@@ -124,38 +116,3 @@ with h5py.File(os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.new.h5'),
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
     h5f['rofl/trel'] = rofl_t_rel
-
-    print("Unit Vectors")
-    unit_x, unit_y, unit_z = images.unit_vectors(rofl_direction, rofl_incl,
-                                                 mask)
-    img = nib.Nifti1Image(unit_x, np.eye(4))
-    nib.save(img,
-             os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.UnitX.nii'))
-    img = nib.Nifti1Image(unit_y, np.eye(4))
-    nib.save(img,
-             os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.UnitY.nii'))
-    img = nib.Nifti1Image(unit_z, np.eye(4))
-    nib.save(img,
-             os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.UnitZ.nii'))
-
-    print("FOMs")
-    img = images.fom_hsv_black(rofl_direction, rofl_incl, mask)
-    imageio.imwrite(
-        os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.hsv_black.png'),
-        np.swapaxes(np.flip(img, 1), 0, 1))
-
-    img = images.fom_rgb(rofl_direction, rofl_incl, mask)
-    imageio.imwrite(
-        os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.rgb.png'),
-        np.swapaxes(np.flip(img, 1), 0, 1))
-
-    img = images.hsvblack_sphere()
-    imageio.imwrite(
-        os.path.join(FILE_OUTPUT,
-                     'example.' + FILE_NAME + '.hsv_black_sphere.png'),
-        np.swapaxes(np.flip(img, 1), 0, 1))
-
-    img = images.rgb_sphere()
-    imageio.imwrite(
-        os.path.join(FILE_OUTPUT, 'example.' + FILE_NAME + '.rgb_sphere.png'),
-        np.swapaxes(np.flip(img, 1), 0, 1))
