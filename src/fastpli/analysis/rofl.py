@@ -31,7 +31,7 @@ def rofl(data, tilt_angle=np.deg2rad(5.5), gain=3):
         1], params_conf[2], func, n_iter
 
 
-def map(data, tilt_angle=np.deg2rad(5.5), gain=3, mask=None):
+def map(data, tilt_angle=np.deg2rad(5.5), gain=3, mask=None, num_threads=2):
     '''
     data: np.array([tilts,x,y,stack])
     '''
@@ -61,7 +61,7 @@ def map(data, tilt_angle=np.deg2rad(5.5), gain=3, mask=None):
     funcmap = pymp.shared.array(data.shape[1:3], np.float32)
     itermap = pymp.shared.array(data.shape[1:3], np.float32)
 
-    with pymp.Parallel() as p:
+    with pymp.Parallel(num_threads) as p:
         for x in p.range(data.shape[1]):
             for y in range(data.shape[2]):
                 if not mask[x, y]:
