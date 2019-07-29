@@ -25,8 +25,8 @@ Property::Property(float s, float n, float m, char o) : scale(s), dn(n), mu(m) {
    if (s <= 0)
       std::cout << "Warning: scale <= 0 detected\n";
 
-   if (mu <= 0)
-      std::cout << "Warning: absorption mu <= 0 detected\n";
+   if (mu < 0)
+      std::cout << "Warning: absorption mu < 0 detected\n";
 }
 
 Property::Property(float s, float n, float m, Orientation o)
@@ -34,8 +34,8 @@ Property::Property(float s, float n, float m, Orientation o)
    if (s <= 0)
       std::cout << "Warning: scale <= 0 detected\n";
 
-   if (m <= 0)
-      std::cout << "Warning: absorption mu <= 0 detected\n";
+   if (m < 0)
+      std::cout << "Warning: absorption mu < 0 detected\n";
 }
 
 size_t Properties::size() const {
