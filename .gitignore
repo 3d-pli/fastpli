@@ -3,6 +3,7 @@
 *.h5
 *.dat
 *debug*
+*dev_*
 .tmux.sh
 .worktrees/
 *env*/

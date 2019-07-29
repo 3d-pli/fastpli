@@ -13,7 +13,7 @@ def apply(
         cropping=0,
         resample_mode=Image.BILINEAR):
 
-    if res_pixel_size % org_pixel_size != 0:
+    if (res_pixel_size / org_pixel_size) % 1.0 != 0:
         print('WARNING: OPTIC: res_pixel_size % org_pixel_size:',
               res_pixel_size, org_pixel_size)  #
 
