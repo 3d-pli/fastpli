@@ -422,6 +422,7 @@ class Simpli:
                       tissue_properties,
                       theta,
                       phi,
+                      step_size=1.0,
                       do_untilt=True):
 
         label_field = np.array(label_field, dtype=np.uint16, copy=False)
@@ -439,7 +440,7 @@ class Simpli:
 
         self._sim.set_tissue_properties(tissue_properties)
         image = self._sim.run_simulation(self._dim, label_field, vec_field,
-                                         theta, phi, do_untilt)
+                                         theta, phi, step_size, do_untilt)
         return image
 
     def omp_threads(self, num_threads=2):
@@ -455,7 +456,7 @@ class Simpli:
             raise ValueError("num_threads_gen != num_threads_sim")
         return num_threads_gen
 
-    def MemoryUseage(self, item='all', unit='MB'):
+    def MemoryUseage(self, unit='MB', item='all'):
         if not isinstance(item, str):
             raise TypeError('item has to be str')
 
