@@ -4,15 +4,17 @@ import sys
 import os
 
 # fastpli
-from fastpli.simulation import Simpli
-from fastpli.analysis import images
+import fastpli.simulation
+import fastpli.analysis
 
 np.random.seed(42)
+
+### This code is a simple reproducable test between version changes ###
 
 if __name__ == '__main__':
 
     # PliGeneration ###
-    simpli = Simpli()
+    simpli = fastpli.simulation.Simpli()
     simpli.pixel_size = 32
     simpli.resolution = 64
     simpli.set_voi([0, 640, 0, 640, 0, 64])
@@ -34,7 +36,7 @@ if __name__ == '__main__':
              [
                  simpli.dim[0] * simpli.pixel_size,
                  simpli.dim[1] * simpli.pixel_size * 0.5, 30, fiber_radius
-             ], [simpli.dim[0] * simpli.pixel_size, 0, 30, fiber_radius4]]))
+             ], [simpli.dim[0] * simpli.pixel_size, 0, 30, fiber_radius]]))
 
     # circle
     t = np.linspace(0, 2 * np.pi, 50)
@@ -78,15 +80,15 @@ if __name__ == '__main__':
     mask = simpli.apply_resize_mask(mask) > 0.1
 
     # print("Run ROFL:")
-    rofl_direction, rofl_incl, rofl_t_rel = simpli.apply_rofl(image_stack,
-                                                              mask=mask)
+    rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(image_stack,
+                                                                 mask=mask)
 
     # print("Unit Vectors")
-    unit_x, unit_y, unit_z = images.unit_vectors(rofl_direction, rofl_incl,
-                                                 mask)
+    unit_x, unit_y, unit_z = fastpli.analysis.images.unit_vectors(
+        rofl_direction, rofl_incl, mask)
 
     # print("FOMs")
-    img = images.fom_hsv_black(rofl_direction, rofl_incl, mask)
-    img = images.fom_rgb(rofl_direction, rofl_incl, mask)
-    img = images.hsvblack_sphere(n=64)
-    img = images.rgb_sphere(n=64)
+    img = fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl, mask)
+    img = fastpli.analysis.images.fom_rgb(rofl_direction, rofl_incl, mask)
+    img = fastpli.analysis.images.hsvblack_sphere(n=64)
+    img = fastpli.analysis.images.rgb_sphere(n=64)

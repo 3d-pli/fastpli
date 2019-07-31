@@ -1,85 +1,46 @@
-import time
-import h5py
 import numpy as np
-import sys
+import h5py
 import os
 
-from fastpli.simulation import Simpli
+import fastpli.simulation
 
-FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-FILE_NAME = os.path.splitext(os.path.basename(your_path))
+FILE_NAME = os.path.abspath(__file__)
+FILE_PATH = os.path.dirname(FILE_NAME)
+FILE_BASE = os.path.basename(FILE_NAME)
 
-# Read fiber data and prepair for PliGenerator
-# TODO: write json -> parameter function
+with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
+    ### save script ###
+    with open(os.path.abspath(__file__), 'r') as f:
+        h5f['script'] = f.read()
 
-global_start = time.time()
+    ### Setup Simpli for Tissue Generation
+    simpli = fastpli.simulation.Simpli()
+    simpli.pixel_size = 1
+    simpli.dim = [100, 100, 100]
+    simpli.ReadFiberFile(os.path.join(FILE_PATH, 'cube.h5'))
+    simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
+                                        (0.666, 0, 5, 'b'),
+                                        (1.0, 0.004, 1, 'r')]]
 
-simpli = Simpli()
-# PliGeneration ###
-simpli.pixel_size = 1
-simpli.dim = [100, 100, 100]
-simpli.ReadFiberFile('example/cube.h5')
-# simpli.fiber_bundles = [[[[0,0,30,100],[640,640,30,100]]]]
-simpli.fiber_bundles_properties = [[(0.333, 0.004, 10, 'p'),
-                                    (0.666, -0.004, 5, 'b'),
-                                    (1.0, 0.004, 1, 'r')]]
+    print('VOI:', simpli.get_voi())
+    print('Memory:', str(round(simpli.MemoryUseage('MB'), 2)) + ' MB')
 
-print(simpli.get_voi())
-print(simpli.MemoryUseage())
-
-# manipulation of fibers
-simpli.RotateVolumeAroundPoint(np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5),
-                               [10, -5, 7.5])
-simpli.TranslateVolume([25, -15, 50])
-
-with h5py.File('/tmp/fastpli.example.' + FILE_NAME + '.h5', 'w') as h5f:
-
-    start = time.time()
-    # label_field, _, tissue_properties =
-    # simpli.GenerateTissue(only_label=True)
+    ### Generate Tissue
     label_field, vec_field, tissue_properties = simpli.GenerateTissue()
 
-    h5f['tissue'] = np.array(label_field, np.uint16)
+    h5f['tissue'] = label_field.astype(np.uint16)
     h5f['vectorfield'] = vec_field
-    end = time.time()
 
-    print("TissueGeneration:", end - start)
-
-    # PliSimulation ###
+    ### Simulate PLI Measurement ###
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
-    simpli.light_intensity = 26000
-    simpli.pixel_size = 1
+    simpli.light_intensity = 26000  # a.u.
+    simpli.pixel_size = 1  # mu-m
     simpli.untilt_sensor = True
-    simpli.wavelength = 525
+    simpli.wavelength = 525  # nm
+    TILTS = [(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]
 
-    start = time.time()
-    print("RunSimulation: 0")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties, 0,
-                                 0)
-    h5f['data/0'] = image
-
-    print("RunSimulation: 1")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(0))
-    h5f['data/1'] = image
-
-    print("RunSimulation: 2")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(90))
-    h5f['data/2'] = image
-
-    print("RunSimulation: 3")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(180))
-    h5f['data/3'] = image
-
-    print("RunSimulation: 4")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(270))
-    h5f['data/4'] = image
-
-    end = time.time()
-    print("RunSimulation:", end - start)
-
-global_end = time.time()
-print("GlobalRuntime:", global_end - global_start)
+    for t, (theta, phi) in enumerate(TILTS):
+        print(theta, phi)
+        image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
+                                     np.deg2rad(theta), np.deg2rad(phi))
+        h5f['data/' + str(t)] = image
