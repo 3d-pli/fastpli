@@ -24,7 +24,7 @@ class PliSimulator {
    struct Setup {
       double light_intensity{};
       double wavelength{};
-      double pixel_size{};
+      double voxel_size{};
 
       bool untilt_sensor = true;
       std::vector<double> filter_rotations;

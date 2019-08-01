@@ -17,14 +17,14 @@ class MainTest(unittest.TestCase):
         self.simpli.fiber_bundles = self.fiber_bundles
         self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
         self.simpli.dim = [10, 10, 10]
-        self.simpli.pixel_size = 0.2
+        self.simpli.voxel_size = 0.2
 
     def test_return_dimension(self):
         self.simpli.fiber_bundles = [[[[1, 3, 0, 2], [1, 3, 7, 2]]]]
         self.simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
         self.simpli.dim = [3, 5, 7]
         self.simpli.origin = [0, 0, 0]
-        self.simpli.pixel_size = 1
+        self.simpli.voxel_size = 1.0
 
         label_field, vec_field, tissue_properties = self.simpli.GenerateTissue()
 
@@ -33,7 +33,7 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(label_field.shape, vec_field.shape[0:3]))
         self.assertTrue(
             np.array_equal(label_field,
-                           np.array(vec_field[:, :, :, 2], dtype=np.int16)))
+                           np.array(vec_field[:, :, :, 2], dtype=int)))
 
     def test_generator(self):
         label_field_0, vec_field, tissue_properties = self.simpli.GenerateTissue(
@@ -68,7 +68,7 @@ class MainTest(unittest.TestCase):
                                           tissue_properties, 0, 0)
 
         with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
-            h5f['tissue'] = np.array(label_field, np.uint16)
+            h5f['tissue'] = label_field.astype(np.uint16)
             h5f['vectorfield'] = vec_field
             h5f['data/0'] = image
 

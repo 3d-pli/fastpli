@@ -7,17 +7,20 @@ back to [readme](README.md)
 * nan values detected in light signal (for 90degree fibers?)
 
 # TODOs:
-- [x] git submodule to cmake
-- [x] 'make build' output to fastpli
-- [ ] simpli.voxel_size
+- [ ] std::vector(float) for fibers
+- [ ] helper_math.hpp
+## simpli
 - [ ] check filter rotations
 - [ ] check tilt direction
+- [ ] check ALL input variables
 - [ ] enlarge simulation for tilting <-> crop results
-- [ ] to many arguments as property
+- [ ] too many arguments as property
 - [ ] optic: new_size = np.array(np.array(image.shape) // resize, dtype=int)
+- [ ] multisampling 
+## VCS
 - [ ] memory warning for fiber_bundles (gets quite big for small segment lengths)
   - [ ] non linear splitting and merging
-- [ ] multisampling 
+- [ ] split volume first into equal cubes, and then into a octtree
 
 ## main structure:
 - [x] analysis

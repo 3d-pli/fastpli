@@ -56,7 +56,7 @@ PYBIND11_MODULE(__simulation, m) {
    py::class_<PliSimulator::Setup>(m, "_Setup")
        .def(py::init())
        .def_readwrite("light_intensity", &PliSimulator::Setup::light_intensity)
-       .def_readwrite("pixel_size", &PliSimulator::Setup::pixel_size)
+       .def_readwrite("voxel_size", &PliSimulator::Setup::voxel_size)
        .def_readwrite("wavelength", &PliSimulator::Setup::wavelength)
        .def_readwrite("untilt_sensor", &PliSimulator::Setup::untilt_sensor)
        .def_readwrite("filter_rotations",

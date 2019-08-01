@@ -31,7 +31,7 @@ class Simpli:
         self._cells_populations_properties = None
         self._dim = None
         self._dim_origin = np.array([0, 0, 0], dtype=float)
-        self._pixel_size = None
+        self._voxel_size = None
         self._resolution = None
         self._flip_direction = np.array([0, 0, 0], dtype=bool)
 
@@ -74,24 +74,24 @@ class Simpli:
         self._dim_origin = np.array(dim_origin, dtype=float)
 
     @property
-    def pixel_size(self):
-        return (self._pixel_size)
+    def voxel_size(self):
+        return (self._voxel_size)
 
-    @pixel_size.setter
-    def pixel_size(self, pixel_size):
-        if not isinstance(pixel_size, (int, float)):
-            raise TypeError("pixel_size : (int, float)")
+    @voxel_size.setter
+    def voxel_size(self, voxel_size):
+        if not isinstance(voxel_size, (int, float)):
+            raise TypeError("voxel_size : (int, float)")
 
-        if pixel_size <= 0:
-            raise ValueError("pixel_size <= 0")
+        if voxel_size <= 0:
+            raise ValueError("voxel_size <= 0")
 
-        self._pixel_size = float(pixel_size)
+        self._voxel_size = float(voxel_size)
 
     @property
     def resolution(self):
         return (self._resolution)
 
-    @pixel_size.setter
+    @voxel_size.setter
     def resolution(self, resolution):
         if not isinstance(resolution, (int, float)):
             raise TypeError("resolution : (int, float)")
@@ -110,9 +110,9 @@ class Simpli:
         raise NotImplementedError("voi has to be get/set via get/set_voi()")
 
     def get_voi(self):
-        if self._pixel_size is None:
+        if self._voxel_size is None:
             return None
-            self.print_debug("pixel_size is not set, voi can't be calculated")
+            self.print_debug("voxel_size is not set, voi can't be calculated")
 
         if self._dim is None:
             return None
@@ -124,7 +124,7 @@ class Simpli:
 
         voi = np.zeros((6,))
         voi[::2] = self._dim_origin
-        voi[1::2] = voi[::2] + self._dim * self._pixel_size
+        voi[1::2] = voi[::2] + self._dim * self._voxel_size
         return voi
 
     def set_voi(self, voi):
@@ -139,13 +139,13 @@ class Simpli:
 
         self._voi = voi
 
-        if self._pixel_size is None:
+        if self._voxel_size is None:
             self.print_debug(
-                "pixel_size is not set yet, dim and dim_origin will be calculated when setted"
+                "voxel_size is not set yet, dim and dim_origin will be calculated when setted"
             )
             return
 
-        tmp = np.array(self._voi / self._pixel_size)
+        tmp = np.array(self._voi / self._voxel_size)
         self._dim = np.array(
             (int(tmp[1] - tmp[0]), int(tmp[3] - tmp[2]), int(tmp[5] - tmp[4])),
             dtype=int)
@@ -394,7 +394,17 @@ class Simpli:
                     "properties must have the same size as cell_populations")
 
     def GenerateTissue(self, only_label=False, progress_bar=False):
-        self._gen.set_volume(self._dim, self._dim_origin, self._pixel_size)
+
+        if self._dim is None:
+            raise ValueError('dim not set')
+
+        if self._dim_origin is None:
+            raise ValueError('dim_origin not set')
+
+        if self._voxel_size is None:
+            raise ValueError('voxel_size not set')
+
+        self._gen.set_volume(self._dim, self._dim_origin, self._voxel_size)
         self._CheckDataLength()
         if self._fiber_bundles:
             self._gen.set_fiber_bundles(self._fiber_bundles,
@@ -408,9 +418,24 @@ class Simpli:
         return label_field, vec_field, tissue_properties
 
     def InitSimulation(self):
+        if self._light_intensity is None:
+            raise ValueError('light_intensity not set')
+
+        if self._voxel_size is None:
+            raise ValueError('voxel_size not set')
+
+        if self._wavelength is None:
+            raise ValueError('wavelength not set')
+
+        if self._untilt_sensor is None:
+            raise ValueError('untilt_sensor not set')
+
+        if self._filter_rotations is None:
+            raise ValueError('filter_rotations not set')
+
         setup = _Setup()
         setup.light_intensity = self._light_intensity
-        setup.pixel_size = self._pixel_size
+        setup.voxel_size = self._voxel_size
         setup.wavelength = self._wavelength
         setup.untilt_sensor = self._untilt_sensor
         setup.filter_rotations = self._filter_rotations
@@ -425,20 +450,19 @@ class Simpli:
                       step_size=1.0,
                       do_untilt=True):
 
-        label_field = np.array(label_field, dtype=np.uint16, copy=False)
+        label_field = np.array(label_field, dtype=np.int32, copy=False)
         vec_field = np.array(vec_field, dtype=np.float32, copy=False)
 
         self.InitSimulation()
 
         tissue_properties = list(tissue_properties)
-
         for i, elm in enumerate(tissue_properties):
             if isinstance(elm, _PhyProp):
                 continue
             elif isinstance(elm, (list, tuple)):
                 tissue_properties[i] = _PhyProp(elm[0], elm[1])
-
         self._sim.set_tissue_properties(tissue_properties)
+
         image = self._sim.run_simulation(self._dim, label_field, vec_field,
                                          theta, phi, step_size, do_untilt)
         return image
@@ -486,51 +510,62 @@ class Simpli:
         dim_offset = self._gen.dim_offset()
         return dim_local, dim_offset
 
-    def SaveAsH5(self, h5f, data, data_name):
+    def SaveAsH5(self, h5f, data, data_name, lock_dim=None):
 
         dim_local, dim_offset = self.DimData()
-        if data_name is 'tissue':
-            dim = self._dim
-            dset = h5f.create_dataset(data_name, dim, dtype=np.uint16)
 
-            for i in range(data.shape[0]):
-                dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
-                     dim_local[1], dim_offset[2]:dim_offset[2] +
-                     dim_local[2]] = data[i, :, :]
+        if not isinstance(data, np.ndarray):
+            raise TypeError("only numpy arrays are compatible with SaveAsH5")
 
-        elif data_name is 'vectorfield':
-            dim = [self._dim[0], self._dim[1], self._dim[2], 3]
-            dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
-            for i in range(data.shape[0]):
-                dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
-                     dim_local[1], dim_offset[2]:dim_offset[2] +
-                     dim_local[2]] = data[i, :, :]
-        elif 'data/' in data_name:
-            dim = [self._dim[0], self._dim[1], self._filter_rotations.size]
-            dset = h5f.create_dataset(data_name, dim, dtype=np.float32)
+        dset_dim = np.copy(self._dim)
+        if len(data.shape) < len(dset_dim):
+            dset_dim = dset_dim[:len(data.shape)]
+        if len(data.shape) > len(dset_dim):
+            dset_dim = np.append(dset_dim, data.shape[3:])
 
-            if tuple(dim) == data.shape:
-                dset[:] = data[:]
-            else:
-                mask = (np.count_nonzero(data, axis=2) != 0)
+        if lock_dim:
+            if isinstance(lock_dim, int):
+                lock_dim = [lock_dim]
 
+            lock_dim = list(lock_dim)
+            for l in lock_dim:
+                dset_dim[l] = data.shape[l]
+
+        dset = h5f.create_dataset(data_name, dset_dim, dtype=data.dtype)
+
+        if len(data.shape) == 2:
+            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
                 for i in range(data.shape[0]):
+                    dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
+                         dim_local[1]] = data[i, :]
+            else:
+                dset[dim_offset[0]:dim_offset[0] +
+                     dim_local[0], dim_offset[1]:dim_offset[1] +
+                     dim_local[1]] = data
 
-                    first = 0
-                    for idx, elm in enumerate(mask[i, :]):
-                        if elm:
-                            first = idx
-                            break
+        elif len(data.shape) == 3:
+            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
+                for i in range(data.shape[0]):
+                    dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
+                         dim_local[1], dim_offset[2]:dim_offset[2] +
+                         dim_local[2]] = data[i, :]
+            else:
+                dset[dim_offset[0]:dim_offset[0] +
+                     dim_local[0], dim_offset[1]:dim_offset[1] +
+                     dim_local[1], dim_offset[2]:dim_offset[2] +
+                     dim_local[2]] = data
 
-                    last = -1
-                    for idx, elm in reversed(list(enumerate(mask[i, :]))):
-                        if elm:
-                            last = idx + 1
-                            break
-
-                    if first <= last:
-                        dset[i + dim_offset[0], first + dim_offset[1]:last +
-                             dim_offset[1], :] = data[i, first:last, :]
+        elif len(data.shape) > 3:
+            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
+                for i in range(data.shape[0]):
+                    dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
+                         dim_local[1], dim_offset[2]:dim_offset[2] +
+                         dim_local[2], :] = data[i, :]
+            else:
+                dset[dim_offset[0]:dim_offset[0] +
+                     dim_local[0], dim_offset[1]:dim_offset[1] +
+                     dim_local[1], dim_offset[2]:dim_offset[2] +
+                     dim_local[2], :] = data
 
         else:
             raise TypeError("no compatible SaveAsH5: " + data_name)
@@ -546,7 +581,7 @@ class Simpli:
         if self._resolution is None:
             raise TypeError("resolution is not set")
 
-        res_image_stack = optic.apply_stack(image_stack, self._pixel_size,
+        res_image_stack = optic.apply_stack(image_stack, self._voxel_size,
                                             self._resolution, delta_sigma, gain,
                                             cropping, resample_mode)
 
@@ -563,7 +598,7 @@ class Simpli:
         if self._resolution is None:
             raise TypeError("resolution is not set")
 
-        res_mask = optic.apply(np.array(mask, float), self._pixel_size,
+        res_mask = optic.apply(np.array(mask, float), self._voxel_size,
                                self._resolution, delta_sigma, 0, cropping,
                                resample_mode)
 

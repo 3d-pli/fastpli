@@ -29,9 +29,9 @@ void PliSimulator::SetMPIComm(const MPI_Comm comm) {
 
 void PliSimulator::SetPliSetup(const Setup pli_setup) {
 
-   if (pli_setup.pixel_size <= 0)
-      throw std::invalid_argument("pixel_size <= 0: " +
-                                  std::to_string(pli_setup.pixel_size));
+   if (pli_setup.voxel_size <= 0)
+      throw std::invalid_argument("voxel_size <= 0: " +
+                                  std::to_string(pli_setup.voxel_size));
 
    if (pli_setup.light_intensity < 0)
       throw std::invalid_argument("light intensity < 0: " +
@@ -120,7 +120,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    const auto n_rho = pli_setup_.filter_rotations.size();
    const double lambda = pli_setup_.wavelength * 1e-9;
-   const double thickness = pli_setup_.pixel_size * 1e-6;
+   const double thickness = pli_setup_.voxel_size * 1e-6;
 
    const double pol_x = 1; // TODO: via pli_setup
    const double pol_y = 1;

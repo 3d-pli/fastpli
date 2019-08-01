@@ -1,93 +1,95 @@
-import os
-import time
-import h5py
 import numpy as np
+import h5py
+import os
 
 from mpi4py import MPI
-from fastpli.simulation import Simpli
-import time
-import h5py
-import numpy as np
-import sys
-import os
 
-from fastpli.simulation import Simpli
+import fastpli.simulation
 
-FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-FILE_NAME = '/tmp/fastpli.example.simpli_mpi.' + str(
-    MPI.COMM_WORLD.Get_size()) + '.h5'
-with h5py.File(FILE_NAME, 'w', driver='mpio', comm=MPI.COMM_WORLD) as h5f:
+FILE_NAME = os.path.abspath(__file__)
+FILE_PATH = os.path.dirname(FILE_NAME)
+FILE_BASE = os.path.basename(FILE_NAME)
 
-    # Read fiber data and prepair for PliGenerator
-    # TODO: write json -> parameter function
+with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.' +
+               str(MPI.COMM_WORLD.Get_size()) + '.h5',
+               'w',
+               driver='mpio',
+               comm=MPI.COMM_WORLD) as h5f:
 
-    global_start = time.time()
-
-    simpli = Simpli(MPI.COMM_WORLD)
-
-    # PliGeneration ###
-    simpli.pixel_size = 1
-    simpli.set_voi([-50, 50, -50, 50, -50, 50])
+    ### Setup Simpli for Tissue Generation
+    simpli = fastpli.simulation.Simpli(MPI.COMM_WORLD)
+    simpli.voxel_size = 1  # in mu meter
+    simpli.set_voi([-60, 60, -60, 60, -30, 30])  # in mu meter
     simpli.ReadFiberFile(os.path.join(FILE_PATH, 'cube.h5'))
-    simpli.fiber_bundles_properties = ([[(0.333, 0.004, 10, 'p'),
-                                         (0.666, -0.004, 5, 'b'),
-                                         (1.0, 0.004, 1, 'r')]])
+    simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
+                                        (0.666, 0, 5, 'b'),
+                                        (1.0, 0.004, 1, 'r')]]
 
-    # manipulation of fibers
-    # simpli.RotateVolumeAroundPoint(
-    #     np.deg2rad(20), np.deg2rad(-10), np.deg2rad(5), [10, -5, 7.5])
-    # simpli.TranslateVolume([50, 50, 50])
+    print('VOI:', simpli.get_voi())
+    print('Memory:', str(round(simpli.MemoryUseage('MB'), 2)) + ' MB')
+    print(
+        'Memory per thread:',
+        str(round(simpli.MemoryUseage('MB') / MPI.COMM_WORLD.Get_size(), 2)) +
+        ' MB')
 
-    start = time.time()
-    label_field, vec_field, tissue_properties = simpli.GenerateTissue(
-        only_label=False)
-    dim_local, dim_offset = simpli.DimData()
+    ### Generate Tissue
+    print("Run Generation:")
+    label_field, vec_field, tissue_properties = simpli.GenerateTissue()
 
-    simpli.SaveAsH5(h5f, label_field, "tissue")
-    simpli.SaveAsH5(h5f, vec_field, "vectorfield")
+    simpli.SaveAsH5(h5f, label_field.astype(np.uint16), 'tissue')
+    simpli.SaveAsH5(h5f, vec_field, 'vectorfield')
 
-    end = time.time()
-    print("TissueGeneration:", end - start)
-
-    # PliSimulation ###
+    ### Simulate PLI Measurement ###
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
-    simpli.light_intensity = 26000
+    simpli.light_intensity = 26000  # a.u.
     simpli.untilt_sensor = True
-    simpli.wavelength = 525
+    simpli.wavelength = 525  # in nm
+    simpli.resolution = 20  # in mu meter
+    TILTS = [(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]
 
-    start = time.time()
-    print("RunSimulation: 0")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties, 0,
-                                 0)
-    simpli.SaveAsH5(h5f, image, 'data/0')
+    image_stack = [None] * len(TILTS)
+    print("Run Simulation:")
+    for t, (theta, phi) in enumerate(TILTS):
+        image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
+                                     np.deg2rad(theta), np.deg2rad(phi))
 
-    print("RunSimulation: 1")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(0))
-    simpli.SaveAsH5(h5f, image, 'data/1')
+        simpli.SaveAsH5(h5f, image, 'data/' + str(t), lock_dim=2)
 
-    print("RunSimulation: 2")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(90))
-    simpli.SaveAsH5(h5f, image, 'data/2')
+# to apply optical resolution, the hole dataset has to be known
+MPI.COMM_WORLD.barrier()
 
-    print("RunSimulation: 3")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(180))
-    simpli.SaveAsH5(h5f, image, 'data/3')
+del label_field, vec_field  # free memory
 
-    print("RunSimulation: 4")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(270))
-    simpli.SaveAsH5(h5f, image, 'data/4')
+if MPI.COMM_WORLD.Get_rank() == 0:
+    with h5py.File(
+            '/tmp/fastpli.example.' + FILE_BASE + '.' +
+            str(MPI.COMM_WORLD.Get_size()) + '.h5', 'a') as h5f:
 
-    print("RunSimulation: 5")
-    image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                 np.deg2rad(5.5), np.deg2rad(42))
-    simpli.SaveAsH5(h5f, image, 'data/5')
+        with open(os.path.abspath(__file__), 'r') as f:
+            h5f['script'] = f.read()
 
-    end = time.time()
-    print("RunSimulation:", end - start)
+        print("Optic:")
+        for t, (theta, phi) in enumerate(TILTS):
 
-    global_end = time.time()
-    print("GlobalRuntime:", global_end - global_start)
+            # load data
+            image = h5f['data/' + str(t)][:]
+
+            # apply optic to simulation
+            image = simpli.apply_optic(image, gain=3)
+            h5f['optic/' + str(t)] = image
+
+            # calculate modalities
+            epa = simpli.apply_epa(image)
+            h5f['epa/' + str(t) + '/transmittance'] = epa[0]
+            h5f['epa/' + str(t) + '/direction'] = np.rad2deg(epa[1])
+            h5f['epa/' + str(t) + '/retardation'] = epa[2]
+
+            image_stack[t] = image
+
+        print("Run ROFL analysis:")
+        rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
+            image_stack, tilt_angle=np.deg2rad(5.5), gain=3)
+
+        h5f['rofl/direction'] = np.rad2deg(rofl_direction)
+        h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
+        h5f['rofl/trel'] = rofl_t_rel
