@@ -116,8 +116,7 @@ void PliGenerator::SetMPIComm(const MPI_Comm comm) {
    mpi_ = std::make_unique<MyMPI>(comm);
 }
 
-std::tuple<std::vector<int> *, std::vector<float> *,
-           std::vector<PliSimulator::PhyProp>>
+std::tuple<std::vector<int> *, std::vector<float> *, setup::PhyProps>
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
@@ -488,30 +487,28 @@ PliGenerator::ShortestPointToLineSegmentVecCalculation(
    return std::make_tuple(pb, b);
 }
 
-std::vector<PliSimulator::PhyProp> PliGenerator::GetPropertyList() const {
-   std::vector<PliSimulator::PhyProp> properties(
-       fiber_bundles_org_.size() * max_layer_ + 1 +
-       cell_populations_org_.size());
+setup::PhyProps PliGenerator::GetPropertyList() const {
+
+   setup::PhyProps properties(fiber_bundles_org_.size() * max_layer_ + 1 +
+                              cell_populations_org_.size());
 
    // background
    // TODO: set background properties
-   properties[0] = PliSimulator::PhyProp(0, 0);
+   properties.dn(0) = 0;
+   properties.mu(0) = 0;
 
    for (size_t f = 0; f < fiber_bundles_org_.size(); f++) {
       for (size_t l = 0; l < fiber_bundles_org_[f].layer_size(); l++) {
-         auto dn = fiber_bundles_org_[f].layer_dn(l);
-         auto mu = fiber_bundles_org_[f].layer_mu(l);
-
          auto id = 1 + l + f * max_layer_; //+1 for brackground
-         properties.at(id) = PliSimulator::PhyProp(dn, mu);
+         properties.dn(id) = fiber_bundles_org_[f].layer_dn(l);
+         properties.mu(id) = fiber_bundles_org_[f].layer_mu(l);
       }
    }
 
    for (size_t c = 0; c < cell_populations_org_.size(); c++) {
-      auto dn = 0;
-      auto mu = cell_populations_org_[c].mu();
       auto id = 1 + num_fiber_bundles_ * max_layer_ + c; //+1 for brackground
-      properties.at(id) = PliSimulator::PhyProp(dn, mu);
+      properties.dn(id) = 0;
+      properties.mu(id) = cell_populations_org_[c].mu();
    }
 
    return properties;

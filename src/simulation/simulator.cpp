@@ -27,7 +27,7 @@ void PliSimulator::SetMPIComm(const MPI_Comm comm) {
    mpi_ = std::make_unique<MyMPI>(comm);
 }
 
-void PliSimulator::SetPliSetup(const Setup pli_setup) {
+void PliSimulator::SetPliSetup(const setup::Setup pli_setup) {
 
    if (pli_setup.voxel_size <= 0)
       throw std::invalid_argument("voxel_size <= 0: " +
@@ -47,21 +47,13 @@ void PliSimulator::SetPliSetup(const Setup pli_setup) {
    pli_setup_ = pli_setup;
 }
 
-void PliSimulator::SetTissueProperties(const std::vector<PhyProp> &properties)
-
-{
-   if (properties.empty())
-      throw std::invalid_argument("tissue properties is empty");
-
-   properties_ = properties;
-}
-
 std::vector<float>
 PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                             object::container::NpArray<int> label_field,
                             object::container::NpArray<float> vector_field,
-                            const double theta, const double phi,
-                            const double step_size, const bool do_nn
+                            setup::PhyProps properties, const double theta,
+                            const double phi, const double step_size,
+                            const bool do_nn
                             // , const bool flip_beam
 ) {
 
@@ -93,6 +85,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    label_field_ = std::move(label_field);
    vector_field_ = std::move(vector_field);
+   properties_ = properties;
 
    // checking if all labels exist in properties
    {
@@ -209,8 +202,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             auto label = GetLabel(local_pos);
 
             // calculate physical parameters
-            double dn = properties_[label].dn;
-            double mu = properties_[label].mu * 1e3;
+            auto dn = properties_.dn(label);
+            auto mu = properties_.mu(label) * 1e3;
             const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
 
             if (dn == 0) {

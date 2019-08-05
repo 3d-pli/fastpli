@@ -30,11 +30,29 @@ NpArray2Container(py::array_t<T, py::array::c_style> &array) {
 }
 
 template <typename T>
+std::vector<T> NpArray2Vector(py::array_t<T, py::array::c_style> &array) {
+
+   auto buffer = array.request();
+   auto size = std::accumulate(buffer.shape.begin(), buffer.shape.end(), 1ULL,
+                               std::multiplies<size_t>());
+   std::vector<T> data(size);
+
+   for (auto i = 0u; i < data.size(); i++) {
+      data[i] = reinterpret_cast<T *>(buffer.ptr)[i];
+   }
+
+   return data;
+}
+
+template <typename T>
 py::array Vec2NpArray(std::vector<T> *vec,
                       std::vector<size_t> shape = std::vector<size_t>()) {
 
    if (shape.empty())
       shape.push_back(vec->size());
+
+   assert(vec->size() == std::accumulate(shape.begin(), shape.end(), 1ULL,
+                                         std::multiplies<size_t>()));
 
    std::vector<size_t> stride(shape.size(), 0);
    size_t elm_stride = sizeof(T);

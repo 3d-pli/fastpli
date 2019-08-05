@@ -12,6 +12,7 @@
 #include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
+#include "setup.hpp"
 #include "simulator.hpp"
 
 class PliGenerator {
@@ -30,8 +31,7 @@ class PliGenerator {
    SetCellPopulations(const std::vector<cell::Population> &cell_populations);
    void SetMPIComm(const MPI_Comm comm);
 
-   std::tuple<std::vector<int> *, std::vector<float> *,
-              std::vector<PliSimulator::PhyProp>>
+   std::tuple<std::vector<int> *, std::vector<float> *, setup::PhyProps>
    RunTissueGeneration(const bool only_label = false,
                        const bool progress_bar = false);
    int set_omp_num_threads(int num);
@@ -83,7 +83,7 @@ class PliGenerator {
                                             const vm::Vec3<float> &s0,
                                             const vm::Vec3<float> &s1);
 
-   std::vector<PliSimulator::PhyProp> GetPropertyList() const;
+   setup::PhyProps GetPropertyList() const;
 };
 
 #endif // SIMULATION_GENERATOR_HPP_

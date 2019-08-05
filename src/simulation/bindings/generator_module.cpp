@@ -8,6 +8,7 @@
 
 #include "../generator.hpp"
 #include "../helper.hpp"
+#include "../setup.hpp"
 #include "objects/cell.hpp"
 #include "objects/fiber.hpp"
 #include "objects/np_array_helper.hpp"
@@ -67,9 +68,9 @@ PYBIND11_MODULE(__generation, m) {
             [](PliGenerator &self, bool only_label, bool progress_bar) {
                std::vector<int> *label_field;
                std::vector<float> *vector_field;
-               std::vector<PliSimulator::PhyProp> prop_list;
+               setup::PhyProps properties;
 
-               std::tie(label_field, vector_field, prop_list) =
+               std::tie(label_field, vector_field, properties) =
                    self.RunTissueGeneration(only_label, progress_bar);
 
                std::vector<size_t> dim_label_field =
@@ -79,11 +80,14 @@ PYBIND11_MODULE(__generation, m) {
                   dim_vector_field = dim_label_field;
                   dim_vector_field.push_back(3);
                }
+               std::vector<size_t> dim_prop{properties.size(), 2};
 
                return std::make_tuple(
                    object::Vec2NpArray(label_field, dim_label_field),
                    object::Vec2NpArray(vector_field, dim_vector_field),
-                   prop_list);
+                   object::Vec2NpArray(
+                       new std::vector<double>(properties.vector()), dim_prop));
+               std::cerr << "ZHH" << std::endl;
             },
             py::arg("only_label") = false, py::arg("progress_bar") = false)
        .def("dim_local",

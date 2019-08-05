@@ -10,35 +10,16 @@
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
 #include "objects/np_array_container.hpp"
+#include "setup.hpp"
 
 class PliSimulator {
  public:
-   struct PhyProp {
-      PhyProp() = default;
-      PhyProp(double dn, double mu) : dn(dn), mu(mu){};
-
-      double dn{};
-      double mu{};
-   };
-
-   struct Setup {
-      double light_intensity{};
-      double wavelength{};
-      double voxel_size{};
-
-      bool untilt_sensor = true;
-      std::vector<double> filter_rotations;
-
-      // vm::Vec2<int> sensor_dim; // currently same dimension as x-y-volume
-   };
-
    // PliSimulator() = default;
    PliSimulator() { set_omp_num_threads(1); }
    ~PliSimulator() = default;
 
    void SetMPIComm(const MPI_Comm comm);
-   void SetPliSetup(const Setup pli_setup);
-   void SetTissueProperties(const std::vector<PhyProp> &properties);
+   void SetPliSetup(const setup::Setup pli_setup);
 
    vm::Vec3<long long> GetImageDim() {
       return vm::Vec3<long long>(
@@ -50,8 +31,8 @@ class PliSimulator {
    RunSimulation(const vm::Vec3<long long> &dim,
                  object::container::NpArray<int> label_field,
                  object::container::NpArray<float> vector_field,
-                 const double theta, const double phi, const double step_size,
-                 const bool do_nn
+                 setup::PhyProps properties, const double theta,
+                 const double phi, const double step_size, const bool do_nn
                  //  , const bool flip_beam
    );
 
@@ -64,11 +45,11 @@ class PliSimulator {
    const bool debug_ = false;
 #endif
 
-   Setup pli_setup_{};
+   setup::Setup pli_setup_{};
    Dimensions dim_{};
    object::container::NpArray<int> label_field_;
    object::container::NpArray<float> vector_field_;
-   std::vector<PhyProp> properties_;
+   setup::PhyProps properties_;
 
    std::vector<vm::Vec4<double>> signal_buffer_;
    // vm::Vec3<bool> flip_tissue_{false};

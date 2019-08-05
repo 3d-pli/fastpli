@@ -1,6 +1,6 @@
 # from . import __generation as generation
 from .__generation import _Generator, _LayerProperty
-from .__simulation import _Simulator, _Setup, _PhyProp
+from .__simulation import _Simulator
 
 from fastpli.analysis import rofl, epa
 from fastpli.objects import Fiber, Cell
@@ -433,13 +433,13 @@ class Simpli:
         if self._filter_rotations is None:
             raise ValueError('filter_rotations not set')
 
-        setup = _Setup()
-        setup.light_intensity = self._light_intensity
-        setup.voxel_size = self._voxel_size
-        setup.wavelength = self._wavelength
-        setup.untilt_sensor = self._untilt_sensor
-        setup.filter_rotations = self._filter_rotations
-        self._sim.set_pli_setup(setup)
+        self._sim.set_pli_setup(
+            self._light_intensity,
+            self._voxel_size,
+            self._wavelength,
+            self._filter_rotations,
+            self._untilt_sensor,
+        )
 
     def RunSimulation(self,
                       label_field,
@@ -455,16 +455,20 @@ class Simpli:
 
         self.InitSimulation()
 
-        tissue_properties = list(tissue_properties)
-        for i, elm in enumerate(tissue_properties):
-            if isinstance(elm, _PhyProp):
-                continue
-            elif isinstance(elm, (list, tuple)):
-                tissue_properties[i] = _PhyProp(elm[0], elm[1])
-        self._sim.set_tissue_properties(tissue_properties)
+        tissue_properties = np.array(tissue_properties)
+        if len(tissue_properties.shape) != 2:
+            raise ValueError("tissue_properties wrong shape")
+
+        if tissue_properties.shape[1] != 2:
+            raise ValueError("tissue_properties wrong shape")
+
+        if tissue_properties.shape[0] <= np.max(label_field.flatten()):
+            raise ValueError(
+                "tissue_properties.shape[0] < np.max(label_field.flatten())")
 
         image = self._sim.run_simulation(self._dim, label_field, vec_field,
-                                         theta, phi, step_size, do_untilt)
+                                         tissue_properties, theta, phi,
+                                         step_size, do_untilt)
         return image
 
     def omp_threads(self, num_threads=2):

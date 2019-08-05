@@ -19,7 +19,7 @@ class MainTest(unittest.TestCase):
         self.simpli.dim = [10, 10, 10]
         self.simpli.voxel_size = 0.2
 
-    def test_return_dimension(self):
+    def test_dimension(self):
         self.simpli.fiber_bundles = [[[[1, 3, 0, 2], [1, 3, 7, 2]]]]
         self.simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
         self.simpli.dim = [3, 5, 7]
@@ -30,6 +30,7 @@ class MainTest(unittest.TestCase):
 
         self.assertTrue(np.array_equal(label_field.shape, [3, 5, 7]))
         self.assertTrue(np.array_equal(vec_field.shape, [3, 5, 7, 3]))
+        self.assertTrue(np.array_equal(tissue_properties.shape, [2, 2]))
         self.assertTrue(np.array_equal(label_field.shape, vec_field.shape[0:3]))
         self.assertTrue(
             np.array_equal(label_field,
@@ -42,6 +43,7 @@ class MainTest(unittest.TestCase):
 
         label_field_1, vec_field, tissue_properties = self.simpli.GenerateTissue(
             only_label=False)
+        self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
         self.assertTrue(np.array_equal(label_field_0, label_field_1))
         self.assertTrue(
             np.array_equal(label_field_1.shape, vec_field.shape[0:3]))
@@ -56,6 +58,8 @@ class MainTest(unittest.TestCase):
                                                  (1.0, 0.004, 1, 'r')]]
 
         label_field, vec_field, tissue_properties = self.simpli.GenerateTissue()
+
+        self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
 
         # PliSimulation ###
         self.simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])

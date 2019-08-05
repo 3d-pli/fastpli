@@ -31,6 +31,7 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
 
     h5f['tissue'] = label_field.astype(np.uint16)
     h5f['vectorfield'] = vec_field
+    h5f['tissue_properties'] = tissue_properties
 
     ### Simulate PLI Measurement ###
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
