@@ -223,10 +223,10 @@ class Simpli:
             for f_i, f in enumerate(fb):
                 fbs[fb_i][f_i] = np.array(f, dtype=np.float32, copy=False)
 
-                if len(f.shape) != 2:
+                if len(fbs[fb_i][f_i].shape) != 2:
                     raise TypeError("fiber size need to be nx4")
 
-                if f.shape[1] != 4:
+                if fbs[fb_i][f_i].shape[1] != 4:
                     raise TypeError("fiber size need to be nx4")
 
         self._fiber_bundles = fbs
