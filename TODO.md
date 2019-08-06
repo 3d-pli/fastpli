@@ -15,6 +15,7 @@ back to [readme](README.md)
 - [ ] check ALL input variables
 - [ ] enlarge simulation for tilting <-> crop results
 - [ ] too many arguments as property
+- [ ] np.array for cells
 - [ ] optic: new_size = np.array(np.array(image.shape) // resize, dtype=int)
 - [ ] multisampling 
 ## VCS

@@ -57,6 +57,8 @@ class Bundle {
  public:
    Bundle(std::vector<object::Fiber> fibers,
           std::vector<layer::Property> properties);
+   Bundle(std::vector<std::vector<float>> fibers,
+          std::vector<layer::Property> properties);
    ~Bundle() = default;
 
    // getter

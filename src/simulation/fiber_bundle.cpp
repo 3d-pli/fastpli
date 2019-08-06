@@ -82,6 +82,37 @@ void Properties::push_back(Property p) {
 /**
  * FiberBundle
  */
+Bundle::Bundle(std::vector<std::vector<float>> fibers,
+               std::vector<layer::Property> properties) {
+
+   for (auto const f : fibers) {
+      std::vector<vm::Vec3<float>> points;
+      std::vector<float> radii;
+
+      assert(f.size() % 4 == 0);
+
+      points.reserve(f.size() / 4);
+      radii.reserve(f.size() / 4);
+      for (auto i = 0u; i < f.size(); i = i + 4) {
+         points.push_back(vm::Vec3<float>(f[i + 0], f[i + 1], f[i + 2]));
+         radii.push_back(f[i + 3]);
+      }
+
+      fibers_.emplace_back(object::Fiber(points, radii));
+   }
+
+   // sort for layer size
+   std::sort(properties.begin(), properties.end(),
+             [&](layer::Property p1, layer::Property p2) {
+                return p1.scale < p2.scale;
+             });
+
+   layers_.reserve(properties.size());
+   for (auto const &p : properties)
+      layers_.push_back(p);
+   CalculateVoi();
+}
+
 Bundle::Bundle(std::vector<object::Fiber> fibers,
                std::vector<layer::Property> properties) {
    fibers_.swap(fibers);

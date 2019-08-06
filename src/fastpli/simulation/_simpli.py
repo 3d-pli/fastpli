@@ -221,18 +221,13 @@ class Simpli:
                 raise TypeError("fb is not a list")
 
             for f_i, f in enumerate(fb):
-                if isinstance(f, Fiber):
-                    continue
-                elif isinstance(f, (list, tuple)):
-                    f = np.array(f)
+                fbs[fb_i][f_i] = np.array(f, dtype=np.float32, copy=False)
 
-                if isinstance(f, np.ndarray):
-                    if len(f.shape) is not 2 or f.shape[1] is not 4:
-                        raise TypeError("fiber elements has to be of dim nx4")
-                    fbs[fb_i][f_i] = Fiber(f[:, 0:-1], f[:, -1])
-                else:
-                    raise TypeError(
-                        "fiber hast to be a objects.Fiber, 4d-list or 4d-array")
+                if len(f.shape) != 2:
+                    raise TypeError("fiber size need to be nx4")
+
+                if f.shape[1] != 4:
+                    raise TypeError("fiber size need to be nx4")
 
         self._fiber_bundles = fbs
 
@@ -328,7 +323,10 @@ class Simpli:
                 for f in fb:
                     f = fb[f]
                     self._fiber_bundles[-1].append(
-                        Fiber(f['points'][:].flatten(), f['radii'][:]))
+                        np.concatenate(
+                            (f['points'][:].astype(np.float32),
+                             np.atleast_2d(f['radii'][:].astype(np.float32)).T),
+                            axis=1))
 
     def ReadFiberCellFile(self, filename):
         self._fiber_bundles = []
