@@ -43,7 +43,6 @@ PYBIND11_MODULE(__generation, m) {
                   throw py::value_error("fbs and prs not the same size");
 
                for (auto i = 0u; i < fbs.size(); i++) {
-
                   auto fiber_bundle = std::vector<std::vector<float>>();
                   for (auto f : fbs[i]) {
                      fiber_bundle.emplace_back(
@@ -56,16 +55,24 @@ PYBIND11_MODULE(__generation, m) {
                self.SetFiberBundles(fiber_bundles);
             })
        .def("set_cell_populations",
-            [](PliGenerator &self, object::CellPopulations cell_pops,
+            [](PliGenerator &self,
+               std::vector<std::vector<py::array_t<float, py::array::c_style>>>
+                   cell_pops,
                std::vector<cell::Property> cell_prop) {
+               std::vector<cell::Population> cell_populations;
                if (cell_pops.size() != cell_prop.size())
                   throw py::value_error(
                       "cell_populations and properties not the same size");
 
-               std::vector<cell::Population> cell_populations;
-               for (size_t i = 0; i < cell_pops.size(); i++)
+               for (auto i = 0u; i < cell_pops.size(); i++) {
+                  auto cell_population = std::vector<std::vector<float>>();
+                  for (auto c : cell_pops[i]) {
+                     cell_population.emplace_back(
+                         object::NpArray2Vector<float>(c));
+                  }
                   cell_populations.emplace_back(
-                      cell::Population(cell_pops[i], cell_prop[i]));
+                      cell::Population(cell_population, cell_prop[i]));
+               }
 
                self.SetCellPopulations(cell_populations);
             })

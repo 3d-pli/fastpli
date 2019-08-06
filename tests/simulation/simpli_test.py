@@ -48,6 +48,22 @@ class MainTest(unittest.TestCase):
         self.assertTrue(
             np.array_equal(label_field_1.shape, vec_field.shape[0:3]))
 
+    def test_cell_population(self):
+        self.simpli.pixel_size = 1
+        self.simpli.dim = [10, 10, 10]
+        self.simpli.origin = self.simpli.dim / 2
+        self.simpli.cells_populations = [[[[0, 0, 0, 100]]]]
+        self.simpli.cells_populations_properties = [[1, 10]]
+
+        self.simpli.fiber_bundles = None
+        self.simpli.fiber_bundles_properties = None
+
+        label_field, vec_field, tissue_properties = self.simpli.GenerateTissue()
+
+        self.assertTrue(np.all(label_field == 1))
+        self.assertTrue(np.all(vec_field == 0))
+        self.assertTrue(np.array_equal(tissue_properties.shape, [2, 2]))
+
     def test_simulator(self):
         self.simpli.pixel_size = 1
         self.simpli.dim = [10, 10, 10]

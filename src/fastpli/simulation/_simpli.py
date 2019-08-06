@@ -1,9 +1,8 @@
 # from . import __generation as generation
-from .__generation import _Generator, _LayerProperty
+from .__generation import _Generator, _LayerProperty, _CellProperty
 from .__simulation import _Simulator
 
 from fastpli.analysis import rofl, epa
-from fastpli.objects import Fiber, Cell
 from fastpli.simulation import optic
 from fastpli.tools import rotation
 
@@ -213,6 +212,11 @@ class Simpli:
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
+
+        if fbs is None:
+            self._fiber_bundles = None
+            return
+
         if not isinstance(fbs, (list, tuple)):
             raise TypeError("fbs is not a list")
 
@@ -237,6 +241,11 @@ class Simpli:
 
     @fiber_bundles_properties.setter
     def fiber_bundles_properties(self, bundle_layer_properties):
+
+        if bundle_layer_properties is None:
+            self._fiber_bundles_properties = None
+            return
+
         if not isinstance(bundle_layer_properties, (list, tuple)):
             raise TypeError("properties must be a list(list(tuples))")
 
@@ -267,6 +276,10 @@ class Simpli:
 
     @cells_populations.setter
     def cells_populations(self, cps):
+        if cps is None:
+            self._cells_populations = None
+            return
+
         if not isinstance(cps, (list, tuple)):
             raise TypeError("cells_populations is not a list")
 
@@ -275,18 +288,13 @@ class Simpli:
                 raise TypeError("cells_population is not a list")
 
             for c_i, c in enumerate(cp):
-                if isinstance(c, Cell):
-                    continue
-                elif isinstance(c, (list, tuple)):
-                    c = np.array(c)
+                cps[cp_i][c_i] = np.array(c, dtype=np.float32, copy=False)
 
-                if isinstance(c, np.ndarray):
-                    if len(c.shape) is not 2 or c.shape[1] is not 4:
-                        raise TypeError("cell elements has to be of dim nx4")
-                    cps[cp_i][c_i] = Cell(c[:, 0:-1], c[:, -1])
-                else:
-                    raise TypeError(
-                        "cell hast to be a objects.Cell, 4d-list or 4d-array")
+                if len(cps[cp_i][c_i].shape) != 2:
+                    raise TypeError("cell size need to be nx4")
+
+                if cps[cp_i][c_i].shape[1] != 4:
+                    raise TypeError("cell size need to be nx4")
 
         self._cells_populations = cps
 
@@ -296,6 +304,10 @@ class Simpli:
 
     @cells_populations_properties.setter
     def cells_populations_properties(self, cells_populations_properties):
+
+        if cells_populations_properties is None:
+            self._cells_populations_properties = None
+            return
 
         if not isinstance(cells_populations_properties, (list, tuple)):
             raise TypeError("properties must be a list")
@@ -310,7 +322,7 @@ class Simpli:
                 raise TypeError("properties must be a list of 2 arguments")
 
             self._cells_populations_properties.append(
-                generation.__CellProperty(prop[0], prop[1]))
+                _CellProperty(prop[0], prop[1]))
 
     def ReadFiberFile(self, filename):
         self._fiber_bundles = []

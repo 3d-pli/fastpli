@@ -9,6 +9,31 @@
 #include "objects/cell.hpp"
 
 namespace cell {
+
+Population::Population(std::vector<std::vector<float>> cells,
+                       Property property) {
+
+   for (auto const c : cells) {
+      std::vector<vm::Vec3<float>> points;
+      std::vector<float> radii;
+
+      assert(c.size() % 4 == 0);
+
+      points.reserve(c.size() / 4);
+      radii.reserve(c.size() / 4);
+      for (auto i = 0u; i < c.size(); i = i + 4) {
+         points.push_back(vm::Vec3<float>(c[i + 0], c[i + 1], c[i + 2]));
+         radii.push_back(c[i + 3]);
+      }
+
+      cells_.emplace_back(object::Cell(points, radii));
+   }
+
+   property_ = property;
+
+   CalculateVoi();
+}
+
 Population::Population(std::vector<object::Cell> cells, Property property) {
    cells_.swap(cells);
    property_ = property;

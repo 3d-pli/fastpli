@@ -27,6 +27,7 @@ class Property {
 
 class Population {
  public:
+   Population(std::vector<std::vector<float>> cells, Property property);
    Population(std::vector<object::Cell> cells, Property property);
    ~Population() = default;
 
