@@ -31,7 +31,7 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(label_field.shape, [3, 5, 7]))
         self.assertTrue(np.array_equal(vec_field.shape, [3, 5, 7, 3]))
         self.assertTrue(np.array_equal(tissue_properties.shape, [2, 2]))
-        self.assertTrue(np.array_equal(label_field.shape, vec_field.shape[0:3]))
+        self.assertTrue(np.array_equal(label_field.shape, vec_field.shape[:3]))
         self.assertTrue(
             np.array_equal(label_field,
                            np.array(vec_field[:, :, :, 2], dtype=int)))
@@ -46,7 +46,7 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
         self.assertTrue(np.array_equal(label_field_0, label_field_1))
         self.assertTrue(
-            np.array_equal(label_field_1.shape, vec_field.shape[0:3]))
+            np.array_equal(label_field_1.shape, vec_field.shape[:3]))
 
     def test_cell_population(self):
         self.simpli.pixel_size = 1

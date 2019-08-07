@@ -59,9 +59,9 @@ class MainTest(unittest.TestCase):
         self.solver.step()
         fbs = self.solver.fiber_bundles
 
-        self.assertFalse(np.array_equal(fiber_0[:, 0:3], fbs[0][0][:, 0:3]))
+        self.assertFalse(np.array_equal(fiber_0[:, :3], fbs[0][0][:, :3]))
         self.assertTrue(np.array_equal(fiber_0[:, -1], fbs[0][0][:, -1]))
-        self.assertFalse(np.array_equal(fiber_1[:, 0:3], fbs[0][1][:, 0:3]))
+        self.assertFalse(np.array_equal(fiber_1[:, :3], fbs[0][1][:, :3]))
         self.assertTrue(np.array_equal(fiber_1[:, -1], fbs[0][1][:, -1]))
 
     def test_fiber_bundles(self):
@@ -73,9 +73,9 @@ class MainTest(unittest.TestCase):
         self.solver.step()
         fbs = self.solver.fiber_bundles
 
-        self.assertFalse(np.array_equal(fiber_0[:, 0:3], fbs[0][0][:, 0:3]))
+        self.assertFalse(np.array_equal(fiber_0[:, :3], fbs[0][0][:, :3]))
         self.assertTrue(np.array_equal(fiber_0[:, -1], fbs[0][0][:, -1]))
-        self.assertFalse(np.array_equal(fiber_1[:, 0:3], fbs[1][0][:, 0:3]))
+        self.assertFalse(np.array_equal(fiber_1[:, :3], fbs[1][0][:, :3]))
         self.assertTrue(np.array_equal(fiber_1[:, -1], fbs[1][0][:, -1]))
 
     def test_col_voi(self):
@@ -94,7 +94,7 @@ class MainTest(unittest.TestCase):
         self.solver.col_voi = ([0, 0, 0], [1, 1, 1])
         self.solver.step()
         fbs = self.solver.fiber_bundles
-        self.assertFalse(np.array_equal(fiber_0[:, 0:3], fbs[0][0][:, 0:3]))
+        self.assertFalse(np.array_equal(fiber_0[:, :3], fbs[0][0][:, :3]))
         self.assertTrue(np.array_equal(fiber_0[:, -1], fbs[0][0][:, -1]))
 
     def test_openmp(self):
