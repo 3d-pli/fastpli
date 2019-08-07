@@ -20,7 +20,7 @@ template <typename T> class NpArray {
 
       assert(shape.size() > 0);
       assert(std::accumulate(shape.begin(), shape.end(), 1ULL,
-                               std::multiplies<size_t>()) == n);
+                             std::multiplies<size_t>()) == n);
    };
 
    NpArray() = default;

@@ -19,8 +19,38 @@ PYBIND11_MODULE(__solver, m) {
 
    py::class_<World>(m, "_Solver")
        .def(py::init())
-       .def("_set_fiber_bundles", &World::set_fibers)
-       .def("_get_fiber_bundles", &World::get_fibers)
+       .def("_set_fiber_bundles",
+            [](World &self,
+               std::vector<std::vector<py::array_t<float, py::array::c_style>>>
+                   fbs) {
+               std::vector<std::vector<std::vector<float>>> fiber_bundles;
+               for (auto i = 0u; i < fbs.size(); i++) {
+                  auto fiber_bundle = std::vector<std::vector<float>>();
+                  for (auto &f : fbs[i]) {
+                     fiber_bundle.push_back(object::NpArray2Vector<float>(f));
+                  }
+                  fiber_bundles.push_back(fiber_bundle);
+               }
+               self.set_fibers_vector(fiber_bundles);
+            })
+       .def("_get_fiber_bundles",
+            [](World &self) {
+               auto const fbs = self.get_fibers_vector();
+               std::vector<size_t> dim{0, 4};
+               std::vector<std::vector<py::array>> fiber_bundles;
+               for (size_t i = 0; i < fbs.size(); i++) {
+                  if (fbs[i].size() > 0)
+                     fiber_bundles.push_back(std::vector<py::array>());
+
+                  for (size_t j = 0; j < fbs[i].size(); j++) {
+                     dim[0] = fbs[i][j].size() / 4;
+                     fiber_bundles[i].push_back(object::Vec2NpArray(
+                         new std::vector<float>(fbs[i][j]), dim));
+                  }
+               }
+
+               return fiber_bundles;
+            })
        .def("_set_omp_num_threads", &World::set_omp_num_threads)
        .def("_set_parameters",
             [](World &self, float drag, float obj_min_radius,

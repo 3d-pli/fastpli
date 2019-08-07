@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from .. import objects
 
 
 def load(file_name):
@@ -40,24 +39,16 @@ def save(file_name, fiber_bundles):
         with open(file_name, 'w') as file:
             for fb, fiber_bundle in enumerate(fiber_bundles):
                 for fiber in fiber_bundle:
-                    if isinstance(fiber, objects.Fiber):
-                        pos, radii = fiber.data
-                    else:
-                        if isinstance(fiber, list):
-                            fiber = np.array(fiber)
-                        if not isinstance(fiber, np.ndarray):
-                            raise TypeError('Wrong input datatype')
 
-                        if fiber.shape[1] != 4 or len(fiber.shape) != 2:
-                            raise TypeError('Wrong shape:', fiber.shape)
+                    np.array(fiber, dtype=np.float32, copy=False)
 
-                        pos = fiber[:, 0:3]
-                        radii = fiber[:, -1]
+                    if fiber.shape[1] != 4 or len(fiber.shape) != 2:
+                        raise TypeError('Wrong shape:', fiber.shape)
 
-                    for i in range(len(pos)):
+                    for line in fiber:
                         file.write(
-                            str(pos[i, 0]) + " " + str(pos[i, 1]) + " " +
-                            str(pos[i, 2]) + " " + str(radii[i]) + "\n")
+                            str(line[0]) + " " + str(line[1]) + " " +
+                            str(line[2]) + " " + str(line[3]) + "\n")
                     file.write("\n")
                 if fb != len(fiber_bundles) - 1:
                     file.write("\n")

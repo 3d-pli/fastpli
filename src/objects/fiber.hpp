@@ -11,6 +11,7 @@ namespace object {
 
 class Fiber {
  public:
+   Fiber(const std::vector<float> &data);
    Fiber(const std::vector<vm::Vec3<float>> &points,
          const std::vector<float> &radii);
    Fiber(const std::vector<float> &points, const std::vector<float> &radii);
@@ -27,6 +28,7 @@ class Fiber {
    // getter
    const std::vector<vm::Vec3<float>> &points() const { return points_; }
    const std::vector<float> &radii() const { return radii_; }
+   std::vector<float> vector() const;
    const aabb::AABB<float, 3> &voi() const { return voi_; }
 
    size_t size() const { return points_.size(); };

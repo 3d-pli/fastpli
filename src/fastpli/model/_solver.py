@@ -1,5 +1,4 @@
 from .__solver import _Solver
-from ..objects import Fiber
 
 import numpy as np
 
@@ -19,14 +18,7 @@ class Solver(_Solver):
 
     @property
     def fiber_bundles(self):
-        fiber_bundles = super()._get_fiber_bundles()
-
-        # convert to python Fiber-class
-        for i in range(len(fiber_bundles)):
-            for j in range(len(fiber_bundles[i])):
-                fiber_bundles[i][j] = Fiber(fiber_bundles[i][j].points,
-                                            fiber_bundles[i][j].radii)
-        return fiber_bundles
+        return super()._get_fiber_bundles()
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
@@ -38,18 +30,12 @@ class Solver(_Solver):
                 raise TypeError("fb is not a list")
 
             for f_i, f in enumerate(fb):
-                if isinstance(f, Fiber):
-                    continue
-                elif isinstance(f, (list, tuple)):
-                    f = np.array(f)
+                f = np.array(f, dtype=np.float32, copy=False)
 
-                if isinstance(f, np.ndarray):
-                    if len(f.shape) is not 2 or f.shape[1] is not 4:
-                        raise TypeError("fiber elements has to be of dim nx4")
-                    fbs[fb_i][f_i] = Fiber(f[:, 0:-1], f[:, -1])
-                else:
-                    raise TypeError(
-                        "fiber hast to be a objects.Fiber, 4d-list or 4d-array")
+                if len(f.shape) is not 2 or f.shape[1] is not 4:
+                    raise TypeError("fiber elements has to be of dim nx4")
+
+                fbs[fb_i][f_i] = f
 
         super()._set_fiber_bundles(fbs)
 

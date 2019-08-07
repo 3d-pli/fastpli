@@ -9,6 +9,33 @@
 #include "include/vemath.hpp"
 
 namespace object {
+Fiber::Fiber(const std::vector<float> &data) {
+
+   if (data.size() % 4 != 0)
+      throw std::invalid_argument("fiber data has to be of shape nx4");
+
+   points_.resize(data.size() / 4);
+   points_.shrink_to_fit();
+   radii_.resize(data.size() / 4);
+   radii_.shrink_to_fit();
+   voi_ = aabb::AABB<float, 3>{};
+
+   for (size_t i = 0; i < data.size() / 4; i++) {
+      points_[i] =
+          vm::Vec3<float>(data[4 * i + 0], data[4 * i + 1], data[4 * i + 2]);
+      radii_[i] = data[4 * i + 3];
+   }
+
+   // calc voi
+   if (points_.empty())
+      return;
+   else if (points_.size() == 1) {
+      voi_ = aabb::AABB<float, 3>(points_[0], points_[0]);
+      return;
+   }
+   CalculateVoi();
+}
+
 Fiber::Fiber(const std::vector<float> &points,
              const std::vector<float> &radii) {
 
@@ -68,6 +95,20 @@ void Fiber::CalculateVoi() {
       tmp_voi.max += r_max;
       voi_.Unite(tmp_voi);
    }
+}
+
+std::vector<float> Fiber::vector() const {
+   std::vector<float> fiber;
+   fiber.reserve(points_.size() * 4);
+
+   for (size_t i = 0; i < points_.size(); i++) {
+      fiber.push_back(points_[i].x());
+      fiber.push_back(points_[i].y());
+      fiber.push_back(points_[i].z());
+      fiber.push_back(radii_[i]);
+   }
+
+   return fiber;
 }
 
 float Fiber::CalcRadius(size_t idx, float t) const {

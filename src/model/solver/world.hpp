@@ -37,11 +37,14 @@ class World {
    size_t NumObj() const { return num_obj_; };
    size_t NumColObj() const { return num_col_obj_; };
    object::FiberBundles get_fibers() const;
+   std::vector<std::vector<std::vector<float>>> get_fibers_vector() const;
    World::WorldParameter get_parameter() const { return w_parameter_; };
 
    // setter
    int set_omp_num_threads(int i);
    void set_fibers(const object::FiberBundles &fibers);
+   void set_fibers_vector(
+       const std::vector<std::vector<std::vector<float>>> &fibers);
    void set_parameter(World::WorldParameter p) { w_parameter_ = p; };
    void set_colliding_voi(const aabb::AABB<float, 3> voi) { col_voi_ = voi; };
 

@@ -8,7 +8,6 @@ class MainTest(unittest.TestCase):
         import fastpli.analysis
         import fastpli.io
         import fastpli.model
-        import fastpli.objects
         import fastpli.simulation
         import fastpli.tools
 

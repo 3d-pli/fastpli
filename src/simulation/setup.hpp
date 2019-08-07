@@ -48,5 +48,5 @@ struct Setup {
    // vm::Vec2<int> sensor_dim; // currently same dimension as x-y-volume
 };
 
-}; // namespace setup
+} // namespace setup
 #endif

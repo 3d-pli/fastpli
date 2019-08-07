@@ -2,7 +2,9 @@
 
 script_dir=$(dirname "$0")
 
-if hash clang-format-6.0 2>/dev/null; then
+if hash clang-format-7 2>/dev/null; then
+   clang_format="clang-format-7"
+elif hash clang-format-6.0 2>/dev/null; then
    clang_format="clang-format-6.0"
 elif hash clang-format-4.0 2>/dev/null; then
    clang_format="clang-format-4.0"

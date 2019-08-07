@@ -20,15 +20,41 @@ object::FiberBundles World::get_fibers() const {
    if (fibers_.empty())
       return fiber_bundles;
 
+   // push_back first element
+   size_t i = 0;
    fiber_bundles.push_back(object::FiberBundle());
-   fiber_bundles[0].push_back(fibers_[0]);
+   fiber_bundles.back().push_back(fibers_[i]);
 
    // fiber order does not change, therefore map has the same order
-   for (size_t i = 1; i < fibers_.size(); i++) {
+   for (i = 1; i < fibers_.size(); i++) {
+      // add fiber_bundle if required
       if (map_fb_idx_.at(i - 1).first != map_fb_idx_.at(i).first)
          fiber_bundles.push_back(object::FiberBundle());
 
       fiber_bundles.back().push_back(fibers_[i]);
+   }
+
+   return fiber_bundles;
+}
+
+std::vector<std::vector<std::vector<float>>> World::get_fibers_vector() const {
+   std::vector<std::vector<std::vector<float>>> fiber_bundles;
+
+   if (fibers_.empty())
+      return fiber_bundles;
+
+   // push_back first element
+   size_t i = 0;
+   fiber_bundles.push_back(std::vector<std::vector<float>>());
+   fiber_bundles.back().push_back(fibers_[i].vector());
+
+   // fiber order does not change, therefore map has the same order
+   for (i = 1; i < fibers_.size(); i++) {
+      // add fiber_bundle if required
+      if (map_fb_idx_.at(i - 1).first != map_fb_idx_.at(i).first)
+         fiber_bundles.push_back(std::vector<std::vector<float>>());
+
+      fiber_bundles.back().push_back(fibers_[i].vector());
    }
 
    return fiber_bundles;
@@ -46,6 +72,25 @@ void World::set_fibers(const object::FiberBundles &fiber_bundles) {
       for (auto const &f : fb) {
          map_fb_idx_[fibers_.size()] = std::make_pair(fb_idx, f_idx);
          fibers_.push_back(geometry::Fiber(f, fibers_.size()));
+         f_idx++;
+      }
+      fb_idx++;
+   }
+}
+
+void World::set_fibers_vector(
+    const std::vector<std::vector<std::vector<float>>> &fiber_bundles) {
+
+   // free memory
+   fibers_ = std::vector<geometry::Fiber>();
+   map_fb_idx_ = std::map<size_t, std::pair<size_t, size_t>>();
+
+   size_t fb_idx = 0;
+   for (auto const &fb : fiber_bundles) {
+      size_t f_idx = 0;
+      for (auto const &f : fb) {
+         map_fb_idx_[fibers_.size()] = std::make_pair(fb_idx, f_idx);
+         fibers_.push_back(geometry::Fiber(object::Fiber(f), fibers_.size()));
          f_idx++;
       }
       fb_idx++;
