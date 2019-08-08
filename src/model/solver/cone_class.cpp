@@ -116,8 +116,9 @@ Cone::PushConesApart(const Cone cone) const {
    float norm = vm::length(P - Q);
 
    if (norm < 1e-8f) {
-      std::random_device rd;
-      std::mt19937 gen(rd());
+      // std::random_device rd;
+      // std::mt19937 gen(rd());
+      std::mt19937 gen(42); // for reproducability
       std::uniform_real_distribution<float> dis(-1.0, 1.0);
       delta = vm::Vec3<float>(dis(gen), dis(gen), dis(gen));
 

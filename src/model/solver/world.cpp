@@ -4,7 +4,6 @@
 #include <iostream>
 #include <map>
 #include <memory>
-#include <random>
 #include <utility>
 
 #include "fiber_class.hpp"
