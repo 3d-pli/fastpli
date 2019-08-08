@@ -3,6 +3,12 @@ from ...tools import rotation
 from . import fill
 
 
+def add_radius(fibers, radius):
+    for i, f in enumerate(fibers):
+        fibers[i] = np.append(f, np.ones((f.shape[0], 1)) * radius, axis=1)
+    return fibers
+
+
 def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
     # project angles -> [0, 2*np.pi)
 
