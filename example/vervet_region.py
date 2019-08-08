@@ -1,8 +1,8 @@
-import fastpli.model.sandbox
 import fastpli.io
 import fastpli.tools
 import fastpli.objects
-import fastpli.model
+import fastpli.model.solver
+import fastpli.model.sandbox
 
 import numpy as np
 from tqdm import tqdm, trange
@@ -28,8 +28,7 @@ data = fastpli.model.sandbox.shape.cylinder(p0 + dp, p1 + dp, RADIUS_IN,
                                             np.deg2rad(30 + 60), 'c',
                                             FIBER_SPACING, FIBER_STEPS)
 
-fiber_bundles.append(
-    fastpli.objects.add_radius_to_fiber_bundle(data, FIBER_RADIUS).copy())
+fiber_bundles.append(fastpli.model.sandbox.shape.add_radius(data, FIBER_RADIUS))
 
 ### second ###
 dp = np.dot(fastpli.tools.rotation.z(np.deg2rad(120)), p_shift)
@@ -37,8 +36,7 @@ data = fastpli.model.sandbox.shape.cylinder(p0 + dp, p1 + dp, RADIUS_IN,
                                             RADIUS_OUT, np.deg2rad(-30 - 60),
                                             np.deg2rad(-30), 'c', FIBER_SPACING,
                                             FIBER_STEPS)
-fiber_bundles.append(
-    fastpli.objects.add_radius_to_fiber_bundle(data, FIBER_RADIUS).copy())
+fiber_bundles.append(fastpli.model.sandbox.shape.add_radius(data, FIBER_RADIUS))
 
 ### third ###
 dp = p_shift
@@ -46,8 +44,7 @@ data = fastpli.model.sandbox.shape.cylinder(p0 + dp, p1 + dp, RADIUS_IN,
                                             RADIUS_OUT, np.deg2rad(150),
                                             np.deg2rad(150 + 60), 'c',
                                             FIBER_SPACING, FIBER_STEPS)
-fiber_bundles.append(
-    fastpli.objects.add_radius_to_fiber_bundle(data, FIBER_RADIUS).copy())
+fiber_bundles.append(fastpli.model.sandbox.shape.add_radius(data, FIBER_RADIUS))
 
 for fb in fiber_bundles:
     for f in fb:
@@ -60,8 +57,7 @@ data = fastpli.model.sandbox.shape.cylinder(p0 + dp, p1 + dp, RADIUS_IN * 0.6,
                                             RADIUS_IN, np.deg2rad(150),
                                             np.deg2rad(150 + 60), 'p',
                                             FIBER_SPACING, 2)
-fiber_bundles.append(
-    fastpli.objects.add_radius_to_fiber_bundle(data, FIBER_RADIUS).copy())
+fiber_bundles.append(fastpli.model.sandbox.shape.add_radius(data, FIBER_RADIUS))
 
 ### radial ###
 dp = np.dot(fastpli.tools.rotation.z(np.deg2rad(-120)), p_shift)
@@ -69,8 +65,7 @@ data = fastpli.model.sandbox.shape.cylinder(p0 + dp, p1 + dp, RADIUS_IN * 0.6,
                                             RADIUS_IN * 1.2, np.deg2rad(30),
                                             np.deg2rad(30 + 60), 'r',
                                             FIBER_SPACING, 20)
-fiber_bundles.append(
-    fastpli.objects.add_radius_to_fiber_bundle(data, FIBER_RADIUS).copy())
+fiber_bundles.append(fastpli.model.sandbox.shape.add_radius(data, FIBER_RADIUS))
 
 for fb in fiber_bundles:
     for f in fb:
@@ -79,7 +74,7 @@ for fb in fiber_bundles:
 
 fastpli.io.fiber.save('test.dat', fiber_bundles)
 
-solver = fastpli.model.Solver()
+solver = fastpli.model.solver.Solver()
 solver.omp_num_threads = 8
 solver.fiber_bundles = fiber_bundles
 solver.obj_mean_length = FIBER_RADIUS * 2
@@ -92,6 +87,6 @@ for i in trange(10000):
     if (i % 100) == 0:
         print("step:", i, solver.num_obj, solver.num_col_obj)
         fastpli.io.fiber.save('test_' + str(i) + '.dat', solver.fiber_bundles)
-        # solver.draw_scene()
+        solver.draw_scene()
 
 fastpli.io.fiber.save('test_.dat', solver.fiber_bundles)
