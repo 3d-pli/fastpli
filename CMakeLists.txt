@@ -65,6 +65,6 @@ FIND_PACKAGE( GLUT )
 # Sources
 ##########################################################################
 INCLUDE_DIRECTORIES( AFTER src)
-ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/model")
+ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/model/solver")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/objects")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/simulation")

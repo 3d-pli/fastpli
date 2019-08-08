@@ -2,7 +2,7 @@ import os
 import unittest
 import numpy as np
 
-import fastpli.model
+import fastpli.model.solver
 
 
 class MainTest(unittest.TestCase):
@@ -11,7 +11,7 @@ class MainTest(unittest.TestCase):
         self._test_fiber = np.array([[0, 0, 0, 1], [0, 0, 1, 2]],
                                     dtype=np.float32)
         self._test_fiberbundles = [[self._test_fiber]]
-        self.solver = fastpli.model.Solver()
+        self.solver = fastpli.model.solver.Solver()
         self.solver.fiber_bundles = self._test_fiberbundles
 
     def test_number_of_fibers(self):
