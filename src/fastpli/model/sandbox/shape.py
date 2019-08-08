@@ -5,12 +5,13 @@ from . import fill
 
 def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
     # project angles -> [0, 2*np.pi)
-    alpha = alpha % (2.0 * np.pi)
-    if alpha < 0:
-        alpha += 2.0 * np.pi
-    beta = beta % (2.0 * np.pi)
-    if beta < 0:
-        beta += 2.0 * np.pi
+
+    alpha = alpha % (2 * np.pi)
+    beta_org = beta
+    beta = beta % (2 * np.pi)
+
+    if alpha == 0 and beta_org == 2 * np.pi:
+        beta = 2 * np.pi
 
     p0 = np.array(p0)
     p1 = np.array(p1)
@@ -22,6 +23,7 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
         rot = rotation.a_on_b(np.array((0, 0, 1)), dp)
 
         points = fill.circle(r1, spacing)
+        points = np.append(points, np.zeros((points.shape[0], 1)), axis=1)
         points = points[points[:, 0]**2 + points[:, 1]**2 >= r0**2, :]
         phi = np.arctan2(points[:, 1], points[:, 0])
 
@@ -42,6 +44,7 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
         a = r1 - r0
         b = np.linalg.norm(dp)
         points = fill.rectangle(a, b, spacing, 'center')
+        points = np.append(points, np.zeros((points.shape[0], 1)), axis=1)
 
         # rotate plane into first position
         r = (r0 + r1) / 2.0
@@ -76,6 +79,7 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
         a = r0 * (beta - alpha)
         b = np.linalg.norm(dp)
         points = fill.rectangle(a, b, spacing, 'center')
+        points = np.append(points, np.zeros((points.shape[0], 1)), axis=1)
         points[:, 0] += a / 2
 
         for p in points:

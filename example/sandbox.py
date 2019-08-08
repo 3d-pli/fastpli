@@ -9,7 +9,6 @@ from mpl_toolkits.mplot3d import Axes3D
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-# ax.set_aspect('equal')
 
 
 def set_axes_equal(ax):
@@ -45,9 +44,9 @@ p0 = (0, 80, 0)
 p1 = (0, 80, 100)
 r0 = 20
 r1 = 40
-alpha = np.deg2rad(0)
-beta = alpha + np.deg2rad(360)
-mode = 'circular'
+alpha = np.deg2rad(60)
+beta = alpha + np.deg2rad(45)
+mode = 'r'  # 'p' 'c' 'r'
 spacing = 5
 steps = 100
 radius = 1

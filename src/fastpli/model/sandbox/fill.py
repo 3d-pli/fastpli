@@ -22,7 +22,6 @@ def rectangle(a, b, spacing, mode='center'):
                         spacing / 2:2 * dy].reshape(2, -1)
 
     points = np.concatenate((points_0, points_1), axis=1).T
-    # points = np.concatenate((points, np.zeros((points.shape[0], 1))), axis=1)
 
     return points
 
@@ -41,7 +40,6 @@ def circle(radius, spacing):
     dr2 = points[0, :]**2 + points[1, :]**2
 
     points = points[:, dr2 <= radius**2].T
-    # points = np.concatenate((points, np.zeros((points.shape[0], 1))), axis=1)
 
     return points
 
@@ -60,7 +58,7 @@ def bundle(traj, seeds, fiber_radius):
     if len(traj.shape) != 2 or not (traj.shape[1] != 3 or traj.shape[1] != 4):
         raise TypeError('traj format: (nx3)-array or (nx4)-array')
 
-    if traj.shape[1] != 4:
+    if traj.shape[1] == 3:
         traj = np.append(traj, np.ones(traj.shape[0]), axis=1)
 
     if traj.shape[0] < 2:
@@ -103,8 +101,7 @@ def bundle(traj, seeds, fiber_radius):
         for j in range(0, seeds.shape[0]):
             seeds[j, :] = np.dot(R, seeds[j, :])
             fiber_bundle[j][i, :] = np.append(
-                seeds[j, :] * traj[i, -1] + traj[i, :3],
-                fiber_radius[j]).copy()
+                seeds[j, :] * traj[i, -1] + traj[i, :3], fiber_radius[j])
 
         tangent_old = tangent_new.copy()
 
