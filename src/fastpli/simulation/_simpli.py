@@ -1,5 +1,5 @@
 # from . import __generation as generation
-from .__generation import _Generator, _LayerProperty, _CellProperty
+from .__generation import _Generator
 from .__simulation import _Simulator
 
 from fastpli.analysis import rofl, epa
@@ -267,8 +267,8 @@ class Simpli:
                     raise TypeError(
                         "properties must have len 4 (float, float, float, char)"
                     )
-                self._fiber_bundles_properties[-1].append(
-                    _LayerProperty(ly[0], ly[1], ly[2], ly[3]))
+
+        self._fiber_bundles_properties = bundle_layer_properties
 
     @property
     def cells_populations(self):
@@ -321,8 +321,7 @@ class Simpli:
             if len(prop) != 2:
                 raise TypeError("properties must be a list of 2 arguments")
 
-            self._cells_populations_properties.append(
-                _CellProperty(prop[0], prop[1]))
+        self._cells_populations_properties = cells_populations_properties
 
     def ReadFiberFile(self, filename):
         self._fiber_bundles = []

@@ -1,3 +1,8 @@
+#include <exception>
+#include <iostream>
+#include <tuple>
+#include <vector>
+
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
@@ -32,33 +37,41 @@ PYBIND11_MODULE(__generation, m) {
             py::arg("global_dim"), py::arg("origin"), py::arg("pixel_size"),
             py::arg("flip_direction") =
                 std::array<bool, 3>{{false, false, false}})
-       .def("set_fiber_bundles",
-            [](PliGenerator &self,
-               std::vector<std::vector<py::array_t<float, py::array::c_style>>>
-                   fbs,
-               std::vector<std::vector<fiber::layer::Property>> prs) {
-               std::vector<fiber::Bundle> fiber_bundles;
+       .def(
+           "set_fiber_bundles",
+           [](PliGenerator &self,
+              std::vector<std::vector<py::array_t<float, py::array::c_style>>>
+                  fbs,
+              std::vector<std::vector<std::tuple<float, float, float, char>>>
+                  prs) {
+              std::vector<fiber::Bundle> fiber_bundles;
 
-               if (fbs.size() != prs.size())
-                  throw py::value_error("fbs and prs not the same size");
+              if (fbs.size() != prs.size())
+                 throw py::value_error("fbs and prs not the same size");
 
-               for (auto i = 0u; i < fbs.size(); i++) {
-                  auto fiber_bundle = std::vector<std::vector<float>>();
-                  for (auto f : fbs[i]) {
-                     fiber_bundle.emplace_back(
-                         object::NpArray2Vector<float>(f));
-                  }
-                  fiber_bundles.emplace_back(
-                      fiber::Bundle(fiber_bundle, prs[i]));
-               }
+              for (auto i = 0u; i < fbs.size(); i++) {
+                 auto fiber_bundle = std::vector<std::vector<float>>();
+                 for (auto f : fbs[i]) {
+                    fiber_bundle.emplace_back(object::NpArray2Vector<float>(f));
+                 }
 
-               self.SetFiberBundles(fiber_bundles);
-            })
+                 std::vector<fiber::layer::Property> prs_elm;
+                 for (auto const &p : prs[i])
+                    prs_elm.push_back(
+                        fiber::layer::Property(std::get<0>(p), std::get<1>(p),
+                                               std::get<2>(p), std::get<3>(p)));
+
+                 fiber_bundles.emplace_back(
+                     fiber::Bundle(fiber_bundle, prs_elm));
+              }
+
+              self.SetFiberBundles(fiber_bundles);
+           })
        .def("set_cell_populations",
             [](PliGenerator &self,
                std::vector<std::vector<py::array_t<float, py::array::c_style>>>
                    cell_pops,
-               std::vector<cell::Property> cell_prop) {
+               std::vector<std::tuple<float, float>> cell_prop) {
                std::vector<cell::Population> cell_populations;
                if (cell_pops.size() != cell_prop.size())
                   throw py::value_error(
@@ -70,8 +83,11 @@ PYBIND11_MODULE(__generation, m) {
                      cell_population.emplace_back(
                          object::NpArray2Vector<float>(c));
                   }
-                  cell_populations.emplace_back(
-                      cell::Population(cell_population, cell_prop[i]));
+
+                  cell_populations.emplace_back(cell::Population(
+                      cell_population,
+                      cell::Property(std::get<0>(cell_prop[i]),
+                                     std::get<1>(cell_prop[i]))));
                }
 
                self.SetCellPopulations(cell_populations);
@@ -105,7 +121,6 @@ PYBIND11_MODULE(__generation, m) {
                    object::Vec2NpArray(vector_field, dim_vector_field),
                    object::Vec2NpArray(
                        new std::vector<double>(properties.vector()), dim_prop));
-               std::cerr << "ZHH" << std::endl;
             },
             py::arg("only_label") = false, py::arg("progress_bar") = false)
        .def("dim_local",
@@ -115,19 +130,20 @@ PYBIND11_MODULE(__generation, m) {
        .def("set_omp_num_threads", &PliGenerator::set_omp_num_threads);
 
    // TODO: to objects?
-   py::enum_<fiber::layer::Orientation>(m, "_Orientation")
-       .value("background", fiber::layer::Orientation::background)
-       .value("parallel", fiber::layer::Orientation::parallel)
-       .value("radial", fiber::layer::Orientation::radial);
+   // py::enum_<fiber::layer::Orientation>(m, "_Orientation")
+   //     .value("background", fiber::layer::Orientation::background)
+   //     .value("parallel", fiber::layer::Orientation::parallel)
+   //     .value("radial", fiber::layer::Orientation::radial);
 
-   py::class_<fiber::layer::Property>(m, "_LayerProperty")
-       .def(py::init<float, float, float, char>())
-       .def(py::init<float, float, float, fiber::layer::Orientation>())
-       .def_readwrite("scale", &fiber::layer::Property::scale)
-       .def_readwrite("dn", &fiber::layer::Property::dn)
-       .def_readwrite("mu", &fiber::layer::Property::mu)
-       .def_readwrite("layer_orientation",
-                      &fiber::layer::Property::orientation);
+   // py::class_<fiber::layer::Property>(m, "_LayerProperty")
+   //     .def(py::init<float, float, float, char>())
+   //     .def(py::init<float, float, float, fiber::layer::Orientation>())
+   //     .def_readwrite("scale", &fiber::layer::Property::scale)
+   //     .def_readwrite("dn", &fiber::layer::Property::dn)
+   //     .def_readwrite("mu", &fiber::layer::Property::mu)
+   //     .def_readwrite("layer_orientation",
+   //                    &fiber::layer::Property::orientation);
 
-   py::class_<cell::Property>(m, "_CellProperty").def(py::init<float, float>());
+   // py::class_<cell::Property>(m, "_CellProperty").def(py::init<float,
+   // float>());
 }
