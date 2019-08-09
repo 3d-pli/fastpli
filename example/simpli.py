@@ -3,6 +3,14 @@ import h5py
 import os
 
 import fastpli.simulation
+import fastpli.analysis
+
+import imageio
+
+
+def data2image(data):
+    return np.swapaxes(np.flip(data, 1), 0, 1)
+
 
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
@@ -76,3 +84,8 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
     h5f['rofl/trel'] = rofl_t_rel
+
+    imageio.imwrite(
+        'test.png',
+        data2image(
+            fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))

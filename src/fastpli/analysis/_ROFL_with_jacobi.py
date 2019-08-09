@@ -158,7 +158,7 @@ def _calculate_rotated_fiber_params(phi, alpha, t_rel, array_matrices, tau):
 
 
 @njit(cache=True)
-def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations):
+def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations, dir_offset):
     '''
     Calculates intensity curves in all tilting directions
     @Params:
@@ -172,7 +172,7 @@ def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations):
     phi, alpha = _symmetrize_angles(phi, alpha)
     t_rel = np.abs(t_rel)
     number_tilts = len(phi)
-    rotation_angles = np.linspace(0, np.pi, num_rotations + 1)[:-1]
+    rotation_angles = np.linspace(0, np.pi, num_rotations + 1)[:-1] + dir_offset
 
     I = np.empty((number_tilts, num_rotations))
     for j in range(0, number_tilts):
@@ -182,7 +182,60 @@ def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations):
 
 
 @njit(cache=True)
-def _calc_Jacobi(phi, alpha, t_rel, num_rotations):
+def _calc_Jacobi(phi, alpha, t_rel, num_rotations, dir_offset):
+    '''
+    Calculates Jacobi matrix of the intensity function in all tilting directions
+    @Params:
+    phi - float
+    alpha - float
+    t_rel - float
+    num_rotations - int
+    =====
+    Returns: array of derivative values: size (3, len(phi)  * num_rotations)
+    '''
+    phi, alpha = _symmetrize_angles(phi, alpha)
+    t_rel = np.abs(t_rel)
+    number_tilts = len(phi)
+    rotation_angles = np.linspace(0, np.pi, num_rotations + 1)[:-1] + dir_offset
+
+    Dphi = np.empty((number_tilts, num_rotations))
+    Dalpha = np.empty((number_tilts, num_rotations))
+    Dtrel = np.empty((number_tilts, num_rotations))
+
+    ###calculate derivatives
+    for j in range(0, number_tilts):
+        Dphi[j, :] = -2 * np.cos(2 * (rotation_angles - phi[j])) * np.sin(
+            np.pi / 2 * t_rel[j] * np.cos(alpha[j])**2)
+        Dalpha[j,:] = -np.pi * t_rel[j] * np.cos(alpha[j]) * np.sin(alpha[j]) * np.cos(np.pi/2 * t_rel[j] * np.cos(alpha[j])**2)\
+            *np.sin(2*(rotation_angles - phi[j]))
+        Dtrel[j,:] = np.pi/2 * np.cos(alpha[j])**2*np.sin(2*(rotation_angles - phi[j]))\
+            *np.cos(np.pi/2 * t_rel[j]*np.cos(alpha[j])**2)
+
+    ####put Jacobian together
+    Jacobi = np.empty((3, number_tilts * num_rotations))
+    Jacobi[0, :] = Dphi.flatten()
+    Jacobi[1, :] = Dalpha.flatten()
+    Jacobi[2, :] = Dtrel.flatten()
+    #print Jacobi
+    #J = np.stack((, Dalpha.flatten(), Dtrel.flatten()), axis=0)
+
+    #weights_repeat = np.tile(weights,(3,1))
+
+    #J *= weights_repeat
+    #print J
+    #print weights
+    ##multiply with weights
+    #print J.shape
+    #print weights.shape
+
+    #J = weights.T * J
+
+    #print J
+    return Jacobi
+
+
+@njit(cache=True)
+def _calc_Jacobi_for_opt(phi, alpha, t_rel, num_rotations):
     '''
     Calculates Jacobi matrix of the intensity function in all tilting directions
     @Params:
@@ -210,8 +263,11 @@ def _calc_Jacobi(phi, alpha, t_rel, num_rotations):
             *np.cos(np.pi/2 * t_rel[j]*np.cos(alpha[j])**2)
 
     ####put Jacobian together
+    J = np.empty((3,))
 
-    J = np.stack((Dphi.flatten(), Dalpha.flatten(), Dtrel.flatten()), axis=0)
+    J[0] = np.sum(Dphi)
+    J[1] = np.sum(Dalpha)
+    J[2] = np.sum(Dtrel)
 
     #weights_repeat = np.tile(weights,(3,1))
 
@@ -234,6 +290,7 @@ def _brute_force_grid(phi,
                       number_rotations,
                       number_tilt_steps,
                       array_of_matrices,
+                      dir_offset,
                       tau,
                       measures,
                       weights,
@@ -287,7 +344,8 @@ def _brute_force_grid(phi,
 
             ###evaluate function and write into outputarray
             grid_intensities_output[j, :] = _calc_Int_single_fiber_fitted(
-                phi_array, alpha_array, t_rel_array, number_rotations)
+                phi_array, alpha_array, t_rel_array, number_rotations,
+                dir_offset)
             j += 1
 
         ###broadcast measurement array number_gridpoints times so it can be substracted from all grid point evaluations
@@ -330,7 +388,8 @@ def _brute_force_grid(phi,
 
             ###evaluate function and write into outputarray
             grid_intensities_output[j, :] = _calc_Int_single_fiber_fitted(
-                phi_array, alpha_array, t_rel_array, number_rotations)
+                phi_array, alpha_array, t_rel_array, number_rotations,
+                dir_offset)
             j += 1
 
         ###broadcast measurement array number_gridpoints times so it can be substracted from all grid point evaluations
@@ -356,34 +415,61 @@ def _brute_force_grid(phi,
 
 
 @njit(cache=True)
-def _model(p, array_of_matrices, tau, number_rotations):
+def _model(p, array_of_matrices, tau, number_rotations, dir_offset):
     dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
         p[0], p[1], p[2], array_of_matrices, tau)
     Intensities = _calc_Int_single_fiber_fitted(dir_array, alpha_array,
-                                                t_rel_array, number_rotations)
+                                                t_rel_array, number_rotations,
+                                                dir_offset)
     return Intensities.flatten()
 
 
-def _model_jacobi(p, array_of_matrices, tau, number_rotations, weights, data):
+@njit(cache=True)
+def _weighted_jacobi(p, array_of_matrices, tau, number_rotations, dir_offset,
+                     data, weights):
     dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
         p[0], p[1], p[2], array_of_matrices, tau)
-    J = _calc_Jacobi(dir_array, alpha_array, t_rel_array, number_rotations,
-                     weights)
-    return J
+    weights = weights.flatten()
+    Jacobi = _calc_Jacobi(dir_array, alpha_array, t_rel_array, number_rotations,
+                          dir_offset)
+
+    for _ in range(3):
+
+        Jacobi[_, :] *= weights
+    #J =   Jacobi * weights[np.newaxis, :]
+    #print
+    #print "weighted Jacobi: ", J
+    return Jacobi
 
 
 @njit(cache=True)
-def _residuum(p, array_of_matrices, tau, number_rotations, measures, weights):
-    return weights * (_model(p, array_of_matrices, tau, number_rotations) -
-                      measures)
+def _residuum(p, array_of_matrices, tau, number_rotations, dir_offset, measures,
+              weights):
+    return weights * (_model(p, array_of_matrices, tau, number_rotations,
+                             dir_offset) - measures)
+
+
+@njit(cache=True)
+def _chisq(p, array_of_matrices, tau, number_rotations, dir_offset, measures,
+           weights):
+
+    residuals = _residuum(p, array_of_matrices, tau, number_rotations,
+                          dir_offset, measures, weights)
+
+    #print residuals
+
+    return np.sum(residuals * residuals)
 
 
 def _execute_fit(phi_start,
                  number_inclination_steps,
                  number_t_rel_steps,
+                 dir_offset,
                  tau,
                  measures,
                  gain,
+                 grad,
+                 global_opt_bool,
                  ret=None):
 
     ##calculate centered intensities and weights
@@ -404,65 +490,115 @@ def _execute_fit(phi_start,
 
     weights = weights.flatten()
 
-    #find start point via brute force minimization
+    arguments = (rotation_matrices, tau, number_rotations, dir_offset,
+                 centered_I, weights)
 
-    startpoints = _brute_force_grid(phi_start,number_inclination_steps,number_t_rel_steps,number_rotations,\
-        number_tilt_steps,rotation_matrices, tau,centered_I,weights, ret)
+    #print arguments
 
-    ##execute least squares fit
+    ##############Optimization############
 
-    final_angles, cov, info, message, ier = optimize.leastsq(_residuum, startpoints,args=(rotation_matrices,tau,number_rotations,centered_I, weights),\
-        full_output=1,maxfev = 150)#  Dfun =_model_jacobi, col_deriv=1,
+    if global_opt_bool == True:
 
-    ####symmetrize angles back into PLI coordinate space
+        #global
+        result = optimize.differential_evolution(_chisq,
+                                                 args=arguments,
+                                                 bounds=[(0, np.pi),
+                                                         (-0.5 * np.pi,
+                                                          0.5 * np.pi), (0, 1)],
+                                                 popsize=100)
 
-    direction_out, inclination_out = _symmetrize_angles(final_angles[0],
-                                                        final_angles[1])
+        final_angles = result.x
+        fvalue = result.fun
+        niter = result.nit
 
-    ##take absolute value of trel
+        std_params = np.ones((3,))
 
-    t_rel = np.abs(final_angles[2])
+        ####symmetrize angles back into PLI coordinate space
 
-    ####extract value of the cost function
+        direction_out, inclination_out = _symmetrize_angles(
+            final_angles[0], final_angles[1])
 
-    fvalue = np.sum(np.square(info["fvec"]))
+        ##take absolute value of trel
 
-    ###extract number of iterations of the optimizer
+        t_rel = np.abs(final_angles[2])
 
-    niter = info["nfev"]
+    else:
 
-    ###calculate confidence intervals
+        #local
 
-    ## calculate reduced chi sqaure
+        #find start point via brute force minimization
 
-    sigma_sq = fvalue / float((len(centered_I) - 3))
+        #print "BF ..."
+        startpoints = _brute_force_grid(phi_start,number_inclination_steps,number_t_rel_steps, number_rotations,\
+            number_tilt_steps,rotation_matrices, dir_offset, tau,centered_I,weights, ret)
 
-    ##calculate covariance matrix
+        ##execute least squares fit
 
-    #evaluate jacobian at found minimum
+        #print "LM..."
 
-    dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
-        direction_out, inclination_out, t_rel, rotation_matrices, tau)
+        #print "grad: ", grad
 
-    J_min = _calc_Jacobi(dir_array, alpha_array, t_rel_array, number_rotations)
+        if grad == True:
 
-    ###tile weights for multiplication with jacobi matrix
+            final_angles, cov, info, message, ier = optimize.leastsq(_residuum, startpoints,args=arguments,\
+                full_output=1,maxfev = 150,  Dfun =_weighted_jacobi, col_deriv=1)
 
-    weights_repeat = np.tile(weights, (3, 1))
+        else:
 
-    weighted_jacobi = weights_repeat * J_min
+            final_angles, cov, info, message, ier = optimize.leastsq(_residuum, startpoints,args=arguments,\
+                full_output=1,maxfev = 150)
 
-    #cov = np.linalg.inv(np.dot(weighted_jacobi, weighted_jacobi.T)) * sigma_sq
+        ####extract value of the cost function
 
-    #print "numpy: ", cov
+        fvalue = np.sum(np.square(info["fvec"]))
 
-    cov = _invertmatrix(np.dot(weighted_jacobi, weighted_jacobi.T)) * sigma_sq
+        ###extract number of iterations of the optimizer
 
-    #print "ana" , cov_analytical
+        niter = info["nfev"]
 
-    ##errors on fit parameters
+        ###calculate confidence intervals
 
-    std_params = np.diag(np.abs(cov)**0.5)
+        ####symmetrize angles back into PLI coordinate space
+
+        direction_out, inclination_out = _symmetrize_angles(
+            final_angles[0], final_angles[1])
+
+        ##take absolute value of trel
+
+        t_rel = np.abs(final_angles[2])
+
+        ## calculate reduced chi sqaure
+
+        sigma_sq = fvalue / float((len(centered_I) - 3))
+
+        ##calculate covariance matrix
+
+        #evaluate jacobian at found minimum
+
+        dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
+            direction_out, inclination_out, t_rel, rotation_matrices, tau)
+
+        J_min = _calc_Jacobi(dir_array, alpha_array, t_rel_array,
+                             number_rotations, dir_offset)
+
+        ###tile weights for multiplication with jacobi matrix
+
+        weights_repeat = np.tile(weights, (3, 1))
+
+        weighted_jacobi = weights_repeat * J_min
+
+        #cov = np.linalg.inv(np.dot(weighted_jacobi, weighted_jacobi.T)) * sigma_sq
+
+        #print "numpy: ", cov
+
+        cov = _invertmatrix(np.dot(weighted_jacobi,
+                                   weighted_jacobi.T)) * sigma_sq
+
+        #print "ana" , cov_analytical
+
+        ##errors on fit parameters
+
+        std_params = np.diag(np.abs(cov)**0.5)
 
     ##for angle uncertainties > pi/2, set to pi/2
 
@@ -473,11 +609,20 @@ def _execute_fit(phi_start,
 
 ###DEBUGGING STUFF
 '''
-  
 tau_test=np.deg2rad(5.51)
+#test_offset=np.deg2rad(-67)
 rotation_matrices=_list_all_tilt_matrices(4,tau_test)
 tilttest_1,tilttest_2,t_rels=_calculate_rotated_fiber_params(np.pi/5,np.pi/5,0.5,rotation_matrices,tau_test)
-Perfect_Int=_calc_Int_single_fiber_fitted(tilttest_1,tilttest_2,t_rels,18)
+Perfect_Int=_calc_Int_single_fiber_fitted(tilttest_1,tilttest_2,t_rels,18, 0)
+
+
+#print "rotated phis, 0 offset: ", np.rad2deg(tilttest_1)
+#print "rotated incls, 0 offset: ", np.rad2deg(tilttest_2)
+#tilttest_1,tilttest_2,t_rels=_calculate_rotated_fiber_params(np.pi/5,np.pi/5,0.5,0,rotation_matrices,tau_test)
+
+#print "rotated phis, -67 offset: ", np.rad2deg(tilttest_1)
+#print "rotated incls, -67 offset: ", np.rad2deg(tilttest_2)
+
 
 
 
@@ -486,6 +631,12 @@ Perfect_Int = 3000 * (Perfect_Int + np.ones_like(Perfect_Int))
 Noisy_Ints = np.random.normal(Perfect_Int, np.sqrt(3*Perfect_Int))
 Noisy_Ints = Noisy_Ints.reshape((5,18))
 Perfect_Int = Perfect_Int.reshape((5,18))
+
+centered_ints, weights = _calc_centered_vals(Noisy_Ints, 3)
+
+chisq = _chisq((np.pi/5+0.05,np.pi/5-0.02,0.51), rotation_matrices, tau_test, 18, 0, centered_ints.flatten(), weights.flatten())
+
+print chisq
 #Perfect_J = _calc_Jacobi(tilttest_1,tilttest_2,t_rels,18)
 #print Perfect_Int
 #print Perfect_J
@@ -499,10 +650,19 @@ Perfect_Int = Perfect_Int.reshape((5,18))
 
 #print final_angles
 
-test,stdtest,cost,niter=_execute_fit(np.pi/5+0.05,5,5,tau_test,Noisy_Ints, 3)
+print "global"
+test,stdtest,cost,niter=_execute_fit(np.pi/5+0.05,3,3,0,tau_test,Noisy_Ints, 3, False, True)
 print test
 print stdtest
 print niter
+print cost
+
+print "local"
+test,stdtest,cost,niter=_execute_fit(np.pi/5+0.05,3,3,0,tau_test,Noisy_Ints, 3, True, False)
+print test
+print stdtest
+print niter
+print cost
 
 def create_Int_array_fitfunc_lq(p,filter_angles):
     Intensities=np.empty(shape=[num_rotations,number_of_tilts +1])
