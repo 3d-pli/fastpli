@@ -9,7 +9,7 @@ class MainTest(unittest.TestCase):
 
     def setUp(self):
         self.fiber_bundles = [[[[0, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]]]]
-        self.fiber_bundles_properties = [[(0.333, 0.004, 10, 'p'),
+        self.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                           (0.666, -0.004, 5, 'b'),
                                           (1.0, 0.004, 1, 'r')]]
 
@@ -45,8 +45,8 @@ class MainTest(unittest.TestCase):
             only_label=False)
         self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
         self.assertTrue(np.array_equal(label_field_0, label_field_1))
-        self.assertTrue(
-            np.array_equal(label_field_1.shape, vec_field.shape[:3]))
+        self.assertTrue(np.array_equal(label_field_1.shape,
+                                       vec_field.shape[:3]))
 
     def test_cell_population(self):
         self.simpli.pixel_size = 1
@@ -69,7 +69,7 @@ class MainTest(unittest.TestCase):
         self.simpli.dim = [10, 10, 10]
         self.simpli.origin = self.simpli.dim / 2
         self.simpli.fiber_bundles = [[[[0, 0, 30, 100], [640, 640, 30, 100]]]]
-        self.simpli.fiber_bundles_properties = [[(0.333, 0.004, 10, 'p'),
+        self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                                  (0.666, -0.004, 5, 'b'),
                                                  (1.0, 0.004, 1, 'r')]]
 

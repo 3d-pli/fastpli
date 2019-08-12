@@ -264,10 +264,10 @@ class Simpli:
                         "properties must have len 4 (float, float, float, char)"
                     )
 
-                if ly[2] < 0 and ly[-1] is 'r':
-                    print('WARNING: briefringence negative and radial')
-                if ly[2] > 0 and ly[-1] is 'p':
-                    print('WARNING: briefringence positive and parallel')
+                if ly[1] < 0 and ly[-1] is 'r':
+                    print('WARNING: birefringence negative and radial')
+                if ly[1] > 0 and ly[-1] is 'p':
+                    print('WARNING: birefringence positive and parallel')
 
         self._fiber_bundles_properties = bundle_layer_properties
 
