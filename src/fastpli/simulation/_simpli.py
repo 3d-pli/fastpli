@@ -139,11 +139,7 @@ class Simpli:
         self._voi = voi
 
         if self._voxel_size is None:
-            self.print_debug(
-                "voxel_size is not set yet, dim and dim_origin will be calculated when setted"
-            )
-            return
-
+            raise TypeError("voxel_size is not set yet")
         tmp = np.array(self._voi / self._voxel_size)
         self._dim = np.array(
             (int(tmp[1] - tmp[0]), int(tmp[3] - tmp[2]), int(tmp[5] - tmp[4])),
@@ -267,6 +263,11 @@ class Simpli:
                     raise TypeError(
                         "properties must have len 4 (float, float, float, char)"
                     )
+
+                if ly[2] < 0 and ly[-1] is 'r':
+                    print('WARNING: briefringence negative and radial')
+                if ly[2] > 0 and ly[-1] is 'p':
+                    print('WARNING: briefringence positive and parallel')
 
         self._fiber_bundles_properties = bundle_layer_properties
 
@@ -511,6 +512,9 @@ class Simpli:
         else:
             raise ValueError('allowed is only B, kB, MB, GB')
 
+        if self._dim is None:
+            raise TypeError('dimension not set yet')
+
         if item == 'label_field':
             return np.prod(self._dim) * (32 + 32) / 8 / div
         elif item == 'all':
@@ -587,7 +591,7 @@ class Simpli:
             self,
             image_stack,
             delta_sigma=0.71,  # only for LAP!
-            gain=3,  # only for LAP!
+            gain=3.0,  # only for LAP!
             cropping=0,  # num pixel 
             resample_mode=Image.BILINEAR):
 
@@ -631,7 +635,7 @@ class Simpli:
             self,
             image_stack,
             tilt_angle=np.deg2rad(5.5),  # only LAP!
-            gain=3,  # only LAP!
+            gain=3.0,  # only LAP!
             dir_offset=0,
             mask=None,
             num_threads=2):

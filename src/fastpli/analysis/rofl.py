@@ -21,12 +21,14 @@ def rofl(data, tilt_angle=np.deg2rad(5.5), gain=3, dir_offset=0):
     if data.shape[1] <= 3:
         raise ValueError("data needs at least 3 equidistand rotations")
 
+    if gain <= 0:
+        raise ValueError("rofl gain <= 0")
+
     direction = epa.direction(data)
 
-    params, params_conf, func, n_iter = _execute_fit(direction, 6, 6,
-                                                     dir_offset, tilt_angle,
-                                                     data[:, x, y, :], gain,
-                                                     True, False)
+    params, params_conf, func, n_iter = rofl_fit(direction, 6, 6, dir_offset,
+                                                 tilt_angle, data[:, x, y, :],
+                                                 gain, True, False)
 
     return params[0], params[1], params[2], params_conf[0], params_conf[
         1], params_conf[2], func, n_iter
@@ -54,6 +56,9 @@ def map(data,
 
     if data.shape[-1] <= 3:
         raise ValueError("data needs at least 3 equidistand rotations")
+
+    if gain <= 0:
+        raise ValueError("rofl gain <= 0")
 
     direction_map = pymp.shared.array(data.shape[1:3], np.float32)
     direction_map = epa.direction_map(data[0, :, :, :])
