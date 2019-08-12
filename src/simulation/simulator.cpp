@@ -222,7 +222,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                vec = vm::dot(rotation, vec);
 
             // calculate spherical coordinates
-            const auto alpha = asin(vec.z());
+            const auto alpha = asin(vec.z() / vm::length(vec));
             const auto ret =
                 M_PI_2 * d_rel * pow(cos(alpha), 2.0); // M_PI_2 = pi/2
             const auto sin_r = sin(ret);
@@ -263,6 +263,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 #endif
                for (auto rho = 0u; rho < n_rho; rho++) {
                   s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
+                  assert(!std::isnan(s_vec[rho][0]));
                   intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
                }
             }
