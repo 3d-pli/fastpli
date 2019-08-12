@@ -3,3 +3,12 @@ yapf
 tqdm
 matplotlib
 imageio
+
+# tested package version dependencies
+# h5py==2.9.0
+# mpi4py==3.0.2
+# numba==0.45.1
+# numpy==1.17.0
+# Pillow==6.1.0
+# pymp-pypi==0.4.2
+# scipy==1.3.0
