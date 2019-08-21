@@ -59,7 +59,7 @@ def bundle(traj, seeds, fiber_radius):
         raise TypeError('traj format: (nx3)-array or (nx4)-array')
 
     if traj.shape[1] == 3:
-        traj = np.append(traj, np.ones(traj.shape[0]), axis=1)
+        traj = np.append(traj, np.ones((traj.shape[0], 1)), axis=1)
 
     if traj.shape[0] < 2:
         raise TypeError('traj size is to small')
