@@ -53,7 +53,6 @@ def bundle(traj, seeds, fiber_radius):
 
     traj = np.array(traj, dtype=float, copy=False)
     seeds = np.atleast_2d(np.array(seeds, dtype=float, copy=True))
-    print(seeds.shape)
 
     if len(traj.shape) != 2 or not (traj.shape[1] != 3 or traj.shape[1] != 4):
         raise TypeError('traj format: (nx3)-array or (nx4)-array')
