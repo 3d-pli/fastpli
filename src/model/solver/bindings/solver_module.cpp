@@ -21,13 +21,13 @@ PYBIND11_MODULE(__solver, m) {
        .def(py::init())
        .def("_set_fiber_bundles",
             [](World &self,
-               std::vector<std::vector<py::array_t<float, py::array::c_style>>>
+               std::vector<std::vector<py::array_t<double, py::array::c_style>>>
                    fbs) {
-               std::vector<std::vector<std::vector<float>>> fiber_bundles;
+               std::vector<std::vector<std::vector<double>>> fiber_bundles;
                for (auto i = 0u; i < fbs.size(); i++) {
-                  auto fiber_bundle = std::vector<std::vector<float>>();
+                  auto fiber_bundle = std::vector<std::vector<double>>();
                   for (auto &f : fbs[i]) {
-                     fiber_bundle.push_back(object::NpArray2Vector<float>(f));
+                     fiber_bundle.push_back(object::NpArray2Vector<double>(f));
                   }
                   fiber_bundles.push_back(fiber_bundle);
                }
@@ -45,7 +45,7 @@ PYBIND11_MODULE(__solver, m) {
                   for (size_t j = 0; j < fbs[i].size(); j++) {
                      dim[0] = fbs[i][j].size() / 4;
                      fiber_bundles[i].push_back(object::Vec2NpArray(
-                         new std::vector<float>(fbs[i][j]), dim));
+                         new std::vector<double>(fbs[i][j]), dim));
                   }
                }
 
@@ -69,11 +69,11 @@ PYBIND11_MODULE(__solver, m) {
                return std::make_tuple(p.drag, p.obj_min_radius,
                                       p.obj_mean_length);
             })
-       .def(
-           "_set_col_voi",
-           [](World &self, std::array<float, 3> min, std::array<float, 3> max) {
-              self.set_colliding_voi(aabb::AABB<float, 3>(min, max));
-           })
+       .def("_set_col_voi",
+            [](World &self, std::array<double, 3> min,
+               std::array<double, 3> max) {
+               self.set_colliding_voi(aabb::AABB<double, 3>(min, max));
+            })
        .def("step", (bool (World::*)(void)) & World::Step)
        .def("boundry_checking", &World::BoundryChecking, py::arg("steps") = -1)
        .def_property_readonly("num_obj", &World::NumObj)

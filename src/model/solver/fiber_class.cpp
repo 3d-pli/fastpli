@@ -13,7 +13,7 @@ Fiber::Fiber(const object::Fiber &fiber, const size_t f_idx)
     : object::Fiber(fiber) {
 
    fiber_idx_ = f_idx;
-   speed_.assign(points_.size(), vm::Vec3<float>(0));
+   speed_.assign(points_.size(), vm::Vec3<double>(0));
 }
 
 size_t Fiber::ConeSize() const {
@@ -47,13 +47,13 @@ void Fiber::Move() {
    }
 }
 
-void Fiber::Drag(const float drag) {
+void Fiber::Drag(const double drag) {
    for (size_t i = 0; i < points_.size(); i++) {
       speed_[i] *= drag;
    }
 }
 
-bool Fiber::CheckRadius(const float obj_min_radius) {
+bool Fiber::CheckRadius(const double obj_min_radius) {
    auto solved = true;
 
    if (points_.size() <= 2)
@@ -105,7 +105,7 @@ bool Fiber::CheckRadius(const float obj_min_radius) {
    return solved;
 }
 
-bool Fiber::CheckLength(const float obj_mean_length) {
+bool Fiber::CheckLength(const double obj_mean_length) {
    auto solved = true;
 
    if (obj_mean_length == 0)
@@ -178,6 +178,8 @@ void Fiber::Combine(size_t idx) {
    }
 }
 
-void Fiber::AddSpeed(size_t idx, const vm::Vec3<float> &v) { speed_[idx] += v; }
+void Fiber::AddSpeed(size_t idx, const vm::Vec3<double> &v) {
+   speed_[idx] += v;
+}
 
 } // namespace geometry

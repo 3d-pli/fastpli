@@ -11,10 +11,10 @@ namespace object {
 
 class Fiber {
  public:
-   Fiber(const std::vector<float> &data);
-   Fiber(const std::vector<vm::Vec3<float>> &points,
-         const std::vector<float> &radii);
-   Fiber(const std::vector<float> &points, const std::vector<float> &radii);
+   Fiber(const std::vector<double> &data);
+   Fiber(const std::vector<vm::Vec3<double>> &points,
+         const std::vector<double> &radii);
+   Fiber(const std::vector<double> &points, const std::vector<double> &radii);
 
    // defaults
    Fiber() = default;
@@ -26,28 +26,28 @@ class Fiber {
    ~Fiber() = default;
 
    // getter
-   const std::vector<vm::Vec3<float>> &points() const { return points_; }
-   const std::vector<float> &radii() const { return radii_; }
-   std::vector<float> vector() const;
-   const aabb::AABB<float, 3> &voi() const { return voi_; }
+   const std::vector<vm::Vec3<double>> &points() const { return points_; }
+   const std::vector<double> &radii() const { return radii_; }
+   std::vector<double> vector() const;
+   const aabb::AABB<double, 3> &voi() const { return voi_; }
 
    size_t size() const { return points_.size(); };
-   float CalcRadius(size_t idx, float t) const;
+   double CalcRadius(size_t idx, double t) const;
 
    // manipolator
-   void Rotate(const vm::Mat3x3<float> &rot_mat);
-   void RotateAroundPoint(const vm::Mat3x3<float> &rot_mat,
-                          const vm::Vec3<float> &point);
-   void Translate(const vm::Vec3<float> &translation);
+   void Rotate(const vm::Mat3x3<double> &rot_mat);
+   void RotateAroundPoint(const vm::Mat3x3<double> &rot_mat,
+                          const vm::Vec3<double> &point);
+   void Translate(const vm::Vec3<double> &translation);
 
-   void Resize(const float f);
-   void ResizePoints(const float f);
-   void ResizeRadii(const float f);
+   void Resize(const double f);
+   void ResizePoints(const double f);
+   void ResizeRadii(const double f);
 
  protected:
-   std::vector<vm::Vec3<float>> points_;
-   std::vector<float> radii_;
-   aabb::AABB<float, 3> voi_;
+   std::vector<vm::Vec3<double>> points_;
+   std::vector<double> radii_;
+   aabb::AABB<double, 3> voi_;
 
    void CalculateVoi();
 };

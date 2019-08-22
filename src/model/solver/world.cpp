@@ -1,6 +1,7 @@
 #include "world.hpp"
 
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -36,22 +37,22 @@ object::FiberBundles World::get_fibers() const {
    return fiber_bundles;
 }
 
-std::vector<std::vector<std::vector<float>>> World::get_fibers_vector() const {
-   std::vector<std::vector<std::vector<float>>> fiber_bundles;
+std::vector<std::vector<std::vector<double>>> World::get_fibers_vector() const {
+   std::vector<std::vector<std::vector<double>>> fiber_bundles;
 
    if (fibers_.empty())
       return fiber_bundles;
 
    // push_back first element
    size_t i = 0;
-   fiber_bundles.push_back(std::vector<std::vector<float>>());
+   fiber_bundles.push_back(std::vector<std::vector<double>>());
    fiber_bundles.back().push_back(fibers_[i].vector());
 
    // fiber order does not change, therefore map has the same order
    for (i = 1; i < fibers_.size(); i++) {
       // add fiber_bundle if required
       if (map_fb_idx_.at(i - 1).first != map_fb_idx_.at(i).first)
-         fiber_bundles.push_back(std::vector<std::vector<float>>());
+         fiber_bundles.push_back(std::vector<std::vector<double>>());
 
       fiber_bundles.back().push_back(fibers_[i].vector());
    }
@@ -78,7 +79,7 @@ void World::set_fibers(const object::FiberBundles &fiber_bundles) {
 }
 
 void World::set_fibers_vector(
-    const std::vector<std::vector<std::vector<float>>> &fiber_bundles) {
+    const std::vector<std::vector<std::vector<double>>> &fiber_bundles) {
 
    // free memory
    fibers_ = std::vector<geometry::Fiber>();
@@ -94,6 +95,12 @@ void World::set_fibers_vector(
       }
       fb_idx++;
    }
+
+   // std::cout << std::setprecision(20) << fibers_[0].points()[0] << ", "
+   //           << fibers_[int(fibers_.size() / 2) + 2].points()[0] << ", "
+   //           << vm::length(fibers_[0].points()[0] -
+   //                         fibers_[int(fibers_.size() / 2) + 2].points()[0])
+   //           << std::endl;
 }
 
 int World::set_omp_num_threads(int i) {
@@ -176,7 +183,7 @@ bool World::Step() {
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
 
-         vm::Vec3<float> f0, f1, f2, f3;
+         vm::Vec3<double> f0, f1, f2, f3;
          std::tie(f0, f1, f2, f3) = fibers_[elm[0]].Cone(elm[1]).PushConesApart(
              fibers_[elm[2]].Cone(elm[3]));
 
@@ -219,7 +226,7 @@ bool World::Step() {
 
 #if _VIS_LIBRARIES
 #include "scene.hpp"
-void World::DrawScene(float rot_x, float rot_y, float rot_z, bool only_col) {
+void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
    if (scene_ == nullptr) {
       char arg0[] = "model.solver";
       char *argv[] = {arg0, nullptr};
@@ -230,7 +237,7 @@ void World::DrawScene(float rot_x, float rot_y, float rot_z, bool only_col) {
    scene_->DrawScene(fibers_, only_col);
 }
 #else
-void World::DrawScene(float rot_x, float rot_y, float rot_z, bool only_col) {
+void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
    (void)rot_x;
    (void)rot_y;
    (void)rot_z;

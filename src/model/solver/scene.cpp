@@ -85,8 +85,8 @@ void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
 
          glColor3f(0.8f, 0.8f, 0.8f);
 
-         if (speed[i] != vm::Vec3<float>(0) ||
-             speed[i + 1] != vm::Vec3<float>(0))
+         if (speed[i] != vm::Vec3<double>(0) ||
+             speed[i + 1] != vm::Vec3<double>(0))
             glColor3f(0.8f, 0.0f, 0.0f);
          else if (only_col_)
             continue;
@@ -103,8 +103,8 @@ void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
 
 void Scene::AutoVolume(const std::vector<geometry::Fiber> &fibers) {
 
-   vm::Vec3<float> v_min(std::numeric_limits<float>::max());
-   vm::Vec3<float> v_max(-std::numeric_limits<float>::max());
+   vm::Vec3<double> v_min(std::numeric_limits<float>::max());
+   vm::Vec3<double> v_max(-std::numeric_limits<float>::max());
 
    for (const auto &fiber : fibers) {
       for (const auto &pos : fiber.points()) {
@@ -115,7 +115,7 @@ void Scene::AutoVolume(const std::vector<geometry::Fiber> &fibers) {
       }
    }
 
-   center_new_ = (v_max + v_min) / 2;
+   center_new_ = vm::cast<float>(v_max + v_min) / 2;
    distance_new_ = vm::max(v_max - v_min);
 
    if ((vm::length(center_ - center_new_) / vm::length(center_)) >
