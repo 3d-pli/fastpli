@@ -77,13 +77,6 @@ class Solver(_Solver):
         self._obj_mean_length = parameters[2]
         return parameters
 
-    @parameters.setter
-    def parameters(self, tuple):
-        super()._set_parameters(tuple[0], tuple[1], tuple[2])
-
-    def set_parameters(self, drag=0, obj_min_radius=0, obj_mean_length=0):
-        super()._set_parameters(drag, obj_min_radius, obj_mean_length)
-
     @property
     def col_voi(self):
         return self._col_voi

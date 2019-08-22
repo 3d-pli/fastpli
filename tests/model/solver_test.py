@@ -15,22 +15,22 @@ class MainTest(unittest.TestCase):
         self.solver.fiber_bundles = self._test_fiberbundles
 
     def test_number_of_fibers(self):
-        self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=0)
+        self.solver.drag = 0
+        self.solver.obj_min_radius = 0
+        self.solver.obj_mean_length = 0
         self.solver.step()
         fbs = self.solver.fiber_bundles
         self.assertTrue(fbs[0][0].shape[0] == 2)
         self.assertTrue(np.array_equal(self._test_fiber, fbs[0][0]))
 
-    def test_fiber_bundle_property(self):
-        self.solver.parameters = (0, 0, 0)
-        _ = self.solver.parameters
+    def test_set_fiber_bundle(self):
         self.solver.fiber_bundles = [[np.array([[0, 0, 0, 1], [0, 0, 2, 3]])]]
-        test = self.solver.fiber_bundles
+        _ = self.solver.fiber_bundles
 
     def test_split(self):
-        self.solver.set_parameters(drag=0,
-                                   obj_min_radius=0,
-                                   obj_mean_length=0.5)
+        self.solver.drag = 0
+        self.solver.obj_min_radius = 0
+        self.solver.obj_mean_length = 0.5
         self.solver.step()
         fbs = self.solver.fiber_bundles
         self.assertTrue(fbs[0][0][1, -1] == 1.5)
@@ -40,18 +40,24 @@ class MainTest(unittest.TestCase):
                               dtype=np.float32)
         self._test_fiberbundles = [[self._test_fiber]]
         self.solver.fiber_bundles = self._test_fiberbundles
-        self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=2)
+        self.solver.drag = 0
+        self.solver.obj_min_radius = 0
+        self.solver.obj_mean_length = 2
         self.solver.step()
         fbs = self.solver.fiber_bundles
         self.assertTrue(fbs[0][0].shape[0] == 2)
 
-        self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=20)
+        self.solver.drag = 0
+        self.solver.obj_min_radius = 0
+        self.solver.obj_mean_length = 20
         self.solver.step()
         fbs = self.solver.fiber_bundles
         self.assertTrue(fbs[0][0].shape[0] == 2)
 
     def test_fibers(self):
-        self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=2)
+        self.solver.drag = 0
+        self.solver.obj_min_radius = 0
+        self.solver.obj_mean_length = 2
 
         fiber_0 = np.array([[0, 0, 0, 1], [0, 0, 1, 2]], dtype=np.float32)
         fiber_1 = np.array([[0, 0, 0.1, 1], [0, 0, 1.1, 2]], dtype=np.float32)
@@ -65,7 +71,9 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(fiber_1[:, -1], fbs[0][1][:, -1]))
 
     def test_fiber_bundles(self):
-        self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=2)
+        self.solver.drag = 0
+        self.solver.obj_min_radius = 0
+        self.solver.obj_mean_length = 2
 
         fiber_0 = np.array([[0, 0, 0, 1], [0, 0, 1, 2]], dtype=np.float32)
         fiber_1 = np.array([[0, 0, 0.1, 1], [0, 0, 1.1, 2]], dtype=np.float32)
@@ -79,7 +87,9 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(fiber_1[:, -1], fbs[1][0][:, -1]))
 
     def test_col_voi(self):
-        self.solver.set_parameters(drag=0, obj_min_radius=0, obj_mean_length=2)
+        self.solver.drag = 0
+        self.solver.obj_min_radius = 0
+        self.solver.obj_mean_length = 2
 
         fiber_0 = np.array([[0, 0, 0, 1], [0, 0, 1, 2]], dtype=np.float32)
         fiber_1 = np.array([[0, 0, 0.1, 1], [0, 0, 1.1, 2]], dtype=np.float32)
