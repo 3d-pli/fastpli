@@ -191,10 +191,19 @@ bool World::Step() {
    // check fiber boundry conditions
 #pragma omp parallel for
    for (auto i = 0u; i < fibers_.size(); i++) {
-      bool flag_length = fibers_[i].CheckLength(w_parameter_.obj_mean_length);
       bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
 #pragma omp critical
-      solved = solved && flag_length && flag_radius;
+      solved = solved && flag_radius;
+   }
+
+   if (!solved) {
+#pragma omp parallel for
+      for (auto i = 0u; i < fibers_.size(); i++) {
+         bool flag_length =
+             fibers_[i].CheckLength(w_parameter_.obj_mean_length);
+#pragma omp critical
+         solved = solved && flag_length;
+      }
    }
 
    // move colliding objects
