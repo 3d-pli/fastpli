@@ -20,7 +20,7 @@ setuptools.setup(
     install_requires=[
         'numpy', 'numba', 'pymp-pypi', 'mpi4py', 'scipy', 'pillow', 'h5py'
     ],
-    # test_suite='${CMAKE_SOURCE_DIR}/tests', # use make test instead
+    # test_suite='' # use make test instead
     zip_safe=False,
     package_dir={'': '${CMAKE_CURRENT_BINARY_DIR}'},
     packages=setuptools.find_packages('${CMAKE_CURRENT_BINARY_DIR}'),

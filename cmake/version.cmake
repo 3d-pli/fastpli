@@ -37,7 +37,7 @@ configure_file(
 )
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/version.py
-   ${CMAKE_SOURCE_DIR}/src/fastpli/version.py
+   ${CMAKE_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}/version.py
 )
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/setup.py

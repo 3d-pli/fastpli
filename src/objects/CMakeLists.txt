@@ -19,8 +19,8 @@ pybind11_add_module(__cell
       bindings/cell_module.cpp
       $<TARGET_OBJECTS:${CoreModules}>)
 
-SET_TARGET_PROPERTIES(__fiber PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/fastpli/${subdir}")
-SET_TARGET_PROPERTIES(__cell PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/fastpli/${subdir}")
+SET_TARGET_PROPERTIES(__fiber PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}/${subdir}")
+SET_TARGET_PROPERTIES(__cell PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}/${subdir}")
 
 add_dependencies(__fiber build_version)
 add_dependencies(__cell build_version)
