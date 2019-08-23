@@ -86,6 +86,6 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     h5f['rofl/trel'] = rofl_t_rel
 
     imageio.imwrite(
-        'test.png',
+        '/tmp/fastpli.example.' + FILE_BASE + '.png',
         data2image(
             fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))

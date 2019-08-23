@@ -29,7 +29,7 @@ PYBIND11_MODULE(__generation, m) {
        .def(py::init())
        .def("set_volume",
             [](PliGenerator &self, std::array<size_t, 3> global_dim,
-               std::array<float, 3> origin, double pixel_size,
+               std::array<double, 3> origin, double pixel_size,
                std::array<bool, 3> flip_direction) {
                self.SetVolume(vm::cast<long long>(vm::Vec3<size_t>(global_dim)),
                               origin, pixel_size, flip_direction);
@@ -40,9 +40,9 @@ PYBIND11_MODULE(__generation, m) {
        .def(
            "set_fiber_bundles",
            [](PliGenerator &self,
-              std::vector<std::vector<py::array_t<float, py::array::c_style>>>
+              std::vector<std::vector<py::array_t<double, py::array::c_style>>>
                   fbs,
-              std::vector<std::vector<std::tuple<float, float, float, char>>>
+              std::vector<std::vector<std::tuple<double, double, double, char>>>
                   prs) {
               std::vector<fiber::Bundle> fiber_bundles;
 
@@ -50,9 +50,10 @@ PYBIND11_MODULE(__generation, m) {
                  throw py::value_error("fbs and prs not the same size");
 
               for (auto i = 0u; i < fbs.size(); i++) {
-                 auto fiber_bundle = std::vector<std::vector<float>>();
+                 auto fiber_bundle = std::vector<std::vector<double>>();
                  for (auto f : fbs[i]) {
-                    fiber_bundle.emplace_back(object::NpArray2Vector<float>(f));
+                    fiber_bundle.emplace_back(
+                        object::NpArray2Vector<double>(f));
                  }
 
                  std::vector<fiber::layer::Property> prs_elm;
@@ -69,19 +70,19 @@ PYBIND11_MODULE(__generation, m) {
            })
        .def("set_cell_populations",
             [](PliGenerator &self,
-               std::vector<std::vector<py::array_t<float, py::array::c_style>>>
+               std::vector<std::vector<py::array_t<double, py::array::c_style>>>
                    cell_pops,
-               std::vector<std::tuple<float, float>> cell_prop) {
+               std::vector<std::tuple<double, double>> cell_prop) {
                std::vector<cell::Population> cell_populations;
                if (cell_pops.size() != cell_prop.size())
                   throw py::value_error(
                       "cell_populations and properties not the same size");
 
                for (auto i = 0u; i < cell_pops.size(); i++) {
-                  auto cell_population = std::vector<std::vector<float>>();
+                  auto cell_population = std::vector<std::vector<double>>();
                   for (auto c : cell_pops[i]) {
                      cell_population.emplace_back(
-                         object::NpArray2Vector<float>(c));
+                         object::NpArray2Vector<double>(c));
                   }
 
                   cell_populations.emplace_back(cell::Population(
@@ -128,22 +129,4 @@ PYBIND11_MODULE(__generation, m) {
        .def("dim_offset",
             [](PliGenerator &self) { return self.dim_offset().data_; })
        .def("set_omp_num_threads", &PliGenerator::set_omp_num_threads);
-
-   // TODO: to objects?
-   // py::enum_<fiber::layer::Orientation>(m, "_Orientation")
-   //     .value("background", fiber::layer::Orientation::background)
-   //     .value("parallel", fiber::layer::Orientation::parallel)
-   //     .value("radial", fiber::layer::Orientation::radial);
-
-   // py::class_<fiber::layer::Property>(m, "_LayerProperty")
-   //     .def(py::init<float, float, float, char>())
-   //     .def(py::init<float, float, float, fiber::layer::Orientation>())
-   //     .def_readwrite("scale", &fiber::layer::Property::scale)
-   //     .def_readwrite("dn", &fiber::layer::Property::dn)
-   //     .def_readwrite("mu", &fiber::layer::Property::mu)
-   //     .def_readwrite("layer_orientation",
-   //                    &fiber::layer::Property::orientation);
-
-   // py::class_<cell::Property>(m, "_CellProperty").def(py::init<float,
-   // float>());
 }

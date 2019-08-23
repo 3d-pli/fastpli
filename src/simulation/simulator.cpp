@@ -47,7 +47,7 @@ void PliSimulator::SetPliSetup(const setup::Setup pli_setup) {
    pli_setup_ = pli_setup;
 }
 
-std::vector<float>
+std::vector<double>
 PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                             object::container::NpArray<int> label_field,
                             object::container::NpArray<float> vector_field,
@@ -149,7 +149,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    const auto TransformSensorPosToStart =
        GetSensorToStartTransformation(theta, phi);
 
-   std::vector<float> intensity_signal(
+   std::vector<double> intensity_signal(
        static_cast<size_t>(dim_.local.x()) * dim_.local.y() * n_rho, 0);
 
    auto scan_grid = CalcPixelsUntilt(theta, phi);

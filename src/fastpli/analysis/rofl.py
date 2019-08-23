@@ -60,17 +60,17 @@ def map(data,
     if gain <= 0:
         raise ValueError("rofl gain <= 0")
 
-    direction_map = pymp.shared.array(data.shape[1:3], np.float32)
+    direction_map = pymp.shared.array(data.shape[1:3], float)
     direction_map = epa.direction_map(data[0, :, :, :])
 
-    directionmap = pymp.shared.array(data.shape[1:3], np.float32)
-    inclmap = pymp.shared.array(data.shape[1:3], np.float32)
-    trelmap = pymp.shared.array(data.shape[1:3], np.float32)
-    dirdevmap = pymp.shared.array(data.shape[1:3], np.float32)
-    incldevmap = pymp.shared.array(data.shape[1:3], np.float32)
-    treldevmap = pymp.shared.array(data.shape[1:3], np.float32)
-    funcmap = pymp.shared.array(data.shape[1:3], np.float32)
-    itermap = pymp.shared.array(data.shape[1:3], np.float32)
+    directionmap = pymp.shared.array(data.shape[1:3], float)
+    inclmap = pymp.shared.array(data.shape[1:3], float)
+    trelmap = pymp.shared.array(data.shape[1:3], float)
+    dirdevmap = pymp.shared.array(data.shape[1:3], float)
+    incldevmap = pymp.shared.array(data.shape[1:3], float)
+    treldevmap = pymp.shared.array(data.shape[1:3], float)
+    funcmap = pymp.shared.array(data.shape[1:3], float)
+    itermap = pymp.shared.array(data.shape[1:3], float)
 
     with pymp.Parallel(num_threads) as p:
         for x in p.range(data.shape[1]):

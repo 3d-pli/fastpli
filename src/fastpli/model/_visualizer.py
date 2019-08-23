@@ -22,7 +22,7 @@ class Visualizer:
     rot_x = rot_y = 30
     distance = 0
     distance_new = distance
-    center = np.empty((3), np.float32)
+    center = np.empty((3), float)
     center_new = center
 
     def __init__(self, width=800, height=600, title='fastpli.model.Visualizer'):

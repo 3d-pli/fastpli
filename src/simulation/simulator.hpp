@@ -27,7 +27,7 @@ class PliSimulator {
           static_cast<long long>(pli_setup_.filter_rotations.size()));
    };
 
-   std::vector<float>
+   std::vector<double>
    RunSimulation(const vm::Vec3<long long> &dim,
                  object::container::NpArray<int> label_field,
                  object::container::NpArray<float> vector_field,

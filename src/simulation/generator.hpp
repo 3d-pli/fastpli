@@ -24,7 +24,7 @@ class PliGenerator {
 
    // setter
    void SetVolume(const vm::Vec3<long long> global_dim,
-                  const vm::Vec3<float> origin, const float pixel_size,
+                  const vm::Vec3<double> origin, const double pixel_size,
                   const vm::Vec3<bool> flip_direction = false);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
    void
@@ -41,7 +41,7 @@ class PliGenerator {
    vm::Vec3<long long> dim_local() const { return dim_.local; };
    vm::Vec3<long long> dim_global() const { return dim_.global; };
    vm::Vec3<long long> dim_offset() const { return dim_.offset; };
-   vm::Vec3<float> dim_origin() const { return dim_.origin; };
+   vm::Vec3<double> dim_origin() const { return dim_.origin; };
 
  private:
 #ifndef NDEBUG
@@ -78,10 +78,10 @@ class PliGenerator {
                                const size_t s_idx,
                                std::vector<int> &label_field,
                                std::vector<float> &array_distance);
-   std::tuple<vm::Vec3<float>, float>
-   ShortestPointToLineSegmentVecCalculation(const vm::Vec3<float> &p,
-                                            const vm::Vec3<float> &s0,
-                                            const vm::Vec3<float> &s1);
+   std::tuple<vm::Vec3<double>, double>
+   ShortestPointToLineSegmentVecCalculation(const vm::Vec3<double> &p,
+                                            const vm::Vec3<double> &s0,
+                                            const vm::Vec3<double> &s1);
 
    setup::PhyProps GetPropertyList() const;
 };

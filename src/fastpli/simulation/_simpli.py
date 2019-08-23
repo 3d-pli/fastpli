@@ -221,7 +221,7 @@ class Simpli:
                 raise TypeError("fb is not a list")
 
             for f_i, f in enumerate(fb):
-                fbs[fb_i][f_i] = np.array(f, dtype=np.float32, copy=False)
+                fbs[fb_i][f_i] = np.array(f, dtype=float, copy=False)
 
                 if len(fbs[fb_i][f_i].shape) != 2:
                     raise TypeError("fiber size need to be nx4")
@@ -289,7 +289,7 @@ class Simpli:
                 raise TypeError("cells_population is not a list")
 
             for c_i, c in enumerate(cp):
-                cps[cp_i][c_i] = np.array(c, dtype=np.float32, copy=False)
+                cps[cp_i][c_i] = np.array(c, dtype=float, copy=False)
 
                 if len(cps[cp_i][c_i].shape) != 2:
                     raise TypeError("cell size need to be nx4")
@@ -336,8 +336,8 @@ class Simpli:
                     f = fb[f]
                     self._fiber_bundles[-1].append(
                         np.concatenate(
-                            (f['points'][:].astype(np.float32),
-                             np.atleast_2d(f['radii'][:].astype(np.float32)).T),
+                            (f['points'][:].astype(float),
+                             np.atleast_2d(f['radii'][:].astype(float)).T),
                             axis=1))
 
     def ReadFiberCellFile(self, filename):

@@ -25,8 +25,8 @@ int PliGenerator::set_omp_num_threads(int i) {
 }
 
 void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
-                             const vm::Vec3<float> origin,
-                             const float pixel_size,
+                             const vm::Vec3<double> origin,
+                             const double pixel_size,
                              const vm::Vec3<bool> flip_direction) {
 
    if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)
@@ -138,9 +138,9 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    cell_populations_ = cell_populations_org_;
    if (dim_.origin != 0) {
       for (auto &fb : fiber_bundles_)
-         fb.Translate(vm::cast<float>(-dim_.origin));
+         fb.Translate(vm::cast<double>(-dim_.origin));
       for (auto &cp : cell_populations_)
-         cp.Translate(vm::cast<float>(-dim_.origin));
+         cp.Translate(vm::cast<double>(-dim_.origin));
    }
 
    for (auto &fb : fiber_bundles_)
@@ -150,8 +150,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
 
    int lastProgress = 0;
    const auto volume_bb =
-       aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
-                            vm::cast<float>(dim_.local + dim_.offset), true);
+       aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
+                            vm::cast<double>(dim_.local + dim_.offset), true);
 
    if (debug_)
       std::cout << "generating fibers: " << num_fibers_ << std::endl;
@@ -305,29 +305,29 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    const auto max_radius =
        std::max(fiber.radii()[s_idx], fiber.radii()[s_idx + 1]);
 
-   aabb::AABB<float, 3> fiber_segment_bb(p, q);
+   aabb::AABB<double, 3> fiber_segment_bb(p, q);
    fiber_segment_bb.min -= max_radius;
    fiber_segment_bb.max += max_radius;
    fiber_segment_bb.Intersect(
-       aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
-                            vm::cast<float>(dim_.local + dim_.offset), true));
+       aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
+                            vm::cast<double>(dim_.local + dim_.offset), true));
    const auto min = fiber_segment_bb.min;
    const auto max = fiber_segment_bb.max;
 
-   float t{};
-   vm::Vec3<float> min_point{};
+   double t{};
+   vm::Vec3<double> min_point{};
    const auto &layers_scale_sqr = fb.layers_scale_sqr();
    for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
       for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
          for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
-            vm::Vec3<float> point(x, y, z);
+            vm::Vec3<double> point(x, y, z);
 
             std::tie(min_point, t) =
                 ShortestPointToLineSegmentVecCalculation(point, p, q);
 
-            auto dist_squ = vm::length2(min_point - point);
-            auto ly_r = fiber.CalcRadius(s_idx, t);
-            auto const &f_ly_sqr = layers_scale_sqr.back();
+            float dist_squ = vm::length2(min_point - point);
+            float ly_r = fiber.CalcRadius(s_idx, t);
+            float const &f_ly_sqr = layers_scale_sqr.back();
             if (dist_squ > f_ly_sqr * ly_r * ly_r)
                continue;
 
@@ -355,7 +355,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                      if (!only_label) {
                         auto ly =
                             fiber_bundles_[fb_idx].layer_orientation(ly_idx);
-                        vm::Vec3<float> new_vec(0);
+                        vm::Vec3<double> new_vec(0);
 
                         if (ly != fiber::layer::Orientation::background) {
                            if (ly == fiber::layer::Orientation::radial)
@@ -425,11 +425,11 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
    assert(s_idx < cell.size());
    const auto &p = cell.points()[s_idx];
 
-   aabb::AABB<float, 3> cell_sphere_bb(p - cell.radii()[s_idx],
+   aabb::AABB<double, 3> cell_sphere_bb(p - cell.radii()[s_idx],
                                        p + cell.radii()[s_idx]);
    cell_sphere_bb.Intersect(
-       aabb::AABB<float, 3>(vm::cast<float>(dim_.offset),
-                            vm::cast<float>(dim_.local + dim_.offset), true));
+       aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
+                            vm::cast<double>(dim_.local + dim_.offset), true));
    const auto min = cell_sphere_bb.min;
    const auto max = cell_sphere_bb.max;
 
@@ -438,7 +438,7 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
       for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
          for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
 
-            vm::Vec3<float> point(x, y, z);
+            vm::Vec3<double> point(x, y, z);
 
             auto dist_squ = vm::length2(p - point);
             auto r = cell.radii()[s_idx];
@@ -466,10 +466,10 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
    }
 }
 
-std::tuple<vm::Vec3<float>, float>
+std::tuple<vm::Vec3<double>, double>
 PliGenerator::ShortestPointToLineSegmentVecCalculation(
-    const vm::Vec3<float> &p, const vm::Vec3<float> &s0,
-    const vm::Vec3<float> &s1) {
+    const vm::Vec3<double> &p, const vm::Vec3<double> &s0,
+    const vm::Vec3<double> &s1) {
    auto v = s1 - s0;
    auto w = p - s0;
 

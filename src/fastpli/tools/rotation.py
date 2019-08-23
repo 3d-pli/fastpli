@@ -3,17 +3,17 @@ import numpy as np
 
 def x(phi):
     return np.array(((1, 0, 0), (0, np.cos(phi), -np.sin(phi)),
-                     (0, np.sin(phi), np.cos(phi))), np.float32)
+                     (0, np.sin(phi), np.cos(phi))), float)
 
 
 def y(phi):
     return np.array(((np.cos(phi), 0, np.sin(phi)), (0, 1, 0),
-                     (-np.sin(phi), 0, np.cos(phi))), np.float32)
+                     (-np.sin(phi), 0, np.cos(phi))), float)
 
 
 def z(phi):
     return np.array(((np.cos(phi), -np.sin(phi), 0),
-                     (np.sin(phi), np.cos(phi), 0), (0, 0, 1)), np.float32)
+                     (np.sin(phi), np.cos(phi), 0), (0, 0, 1)), float)
 
 
 def z_2d(phi):

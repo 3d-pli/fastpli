@@ -117,7 +117,7 @@ bool World::BoundryChecking(int max_steps) {
    // check fiber boundry conditions
 
    bool solved = false;
-   while (!solved && max_steps != 0) {
+   while (!solved && max_steps > 0) {
 
 #pragma omp parallel for
       for (auto i = 0u; i < fibers_.size(); i++) {

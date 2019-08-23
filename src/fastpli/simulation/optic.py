@@ -30,7 +30,7 @@ def apply(
 
         res_image[mask] = np.array(
             np.random.negative_binomial(res_image[mask] / (gain - 1), 1 / gain),
-            np.float32)
+            float)
 
     return res_image
 
