@@ -325,20 +325,7 @@ class Simpli:
         self._cells_populations_properties = cells_populations_properties
 
     def ReadFiberFile(self, filename):
-        self._fiber_bundles = []
-        with h5py.File(filename, 'r') as h5f:
-
-            fbs = h5f['fiber_bundles']
-            for fb in fbs:
-                self._fiber_bundles.append([])
-                fb = fbs[fb]
-                for f in fb:
-                    f = fb[f]
-                    self._fiber_bundles[-1].append(
-                        np.concatenate(
-                            (f['points'][:].astype(float),
-                             np.atleast_2d(f['radii'][:].astype(float)).T),
-                            axis=1))
+        raise TypeError('depricated, see .io')
 
     def ReadFiberCellFile(self, filename):
         self._fiber_bundles = []
@@ -479,7 +466,9 @@ class Simpli:
         image = self._sim.run_simulation(self._dim, label_field, vec_field,
                                          tissue_properties, theta, phi,
                                          step_size, do_untilt)
-        return image
+
+        return image.astype(
+            np.float32)  # optic resize will force float32 because of PIL
 
     def omp_threads(self, num_threads=2):
         ''' num_threads = 2 seems to be optimal
