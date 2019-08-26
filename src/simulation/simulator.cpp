@@ -54,7 +54,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                             setup::PhyProps properties, const double theta,
                             const double phi, const double step_size,
                             const bool do_nn
-                            // , const bool flip_beam
+                            // TODO: , const bool flip_beam
 ) {
 
    if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)

@@ -26,8 +26,7 @@ int PliGenerator::set_omp_num_threads(int i) {
 
 void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                              const vm::Vec3<double> origin,
-                             const double pixel_size,
-                             const vm::Vec3<bool> flip_direction) {
+                             const double pixel_size) {
 
    if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)
       throw std::invalid_argument("dim.global[any] <= 0: [" +
@@ -51,8 +50,6 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                    << ": dim.origin = " << dim_.origin << std::endl;
          std::cout << "rank " << mpi_->my_rank()
                    << ": pixel_size = " << pixel_size_ << std::endl;
-         std::cout << "rank " << mpi_->my_rank()
-                   << ": flip_direction = " << flip_direction_ << std::endl;
       }
 #ifndef NDEBUG
       if (vm::any_of(dim_.local, [&](long long i) { return i < 0; })) {
@@ -73,7 +70,6 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
          std::cout << "dim.offset = " << dim_.offset << std::endl;
          std::cout << "dim.origin = " << dim_.origin << std::endl;
          std::cout << "pixel_size = " << pixel_size_ << std::endl;
-         std::cout << "flip_direction = " << flip_direction_ << std::endl;
       }
       assert(dim_.local.x() >= 0);
       assert(dim_.local.y() >= 0);
@@ -86,7 +82,10 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                                   std::to_string(pixel_size));
 
    pixel_size_ = pixel_size;
-   flip_direction_ = flip_direction;
+
+   volume_bb_ =
+       aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
+                             vm::cast<double>(dim_.local + dim_.offset), true);
 }
 
 void PliGenerator::SetFiberBundles(
@@ -120,6 +119,10 @@ std::tuple<std::vector<int> *, std::vector<float> *, setup::PhyProps>
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
+   volume_bb_ =
+       aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
+                             vm::cast<double>(dim_.local + dim_.offset), true);
+
    auto label_field = new std::vector<int>(
        dim_.local.x() * dim_.local.y() * dim_.local.z(), 0);
    auto vector_field = new std::vector<float>();
@@ -149,33 +152,35 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       cp.Resize(1.0 / pixel_size_);
 
    int lastProgress = 0;
-   const auto volume_bb =
-       aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
-                            vm::cast<double>(dim_.local + dim_.offset), true);
 
    if (debug_)
       std::cout << "generating fibers: " << num_fibers_ << std::endl;
 
    size_t progress_counter = 0;
+
+#pragma omp parallel
    for (size_t fb_idx = 0; fb_idx < fiber_bundles_.size(); fb_idx++) {
       const auto &fb = fiber_bundles_[fb_idx];
 
-      if (!aabb::Overlap(volume_bb, fb.voi()))
+      if (!aabb::Overlap(volume_bb_, fb.voi()))
          continue;
 
-#pragma omp parallel for
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
          const auto &fiber = fb.fibers()[f_idx];
 
          if (fiber.size() <= 1)
             continue;
 
-         if (!aabb::Overlap(volume_bb, fiber.voi()))
+         if (!aabb::Overlap(volume_bb_, fiber.voi()))
             continue;
+
+         // if (!aabb::Overlap(volume_bb_, fiber.voi()))
+         //    continue;
 
          for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
             // TODO: figure out how to incapsulate idx into fiber to only
             // parse fiber segment
+
             FillVoxelsAroundFiberSegment(fb_idx, f_idx, s_idx, *label_field,
                                          *vector_field, array_distance,
                                          only_label);
@@ -216,17 +221,17 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    if (debug_)
       std::cout << "generating cells: " << num_cells_ << std::endl;
 
+#pragma omp parallel
    for (size_t cp_idx = 0; cp_idx < cell_populations_.size(); cp_idx++) {
       const auto &cp = cell_populations_[cp_idx];
 
-      if (!aabb::Overlap(volume_bb, cp.voi()))
+      if (!aabb::Overlap(volume_bb_, cp.voi()))
          continue;
 
-#pragma omp parallel for
       for (size_t c_idx = 0; c_idx < cp.cells().size(); c_idx++) {
          const auto &cell = cp.cells()[c_idx];
 
-         if (!aabb::Overlap(volume_bb, cell.voi()))
+         if (!aabb::Overlap(volume_bb_, cell.voi()))
             continue;
 
          for (auto s_idx = 0u; s_idx < cell.size(); s_idx++) {
@@ -308,16 +313,21 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    aabb::AABB<double, 3> fiber_segment_bb(p, q);
    fiber_segment_bb.min -= max_radius;
    fiber_segment_bb.max += max_radius;
-   fiber_segment_bb.Intersect(
-       aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
-                            vm::cast<double>(dim_.local + dim_.offset), true));
+
+   fiber_segment_bb.Intersect(volume_bb_);
    const auto min = fiber_segment_bb.min;
    const auto max = fiber_segment_bb.max;
 
    double t{};
    vm::Vec3<double> min_point{};
    const auto &layers_scale_sqr = fb.layers_scale_sqr();
+
    for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
+
+      // because of omp parallel
+      if (x % omp_get_max_threads() != omp_get_thread_num())
+         continue;
+
       for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
          for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
             vm::Vec3<double> point(x, y, z);
@@ -336,73 +346,29 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                 (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
             assert(ind < label_field.size());
 
-#pragma omp critical
-            {
-               if (array_distance[ind] >= dist_squ) {
-                  // find corresponding layer
-                  auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
-                                                 layers_scale_sqr.end(),
-                                                 dist_squ / (ly_r * ly_r));
-                  int ly_idx = std::distance(layers_scale_sqr.begin(), ly_itr);
-                  int new_label = ly_idx + 1 + fb_idx * max_layer_;
+            if (array_distance[ind] >= dist_squ) {
+               // find corresponding layer
+               auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
+                                              layers_scale_sqr.end(),
+                                              dist_squ / (ly_r * ly_r));
+               int ly_idx = std::distance(layers_scale_sqr.begin(), ly_itr);
 
-                  // thread safe operation -> favour higher rated objects (if
-                  // distance equal) or closer objects
-                  if ((new_label >= label_field[ind] &&
-                       array_distance[ind] == dist_squ) ||
-                      array_distance[ind] > dist_squ) {
+               array_distance[ind] = dist_squ;
+               label_field[ind] = ly_idx + 1 + fb_idx * max_layer_;
 
-                     if (!only_label) {
-                        auto ly =
-                            fiber_bundles_[fb_idx].layer_orientation(ly_idx);
-                        vm::Vec3<double> new_vec(0);
+               if (!only_label) {
+                  auto ly = fiber_bundles_[fb_idx].layer_orientation(ly_idx);
+                  vm::Vec3<double> new_vec(0);
 
-                        if (ly != fiber::layer::Orientation::background) {
-                           if (ly == fiber::layer::Orientation::radial)
-                              new_vec = vm::unit(point - min_point);
-                           else if (ly == fiber::layer::Orientation::parallel)
-                              new_vec = vm::unit(q - p);
-                        }
-
-                        // TODO: flip_direction for PM
-                        // if (flip_direction_.x())
-                        //    new_vec.x() *= -1;
-
-                        // if (flip_direction_.y())
-                        //    new_vec.y() *= -1;
-
-                        // if (flip_direction_.z())
-                        //    new_vec.z() *= -1;
-
-                        // thread safe operation -> favour z-y-x vectors
-                        bool flag = false;
-                        if (array_distance[ind] == dist_squ) {
-                           if (std::abs(new_vec.z()) >
-                               std::abs(vector_field[ind * 3 + 2])) {
-                              flag = true;
-                           } else if (std::abs(new_vec.z()) ==
-                                      std::abs(vector_field[ind * 3 + 2])) {
-                              if (std::abs(new_vec.y()) >
-                                  std::abs(vector_field[ind * 3 + 1]))
-                                 flag = true;
-                              else if (std::abs(new_vec.y()) ==
-                                       std::abs(vector_field[ind * 3 + 1])) {
-                                 if (std::abs(new_vec.x()) >
-                                     std::abs(vector_field[ind * 3 + 0]))
-                                    flag = true;
-                              }
-                           }
-                        } else {
-                           flag = true;
-                        }
-                        if (flag)
-                           std::copy(new_vec.begin(), new_vec.end(),
-                                     &vector_field[ind * 3]);
-                     }
-
-                     array_distance[ind] = dist_squ;
-                     label_field[ind] = new_label;
+                  if (ly != fiber::layer::Orientation::background) {
+                     if (ly == fiber::layer::Orientation::radial)
+                        new_vec = vm::unit(point - min_point);
+                     else if (ly == fiber::layer::Orientation::parallel)
+                        new_vec = vm::unit(q - p);
                   }
+
+                  std::copy(new_vec.begin(), new_vec.end(),
+                            &vector_field[ind * 3]);
                }
             }
          }
@@ -426,15 +392,20 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
    const auto &p = cell.points()[s_idx];
 
    aabb::AABB<double, 3> cell_sphere_bb(p - cell.radii()[s_idx],
-                                       p + cell.radii()[s_idx]);
+                                        p + cell.radii()[s_idx]);
    cell_sphere_bb.Intersect(
        aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
-                            vm::cast<double>(dim_.local + dim_.offset), true));
+                             vm::cast<double>(dim_.local + dim_.offset), true));
    const auto min = cell_sphere_bb.min;
    const auto max = cell_sphere_bb.max;
 
    const auto scale_sqr = cp.scale_sqr();
    for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
+
+      // because of omp parallel
+      if (x % omp_get_max_threads() != omp_get_thread_num())
+         continue;
+
       for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
          for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
 
@@ -454,7 +425,7 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
             int new_label = cp_idx + max_layer_ * num_fiber_bundles_ +
                             1; // +1 for background
 
-#pragma omp critical
+            // #pragma omp critical
             if (array_distance[ind] > dist_squ ||
                 (array_distance[ind] == dist_squ &&
                  label_field[ind] < new_label)) {

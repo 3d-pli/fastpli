@@ -24,8 +24,7 @@ class PliGenerator {
 
    // setter
    void SetVolume(const vm::Vec3<long long> global_dim,
-                  const vm::Vec3<double> origin, const double pixel_size,
-                  const vm::Vec3<bool> flip_direction = false);
+                  const vm::Vec3<double> origin, const double pixel_size);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
    void
    SetCellPopulations(const std::vector<cell::Population> &cell_populations);
@@ -52,10 +51,9 @@ class PliGenerator {
 
    double pixel_size_{0};
    Dimensions dim_;
+   aabb::AABB<double, 3> volume_bb_{};
 
    std::unique_ptr<MyMPI> mpi_ = nullptr;
-
-   vm::Vec3<bool> flip_direction_{false};
 
    std::vector<fiber::Bundle> fiber_bundles_org_;
    std::vector<fiber::Bundle> fiber_bundles_;

@@ -29,14 +29,11 @@ PYBIND11_MODULE(__generation, m) {
        .def(py::init())
        .def("set_volume",
             [](PliGenerator &self, std::array<size_t, 3> global_dim,
-               std::array<double, 3> origin, double pixel_size,
-               std::array<bool, 3> flip_direction) {
+               std::array<double, 3> origin, double pixel_size) {
                self.SetVolume(vm::cast<long long>(vm::Vec3<size_t>(global_dim)),
-                              origin, pixel_size, flip_direction);
+                              origin, pixel_size);
             },
-            py::arg("global_dim"), py::arg("origin"), py::arg("pixel_size"),
-            py::arg("flip_direction") =
-                std::array<bool, 3>{{false, false, false}})
+            py::arg("global_dim"), py::arg("origin"), py::arg("pixel_size"))
        .def(
            "set_fiber_bundles",
            [](PliGenerator &self,
