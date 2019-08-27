@@ -324,9 +324,10 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
 
    for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
 
-      // because of omp parallel
-      if (x % omp_get_max_threads() != omp_get_thread_num())
-         continue;
+      if (omp_in_parallel())
+         // because of omp parallel for thread safe operations
+         if (x % omp_get_max_threads() != omp_get_thread_num())
+            continue;
 
       for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
          for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
@@ -403,8 +404,9 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
    for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
 
       // because of omp parallel
-      if (x % omp_get_max_threads() != omp_get_thread_num())
-         continue;
+      if (omp_in_parallel())
+         if (x % omp_get_max_threads() != omp_get_thread_num())
+            continue;
 
       for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
          for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
@@ -425,7 +427,6 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
             int new_label = cp_idx + max_layer_ * num_fiber_bundles_ +
                             1; // +1 for background
 
-            // #pragma omp critical
             if (array_distance[ind] > dist_squ ||
                 (array_distance[ind] == dist_squ &&
                  label_field[ind] < new_label)) {

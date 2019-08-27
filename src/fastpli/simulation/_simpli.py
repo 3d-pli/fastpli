@@ -7,6 +7,8 @@ from fastpli.simulation import optic
 from fastpli.tools import rotation
 
 import numpy as np
+import warnings
+
 import h5py
 from PIL import Image
 
@@ -476,11 +478,18 @@ class Simpli:
         if not isinstance(num_threads, int):
             raise TypeError("num_threads has to be a positiv integer")
 
+        if num_threads <= 0:
+            raise TypeError("num_threads has to be a positiv integer")
+
         num_threads_gen = self._gen.set_omp_num_threads(num_threads)
         num_threads_sim = self._sim.set_omp_num_threads(num_threads)
 
         if num_threads_gen != num_threads_sim:
             raise ValueError("num_threads_gen != num_threads_sim")
+
+        if num_threads_gen != num_threads:
+            warnings.warn("reduced num_threads: " + str(num_threads_gen))
+
         return num_threads_gen
 
     def MemoryUseage(self, unit='MB', item='all'):
