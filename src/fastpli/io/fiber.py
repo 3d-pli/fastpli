@@ -30,8 +30,9 @@ def load(file_name):
     elif ext == '.h5':
         with h5py.File(file_name, 'r') as h5f:
             fbs = h5f['fiber_bundles']
-            for fb in fbs:
-                fiber_bundles.append([])
+            for fb_i, fb in enumerate(fbs):
+                if fb_i != 0:
+                    fiber_bundles.append([])
                 fb = fbs[fb]
                 for f in fb:
                     f = fb[f]
