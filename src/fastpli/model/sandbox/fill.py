@@ -3,8 +3,11 @@ from ...tools.rotation import a_on_b
 
 
 def _hexgrid(a, b, spacing):
-    dx = np.sin(np.deg2rad(30)) * spacing
-    dy = np.cos(np.deg2rad(30)) * spacing
+    # dx = np.sin(np.deg2rad(30)) * spacing
+    # dy = np.cos(np.deg2rad(30)) * spacing
+
+    dx = 0.5 * spacing
+    dy = 0.8660254037844386 * spacing
 
     points_0 = np.mgrid[0:b + spacing / 2:2 * dy, 0:a +
                         spacing / 2:spacing].reshape(2, -1)[1::-1]
