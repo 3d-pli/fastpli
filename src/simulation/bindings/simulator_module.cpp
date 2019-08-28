@@ -51,7 +51,7 @@ PYBIND11_MODULE(__simulation, m) {
                auto properties =
                    setup::PhyProps(object::NpArray2Vector<double>(prop_array));
 
-               auto image = new std::vector<float>(
+               auto image = new std::vector<double>(
                    self.RunSimulation(dim, label_container, vector_container,
                                       properties, theta, phi, ps, do_nn));
 

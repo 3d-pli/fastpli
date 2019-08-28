@@ -12,9 +12,9 @@ PYBIND11_MODULE(__fiber, m) {
    py::class_<Fiber>(m, "_Fiber")
 
        // Constructors
-       .def(py::init<const std::vector<float> &, const std::vector<float> &>())
-       .def(py::init([](py::array_t<float, py::array::c_style> &p,
-                        std::vector<float> &r) {
+       .def(py::init<const std::vector<double> &, const std::vector<double> &>())
+       .def(py::init([](py::array_t<double, py::array::c_style> &p,
+                        std::vector<double> &r) {
           auto buf_p = p.request();
           if (buf_p.ndim != 2)
              throw std::invalid_argument(
@@ -28,11 +28,11 @@ PYBIND11_MODULE(__fiber, m) {
           if (static_cast<size_t>(buf_p.shape[0]) != r.size())
              throw std::invalid_argument("points and radii size must match");
 
-          auto data_ptr = reinterpret_cast<float *>(buf_p.ptr);
+          auto data_ptr = reinterpret_cast<double *>(buf_p.ptr);
           size_t size = std::accumulate(buf_p.shape.begin(), buf_p.shape.end(),
                                         1ULL, std::multiplies<size_t>());
 
-          std::vector<float> points_vec(data_ptr, data_ptr + size);
+          std::vector<double> points_vec(data_ptr, data_ptr + size);
 
           return new Fiber(points_vec, r);
        }))
@@ -42,7 +42,7 @@ PYBIND11_MODULE(__fiber, m) {
            "points",
            [](const Fiber &self) {
               auto data = vm::flatten(self.points());
-              return py::array_t<float>(
+              return py::array_t<double>(
                   std::vector<ptrdiff_t>{
                       static_cast<long long>(self.points().size()), 3},
                   data.data());
@@ -56,18 +56,18 @@ PYBIND11_MODULE(__fiber, m) {
 
        // Manipulators
        .def("rotate",
-            [](Fiber &self, const std::array<float, 9> &mat) {
-               self.Rotate(vm::Mat3x3<float>(mat));
+            [](Fiber &self, const std::array<double, 9> &mat) {
+               self.Rotate(vm::Mat3x3<double>(mat));
             })
        .def("rotate_around_point",
-            [](Fiber &self, const std::array<float, 9> &mat,
-               const std::array<float, 3> &point) {
-               self.RotateAroundPoint(vm::Mat3x3<float>(mat),
-                                      vm::Vec3<float>(point));
+            [](Fiber &self, const std::array<double, 9> &mat,
+               const std::array<double, 3> &point) {
+               self.RotateAroundPoint(vm::Mat3x3<double>(mat),
+                                      vm::Vec3<double>(point));
             })
        .def("translate",
-            [](Fiber &self, const std::array<float, 3> &offset) {
-               self.Translate(vm::Vec3<float>(offset));
+            [](Fiber &self, const std::array<double, 3> &offset) {
+               self.Translate(vm::Vec3<double>(offset));
             })
        .def("resize", &Fiber::Resize)
        .def("resize_points", &Fiber::ResizePoints)

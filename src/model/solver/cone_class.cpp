@@ -8,22 +8,22 @@
 #include "include/vemath.hpp"
 
 namespace object {
-aabb::AABB<float, 3> Cone::aabb() const {
-   return aabb::AABB<float, 3>(p0 - r, p1 + r);
+aabb::AABB<double, 3> Cone::aabb() const {
+   return aabb::AABB<double, 3>(p0 - r, p1 + r);
 }
 
 bool Cone::CollideWith(const Cone cone) const {
    // TODO: radius varies along the length
-   vm::Vec3<float> P, Q;
+   vm::Vec3<double> P, Q;
    std::tie(P, Q) = MinDistanceVectorCones(cone);
-   float min_dist = vm::length(P - Q);
+   double min_dist = vm::length(P - Q);
    if (min_dist < (r + cone.r))
       return true;
 
    return false;
 }
 
-std::tuple<vm::Vec3<float>, vm::Vec3<float>>
+std::tuple<vm::Vec3<double>, vm::Vec3<double>>
 Cone::MinDistanceVectorCones(const Cone cone) const {
    // https://www.john.geek.nz/2009/03/code-shortest-distance-between-any-two-line-segments/
    auto const &P0 = p0;
@@ -42,8 +42,8 @@ Cone::MinDistanceVectorCones(const Cone cone) const {
    auto const e = vm::dot(v, w);
    auto const f = a * c - b * b;
 
-   float sc, sN, sD = f;
-   float tc, tN, tD = f;
+   double sc, sN, sD = f;
+   double tc, tN, tD = f;
 
    if (f < 1e-5f) {
       sN = 0.0;
@@ -96,7 +96,7 @@ Cone::MinDistanceVectorCones(const Cone cone) const {
    else
       tc = tN / tD;
 
-   // vm::Vec3<float> dP;
+   // vm::Vec3<double> dP;
    // dP = w + (u * sc) - (v * tc);
    auto P = P0 + u * sc;
    auto Q = Q0 + v * tc;
@@ -104,29 +104,30 @@ Cone::MinDistanceVectorCones(const Cone cone) const {
    return std::make_tuple(P, Q);
 }
 
-std::tuple<vm::Vec3<float>, vm::Vec3<float>, vm::Vec3<float>, vm::Vec3<float>>
+std::tuple<vm::Vec3<double>, vm::Vec3<double>, vm::Vec3<double>,
+           vm::Vec3<double>>
 Cone::PushConesApart(const Cone cone) const {
 
    // TODO: clean up
 
-   vm::Vec3<float> P, Q;
+   vm::Vec3<double> P, Q;
    std::tie(P, Q) = MinDistanceVectorCones(cone);
 
    auto delta = P - Q;
-   float norm = vm::length(P - Q);
+   double norm = vm::length(P - Q);
 
    if (norm < 1e-8f) {
       // std::random_device rd;
       // std::mt19937 gen(rd());
       std::mt19937 gen(42); // for reproducability
-      std::uniform_real_distribution<float> dis(-1.0, 1.0);
-      delta = vm::Vec3<float>(dis(gen), dis(gen), dis(gen));
+      std::uniform_real_distribution<double> dis(-1.0, 1.0);
+      delta = vm::Vec3<double>(dis(gen), dis(gen), dis(gen));
 
       return std::make_tuple(
-          vm::Vec3<float>(dis(gen), dis(gen), dis(gen)) * 0.1,
-          vm::Vec3<float>(dis(gen), dis(gen), dis(gen)) * 0.1,
-          vm::Vec3<float>(dis(gen), dis(gen), dis(gen)) * 0.1,
-          vm::Vec3<float>(dis(gen), dis(gen), dis(gen)) * 0.1);
+          vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1,
+          vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1,
+          vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1,
+          vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1);
    }
 
    auto delta_speed =

@@ -12,7 +12,7 @@ namespace fiber {
 
 namespace layer {
 
-Property::Property(float s, float n, float m, char o) : scale(s), dn(n), mu(m) {
+Property::Property(double s, double n, double m, char o) : scale(s), dn(n), mu(m) {
    if (o == 'b')
       orientation = Orientation::background;
    else if (o == 'p')
@@ -29,7 +29,7 @@ Property::Property(float s, float n, float m, char o) : scale(s), dn(n), mu(m) {
       std::cout << "Warning: absorption mu < 0 detected\n";
 }
 
-Property::Property(float s, float n, float m, Orientation o)
+Property::Property(double s, double n, double m, Orientation o)
     : scale(s), dn(n), mu(m), orientation(o) {
    if (s <= 0)
       std::cout << "Warning: scale <= 0 detected\n";
@@ -82,7 +82,7 @@ void Properties::push_back(Property p) {
 /**
  * FiberBundle
  */
-Bundle::Bundle(std::vector<std::vector<float>> fibers,
+Bundle::Bundle(std::vector<std::vector<double>> fibers,
                std::vector<layer::Property> properties) {
 
    for (auto const f : fibers)
@@ -116,37 +116,37 @@ Bundle::Bundle(std::vector<object::Fiber> fibers,
    CalculateVoi();
 }
 
-void Bundle::Resize(const float f) {
+void Bundle::Resize(const double f) {
    for (auto &fiber : fibers_)
       fiber.Resize(f);
    CalculateVoi();
 }
-void Bundle::ResizePoints(const float f) {
+void Bundle::ResizePoints(const double f) {
    for (auto &fiber : fibers_)
       fiber.ResizePoints(f);
    CalculateVoi();
 }
 
-void Bundle::ResizeRadii(const float f) {
+void Bundle::ResizeRadii(const double f) {
    for (auto &fiber : fibers_)
       fiber.ResizeRadii(f);
    CalculateVoi();
 }
 
-void Bundle::Rotate(const vm::Mat3x3<float> &rot_mat) {
+void Bundle::Rotate(const vm::Mat3x3<double> &rot_mat) {
    for (auto &fiber : fibers_)
       fiber.Rotate(rot_mat);
    CalculateVoi();
 }
 
-void Bundle::RotateAroundPoint(const vm::Mat3x3<float> &rot_mat,
-                               const vm::Vec3<float> &point) {
+void Bundle::RotateAroundPoint(const vm::Mat3x3<double> &rot_mat,
+                               const vm::Vec3<double> &point) {
    for (auto &fiber : fibers_)
       fiber.RotateAroundPoint(rot_mat, point);
    CalculateVoi();
 }
 
-void Bundle::Translate(const vm::Vec3<float> &translation) {
+void Bundle::Translate(const vm::Vec3<double> &translation) {
    for (auto &fiber : fibers_)
       fiber.Translate(translation);
 
@@ -154,7 +154,7 @@ void Bundle::Translate(const vm::Vec3<float> &translation) {
 }
 
 void Bundle::CalculateVoi() {
-   voi_ = aabb::AABB<float, 3>();
+   voi_ = aabb::AABB<double, 3>();
    if (!fibers_.empty())
       voi_ = fibers_.front().voi();
 

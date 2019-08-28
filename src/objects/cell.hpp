@@ -12,9 +12,9 @@ namespace object {
 
 class Cell : public object::Fiber {
  public:
-   Cell(const std::vector<vm::Vec3<float>> &points,
-        const std::vector<float> &radii);
-   Cell(const std::vector<float> &points, const std::vector<float> &radii);
+   Cell(const std::vector<vm::Vec3<double>> &points,
+        const std::vector<double> &radii);
+   Cell(const std::vector<double> &points, const std::vector<double> &radii);
 
    // defaults
    Cell() = default;
@@ -25,7 +25,7 @@ class Cell : public object::Fiber {
 
    ~Cell() = default;
 
-   float CalcRadius(size_t idx, float t) const = delete;
+   double CalcRadius(size_t idx, double t) const = delete;
 };
 
 using CellPopulation = std::vector<Cell>;

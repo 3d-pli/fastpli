@@ -7,6 +7,8 @@ from fastpli.simulation import optic
 from fastpli.tools import rotation
 
 import numpy as np
+import warnings
+
 import h5py
 from PIL import Image
 
@@ -39,6 +41,7 @@ class Simpli:
         self._wavelength = None
         self._untilt_sensor = None
 
+        self._omp_num_threads = 1
         self._debug = False
 
     def print_debug(self, msg):
@@ -221,7 +224,7 @@ class Simpli:
                 raise TypeError("fb is not a list")
 
             for f_i, f in enumerate(fb):
-                fbs[fb_i][f_i] = np.array(f, dtype=np.float32, copy=False)
+                fbs[fb_i][f_i] = np.array(f, dtype=float, copy=False)
 
                 if len(fbs[fb_i][f_i].shape) != 2:
                     raise TypeError("fiber size need to be nx4")
@@ -289,7 +292,7 @@ class Simpli:
                 raise TypeError("cells_population is not a list")
 
             for c_i, c in enumerate(cp):
-                cps[cp_i][c_i] = np.array(c, dtype=np.float32, copy=False)
+                cps[cp_i][c_i] = np.array(c, dtype=float, copy=False)
 
                 if len(cps[cp_i][c_i].shape) != 2:
                     raise TypeError("cell size need to be nx4")
@@ -325,20 +328,7 @@ class Simpli:
         self._cells_populations_properties = cells_populations_properties
 
     def ReadFiberFile(self, filename):
-        self._fiber_bundles = []
-        with h5py.File(filename, 'r') as h5f:
-
-            fbs = h5f['fiber_bundles']
-            for fb in fbs:
-                self._fiber_bundles.append([])
-                fb = fbs[fb]
-                for f in fb:
-                    f = fb[f]
-                    self._fiber_bundles[-1].append(
-                        np.concatenate(
-                            (f['points'][:].astype(np.float32),
-                             np.atleast_2d(f['radii'][:].astype(np.float32)).T),
-                            axis=1))
+        raise TypeError('depricated, see .io')
 
     def ReadFiberCellFile(self, filename):
         self._fiber_bundles = []
@@ -479,12 +469,21 @@ class Simpli:
         image = self._sim.run_simulation(self._dim, label_field, vec_field,
                                          tissue_properties, theta, phi,
                                          step_size, do_untilt)
-        return image
 
-    def omp_threads(self, num_threads=2):
-        ''' num_threads = 2 seems to be optimal
-        '''
+        return image.astype(
+            np.float32)  # optic resize will force float32 because of PIL
+
+    @property
+    def omp_num_threads(self):
+        return self._omp_num_threads
+
+    @omp_num_threads.setter
+    def omp_num_threads(self, num_threads):
+
         if not isinstance(num_threads, int):
+            raise TypeError("num_threads has to be a positiv integer")
+
+        if num_threads <= 0:
             raise TypeError("num_threads has to be a positiv integer")
 
         num_threads_gen = self._gen.set_omp_num_threads(num_threads)
@@ -492,7 +491,11 @@ class Simpli:
 
         if num_threads_gen != num_threads_sim:
             raise ValueError("num_threads_gen != num_threads_sim")
-        return num_threads_gen
+
+        if num_threads_gen != num_threads:
+            warnings.warn("reduced num_threads: " + str(num_threads_gen))
+
+        self._omp_num_threads = num_threads_gen
 
     def MemoryUseage(self, unit='MB', item='all'):
         if not isinstance(item, str):

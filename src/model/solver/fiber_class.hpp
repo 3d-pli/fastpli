@@ -22,7 +22,7 @@ class Fiber : public object::Fiber {
 
    // getter
    const size_t &fiber_idx() const { return fiber_idx_; }
-   const std::vector<vm::Vec3<float>> &speed() const { return speed_; }
+   const std::vector<vm::Vec3<double>> &speed() const { return speed_; }
 
    // cones
    size_t ConeSize() const;
@@ -31,20 +31,20 @@ class Fiber : public object::Fiber {
 
    // manipulators
    void Move();
-   void Drag(const float drag = 1);
-   bool CheckRadius(const float obj_min_radius);
-   bool CheckLength(const float obj_mean_length);
+   void Drag(const double drag = 1);
+   bool CheckRadius(const double obj_min_radius);
+   bool CheckLength(const double obj_mean_length);
 
    void Split(size_t idx);
    void Combine(size_t idx);
 
-   void AddSpeed(size_t idx, const vm::Vec3<float> &v);
+   void AddSpeed(size_t idx, const vm::Vec3<double> &v);
 
  protected:
-   std::vector<vm::Vec3<float>> speed_;
+   std::vector<vm::Vec3<double>> speed_;
    size_t fiber_idx_;
 
-   // const float k_max_speed_ = 0.1; // TODO: should be dependend on min obj
+   // const double k_max_speed_ = 0.1; // TODO: should be dependend on min obj
    // size
 };
 } // namespace geometry

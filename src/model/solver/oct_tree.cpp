@@ -23,7 +23,8 @@ inline void omp_set_num_threads(int i) {
 #endif
 
 // aabb helper
-std::array<aabb::AABB<float, 3>, 8> SplitInto8Cubes(aabb::AABB<float, 3> cube) {
+std::array<aabb::AABB<double, 3>, 8>
+SplitInto8Cubes(aabb::AABB<double, 3> cube) {
 
    auto x_max_ = cube.max.x();
    auto y_max_ = cube.max.y();
@@ -31,52 +32,52 @@ std::array<aabb::AABB<float, 3>, 8> SplitInto8Cubes(aabb::AABB<float, 3> cube) {
    auto x_min_ = cube.min.x();
    auto y_min_ = cube.min.y();
    auto z_min_ = cube.min.z();
-   std::array<aabb::AABB<float, 3>, 8> result;
+   std::array<aabb::AABB<double, 3>, 8> result;
 
    auto dx = (x_max_ - x_min_) * 0.5f;
    auto dy = (y_max_ - y_min_) * 0.5f;
    auto dz = (z_max_ - z_min_) * 0.5f;
 
-   vm::Vec3<float> a, b;
+   vm::Vec3<double> a, b;
 
    a = {x_min_, y_min_, z_min_};
    b = {x_min_ + dx, y_min_ + dy, z_min_ + dz};
-   result[0] = aabb::AABB<float, 3>(a, b);
+   result[0] = aabb::AABB<double, 3>(a, b);
 
    a = {x_min_ + dx, y_min_, z_min_};
    b = {x_max_, y_min_ + dy, z_min_ + dz};
-   result[1] = aabb::AABB<float, 3>(a, b);
+   result[1] = aabb::AABB<double, 3>(a, b);
 
    a = {x_min_, y_min_ + dy, z_min_};
    b = {x_min_ + dx, y_max_, z_min_ + dz};
-   result[2] = aabb::AABB<float, 3>(a, b);
+   result[2] = aabb::AABB<double, 3>(a, b);
 
    a = {x_min_ + dx, y_min_ + dy, z_min_};
    b = {x_max_, y_max_, z_min_ + dz};
-   result[3] = aabb::AABB<float, 3>(a, b);
+   result[3] = aabb::AABB<double, 3>(a, b);
 
    a = {x_min_, y_min_, z_min_ + dz};
    b = {x_min_ + dx, y_min_ + dy, z_max_};
-   result[4] = aabb::AABB<float, 3>(a, b);
+   result[4] = aabb::AABB<double, 3>(a, b);
 
    a = {x_min_ + dx, y_min_, z_min_ + dz};
    b = {x_max_, y_min_ + dy, z_max_};
-   result[5] = aabb::AABB<float, 3>(a, b);
+   result[5] = aabb::AABB<double, 3>(a, b);
 
    a = {x_min_, y_min_ + dy, z_min_ + dz};
    b = {x_min_ + dx, y_max_, z_max_};
-   result[6] = aabb::AABB<float, 3>(a, b);
+   result[6] = aabb::AABB<double, 3>(a, b);
 
    a = {x_min_ + dx, y_min_ + dy, z_min_ + dz};
    b = {x_max_, y_max_, z_max_};
-   result[7] = aabb::AABB<float, 3>(a, b);
+   result[7] = aabb::AABB<double, 3>(a, b);
 
    return result;
 }
 
 OctTree::OctTree(const std::vector<geometry::Fiber> &fibers,
-                 const float min_cube_size,
-                 const aabb::AABB<float, 3> col_voi) {
+                 const double min_cube_size,
+                 const aabb::AABB<double, 3> col_voi) {
 
    min_cube_size_ = min_cube_size;
 
@@ -92,7 +93,7 @@ OctTree::OctTree(const std::vector<geometry::Fiber> &fibers,
       // check the whole volume
       for (auto const &fiber : fibers) {
          if (!fiber.points().empty()) {
-            main_cube_ = aabb::AABB<float, 3>(fiber.points()[0]);
+            main_cube_ = aabb::AABB<double, 3>(fiber.points()[0]);
             break;
          }
       }
@@ -136,7 +137,7 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
 
 std::vector<std::vector<size_t>>
 OctTree::GenerateLeafs(const std::vector<size_t> &ids,
-                       const aabb::AABB<float, 3> &cube, int level) {
+                       const aabb::AABB<double, 3> &cube, int level) {
 
    std::vector<std::vector<size_t>> tree_ids;
 

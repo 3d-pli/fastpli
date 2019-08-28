@@ -4,6 +4,7 @@ import os
 
 import fastpli.simulation
 import fastpli.analysis
+import fastpli.io
 
 import imageio
 
@@ -25,9 +26,11 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
 
     ### Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli()
-    simpli.voxel_size = 1  # in mu meter
+    simpli.omp_num_threads = 2
+    simpli.voxel_size = 0.5  # in mu meter
     simpli.set_voi([-60, 60, -60, 60, -30, 30])  # in mu meter
-    simpli.ReadFiberFile(os.path.join(FILE_PATH, 'cube.h5'))
+    simpli.fiber_bundles = fastpli.io.fiber.load(
+        os.path.join(FILE_PATH, 'cube.dat'))
     simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                         (0.666, 0, 5, 'b'),
                                         (1.0, 0.004, 1, 'r')]]
@@ -86,6 +89,6 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     h5f['rofl/trel'] = rofl_t_rel
 
     imageio.imwrite(
-        'test.png',
+        '/tmp/fastpli.example' + FILE_BASE + '.png',
         data2image(
             fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))

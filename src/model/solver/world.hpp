@@ -19,9 +19,9 @@
 class World {
  public:
    struct WorldParameter {
-      float drag{0};
-      float obj_min_radius{0};
-      float obj_mean_length{1};
+      double drag{0};
+      double obj_min_radius{0};
+      double obj_mean_length{1};
    };
 
    // defaults
@@ -36,21 +36,21 @@ class World {
    size_t NumObj() const { return num_obj_; };
    size_t NumColObj() const { return num_col_obj_; };
    object::FiberBundles get_fibers() const;
-   std::vector<std::vector<std::vector<float>>> get_fibers_vector() const;
+   std::vector<std::vector<std::vector<double>>> get_fibers_vector() const;
    World::WorldParameter get_parameter() const { return w_parameter_; };
 
    // setter
    int set_omp_num_threads(int i);
    void set_fibers(const object::FiberBundles &fibers);
    void set_fibers_vector(
-       const std::vector<std::vector<std::vector<float>>> &fibers);
+       const std::vector<std::vector<std::vector<double>>> &fibers);
    void set_parameter(World::WorldParameter p) { w_parameter_ = p; };
-   void set_colliding_voi(const aabb::AABB<float, 3> voi) { col_voi_ = voi; };
+   void set_colliding_voi(const aabb::AABB<double, 3> voi) { col_voi_ = voi; };
 
    // world
    bool Step();
    bool BoundryChecking(int max_steps);
-   void DrawScene(float rot_x = 0, float rot_y = 0, float rot_z = 0,
+   void DrawScene(double rot_x = 0, double rot_y = 0, double rot_z = 0,
                   bool only_col = false);
 
  private:
@@ -61,7 +61,7 @@ class World {
    size_t num_obj_{0};
    size_t num_col_obj_{0};
 
-   aabb::AABB<float, 3> col_voi_ = aabb::AABB<float, 3>(vm::Vec3<float>(0));
+   aabb::AABB<double, 3> col_voi_ = aabb::AABB<double, 3>(vm::Vec3<double>(0));
 
 #if _VIS_LIBRARIES
    std::unique_ptr<Scene> scene_ = nullptr;
