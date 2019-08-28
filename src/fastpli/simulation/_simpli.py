@@ -41,6 +41,7 @@ class Simpli:
         self._wavelength = None
         self._untilt_sensor = None
 
+        self._omp_num_threads = 1
         self._debug = False
 
     def print_debug(self, msg):
@@ -472,9 +473,13 @@ class Simpli:
         return image.astype(
             np.float32)  # optic resize will force float32 because of PIL
 
-    def omp_threads(self, num_threads=2):
-        ''' num_threads = 2 seems to be optimal
-        '''
+    @property
+    def omp_num_threads(self):
+        return self._omp_num_threads
+
+    @omp_num_threads.setter
+    def omp_num_threads(self, num_threads):
+
         if not isinstance(num_threads, int):
             raise TypeError("num_threads has to be a positiv integer")
 
@@ -490,7 +495,7 @@ class Simpli:
         if num_threads_gen != num_threads:
             warnings.warn("reduced num_threads: " + str(num_threads_gen))
 
-        return num_threads_gen
+        self._omp_num_threads = num_threads_gen
 
     def MemoryUseage(self, unit='MB', item='all'):
         if not isinstance(item, str):

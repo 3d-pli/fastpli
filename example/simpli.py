@@ -26,7 +26,7 @@ with h5py.File('/tmp/fastpli.example.8.' + FILE_BASE + '.h5', 'w') as h5f:
 
     ### Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli()
-    simpli.omp_threads(8)
+    simpli.omp_num_threads = 2
     simpli.voxel_size = 0.1  # in mu meter
     # simpli.set_voi([-60, 60, -60, 60, -30, 30])  # in mu meter
     simpli.set_voi([-30, 30, -30, 30, -30, 30])  # in mu meter
