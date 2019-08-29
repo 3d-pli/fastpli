@@ -18,9 +18,7 @@ def Rotate(fiber, rot, offset=None):
     rot = np.array(rot, copy=False)
     fiber = np.array(fiber)
     if offset is None:
-        # print(fiber[:, :3].T, rot)
         fiber[:, :3] = np.dot(rot, fiber[:, :3].T).T
-        # print(fiber)
     else:
         offset = np.array(offset, copy=False)
         fiber[:, :3] = np.dot(rot, (fiber[:, :3] - offset).T).T + offset

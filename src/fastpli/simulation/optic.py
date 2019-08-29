@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 from PIL import Image
 from scipy.ndimage.filters import gaussian_filter
@@ -14,8 +15,8 @@ def apply(
         resample_mode=Image.BILINEAR):
 
     if (res_pixel_size / org_pixel_size) % 1.0 != 0:
-        print('WARNING: OPTIC: res_pixel_size % org_pixel_size:',
-              res_pixel_size, org_pixel_size)  #
+        warnings.warn('OPTIC: res_pixel_size % org_pixel_size: ' +
+                      str(res_pixel_size) + '%' + str(org_pixel_size))
 
     resize = res_pixel_size / org_pixel_size
     new_size = np.array(np.array(image.shape) // resize, dtype=int)
@@ -40,8 +41,8 @@ def resize_img(image,
                res_pixel_size,
                resample_mode=Image.BILINEAR):
     if res_pixel_size % org_pixel_size != 0:
-        print('WARNING: OPTIC: res_pixel_size % org_pixel_size:',
-              res_pixel_size, org_pixel_size)
+        warnings.warn('OPTIC: res_pixel_size % org_pixel_size: ' +
+                      str(res_pixel_size) + '%' + str(org_pixel_size))
 
     resize = res_pixel_size / org_pixel_size
     new_size = np.array(np.array(image.shape) // resize, dtype=int)

@@ -175,8 +175,6 @@ class Simpli:
         filter_rotations = np.array(filter_rotations, dtype=float)
 
         if filter_rotations.size == 0 or filter_rotations.ndim != 1:
-            print(filter_rotations)
-            print(filter_rotations.shape)
             raise TypeError("filter_rotations : nx1")
 
         self._filter_rotations = filter_rotations
@@ -268,9 +266,9 @@ class Simpli:
                     )
 
                 if ly[1] < 0 and ly[-1] is 'r':
-                    print('WARNING: birefringence negative and radial')
+                    warnings.warn('birefringence negative and radial')
                 if ly[1] > 0 and ly[-1] is 'p':
-                    print('WARNING: birefringence positive and parallel')
+                    warnings.warn('birefringence positive and parallel')
 
         self._fiber_bundles_properties = bundle_layer_properties
 

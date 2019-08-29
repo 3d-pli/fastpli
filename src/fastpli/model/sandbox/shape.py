@@ -56,7 +56,6 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
         r = (r0 + r1) / 2.0
         rot = rotation.a_on_b(np.array((0, 0, 1)), np.array((0, 1, 0)))
 
-        # print(rot)
         points = np.dot(rot, points.T).T
         points[:, 0] += r
 
