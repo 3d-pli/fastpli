@@ -31,10 +31,10 @@ class Simpli:
         self._cells_populations = None
         self._cells_populations_properties = None
         self._dim = None
-        self._dim_origin = np.array([0, 0, 0], dtype=float)
+        self._dim_origin = np.array([0, 0, 0], dtype=np.float64)
         self._voxel_size = None
         self._resolution = None
-        self._flip_direction = np.array([0, 0, 0], dtype=bool)
+        self._flip_direction = np.array([0, 0, 0], dtype=np.bool)
 
         self._filter_rotations = None
         self._light_intensity = None
@@ -62,7 +62,7 @@ class Simpli:
 
     @dim.setter
     def dim(self, dim):
-        self._dim = np.array(dim, dtype=int)
+        self._dim = np.array(dim, dtype=np.int64)
 
         if not np.array_equal(self._dim, dim):
             raise ValueError("dim would changed because it was not an integer")
@@ -73,7 +73,7 @@ class Simpli:
 
     @dim_origin.setter
     def dim_origin(self, dim_origin):
-        self._dim_origin = np.array(dim_origin, dtype=float)
+        self._dim_origin = np.array(dim_origin, dtype=np.float64)
 
     @property
     def voxel_size(self):
@@ -130,7 +130,7 @@ class Simpli:
         return voi
 
     def set_voi(self, voi):
-        voi = np.array(voi, dtype=float)
+        voi = np.array(voi, dtype=np.float64)
         if voi.size != 6 or voi.shape[0] != 6:
             raise TypeError("voi: wrong shape, has to be (6,)")
 
@@ -146,7 +146,7 @@ class Simpli:
         tmp = np.array(self._voi / self._voxel_size)
         self._dim = np.array(
             (int(tmp[1] - tmp[0]), int(tmp[3] - tmp[2]), int(tmp[5] - tmp[4])),
-            dtype=int)
+            dtype=np.int64)
         self._dim_origin = self._voi[::2]
 
         self.print_debug("dim and dim_origin recalculated")
@@ -158,7 +158,7 @@ class Simpli:
     @flip_direction.setter
     def flip_direction(self, flip_direction):
 
-        flip_direction = np.array(flip_direction, dtype=bool)
+        flip_direction = np.array(flip_direction, dtype=np.bool)
 
         if flip_direction.size != 3 or flip_direction.shape != 1:
             raise TypeError("flip_direction : 3d bool")
@@ -172,7 +172,7 @@ class Simpli:
     @filter_rotations.setter
     def filter_rotations(self, filter_rotations):
 
-        filter_rotations = np.array(filter_rotations, dtype=float)
+        filter_rotations = np.array(filter_rotations, dtype=np.float64)
 
         if filter_rotations.size == 0 or filter_rotations.ndim != 1:
             raise TypeError("filter_rotations : nx1")
@@ -222,7 +222,7 @@ class Simpli:
                 raise TypeError("fb is not a list")
 
             for f_i, f in enumerate(fb):
-                fbs[fb_i][f_i] = np.array(f, dtype=float, copy=False)
+                fbs[fb_i][f_i] = np.array(f, dtype=np.float64, copy=False)
 
                 if len(fbs[fb_i][f_i].shape) != 2:
                     raise TypeError("fiber size need to be nx4")
@@ -290,7 +290,7 @@ class Simpli:
                 raise TypeError("cells_population is not a list")
 
             for c_i, c in enumerate(cp):
-                cps[cp_i][c_i] = np.array(c, dtype=float, copy=False)
+                cps[cp_i][c_i] = np.array(c, dtype=np.float64, copy=False)
 
                 if len(cps[cp_i][c_i].shape) != 2:
                     raise TypeError("cell size need to be nx4")

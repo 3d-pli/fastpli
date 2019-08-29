@@ -105,7 +105,7 @@ def unit_vectors(direction, inclination, mask=None):
 
 def fom_hsv_black(direction, inclination, mask=None):
     if mask is None:
-        mask = np.ones_like(direction, dtype=bool)
+        mask = np.ones_like(direction, dtype=np.bool)
 
     hsv = np.zeros((mask.shape[0], mask.shape[1], 3), np.uint8)
     for x in range(mask.shape[0]):
@@ -120,7 +120,7 @@ def fom_hsv_black(direction, inclination, mask=None):
 
 def fom_rgb(direction, inclination, mask=None):
     if mask is None:
-        mask = np.ones_like(direction, dtype=bool)
+        mask = np.ones_like(direction, dtype=np.bool)
 
     rgb = np.zeros((mask.shape[0], mask.shape[1], 3), np.uint8)
     for x in range(mask.shape[0]):

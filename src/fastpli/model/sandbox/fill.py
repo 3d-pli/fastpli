@@ -46,8 +46,8 @@ def bundle(traj, seeds, fiber_radius):
     fiber_radius: (int, float, (nx1)-array)
     '''
 
-    traj = np.array(traj, dtype=float, copy=False)
-    seeds = np.atleast_2d(np.array(seeds, dtype=float, copy=True))
+    traj = np.array(traj, dtype=np.float64, copy=False)
+    seeds = np.atleast_2d(np.array(seeds, dtype=np.float64, copy=True))
 
     if len(traj.shape) != 2 or not (traj.shape[1] != 3 or traj.shape[1] != 4):
         raise TypeError('traj format: (nx3)-array or (nx4)-array')
@@ -74,7 +74,7 @@ def bundle(traj, seeds, fiber_radius):
     if len(fiber_radius.shape) != 1 or fiber_radius.size != seeds.shape[0]:
         raise TypeError('fiber_radius must have the same length as seeds')
 
-    fiber_radius = np.array(fiber_radius, dtype=float, copy=False)
+    fiber_radius = np.array(fiber_radius, dtype=np.float64, copy=False)
     fiber_bundle = [np.empty([traj.shape[0], 4]) for i in range(seeds.shape[0])]
     tangent_old = np.array([0, 0, 1], float)
 

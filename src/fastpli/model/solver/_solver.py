@@ -30,7 +30,7 @@ class Solver(_Solver):
                 raise TypeError("fb is not a list")
 
             for f_i, f in enumerate(fb):
-                f = np.array(f, dtype=float, copy=False)
+                f = np.array(f, dtype=np.float64, copy=False)
 
                 if len(f.shape) is not 2 or f.shape[1] is not 4:
                     raise TypeError("fiber elements has to be of dim nx4")

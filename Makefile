@@ -10,8 +10,8 @@ help:
 BUILD := release
 VENV := env
 
-CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug 
-CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release 
+CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug
+CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release
 CMAKE := ${CMAKE.${BUILD}}
 
 MAKE.debug := make
@@ -22,7 +22,7 @@ INSTALL.debug := install build/.
 INSTALL.release := install build/. -q
 INSTALL := ${INSTALL.${BUILD}}
 
-${VENV}/bin/pip3: 
+${VENV}/bin/pip3:
 	@rm -rf ${VENV}
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
@@ -32,25 +32,31 @@ ${VENV}/bin/python3:
 	python3 -m venv ${VENV}/
 	${VENV}/bin/pip3 install --upgrade pip -q
 
+.PHONY: ${VENV}
 ${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
+	${VENV}/bin/pip3 install --upgrade pip -q
 
 .PHONY: git-submodules
 git-submodules:
 	git submodule update --init
 
 .PHONY: requirements
-requirements: 
+requirements:
 	${VENV}/bin/pip3 install -r requirements.txt -q
 
 .PHONY: example/requirements
-example/requirements: 
+example/requirements:
 	${VENV}/bin/pip3 install -r example/requirements.txt -q
 
-.PHONY: install 
-install: ${VENV} git-submodules build
+.PHONY: install
+install: ${VENV} git-submodules uninstall build
 	${VENV}/bin/pip3 ${INSTALL}
 
-.PHONY: development 
+.PHONY: uninstall
+uninstall:
+	${VENV}/bin/pip3 uninstall fastpli -y
+
+.PHONY: development
 development: ${VENV} git-submodules requirements example/requirements clean-cmake build
 	${VENV}/bin/pip3 ${INSTALL}
 
@@ -63,7 +69,7 @@ build/Makefile: build/
 	@if [ ! -f build/Makefile ]
 	then
 		cd build
-		echo ${CMAKE} 
+		echo ${CMAKE}
 		${CMAKE}
 	fi
 

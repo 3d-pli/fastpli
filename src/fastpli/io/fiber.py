@@ -55,7 +55,7 @@ def save(file_name, fiber_bundles):
             for fb, fiber_bundle in enumerate(fiber_bundles):
                 for fiber in fiber_bundle:
 
-                    np.array(fiber, dtype=float, copy=False)
+                    np.array(fiber, dtype=np.float64, copy=False)
 
                     if fiber.shape[1] != 4 or len(fiber.shape) != 2:
                         raise TypeError('Wrong shape:', fiber.shape)
