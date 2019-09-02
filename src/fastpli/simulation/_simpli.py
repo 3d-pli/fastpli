@@ -16,6 +16,15 @@ from PIL import Image
 
 
 class Simpli:
+    __isfrozen = False
+
+    def __setattr__(self, key, value):
+        if self.__isfrozen and not hasattr(self, key):
+            raise TypeError("%r is a frozen class" % self)
+        object.__setattr__(self, key, value)
+
+    def _freeze(self):
+        self.__isfrozen = True
 
     def __init__(self, mpi_comm=None):
 
@@ -43,6 +52,8 @@ class Simpli:
 
         self._omp_num_threads = 1
         self._debug = False
+
+        self._freeze()
 
     def print_debug(self, msg):
         if self._debug:
@@ -139,15 +150,13 @@ class Simpli:
                 "voi not corrected sorted: (x_min, x_max, y_min, y_max, z_min, z_max)"
             )
 
-        self._voi = voi
-
         if self._voxel_size is None:
             raise TypeError("voxel_size is not set yet")
-        tmp = np.array(self._voi / self._voxel_size)
+        tmp = np.array(voi / self._voxel_size)
         self._dim = np.array(
             (int(tmp[1] - tmp[0]), int(tmp[3] - tmp[2]), int(tmp[5] - tmp[4])),
             dtype=np.int64)
-        self._dim_origin = self._voi[::2]
+        self._dim_origin = voi[::2]
 
         self.print_debug("dim and dim_origin recalculated")
 

@@ -5,16 +5,28 @@ import numpy as np
 
 class Solver(_Solver):
 
-    _drag = 0
-    _obj_min_radius = 0
-    _obj_mean_length = 0
-    _col_voi = None
-    _omp_num_threads = 1
+    __isfrozen = False
+
+    def __setattr__(self, key, value):
+        if self.__isfrozen and not hasattr(self, key):
+            raise TypeError("%r is a frozen class" % self)
+        object.__setattr__(self, key, value)
+
+    def _freeze(self):
+        self.__isfrozen = True
 
     def __init__(self):
         super().__init__()
-        self._omp_num_threads = super()._set_omp_num_threads(
-            self._omp_num_threads)
+
+        self._drag = 0
+        self._obj_min_radius = 0
+        self._obj_mean_length = 0
+        self._col_voi = None
+        self._omp_num_threads = 1
+
+        super()._set_omp_num_threads(self._omp_num_threads)
+
+        self._freeze()
 
     @property
     def fiber_bundles(self):
