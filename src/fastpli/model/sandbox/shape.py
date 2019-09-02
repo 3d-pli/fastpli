@@ -115,3 +115,49 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
         raise ValueError('mode has to be "parallel" or "radial"')
 
     return data
+
+
+def box(a, b, phi, theta, spacing, steps):
+    a = np.array(a, float)
+    b = np.array(b, float)
+    phi = phi % (2 * np.pi)
+    theta = theta % (2 * np.pi)
+    steps = max(2, int(steps))
+
+    delta = b - a
+
+    points = fill.rectangle(delta[0] * np.sqrt(3), delta[1] * np.sqrt(3),
+                            spacing, 'center')
+    points = np.append(points, np.zeros((points.shape[0], 1)), axis=1)
+
+    traj = np.linspace([0, 0, -0.5 * delta[2]], [0, 0, 0.5 * delta[2]],
+                       steps) * np.sqrt(3)
+
+    data = fill.bundle(traj, points, 1)
+
+    # rotate fibers
+    rot = rotation.a_on_b(
+        np.array([0, 0, 1]),
+        np.array([
+            np.cos(phi) * np.sin(theta),
+            np.sin(phi) * np.sin(theta),
+            np.cos(theta)
+        ]))
+    for i in range(len(data)):
+        data[i][:, :3] = np.dot(rot, data[i][:, :3].T).T + a + 0.5 * delta
+
+    # filter fibers points inside box
+    data_new = []
+    for fiber in data:
+        fiber_new = fiber[fiber[:, 0] >= a[0], :]
+        fiber_new = fiber_new[fiber_new[:, 1] >= a[1], :]
+        fiber_new = fiber_new[fiber_new[:, 2] >= a[2], :]
+
+        fiber_new = fiber_new[fiber_new[:, 0] <= b[0], :]
+        fiber_new = fiber_new[fiber_new[:, 1] <= b[1], :]
+        fiber_new = fiber_new[fiber_new[:, 2] <= b[2], :]
+
+        if fiber_new.size > 0:
+            data_new.append(fiber_new)
+
+    return data_new
