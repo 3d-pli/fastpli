@@ -130,10 +130,8 @@ def box(a, b, phi, theta, spacing, radius, steps):
                             spacing, 'center')
     points = np.append(points, np.zeros((points.shape[0], 1)), axis=1)
 
-    traj = np.linspace([0, 0, -0.5 * delta[2]], [0, 0, 0.5 * delta[2]],
-                       steps) * np.sqrt(3)
-
-    data = fill.bundle(traj, points, radius)
+    data = fill.linspace_bundle([0, 0, -0.5 * delta[2]], [0, 0, 0.5 * delta[2]],
+                                steps, points, radius)
 
     # rotate fibers
     rot = rotation.a_on_b(

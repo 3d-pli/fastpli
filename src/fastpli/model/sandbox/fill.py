@@ -100,3 +100,39 @@ def bundle(traj, seeds, fiber_radius):
         tangent_old = tangent_new.copy()
 
     return fiber_bundle
+
+
+def linspace_bundle(a, b, steps, seeds, fiber_radius):
+
+    a = np.array(a, float)
+    b = np.array(b, float)
+
+    seeds = np.atleast_2d(np.array(seeds, dtype=np.float64, copy=True))
+
+    if len(seeds.shape) != 2 or not (seeds.shape[1] != 2 or
+                                     seeds.shape[1] != 3):
+        raise TypeError('seeds format: (nx2)-array or (nx3)-array')
+
+    if seeds.shape[1] == 2:
+        seeds = np.append(seeds, np.zeros((seeds.shape[0], 1)), axis=1)
+
+    if not isinstance(fiber_radius, (int, float, np.ndarray)):
+        raise TypeError('fiber_radius format: (int, float, np.ndarray)')
+
+    if isinstance(fiber_radius, (int, float)):
+        fiber_radius = np.ones(seeds.shape[0]) * fiber_radius
+
+    if len(fiber_radius.shape) != 1 or fiber_radius.size != seeds.shape[0]:
+        raise TypeError('fiber_radius must have the same length as seeds')
+
+    fiber_radius = np.array(fiber_radius, dtype=np.float64, copy=False)
+
+    fiber_bundle = []
+
+    rot = a_on_b([0, 0, 1], b - a)
+    seeds = np.dot(rot, seeds.T).T
+    delta = np.linspace(a, b, steps)
+    for s in seeds:
+        fiber_bundle.append(delta + s)
+
+    return fiber_bundle
