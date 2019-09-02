@@ -117,7 +117,7 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
     return data
 
 
-def box(a, b, phi, theta, spacing, steps):
+def box(a, b, phi, theta, spacing, radius, steps):
     a = np.array(a, float)
     b = np.array(b, float)
     phi = phi % (2 * np.pi)
@@ -133,7 +133,7 @@ def box(a, b, phi, theta, spacing, steps):
     traj = np.linspace([0, 0, -0.5 * delta[2]], [0, 0, 0.5 * delta[2]],
                        steps) * np.sqrt(3)
 
-    data = fill.bundle(traj, points, 1)
+    data = fill.bundle(traj, points, radius)
 
     # rotate fibers
     rot = rotation.a_on_b(
