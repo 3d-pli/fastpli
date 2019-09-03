@@ -132,7 +132,11 @@ def linspace_bundle(a, b, steps, seeds, fiber_radius):
     rot = a_on_b([0, 0, 1], b - a)
     seeds = np.dot(rot, seeds.T).T
     delta = np.linspace(a, b, steps)
-    for s in seeds:
-        fiber_bundle.append(delta + s)
+    for s, f in zip(seeds, fiber_radius):
+        fiber_bundle.append(
+            np.concatenate(
+                [delta + s,
+                 np.atleast_2d(np.ones(delta.shape[0]) * f).T],
+                axis=1))
 
     return fiber_bundle

@@ -2,6 +2,8 @@ import numpy as np
 from ...tools import rotation
 from . import fill
 
+import sys
+
 
 def add_radius(fibers, radius):
     for i, f in enumerate(fibers):
@@ -117,7 +119,27 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
     return data
 
 
-def box(a, b, phi, theta, spacing, radius, steps):
+def _ray_box_intersection(p, dir, b_min, b_max):
+
+    tmin = np.divide(b_min - p, dir)
+    tmax = np.divide(b_max - p, dir)
+
+    tmin, tmax = np.minimum(tmin, tmax), np.maximum(tmin, tmax)
+
+    return np.max(np.ma.masked_invalid(tmin)), np.min(
+        np.ma.masked_invalid(tmax))
+
+
+def _ray_box_intersection_pp(p0, p1, b_min, b_max):
+
+    if np.any(np.maximum(p0, p1) < np.minimum(b_min, b_max)) or np.any(
+            np.minimum(p0, p1) > np.maximum(b_min, b_max)):
+        return 0, 0
+
+    return _ray_box_intersection(p0, p1 - p0, b_min, b_max)
+
+
+def box(a, b, phi, theta, spacing, radius, steps=2):
     a = np.array(a, float)
     b = np.array(b, float)
     phi = phi % (2 * np.pi)
@@ -125,37 +147,34 @@ def box(a, b, phi, theta, spacing, radius, steps):
     steps = max(2, int(steps))
 
     delta = b - a
+    cube_length = np.max(delta) * np.sqrt(3) + 4 * radius
 
-    points = fill.rectangle(delta[0] * np.sqrt(3), delta[1] * np.sqrt(3),
-                            spacing, 'center')
+    points = fill.rectangle(cube_length, cube_length, spacing, 'center')
     points = np.append(points, np.zeros((points.shape[0], 1)), axis=1)
 
-    data = fill.linspace_bundle([0, 0, -0.5 * delta[2]], [0, 0, 0.5 * delta[2]],
-                                steps, points, radius)
-
     # rotate fibers
-    rot = rotation.a_on_b(
-        np.array([0, 0, 1]),
-        np.array([
-            np.cos(phi) * np.sin(theta),
-            np.sin(phi) * np.sin(theta),
-            np.cos(theta)
-        ]))
-    for i in range(len(data)):
-        data[i][:, :3] = np.dot(rot, data[i][:, :3].T).T + a + 0.5 * delta
+    dir = np.array([
+        np.cos(phi) * np.sin(theta),
+        np.sin(phi) * np.sin(theta),
+        np.cos(theta)
+    ])
+    rot = rotation.a_on_b(np.array([0, 0, 1]), dir)
+    points = np.dot(rot, points.T).T + 0.5 * (a + b)
 
-    # filter fibers points inside box
     data_new = []
-    for fiber in data:
-        fiber_new = fiber[fiber[:, 0] >= a[0], :]
-        fiber_new = fiber_new[fiber_new[:, 1] >= a[1], :]
-        fiber_new = fiber_new[fiber_new[:, 2] >= a[2], :]
+    dir = dir * cube_length
+    for p in points:
 
-        fiber_new = fiber_new[fiber_new[:, 0] <= b[0], :]
-        fiber_new = fiber_new[fiber_new[:, 1] <= b[1], :]
-        fiber_new = fiber_new[fiber_new[:, 2] <= b[2], :]
+        p -= 0.5 * dir
+        t_min, t_max = _ray_box_intersection_pp(p, p + dir, a, b)
 
-        if fiber_new.size > 0:
-            data_new.append(fiber_new)
+        if t_min >= t_max:  # outside of volume
+            continue
+
+        fiber = np.linspace(p + t_min * dir, p + t_max * dir, steps)
+
+        data_new.append(
+            np.concatenate([fiber, np.atleast_2d(np.ones(2) * radius).T],
+                           axis=1))
 
     return data_new
