@@ -69,7 +69,6 @@ def save(file_name, fiber_bundles):
                     file.write("\n")
     elif ext == '.h5':
         with h5py.File(file_name, 'w') as h5f:
-            fbs = h5f['fiber_bundles']
             for fb_i, fb in enumerate(fiber_bundles):
                 for i, f in enumerate(fb):
 
