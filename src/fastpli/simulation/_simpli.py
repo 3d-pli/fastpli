@@ -418,13 +418,13 @@ class Simpli:
         )
 
     def run_simulation(self,
-                      label_field,
-                      vec_field,
-                      tissue_properties,
-                      theta,
-                      phi,
-                      step_size=1.0,
-                      do_untilt=True):
+                       label_field,
+                       vec_field,
+                       tissue_properties,
+                       theta,
+                       phi,
+                       step_size=1.0,
+                       do_untilt=True):
 
         label_field = np.array(label_field, dtype=np.int32, copy=False)
         vec_field = np.array(vec_field, dtype=np.float32, copy=False)
@@ -565,45 +565,36 @@ class Simpli:
 
     def apply_optic(
             self,
-            image_stack,
+            image,
             delta_sigma=0.71,  # only for LAP!
             gain=3.0,  # only for LAP!
-            cropping=0,  # num pixel 
             resample_mode=Image.BILINEAR):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
 
-        res_image_stack = optic.apply_stack(image_stack, self._voxel_size,
-                                            self._resolution, delta_sigma, gain,
-                                            cropping, resample_mode)
+        return optic.apply(image, self._voxel_size, self._resolution,
+                           delta_sigma, gain, resample_mode)
 
-        return res_image_stack
-
-    def apply_resize_mask(self,
-                          mask,
-                          delta_sigma=0.71,
-                          cropping=0,
-                          resample_mode=Image.BILINEAR):
-        ''' return value of mask is float, threshold has to be applyed by user
-        '''
+    def apply_resize(self, img, resample_mode=Image.BILINEAR):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
 
-        res_mask = optic.apply(np.array(mask, float), self._voxel_size,
-                               self._resolution, delta_sigma, 0, cropping,
-                               resample_mode)
+        if self._voxel_size is None:
+            raise TypeError("voxel_size is not set")
 
-        return res_mask
+        scale = self._resolution / self._voxel_size
+        size = np.array(np.array(image.shape) // scale, dtype=int)
+        return optic.resize(img, size, resample_mode)
 
     def apply_epa(self, image_stack, mask=None):
 
         transmittance, direction, retardation = epa.map(image_stack)
         if mask is not None:
-            transmittance[~mask] = 0
-            direction[~mask] = 0
-            retardation[~mask] = 0
+            transmittance[~mask] = float('nan')
+            direction[~mask] = float('nan')
+            retardation[~mask] = float('nan')
 
         return transmittance, direction, retardation
 
