@@ -45,11 +45,11 @@ def load(file_name, dataset_name='/'):
     return fiber_bundles
 
 
-def save(file_name, fiber_bundles, dataset_name='/'):
+def save(file_name, fiber_bundles, dataset_name='/', mode='w'):
     _, ext = os.path.splitext(file_name)
 
     if ext == '.dat' or ext == '.txt':
-        with open(file_name, 'w') as file:
+        with open(file_name, mode) as file:
             for fb, fiber_bundle in enumerate(fiber_bundles):
                 for fiber in fiber_bundle:
 
@@ -66,7 +66,7 @@ def save(file_name, fiber_bundles, dataset_name='/'):
                 if fb != len(fiber_bundles) - 1:
                     file.write("\n")
     elif ext == '.h5':
-        with h5py.File(file_name, 'w') as h5f:
+        with h5py.File(file_name, mode) as h5f:
             if dataset_name[-1] is not '/':
                 dataset_name = dataset_name + '/'
 
