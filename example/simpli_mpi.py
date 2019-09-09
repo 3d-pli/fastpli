@@ -26,18 +26,18 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.' +
                                         (1.0, 0.004, 1, 'r')]]
 
     print('VOI:', simpli.get_voi())
-    print('Memory:', str(round(simpli.MemoryUseage('MB'), 2)) + ' MB')
+    print('Memory:', str(round(simpli.memory_usage('MB'), 2)) + ' MB')
     print(
         'Memory per thread:',
-        str(round(simpli.MemoryUseage('MB') / MPI.COMM_WORLD.Get_size(), 2)) +
+        str(round(simpli.memory_usage('MB') / MPI.COMM_WORLD.Get_size(), 2)) +
         ' MB')
 
     ### Generate Tissue
     print("Run Generation:")
-    label_field, vec_field, tissue_properties = simpli.GenerateTissue()
+    label_field, vec_field, tissue_properties = simpli.generate_tissue()
 
-    simpli.SaveAsH5(h5f, label_field.astype(np.uint16), 'tissue')
-    simpli.SaveAsH5(h5f, vec_field, 'vectorfield')
+    simpli.save_mpi_array_as_h5(h5f, label_field.astype(np.uint16), 'tissue')
+    simpli.save_mpi_array_as_h5(h5f, vec_field, 'vectorfield')
 
     ### Simulate PLI Measurement ###
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
@@ -50,10 +50,10 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.' +
     image_stack = [None] * len(TILTS)
     print("Run Simulation:")
     for t, (theta, phi) in enumerate(TILTS):
-        image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                     np.deg2rad(theta), np.deg2rad(phi))
+        image = simpli.run_simulation(label_field, vec_field, tissue_properties,
+                                      np.deg2rad(theta), np.deg2rad(phi))
 
-        simpli.SaveAsH5(h5f, image, 'data/' + str(t), lock_dim=2)
+        simpli.save_mpi_array_as_h5(h5f, image, 'data/' + str(t), lock_dim=2)
 
 # to apply optical resolution, the hole dataset has to be known
 MPI.COMM_WORLD.barrier()

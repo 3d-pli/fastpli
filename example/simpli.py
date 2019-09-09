@@ -36,11 +36,11 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
                                         (1.0, 0.004, 1, 'r')]]
 
     print('VOI:', simpli.get_voi())
-    print('Memory:', str(round(simpli.MemoryUseage('MB'), 2)) + ' MB')
+    print('Memory:', str(round(simpli.memory_usage('MB'), 2)) + ' MB')
 
     ### Generate Tissue
     print("Run Generation:")
-    label_field, vec_field, tissue_properties = simpli.GenerateTissue()
+    label_field, vec_field, tissue_properties = simpli.generate_tissue()
 
     h5f['tissue'] = label_field.astype(np.uint16)
     h5f['vectorfield'] = vec_field
@@ -58,7 +58,7 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     print("Run Simulation:")
     for t, (theta, phi) in enumerate(TILTS):
         print(theta, phi)
-        image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
+        image = simpli.run_simulation(label_field, vec_field, tissue_properties,
                                      np.deg2rad(theta), np.deg2rad(phi))
         h5f['data/' + str(t)] = image
 

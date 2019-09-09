@@ -77,7 +77,7 @@ class Simpli:
             'debug': self._debug
         }
 
-    def print_debug(self, msg):
+    def _print_debug(self, msg):
         if self._debug:
             print("debug: " + msg)
 
@@ -147,15 +147,15 @@ class Simpli:
     def get_voi(self):
         if self._voxel_size is None:
             return None
-            self.print_debug("voxel_size is not set, voi can't be calculated")
+            self._print_debug("voxel_size is not set, voi can't be calculated")
 
         if self._dim is None:
             return None
-            self.print_debug("dim is not set, voi can't be calculated")
+            self._print_debug("dim is not set, voi can't be calculated")
 
         if self._dim_origin is None:
             return None
-            self.print_debug("dim_origin is not set, voi can't be calculated")
+            self._print_debug("dim_origin is not set, voi can't be calculated")
 
         voi = np.zeros((6,))
         voi[::2] = self._dim_origin
@@ -180,7 +180,7 @@ class Simpli:
             dtype=np.int64)
         self._dim_origin = voi[::2]
 
-        self.print_debug("dim and dim_origin recalculated")
+        self._print_debug("dim and dim_origin recalculated")
 
     @property
     def flip_direction(self):
@@ -356,19 +356,19 @@ class Simpli:
 
         self._cells_populations_properties = cells_populations_properties
 
-    def _CheckDataLength(self):
-        if (self._fiber_bundles):
+    def _check_property_length(self):
+        if self._fiber_bundles:
             if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
                 raise TypeError(
                     "properties must have the same size as fiber_bundles")
 
-        if (self._cells_populations):
+        if self._cells_populations:
             if len(self._cells_populations) != len(
                     self._cells_populations_properties):
                 raise TypeError(
                     "properties must have the same size as cell_populations")
 
-    def GenerateTissue(self, only_label=False, progress_bar=False):
+    def generate_tissue(self, only_label=False, progress_bar=False):
 
         if self._dim is None:
             raise ValueError('dim not set')
@@ -379,8 +379,9 @@ class Simpli:
         if self._voxel_size is None:
             raise ValueError('voxel_size not set')
 
+        self._check_property_length()
+
         self._gen.set_volume(self._dim, self._dim_origin, self._voxel_size)
-        self._CheckDataLength()
         if self._fiber_bundles:
             self._gen.set_fiber_bundles(self._fiber_bundles,
                                         self._fiber_bundles_properties)
@@ -392,7 +393,7 @@ class Simpli:
 
         return label_field, vec_field, tissue_properties
 
-    def InitSimulation(self):
+    def _init_pli_setup(self):
         if self._light_intensity is None:
             raise ValueError('light_intensity not set')
 
@@ -416,7 +417,7 @@ class Simpli:
             self._untilt_sensor,
         )
 
-    def RunSimulation(self,
+    def run_simulation(self,
                       label_field,
                       vec_field,
                       tissue_properties,
@@ -428,7 +429,7 @@ class Simpli:
         label_field = np.array(label_field, dtype=np.int32, copy=False)
         vec_field = np.array(vec_field, dtype=np.float32, copy=False)
 
-        self.InitSimulation()
+        self._init_pli_setup()
 
         tissue_properties = np.array(tissue_properties)
         if len(tissue_properties.shape) != 2:
@@ -472,7 +473,7 @@ class Simpli:
 
         self._omp_num_threads = num_threads_gen
 
-    def MemoryUseage(self, unit='MB', item='all'):
+    def memory_usage(self, unit='MB', item='all'):
         if not isinstance(item, str):
             raise TypeError('item has to be str')
 
@@ -500,17 +501,14 @@ class Simpli:
         else:
             raise ValueError('allowed is only label_field or all')
 
-    def DimData(self):
+    def save_mpi_array_as_h5(self, h5f, data, data_name, lock_dim=None):
+
         dim_local = self._gen.dim_local()
         dim_offset = self._gen.dim_offset()
-        return dim_local, dim_offset
-
-    def SaveAsH5(self, h5f, data, data_name, lock_dim=None):
-
-        dim_local, dim_offset = self.DimData()
 
         if not isinstance(data, np.ndarray):
-            raise TypeError("only numpy arrays are compatible with SaveAsH5")
+            raise TypeError(
+                "only numpy arrays are compatible with save_mpi_array_as_h5")
 
         dset_dim = np.copy(self._dim)
         if len(data.shape) < len(dset_dim):
@@ -563,7 +561,7 @@ class Simpli:
                      dim_local[2], :] = data
 
         else:
-            raise TypeError("no compatible SaveAsH5: " + data_name)
+            raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
 
     def apply_optic(
             self,

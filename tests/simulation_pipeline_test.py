@@ -52,8 +52,8 @@ if __name__ == '__main__':
     simpli.fiber_bundles_properties = [[(0.5, 0.004, 1, 'p'),
                                         (1.0, 0.004, 1, 'r')]]
 
-    # print("MemoryUseage:", '~' + str(int(simpli.MemoryUseage())) + ' MB')
-    label_field, vec_field, tissue_properties = simpli.GenerateTissue()
+    simpli.memory_usage()
+    label_field, vec_field, tissue_properties = simpli.generate_tissue()
 
     # PliSimulation ###
     simpli.filter_rotations = np.deg2rad([90, 120, 150, 0, 30, 60])
@@ -67,8 +67,8 @@ if __name__ == '__main__':
     # print("Run Simulations:")
     for t, (theta, phi) in enumerate(tilts):
         print('Step:', t, theta, phi)
-        image = simpli.RunSimulation(label_field, vec_field, tissue_properties,
-                                     np.deg2rad(theta), np.deg2rad(phi))
+        image = simpli.run_simulation(label_field, vec_field, tissue_properties,
+                                      np.deg2rad(theta), np.deg2rad(phi))
         image = simpli.apply_optic(image)
 
         epa = simpli.apply_epa(image)

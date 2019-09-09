@@ -70,7 +70,7 @@ simpli.fiber_bundles = solver.fiber_bundles
 simpli.fiber_bundles_properties = [[(0.6, 0, 0, 'p'), (0.8, 0, 0, 'p'),
                                     (1, 0, 0, 'p')]]
 
-label_field, _, _ = simpli.GenerateTissue(only_label=True)
+label_field, _, _ = simpli.generate_tissue(only_label=True)
 
 if OUTPUT_FILE_TISSUE:
     with h5py.File(OUTPUT_FILE_TISSUE, 'w') as h5f:
