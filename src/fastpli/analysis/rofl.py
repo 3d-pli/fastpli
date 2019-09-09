@@ -10,7 +10,7 @@ def rofl(data, tilt_angle=np.deg2rad(5.5), gain=3, dir_offset=0):
     data: np.array([tilts,stack])
     '''
 
-    data = np.array(data)
+    data = np.array(data, copy=False)
 
     if len(data.shape) != 2:
         raise TypeError("data: np.array([tilts,stack])")
@@ -34,17 +34,17 @@ def rofl(data, tilt_angle=np.deg2rad(5.5), gain=3, dir_offset=0):
         1], params_conf[2], func, n_iter
 
 
-def map(data,
-        tilt_angle=np.deg2rad(5.5),
-        gain=3,
-        dir_offset=0,
-        mask=None,
-        num_threads=2):
+def rofl_stack(data,
+               tilt_angle=np.deg2rad(5.5),
+               gain=3,
+               dir_offset=0,
+               mask=None,
+               num_threads=2):
     '''
     data: np.array([tilts,x,y,stack])
     '''
 
-    data = np.array(data)
+    data = np.array(data, copy=False)
     if mask is None:
         mask = np.ones((data.shape[1], data.shape[2]), bool)
 
@@ -61,7 +61,7 @@ def map(data,
         raise ValueError("rofl gain <= 0")
 
     direction_map = pymp.shared.array(data.shape[1:3], float)
-    direction_map = epa.direction_map(data[0, :, :, :])
+    direction_map[:, :] = epa.direction(data[0, :, :, :])
 
     directionmap = pymp.shared.array(data.shape[1:3], float)
     inclmap = pymp.shared.array(data.shape[1:3], float)

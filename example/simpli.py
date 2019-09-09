@@ -54,35 +54,37 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     simpli.resolution = 20  # in mu meter
     TILTS = [(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]
 
-    image_stack = [None] * len(TILTS)
+    tilting_stack = [None] * len(TILTS)
     print("Run Simulation:")
     for t, (theta, phi) in enumerate(TILTS):
         print(theta, phi)
-        image = simpli.run_simulation(label_field, vec_field, tissue_properties,
-                                     np.deg2rad(theta), np.deg2rad(phi))
-        h5f['data/' + str(t)] = image
+        images = simpli.run_simulation(label_field, vec_field,
+                                       tissue_properties, np.deg2rad(theta),
+                                       np.deg2rad(phi))
+        h5f['data/' + str(t)] = images
 
         # apply optic to simulation
-        image = simpli.apply_optic(image, gain=3)
-        h5f['optic/' + str(t)] = image
+        print(images.shape)
+        images = simpli.apply_optic(images, gain=3)
+        h5f['optic/' + str(t)] = images
 
         # calculate modalities
-        epa = simpli.apply_epa(image)
+        epa = simpli.apply_epa(images)
         h5f['epa/' + str(t) + '/transmittance'] = epa[0]
         h5f['epa/' + str(t) + '/direction'] = np.rad2deg(epa[1])
         h5f['epa/' + str(t) + '/retardation'] = epa[2]
 
-        image_stack[t] = image
+        tilting_stack[t] = images
 
     # save mask for analysis
     mask = np.sum(label_field, 2) > 0
-    mask = simpli.apply_resize_mask(mask) > 0.1
+    mask = simpli.apply_resize(1.0 * mask) > 0.1
     h5f['optic/mask'] = np.uint8(mask)
     mask = None  # keep analysing all pixels
 
     print("Run ROFL analysis:")
     rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
-        image_stack, tilt_angle=np.deg2rad(5.5), gain=3, mask=mask)
+        tilting_stack, tilt_angle=np.deg2rad(5.5), gain=3, mask=mask)
 
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)

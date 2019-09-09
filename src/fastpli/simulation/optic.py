@@ -12,8 +12,7 @@ def add_noise(image, gain, mask=None):
         mask = image > 0
 
     image[mask] = np.array(
-        np.random.negative_binomial(res_image[mask] / (gain - 1), 1 / gain),
-        float)
+        np.random.negative_binomial(image[mask] / (gain - 1), 1 / gain), float)
 
     return image
 
@@ -27,25 +26,35 @@ def resize(image, size, resample_mode=Image.BILINEAR):
 
 
 def apply(
-        image,
+        image_stack,
         org_pixel_size,  # mu meter
         res_pixel_size,  # mu meter
         delta_sigma=0.71,  # only for LAP!
         gain=3,  # only for LAP!
         resample_mode=Image.BILINEAR):
 
-    image = np.copy(image)
+    image_stack = np.atleast_3d(np.array(image_stack))
+    if image_stack.ndim > 3:
+        raise TypeError("image_stack can be 1d, 2d or 3d")
 
     if (res_pixel_size / org_pixel_size) % 1.0 != 0:
         warnings.warn('OPTIC: res_pixel_size % org_pixel_size: ' +
                       str(res_pixel_size) + '%' + str(org_pixel_size))
 
     scale = res_pixel_size / org_pixel_size
-    size = np.array(np.array(image.shape) // scale, dtype=int)
-    image = resize(filter(image, delta_sigma * scale), size, resample_mode)
+    size = np.array(np.array(image_stack.shape[0:2]) // scale, dtype=int)
+
+    res_image_stack = np.empty((size[0], size[1], image_stack.shape[2]),
+                               dtype=image_stack.dtype)
+
+    for i in range(image_stack.shape[2]):
+        res_image_stack[:, :, i] = resize(
+            filter(image_stack[:, :, i], delta_sigma * scale), size,
+            resample_mode)
 
     # add noise
     if gain > 0:
-        image = add_noise(image, gain)
+        for i in range(image_stack.shape[2]):
+            res_image_stack[:, :, i] = add_noise(res_image_stack[:, :, i], gain)
 
-    return image
+    return np.squeeze(res_image_stack)
