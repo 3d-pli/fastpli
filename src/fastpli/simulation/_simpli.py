@@ -2,6 +2,8 @@
 from .__generation import _Generator
 from .__simulation import _Simulator
 
+from ..version import __version__
+
 from fastpli.analysis import rofl, epa
 from fastpli.simulation import optic
 from fastpli.tools import rotation
@@ -54,6 +56,26 @@ class Simpli:
         self._debug = False
 
         self._freeze()
+
+    def as_dict(self):
+        return {
+            'version': __version__,
+            # 'fiber_bundles': self._fiber_bundles,
+            'fiber_bundles_properties': self._fiber_bundles_properties,
+            # 'cells_populations ': self._cells_populations,
+            'cells_populations_properties ': self._cells_populations_properties,
+            'dim': self._dim,
+            'dim_origin': self._dim_origin,
+            'voxel_size': self._voxel_size,
+            'resolution': self._resolution,
+            'flip_direction': self._flip_direction,
+            'filter_rotations': self._filter_rotations,
+            'light_intensity': self._light_intensity,
+            'wavelength': self._wavelength,
+            'untilt_sensor': self._untilt_sensor,
+            'omp_num_threads': self._omp_num_threads,
+            'debug': self._debug
+        }
 
     def print_debug(self, msg):
         if self._debug:
@@ -333,60 +355,6 @@ class Simpli:
                 raise TypeError("properties must be a list of 2 arguments")
 
         self._cells_populations_properties = cells_populations_properties
-
-    def ReadFiberFile(self, filename):
-        raise TypeError('depricated, see .io')
-
-    def ReadFiberCellFile(self, filename):
-        self._fiber_bundles = []
-        with h5py.File(filename, 'r') as h5f:
-
-            fb = h5f['fiber_bundles']
-            self._fiber_bundles = []
-            self._fiber_bundles.append([])
-            for f in fb:
-                f = fb[f]
-                self._fiber_bundles[-1].append(
-                    Fiber(f['points'][:].flatten(), f['radii'][:]))
-
-            self._cells_populations = []
-
-            cells = h5f['cells/astrocytes']
-            self._cells_populations.append([])
-            for c in cells:
-                c = cells[c]
-                self._cells_populations[-1].append(
-                    Cell(c['points'][:].flatten(), c['radii'][:]))
-
-            cells = h5f['cells/oligodendrocytes']
-            self._cells_populations.append([])
-            for c in cells:
-                c = cells[c]
-                self._cells_populations[-1].append(
-                    Cell(c['points'][:].flatten(), c['radii'][:]))
-
-    def TranslateVolume(self, offset):
-        if not isinstance(offset, (list, tuple)):
-            raise TypeError("offset must be a list")
-
-        for fb in self._fiber_bundles:
-            for f in fb:
-                f.translate(offset)
-
-    def RotateVolume(self, phi, theta, psi):
-        rot_mat = rotation.zyz(phi, theta, psi)
-        for fb in self._fiber_bundles:
-            for f in fb:
-                f.rotate(list(rot_mat))
-
-    def RotateVolumeAroundPoint(self, phi, theta, psi, offset):
-        offset = np.array(offset)
-        if offset.shape != (3,):
-            raise TypeError("offset must a point")
-        rot_mat = rotation.zyz(phi, theta, psi)
-        for fb in self._fiber_bundles:
-            for f in fb:
-                f.rotate_around_point((rot_mat), offset)
 
     def _CheckDataLength(self):
         if (self._fiber_bundles):

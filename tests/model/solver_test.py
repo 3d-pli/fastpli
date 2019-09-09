@@ -13,6 +13,9 @@ class MainTest(unittest.TestCase):
         self.solver = fastpli.model.solver.Solver()
         self.solver.fiber_bundles = self._test_fiberbundles
 
+    def test_dict(self):
+        self.solver.as_dict()
+
     def test_number_of_fibers(self):
         self.solver.drag = 0
         self.solver.obj_min_radius = 0

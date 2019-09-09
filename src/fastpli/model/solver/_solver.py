@@ -1,5 +1,7 @@
 from .__solver import _Solver
 
+from ...version import __version__
+
 import numpy as np
 
 
@@ -27,6 +29,16 @@ class Solver(_Solver):
         super()._set_omp_num_threads(self._omp_num_threads)
 
         self._freeze()
+
+    def as_dict(self):
+        return {
+            'version': __version__,
+            'drag': self._drag,
+            'obj_min_radius': self._obj_min_radius,
+            'obj_mean_length': self._obj_mean_length,
+            'col_voi': self._col_voi,
+            'omp_num_threads': self._omp_num_threads
+        }
 
     @property
     def fiber_bundles(self):
