@@ -3,7 +3,7 @@ import numpy as np
 import h5py
 
 
-def load(file_name):
+def load(file_name, dataset_name='/'):
     _, ext = os.path.splitext(file_name)
 
     fiber_bundles = [[]]
@@ -29,25 +29,23 @@ def load(file_name):
                 fiber_bundles[-1].append(np.array(fiber))
     elif ext == '.h5':
         with h5py.File(file_name, 'r') as h5f:
-            fbs = h5f['fiber_bundles']
-            for fb_i, fb in enumerate(fbs):
-                if fb_i != 0:
+            if dataset_name[-1] is not '/':
+                dataset_name = dataset_name + '/'
+            fbs = h5f[dataset_name]
+            for i in range(len(fbs)):
+                if i != 0:
                     fiber_bundles.append([])
-                fb = fbs[fb]
-                for f in fb:
-                    f = fb[f]
-                    fiber_bundles[-1].append(
-                        np.concatenate(
-                            (f['points'][:].astype(float),
-                             np.atleast_2d(f['radii'][:].astype(float)).T),
-                            axis=1))
+                fb = fbs[str(i)]
+                for j in range(len(fb)):
+                    fiber_bundles[-1].append(fb[str(j) +
+                                                '/data'][:].astype(float))
     else:
         raise TypeError(ext + ' is not implemented yet')
 
     return fiber_bundles
 
 
-def save(file_name, fiber_bundles):
+def save(file_name, fiber_bundles, dataset_name='/'):
     _, ext = os.path.splitext(file_name)
 
     if ext == '.dat' or ext == '.txt':
@@ -69,12 +67,12 @@ def save(file_name, fiber_bundles):
                     file.write("\n")
     elif ext == '.h5':
         with h5py.File(file_name, 'w') as h5f:
+            if dataset_name[-1] is not '/':
+                dataset_name = dataset_name + '/'
+
             for fb_i, fb in enumerate(fiber_bundles):
                 for i, f in enumerate(fb):
-
-                    h5f['fiber_bundles/' + str(fb_i) + '/' + str(i) +
-                        '/points'] = f[:, :3]
-                    h5f['fiber_bundles/' + str(fb_i) + '/' + str(i) +
-                        '/radii'] = f[:, 3]
+                    h5f[dataset_name + str(fb_i) + '/' + str(i) +
+                        '/data'] = f[:, :]
     else:
         raise TypeError(ext + ' is not implemented yet')
