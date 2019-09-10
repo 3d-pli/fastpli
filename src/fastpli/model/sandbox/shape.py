@@ -121,8 +121,9 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
 
 def _ray_box_intersection(p, dir, b_min, b_max):
 
-    tmin = np.divide(b_min - p, dir)
-    tmax = np.divide(b_max - p, dir)
+    with np.errstate(divide='ignore'):
+        tmin = np.divide(b_min - p, dir)
+        tmax = np.divide(b_max - p, dir)
 
     tmin, tmax = np.minimum(tmin, tmax), np.maximum(tmin, tmax)
 
