@@ -4,7 +4,6 @@ SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 SET(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
-   MESSAGE("found git")
    execute_process(
       COMMAND git rev-parse --abbrev-ref HEAD
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -26,6 +25,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
       OUTPUT_STRIP_TRAILING_WHITESPACE
    )
 else(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+   MESSAGE("did not find git")
    set(GIT_BRANCH "")
    set(GIT_COMMIT_HASH "")
    set(GIT_DESCRIBE_LOG "")

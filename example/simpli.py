@@ -19,7 +19,9 @@ FILE_BASE = os.path.basename(FILE_NAME)
 
 np.random.seed(42)
 
-with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
+with h5py.File(
+        '/tmp/fastpli.example.' + FILE_BASE + '.' + fastpli.__git__hash__ +
+        '.h5', 'w') as h5f:
     ### save script ###
     with open(os.path.abspath(__file__), 'r') as f:
         h5f['script'] = f.read()

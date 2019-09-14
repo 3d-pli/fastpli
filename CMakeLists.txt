@@ -30,8 +30,10 @@ configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/version.cmake
    ${CMAKE_CURRENT_BINARY_DIR}/configure_version.cmake
 )
+
 add_custom_target(
    build_version
+   ALL
    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/configure_version.cmake
 )
 
