@@ -38,14 +38,43 @@ class PhyProps {
 };
 
 struct Setup {
-   double light_intensity{};
-   double voxel_size{};
-   double wavelength{};
 
-   std::vector<double> filter_rotations;
+   Setup(const double step_size, const double light_intensity,
+         const double voxel_size, const double wavelength,
+         const bool interpolation, const bool untilt_sensor,
+         const std::vector<double> filter_rotations)
+       : step_size(step_size), light_intensity(light_intensity),
+         voxel_size(voxel_size), wavelength(wavelength),
+         interpolation(interpolation), untilt_sensor(untilt_sensor),
+         filter_rotations(filter_rotations) {
 
-   bool untilt_sensor = true;
-   // vm::Vec2<int> sensor_dim; // currently same dimension as x-y-volume
+      if (step_size <= 0)
+         throw std::invalid_argument("step_size <= 0: " +
+                                     std::to_string(step_size));
+
+      if (light_intensity < 0)
+         throw std::invalid_argument("light intensity < 0: " +
+                                     std::to_string(light_intensity));
+
+      if (voxel_size <= 0)
+         throw std::invalid_argument("voxel_size <= 0: " +
+                                     std::to_string(voxel_size));
+
+      if (wavelength <= 0)
+         throw std::invalid_argument("wavelength <= 0: " +
+                                     std::to_string(wavelength));
+
+      if (filter_rotations.empty())
+         throw std::invalid_argument("filter_rotations is empty: []");
+   };
+
+   const double step_size;
+   const double light_intensity;
+   const double voxel_size;
+   const double wavelength;
+   const bool interpolation;
+   const bool untilt_sensor;
+   const std::vector<double> filter_rotations;
 };
 
 } // namespace setup

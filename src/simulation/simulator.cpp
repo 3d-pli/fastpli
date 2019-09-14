@@ -36,35 +36,11 @@ void PliSimulator::SetMPIComm(const MPI_Comm comm) {
    mpi_ = std::make_unique<MyMPI>(comm);
 }
 
-void PliSimulator::SetPliSetup(const setup::Setup pli_setup) {
-
-   if (pli_setup.voxel_size <= 0)
-      throw std::invalid_argument("voxel_size <= 0: " +
-                                  std::to_string(pli_setup.voxel_size));
-
-   if (pli_setup.light_intensity < 0)
-      throw std::invalid_argument("light intensity < 0: " +
-                                  std::to_string(pli_setup.light_intensity));
-
-   if (pli_setup.wavelength <= 0)
-      throw std::invalid_argument("wavelength <= 0: " +
-                                  std::to_string(pli_setup.wavelength));
-
-   if (pli_setup.filter_rotations.empty())
-      throw std::invalid_argument("filter_rotations is empty: []");
-
-   pli_setup_ = pli_setup;
+void PliSimulator::SetSetup(const setup::Setup setup) {
+   setup_ = std::make_unique<setup::Setup>(setup);
 }
 
-std::vector<double>
-PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
-                            object::container::NpArray<int> label_field,
-                            object::container::NpArray<float> vector_field,
-                            setup::PhyProps properties, const double theta,
-                            const double phi, const double step_size,
-                            const bool do_nn
-                            // TODO: , const bool flip_beam
-) {
+void PliSimulator::CalculateDimensions(const vm::Vec3<long long> &global_dim) {
 
    if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)
       throw std::invalid_argument("global_dim[any] <= 0: [" +
@@ -75,7 +51,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    if (mpi_) {
       mpi_->CreateCartGrid(global_dim);
       dim_ = mpi_->dim_vol();
-      mpi_->set_num_rho(pli_setup_.filter_rotations.size());
+      mpi_->set_num_rho(setup_->filter_rotations.size());
    } else {
       dim_.local = global_dim;
       dim_.global = global_dim;
@@ -83,46 +59,56 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    }
 
    if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 1ULL !=
-       label_field.size())
+       label_field_.size())
       throw std::invalid_argument("dim_.local.x() * dim_.local.y() * "
-                                  "dim_.local.z() != label_field.size()");
+                                  "dim_.local.z() != label_field_.size()");
 
    if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 3ULL !=
-       vector_field.size())
+       vector_field_.size())
       throw std::invalid_argument("dim_.local.x() * dim_.local.y() * "
-                                  "dim_.local.z()* 3 != vector_field.size()");
+                                  "dim_.local.z()* 3 != vector_field_.size()");
+}
+
+void PliSimulator::CheckDimension() {
+
+   int min = std::numeric_limits<int>::max();
+   int max = std::numeric_limits<int>::min();
+
+   for (size_t i = 0; i < label_field_.size(); i++) {
+      min = std::min(min, label_field_[i]);
+      max = std::max(max, label_field_[i]);
+   }
+
+   if (min < 0 || max < 0)
+      throw std::invalid_argument("label < 0 detected");
+
+   if (static_cast<size_t>(max) >= properties_.size())
+      throw std::invalid_argument("label exceed properties.size()");
+}
+
+std::vector<double>
+PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
+                            object::container::NpArray<int> label_field,
+                            object::container::NpArray<float> vector_field,
+                            setup::PhyProps properties, const double theta,
+                            const double phi) {
+
+   if (!setup_)
+      throw std::invalid_argument("pli_setup not set yet");
 
    label_field_ = std::move(label_field);
    vector_field_ = std::move(vector_field);
    properties_ = properties;
 
-   // checking if all labels exist in properties
-   {
-      int min = std::numeric_limits<int>::max();
-      int max = std::numeric_limits<int>::min();
-
-      for (size_t i = 0; i < label_field_.size(); i++) {
-         min = std::min(min, label_field_[i]);
-         max = std::max(max, label_field_[i]);
-      }
-
-      if (min < 0 || max < 0)
-         throw std::invalid_argument("label < 0 detected");
-
-      if (static_cast<size_t>(max) >= properties_.size())
-         throw std::invalid_argument("label exceed properties.size()");
-   }
+   CalculateDimensions(globa_dim);
+   CheckDimension();
 
    if (std::abs(theta) >= M_PI_2)
       throw std::invalid_argument("illegal light path");
 
-   if (step_size <= 0)
-      throw std::invalid_argument("step_size <= 0: " +
-                                  std::to_string(step_size));
-
-   const auto n_rho = pli_setup_.filter_rotations.size();
-   const double lambda = pli_setup_.wavelength * 1e-9;
-   const double thickness = pli_setup_.voxel_size * 1e-6;
+   const auto n_rho = setup_->filter_rotations.size();
+   const double lambda = setup_->wavelength * 1e-9;
+   const double thickness = setup_->voxel_size * 1e-6 * setup_->step_size;
 
    const double pol_x = 1; // TODO: via pli_setup
    const double pol_y = 1;
@@ -145,7 +131,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    polarizer_x *= 0.5;
    polarizer_y *= 0.5;
 
-   vm::Vec4<double> signal_0 = {{pli_setup_.light_intensity, 0, 0, 0}};
+   vm::Vec4<double> signal_0 = {{setup_->light_intensity, 0, 0, 0}};
    signal_0 = vm::dot(m_lambda_4, vm::dot(polarizer_x, signal_0));
    const std::vector<vm::Vec4<double>> s_vec_0(n_rho, signal_0);
 
@@ -154,7 +140,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    const vm::Vec3<double> light_dir_vec = LightDirectionUnitVector(theta, phi);
    const vm::Vec3<int> light_dir_comp = LightDirectionComponent(light_dir_vec);
-   const vm::Vec3<double> light_step = light_dir_vec * step_size;
+   const vm::Vec3<double> light_step = light_dir_vec * setup_->step_size;
    const auto TransformSensorPosToStart =
        GetSensorToStartTransformation(theta, phi);
 
@@ -217,7 +203,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                continue;
             }
 
-            auto vec = GetVec(local_pos, do_nn);
+            auto vec = GetVec(local_pos, setup_->interpolation);
             const auto d_rel = dn * 4.0 * thickness / lambda;
 
             if (theta != 0)
@@ -233,7 +219,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             const auto phii = atan2(vec.y(), vec.x());
 
             for (auto rho = 0u; rho < n_rho; rho++) {
-               const auto beta = 2 * (pli_setup_.filter_rotations[rho] - phii);
+               const auto beta = 2 * (setup_->filter_rotations[rho] - phii);
                const auto sin_b = sin(-beta);
                const auto cos_b = cos(-beta);
 
@@ -321,17 +307,17 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
                            vector_field_[idx + 2]);
 }
 vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
-                                      const double z, const bool do_nn) const {
-   return InterpolateVec(x, y, z, do_nn);
+                                      const double z,
+                                      const bool interpolation) const {
+   return InterpolateVec(x, y, z, interpolation);
 }
 
-// TODO: template do_nn
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               const double z,
-                                              const bool do_nn) const {
+                                              const bool interpolation) const {
 
    // NN interpolation
-   if (do_nn)
+   if (!interpolation)
       return GetVec(static_cast<long long>(std::round(x)),
                     static_cast<long long>(std::round(y)),
                     static_cast<long long>(std::round(z)));
@@ -429,7 +415,7 @@ std::function<vm::Vec3<double>(long long, long long)>
 PliSimulator::GetSensorToStartTransformation(const double theta,
                                              const double phi) const {
 
-   if (pli_setup_.untilt_sensor) {
+   if (setup_->untilt_sensor) {
       const auto dz = dim_.local.z() - 1;
       // FIXME: const auto dz = dim_.z() - 0.5;
 

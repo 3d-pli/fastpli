@@ -20,19 +20,16 @@ PYBIND11_MODULE(__simulation, m) {
    py::class_<PliSimulator>(m, "_Simulator")
        .def(py::init())
        .def("set_pli_setup",
-            [](PliSimulator &self, double light_intensity, double voxel_size,
-               double wavelength, std::vector<double> filter_rotations,
-               bool untilt_sensor) {
-               setup::Setup setup;
-               setup.light_intensity = light_intensity;
-               setup.wavelength = wavelength;
-               setup.voxel_size = voxel_size;
-               setup.untilt_sensor = untilt_sensor;
-               setup.filter_rotations = filter_rotations;
-               self.SetPliSetup(setup);
+            [](PliSimulator &self, double step_size, double light_intensity,
+               double voxel_size, double wavelength, bool interpolation,
+               bool untilt_sensor, std::vector<double> filter_rotations) {
+               self.SetSetup(setup::Setup(step_size, light_intensity,
+                                          voxel_size, wavelength, interpolation,
+                                          untilt_sensor, filter_rotations));
             },
-            py::arg("light_intensity"), py::arg("wavelength"),
-            py::arg("voxel_size"), py::arg("untilt_sensor"),
+            py::arg("step_size"), py::arg("light_intensity"),
+            py::arg("voxel_size"), py::arg("wavelength"),
+            py::arg("interpolation"), py::arg("untilt_sensor"),
             py::arg("filter_rotations"))
        .def("set_mpi_comm",
             [](PliSimulator &self, long long comm_address) {
@@ -45,7 +42,7 @@ PYBIND11_MODULE(__simulation, m) {
                py::array_t<int, py::array::c_style> label_array,
                py::array_t<float, py::array::c_style> vector_array,
                py::array_t<double, py::array::c_style> prop_array, double theta,
-               double phi, double ps, bool do_nn = true) {
+               double phi) {
                auto label_container = object::NpArray2Container(label_array);
                auto vector_container = object::NpArray2Container(vector_array);
                auto properties =
@@ -53,7 +50,7 @@ PYBIND11_MODULE(__simulation, m) {
 
                auto image = new std::vector<double>(
                    self.RunSimulation(dim, label_container, vector_container,
-                                      properties, theta, phi, ps, do_nn));
+                                      properties, theta, phi));
 
                std::vector<size_t> dim_image =
                    vm::cast<size_t>(self.GetImageDim());
@@ -61,7 +58,6 @@ PYBIND11_MODULE(__simulation, m) {
                return object::Vec2NpArray(image, dim_image);
             },
             py::arg("dim"), py::arg("label_field"), py::arg("vector_field"),
-            py::arg("properties"), py::arg("theta") = 0, py::arg("phi") = 0,
-            py::arg("step_size") = 1, py::arg("do_nn_intp") = true)
+            py::arg("properties"), py::arg("theta") = 0, py::arg("phi") = 0)
        .def("set_omp_num_threads", &PliSimulator::set_omp_num_threads);
 }

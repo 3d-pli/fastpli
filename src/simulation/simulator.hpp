@@ -19,12 +19,12 @@ class PliSimulator {
    ~PliSimulator() = default;
 
    void SetMPIComm(const MPI_Comm comm);
-   void SetPliSetup(const setup::Setup pli_setup);
+   void SetSetup(const setup::Setup setup);
 
    vm::Vec3<long long> GetImageDim() {
       return vm::Vec3<long long>(
           dim_.local.x(), dim_.local.y(),
-          static_cast<long long>(pli_setup_.filter_rotations.size()));
+          static_cast<long long>(setup_->filter_rotations.size()));
    };
 
    std::vector<double>
@@ -32,9 +32,7 @@ class PliSimulator {
                  object::container::NpArray<int> label_field,
                  object::container::NpArray<float> vector_field,
                  setup::PhyProps properties, const double theta,
-                 const double phi, const double step_size, const bool do_nn
-                 //  , const bool flip_beam
-   );
+                 const double phi);
 
    int set_omp_num_threads(int num);
 
@@ -45,16 +43,18 @@ class PliSimulator {
    const bool debug_ = false;
 #endif
 
-   setup::Setup pli_setup_{};
    Dimensions dim_{};
+   std::unique_ptr<setup::Setup> setup_;
+   setup::PhyProps properties_;
    object::container::NpArray<int> label_field_;
    object::container::NpArray<float> vector_field_;
-   setup::PhyProps properties_;
 
    std::vector<vm::Vec4<double>> signal_buffer_;
-   // vm::Vec3<bool> flip_tissue_{false};
 
    std::unique_ptr<MyMPI> mpi_;
+
+   void CalculateDimensions(const vm::Vec3<long long> &global_dim);
+   void CheckDimension();
 
    int GetLabel(const long long x, const long long y, const long long z) const;
    int GetLabel(const vm::Vec3<long long> p) const {
@@ -75,18 +75,18 @@ class PliSimulator {
       return GetVec(p.x(), p.y(), p.z());
    };
    vm::Vec3<double> GetVec(const double x, const double y, const double z,
-                           const bool do_nn = true) const;
+                           const bool interpolation = true) const;
    vm::Vec3<double> GetVec(const vm::Vec3<double> p,
-                           const bool do_nn = true) const {
-      return GetVec(p.x(), p.y(), p.z(), do_nn);
+                           const bool interpolation = true) const {
+      return GetVec(p.x(), p.y(), p.z(), interpolation);
    };
 
    vm::Vec3<double> InterpolateVec(const double x, const double y,
                                    const double z,
-                                   const bool do_nn = true) const;
+                                   const bool interpolation = true) const;
    vm::Vec3<double> InterpolateVec(const vm::Vec3<double> p,
-                                   bool do_nn = true) const {
-      return InterpolateVec(p.x(), p.y(), p.z(), do_nn);
+                                   bool interpolation = true) const {
+      return InterpolateVec(p.x(), p.y(), p.z(), interpolation);
    };
 
    vm::Vec3<double> LightDirectionUnitVector(const double theta,

@@ -49,8 +49,10 @@ class Simpli:
 
         self._filter_rotations = None
         self._light_intensity = None
+        self._step_size = 1.0
+        self._interpolation = True
+        self._untilt_sensor = True
         self._wavelength = None
-        self._untilt_sensor = None
 
         self._omp_num_threads = 1
         self._debug = False
@@ -227,12 +229,28 @@ class Simpli:
         self._wavelength = wavelength
 
     @property
+    def step_size(self):
+        return self._step_size
+
+    @step_size.setter
+    def step_size(self, step_size):
+        self._step_size = step_size
+
+    @property
+    def interpolation(self):
+        return self._interpolation
+
+    @interpolation.setter
+    def interpolation(self, interpolation):
+        self._interpolation = bool(interpolation)
+
+    @property
     def untilt_sensor(self):
         return self._untilt_sensor
 
     @untilt_sensor.setter
     def untilt_sensor(self, untilt_sensor):
-        self._untilt_sensor = untilt_sensor
+        self._untilt_sensor = bool(untilt_sensor)
 
     @property
     def fiber_bundles(self):
@@ -394,6 +412,9 @@ class Simpli:
         return label_field, vec_field, tissue_properties
 
     def _init_pli_setup(self):
+        if self._step_size <= 0:
+            raise ValueError('step_size <= 0')
+
         if self._light_intensity is None:
             raise ValueError('light_intensity not set')
 
@@ -403,28 +424,16 @@ class Simpli:
         if self._wavelength is None:
             raise ValueError('wavelength not set')
 
-        if self._untilt_sensor is None:
-            raise ValueError('untilt_sensor not set')
-
         if self._filter_rotations is None:
             raise ValueError('filter_rotations not set')
 
-        self._sim.set_pli_setup(
-            self._light_intensity,
-            self._voxel_size,
-            self._wavelength,
-            self._filter_rotations,
-            self._untilt_sensor,
-        )
+        self._sim.set_pli_setup(self._step_size, self._light_intensity,
+                                self._voxel_size, self._wavelength,
+                                self._interpolation, self._untilt_sensor,
+                                self._filter_rotations)
 
-    def run_simulation(self,
-                       label_field,
-                       vec_field,
-                       tissue_properties,
-                       theta,
-                       phi,
-                       step_size=1.0,
-                       do_untilt=True):
+    def run_simulation(self, label_field, vec_field, tissue_properties, theta,
+                       phi):
 
         label_field = np.array(label_field, dtype=np.int32, copy=False)
         vec_field = np.array(vec_field, dtype=np.float32, copy=False)
@@ -443,8 +452,7 @@ class Simpli:
                 "tissue_properties.shape[0] < np.max(label_field.flatten())")
 
         image = self._sim.run_simulation(self._dim, label_field, vec_field,
-                                         tissue_properties, theta, phi,
-                                         step_size, do_untilt)
+                                         tissue_properties, theta, phi)
 
         return image.astype(
             np.float32)  # optic resize will force float32 because of PIL
