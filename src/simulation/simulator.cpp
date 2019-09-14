@@ -150,7 +150,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
        GetSensorToStartTransformation(theta, phi);
 
    std::vector<double> intensity_signal(
-       static_cast<size_t>(dim_.local.x()) * dim_.local.y() * n_rho, 0);
+       dim_.local.x() * dim_.local.y() * n_rho,
+       std::numeric_limits<double>::quiet_NaN());
 
    auto scan_grid = CalcPixelsUntilt(theta, phi);
 
