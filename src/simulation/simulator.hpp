@@ -75,18 +75,18 @@ class PliSimulator {
       return GetVec(p.x(), p.y(), p.z());
    };
    vm::Vec3<double> GetVec(const double x, const double y, const double z,
-                           const bool interpolation = true) const;
+                           const bool interpolate = true) const;
    vm::Vec3<double> GetVec(const vm::Vec3<double> p,
-                           const bool interpolation = true) const {
-      return GetVec(p.x(), p.y(), p.z(), interpolation);
+                           const bool interpolate = true) const {
+      return GetVec(p.x(), p.y(), p.z(), interpolate);
    };
 
    vm::Vec3<double> InterpolateVec(const double x, const double y,
                                    const double z,
-                                   const bool interpolation = true) const;
+                                   const bool interpolate = true) const;
    vm::Vec3<double> InterpolateVec(const vm::Vec3<double> p,
-                                   bool interpolation = true) const {
-      return InterpolateVec(p.x(), p.y(), p.z(), interpolation);
+                                   bool interpolate = true) const {
+      return InterpolateVec(p.x(), p.y(), p.z(), interpolate);
    };
 
    vm::Vec3<double> LightDirectionUnitVector(const double theta,

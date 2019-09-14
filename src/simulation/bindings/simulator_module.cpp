@@ -21,15 +21,15 @@ PYBIND11_MODULE(__simulation, m) {
        .def(py::init())
        .def("set_pli_setup",
             [](PliSimulator &self, double step_size, double light_intensity,
-               double voxel_size, double wavelength, bool interpolation,
+               double voxel_size, double wavelength, bool interpolate,
                bool untilt_sensor, std::vector<double> filter_rotations) {
                self.SetSetup(setup::Setup(step_size, light_intensity,
-                                          voxel_size, wavelength, interpolation,
+                                          voxel_size, wavelength, interpolate,
                                           untilt_sensor, filter_rotations));
             },
             py::arg("step_size"), py::arg("light_intensity"),
             py::arg("voxel_size"), py::arg("wavelength"),
-            py::arg("interpolation"), py::arg("untilt_sensor"),
+            py::arg("interpolate"), py::arg("untilt_sensor"),
             py::arg("filter_rotations"))
        .def("set_mpi_comm",
             [](PliSimulator &self, long long comm_address) {

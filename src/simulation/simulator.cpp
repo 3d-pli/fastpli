@@ -203,7 +203,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
                continue;
             }
 
-            auto vec = GetVec(local_pos, setup_->interpolation);
+            auto vec = GetVec(local_pos, setup_->interpolate);
             const auto d_rel = dn * 4.0 * thickness / lambda;
 
             if (theta != 0)
@@ -308,21 +308,21 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
 }
 vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
                                       const double z,
-                                      const bool interpolation) const {
-   return InterpolateVec(x, y, z, interpolation);
+                                      const bool interpolate) const {
+   return InterpolateVec(x, y, z, interpolate);
 }
 
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               const double z,
-                                              const bool interpolation) const {
+                                              const bool interpolate) const {
 
-   // NN interpolation
-   if (!interpolation)
+   // NN interpolate
+   if (!interpolate)
       return GetVec(static_cast<long long>(std::round(x)),
                     static_cast<long long>(std::round(y)),
                     static_cast<long long>(std::round(z)));
 
-   // Trilinear interpolation
+   // Trilinear interpolate
    auto x0 = static_cast<long long>(std::floor(x));
    auto y0 = static_cast<long long>(std::floor(y));
    auto z0 = static_cast<long long>(std::floor(z));

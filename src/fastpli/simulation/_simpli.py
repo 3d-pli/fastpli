@@ -50,7 +50,7 @@ class Simpli:
         self._filter_rotations = None
         self._light_intensity = None
         self._step_size = 1.0
-        self._interpolation = True
+        self._interpolate = True
         self._untilt_sensor = True
         self._wavelength = None
 
@@ -237,12 +237,12 @@ class Simpli:
         self._step_size = step_size
 
     @property
-    def interpolation(self):
-        return self._interpolation
+    def interpolate(self):
+        return self._interpolate
 
-    @interpolation.setter
-    def interpolation(self, interpolation):
-        self._interpolation = bool(interpolation)
+    @interpolate.setter
+    def interpolate(self, interpolate):
+        self._interpolate = bool(interpolate)
 
     @property
     def untilt_sensor(self):
@@ -429,7 +429,7 @@ class Simpli:
 
         self._sim.set_pli_setup(self._step_size, self._light_intensity,
                                 self._voxel_size, self._wavelength,
-                                self._interpolation, self._untilt_sensor,
+                                self._interpolate, self._untilt_sensor,
                                 self._filter_rotations)
 
     def run_simulation(self, label_field, vec_field, tissue_properties, theta,

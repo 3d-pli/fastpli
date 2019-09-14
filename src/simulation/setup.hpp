@@ -41,11 +41,11 @@ struct Setup {
 
    Setup(const double step_size, const double light_intensity,
          const double voxel_size, const double wavelength,
-         const bool interpolation, const bool untilt_sensor,
+         const bool interpolate, const bool untilt_sensor,
          const std::vector<double> filter_rotations)
        : step_size(step_size), light_intensity(light_intensity),
          voxel_size(voxel_size), wavelength(wavelength),
-         interpolation(interpolation), untilt_sensor(untilt_sensor),
+         interpolate(interpolate), untilt_sensor(untilt_sensor),
          filter_rotations(filter_rotations) {
 
       if (step_size <= 0)
@@ -72,7 +72,7 @@ struct Setup {
    const double light_intensity;
    const double voxel_size;
    const double wavelength;
-   const bool interpolation;
+   const bool interpolate;
    const bool untilt_sensor;
    const std::vector<double> filter_rotations;
 };
