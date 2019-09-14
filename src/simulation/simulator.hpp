@@ -106,6 +106,8 @@ class PliSimulator {
                      const vm::Vec3<int> &shift_direct,
                      const std::vector<vm::Vec4<double>> &s_vec,
                      const Coordinates &startpos);
+
+   void Abort(const int num) const;
 };
 
 #endif // SIMULATION_SIMULATOR_HPP_
