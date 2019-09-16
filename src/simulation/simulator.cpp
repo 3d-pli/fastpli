@@ -87,20 +87,21 @@ void PliSimulator::CheckDimension() {
 }
 
 std::vector<double>
-PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
+PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                             object::container::NpArray<int> label_field,
                             object::container::NpArray<float> vector_field,
                             setup::PhyProps properties, const double theta,
                             const double phi) {
 
-   if (!setup_)
-      throw std::invalid_argument("pli_setup not set yet");
-
+   // transfer data to class
    label_field_ = std::move(label_field);
    vector_field_ = std::move(vector_field);
    properties_ = properties;
 
-   CalculateDimensions(globa_dim);
+   // pre calculations and sanity checks
+   if (!setup_)
+      throw std::invalid_argument("pli_setup not set yet");
+   CalculateDimensions(global_dim);
    CheckDimension();
 
    if (std::abs(theta) >= M_PI_2)
@@ -110,7 +111,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
    const double lambda = setup_->wavelength * 1e-9;
    const double thickness = setup_->voxel_size * 1e-6 * setup_->step_size;
 
-   const double pol_x = 1; // TODO: via pli_setup
+   // polarizer and lambda/4 retarder
+   const double pol_x = 1; // TODO: via setup_
    const double pol_y = 1;
 
    vm::Mat4x4<double> polarizer_x(0);
@@ -131,6 +133,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
    polarizer_x *= 0.5;
    polarizer_y *= 0.5;
 
+   // initial values
    vm::Vec4<double> signal_0 = {{setup_->light_intensity, 0, 0, 0}};
    signal_0 = vm::dot(m_lambda_4, vm::dot(polarizer_x, signal_0));
    const std::vector<vm::Vec4<double>> s_vec_0(n_rho, signal_0);
@@ -148,19 +151,19 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
        dim_.local.x() * dim_.local.y() * n_rho,
        std::numeric_limits<double>::quiet_NaN());
 
-   auto scan_grid = CalcPixelsUntilt(theta, phi);
+   auto light_positions = CalcStartingLightPositions(theta, phi);
 
    bool flag_all_done = false;
    while (!flag_all_done) {
 
-#pragma omp parallel for // TODO: check thread safe with MPI!
-      for (size_t s = 0; s < scan_grid.size(); s++) {
+#pragma omp parallel for
+      for (size_t s = 0; s < light_positions.size(); s++) {
 
-         auto grid_elm = scan_grid[s];
+         auto light_position = light_positions[s];
          bool flag_ray_sended = false;
 
-         auto local_pos = grid_elm.tissue - vm::cast<double>(dim_.offset);
-         auto ccd_pos = grid_elm.ccd;
+         auto local_pos = light_position.tissue - vm::cast<double>(dim_.offset);
+         auto ccd_pos = light_position.ccd;
          auto s_vec = s_vec_0;
 
 #pragma omp critical
@@ -173,6 +176,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
                s_vec.push_back(signal_buffer_.back());
                signal_buffer_.pop_back();
             }
+            // reverse s_vec since signal_buffer_.pop_back();
             std::reverse(s_vec.begin(), s_vec.end());
          }
 
@@ -180,10 +184,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
               local_pos += light_step) {
 
             // check if communication is neccesary
-            flag_ray_sended =
-                CheckMPIHalo(local_pos, light_dir_comp, s_vec, grid_elm);
-
-            if (flag_ray_sended)
+            if (CheckMPIHalo(local_pos, light_dir_comp, s_vec, light_position))
                // next light ray
                break;
 
@@ -211,8 +212,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
 
             // calculate spherical coordinates
             const auto alpha = asin(vec.z() / vm::length(vec));
-            const auto ret =
-                M_PI_2 * d_rel * pow(cos(alpha), 2.0); // M_PI_2 = pi/2
+            const auto ret = M_PI_2 * d_rel * pow(cos(alpha), 2.0);
             const auto sin_r = sin(ret);
             const auto cos_r = cos(ret);
 
@@ -264,12 +264,12 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &globa_dim,
          if (!signal_buffer_.empty())
             Abort(3113);
 #endif
-         mpi_->CommunicateData(scan_grid, signal_buffer_);
+         mpi_->CommunicateData(light_positions, signal_buffer_);
          int num_communications =
-             mpi_->Allreduce(scan_grid.size() + signal_buffer_.size());
+             mpi_->Allreduce(light_positions.size() + signal_buffer_.size());
 
 #ifndef NDEBUG
-         if (signal_buffer_.size() != scan_grid.size() * n_rho)
+         if (signal_buffer_.size() != light_positions.size() * n_rho)
             Abort(3114);
 #endif
          flag_all_done = num_communications == 0;
@@ -445,10 +445,10 @@ PliSimulator::GetSensorToStartTransformation(const double theta,
    }
 }
 
-std::vector<Coordinates> PliSimulator::CalcPixelsUntilt(const double phi,
-                                                        const double theta) {
+std::vector<Coordinates>
+PliSimulator::CalcStartingLightPositions(const double phi, const double theta) {
 
-   std::vector<Coordinates> scan_grid;
+   std::vector<Coordinates> light_positions;
 
    Coordinates data_point;
    vm::Vec3<double> shift =
@@ -471,19 +471,19 @@ std::vector<Coordinates> PliSimulator::CalcPixelsUntilt(const double phi,
          data_point.tissue = {tis_x, tis_y, 0.0};
          data_point.ccd = {ccd_x, ccd_y};
 
-         scan_grid.push_back(data_point);
+         light_positions.push_back(data_point);
       }
    }
 
-   if (scan_grid.size() == 0) {
+   if (light_positions.size() == 0) {
       if (mpi_)
-         std::cout << mpi_->my_rank() << ": Warning, scan_grid is empty"
+         std::cout << mpi_->my_rank() << ": Warning, light_positions is empty"
                    << std::endl;
       else
-         std::cout << 0 << ": Warning, scan_grid is empty" << std::endl;
+         std::cout << 0 << ": Warning, light_positions is empty" << std::endl;
    }
 
-   return scan_grid;
+   return light_positions;
 }
 
 vm::Mat4x4<double> PliSimulator::RetarderMatrix(const double beta,
@@ -505,8 +505,8 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    if (!mpi_)
       return false;
 
-   // this can happen, because CalcPixelsUntilt() is not sensitiv to the
-   // mpi-halo yet
+   // this can happen, because CalcStartingLightPositions() is not sensitiv to
+   // the mpi-halo yet
    if (local_pos.z() == 0)
       return true;
 

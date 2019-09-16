@@ -97,8 +97,8 @@ class PliSimulator {
    std::function<vm::Vec3<double>(long long, long long)>
    GetSensorToStartTransformation(const double theta, const double phi) const;
 
-   std::vector<Coordinates> CalcPixelsUntilt(const double phi,
-                                             const double theta);
+   std::vector<Coordinates> CalcStartingLightPositions(const double phi,
+                                                       const double theta);
 
    vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) const;
 
