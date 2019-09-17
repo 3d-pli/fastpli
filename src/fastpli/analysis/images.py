@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def _color_rgb(x, y, z):
+def _vec_to_rgb(x, y, z):
     l = np.sqrt(x**2 + y**2 + z**2)
     x = int(x / l * 255)
     y = int(y / l * 255)
@@ -9,7 +9,8 @@ def _color_rgb(x, y, z):
     return np.array([np.abs(x), np.abs(y), np.abs(z)])
 
 
-def _hsv2rgb(h, s, v):
+def _hsv_black_to_rgb_space(h, s, v):
+    # images have to be saved in rgb space
 
     h = (h + 360) % 360
 
@@ -36,23 +37,15 @@ def _hsv2rgb(h, s, v):
     return np.array(rgb * 255, int)
 
 
-def _hsv_from_vec(directionValue, inclinationValue):
-    h = 360.0 * np.abs(directionValue) / np.pi
-    s = 1.0 - (2 * np.abs(inclinationValue) / np.pi)
-    v = 1.0
-
-    return hsv2rgb(h, s, v)
-
-
-def _hsvblack_from_vec(directionValue, inclinationValue):
+def _orientation_to_hsv(directionValue, inclinationValue):
     h = 360.0 * np.abs(directionValue) / np.pi
     s = 1.0
     v = 1.0 - (2 * np.abs(inclinationValue) / np.pi)
 
-    return _hsv2rgb(h, s, v)
+    return _hsv_black_to_rgb_space(h, s, v)
 
 
-def hsvblack_sphere(n=128):
+def hsv_black_sphere(n=128):
     sphere = np.zeros((n, n, 3), dtype=np.uint8)
 
     for x in range(n):
@@ -69,7 +62,7 @@ def hsvblack_sphere(n=128):
             if direction < 0:
                 direction += np.pi
 
-            sphere[x, y, :] = _hsvblack_from_vec(direction, inclination)
+            sphere[x, y, :] = _orientation_to_hsv(direction, inclination)
 
     return sphere
 
@@ -85,7 +78,7 @@ def rgb_sphere(n=128):
                 continue
             zz = np.sqrt(1 - xx**2 - yy**2)
 
-            sphere[x, y, :] = _color_rgb(xx, yy, zz)
+            sphere[x, y, :] = _vec_to_rgb(xx, yy, zz)
 
     return sphere
 
@@ -113,8 +106,8 @@ def fom_hsv_black(direction, inclination, mask=None):
             if not mask[x, y]:
                 continue
 
-            hsv[x, y, :] = _hsvblack_from_vec(direction[x, y],
-                                              inclination[x, y])
+            hsv[x, y, :] = _orientation_to_hsv(direction[x, y],
+                                               inclination[x, y])
     return hsv
 
 
@@ -128,7 +121,7 @@ def fom_rgb(direction, inclination, mask=None):
             if not mask[x, y]:
                 continue
 
-            rgb[x, y, :] = _color_rgb(
+            rgb[x, y, :] = _vec_to_rgb(
                 np.sin(0.5 * np.pi - inclination[x, y]) *
                 np.cos(direction[x, y]),
                 np.sin(0.5 * np.pi - inclination[x, y]) *

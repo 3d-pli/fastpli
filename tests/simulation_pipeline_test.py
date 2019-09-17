@@ -90,5 +90,5 @@ if __name__ == '__main__':
     # print("FOMs")
     img = fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl, mask)
     img = fastpli.analysis.images.fom_rgb(rofl_direction, rofl_incl, mask)
-    img = fastpli.analysis.images.hsvblack_sphere(n=64)
+    img = fastpli.analysis.images.hsv_black_sphere(n=64)
     img = fastpli.analysis.images.rgb_sphere(n=64)
