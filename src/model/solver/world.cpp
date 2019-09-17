@@ -95,12 +95,6 @@ void World::set_fibers_vector(
       }
       fb_idx++;
    }
-
-   // std::cout << std::setprecision(20) << fibers_[0].points()[0] << ", "
-   //           << fibers_[int(fibers_.size() / 2) + 2].points()[0] << ", "
-   //           << vm::length(fibers_[0].points()[0] -
-   //                         fibers_[int(fibers_.size() / 2) + 2].points()[0])
-   //           << std::endl;
 }
 
 int World::set_omp_num_threads(int i) {
@@ -116,8 +110,8 @@ int World::set_omp_num_threads(int i) {
 bool World::BoundryChecking(int max_steps) {
    // check fiber boundry conditions
 
-   bool solved = false;
-   while (!solved && max_steps > 0) {
+   bool solved = fibers_.empty();
+   for (; max_steps >= 0 && !solved; max_steps--) {
 
 #pragma omp parallel for
       for (auto i = 0u; i < fibers_.size(); i++) {
@@ -127,9 +121,11 @@ bool World::BoundryChecking(int max_steps) {
 #pragma omp critical
          solved = flag_length && flag_radius;
       }
-
-      max_steps--;
    }
+
+   num_obj_ = 0;
+   for (auto const &fiber : fibers_)
+      num_obj_ += fiber.ConeSize();
 
    return solved;
 }
