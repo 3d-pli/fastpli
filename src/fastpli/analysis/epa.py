@@ -16,7 +16,7 @@ def epa(data):
     d = 0.5 * np.arctan2(-b1, a1) + np.pi
     r = np.sqrt(a1 * a1 + b1 * b1) / (a0 + 1e-16)
 
-    d[d > np.pi] -= np.pi
+    d = d % np.pi
 
     return t, d, r
 
@@ -33,6 +33,6 @@ def direction(data):
 
     d = 0.5 * np.arctan2(-b1, a1) + np.pi
 
-    d[d > np.pi] -= np.pi
+    d = d % np.pi
 
     return d

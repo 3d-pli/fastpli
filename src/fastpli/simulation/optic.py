@@ -5,11 +5,10 @@ from PIL import Image
 from scipy.ndimage.filters import gaussian_filter
 
 
-def add_noise(image, gain, mask=None):
+def add_noise(image, gain):
     image = np.copy(image)
 
-    if mask is None:
-        mask = image > 0
+    mask = np.invert(np.isnan(image))
 
     image[mask] = np.array(
         np.random.negative_binomial(image[mask] / (gain - 1), 1 / gain), float)

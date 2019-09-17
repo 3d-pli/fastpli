@@ -52,9 +52,6 @@ def save(file_name, fiber_bundles, dataset_name='/', mode='w'):
         with open(file_name, mode) as file:
             for fb, fiber_bundle in enumerate(fiber_bundles):
                 for fiber in fiber_bundle:
-
-                    np.array(fiber, dtype=np.float64, copy=False)
-
                     if fiber.shape[1] != 4 or len(fiber.shape) != 2:
                         raise TypeError('Wrong shape:', fiber.shape)
 
@@ -71,8 +68,8 @@ def save(file_name, fiber_bundles, dataset_name='/', mode='w'):
                 dataset_name = dataset_name + '/'
 
             for fb_i, fb in enumerate(fiber_bundles):
+                dset_fb = h5f[dataset_name + str(fb_i) + '/']
                 for i, f in enumerate(fb):
-                    h5f[dataset_name + str(fb_i) + '/' + str(i) +
-                        '/data'] = f[:, :]
+                    dset_fb[str(i) + '/data'] = f[:, :]
     else:
         raise TypeError(ext + ' is not implemented yet')
