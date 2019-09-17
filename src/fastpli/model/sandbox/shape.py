@@ -2,7 +2,7 @@ import numpy as np
 from ...tools import rotation
 from . import fill
 
-import sys
+from numba import njit
 
 
 def add_radius(fibers, radius):
@@ -119,18 +119,18 @@ def cylinder(p0, p1, r0, r1, alpha, beta, mode, spacing, steps):
     return data
 
 
+@njit(cache=True)
 def _ray_box_intersection(p, dir, b_min, b_max):
 
-    with np.errstate(divide='ignore'):
-        tmin = np.divide(b_min - p, dir)
-        tmax = np.divide(b_max - p, dir)
+    tmin = np.divide(b_min - p, dir)
+    tmax = np.divide(b_max - p, dir)
 
     tmin, tmax = np.minimum(tmin, tmax), np.maximum(tmin, tmax)
 
-    return np.max(np.ma.masked_invalid(tmin)), np.min(
-        np.ma.masked_invalid(tmax))
+    return np.max(tmin), np.min(tmax)
 
 
+@njit(cache=True)
 def _ray_box_intersection_pp(p0, p1, b_min, b_max):
 
     if np.any(np.maximum(p0, p1) < np.minimum(b_min, b_max)) or np.any(
