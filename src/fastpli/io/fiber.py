@@ -3,7 +3,7 @@ import numpy as np
 import h5py
 
 
-def load(file_name, dataset_name='/'):
+def load(file_name, group_name='/'):
     _, ext = os.path.splitext(file_name)
 
     fiber_bundles = [[]]
@@ -29,23 +29,22 @@ def load(file_name, dataset_name='/'):
                 fiber_bundles[-1].append(np.array(fiber))
     elif ext == '.h5':
         with h5py.File(file_name, 'r') as h5f:
-            if dataset_name[-1] is not '/':
-                dataset_name = dataset_name + '/'
-            fbs = h5f[dataset_name]
+            if group_name[-1] is not '/':
+                group_name = group_name + '/'
+            fbs = h5f[group_name]
             for i in range(len(fbs)):
                 if i != 0:
                     fiber_bundles.append([])
                 fb = fbs[str(i)]
                 for j in range(len(fb)):
-                    fiber_bundles[-1].append(fb[str(j) +
-                                                '/data'][:].astype(float))
+                    fiber_bundles[-1].append(fb[str(j)][:].astype(float))
     else:
         raise TypeError(ext + ' is not implemented yet')
 
     return fiber_bundles
 
 
-def save(file_name, fiber_bundles, dataset_name='/', mode='w'):
+def save(file_name, fiber_bundles, group_name='/', mode='w'):
     _, ext = os.path.splitext(file_name)
 
     if ext == '.dat' or ext == '.txt':
@@ -64,12 +63,12 @@ def save(file_name, fiber_bundles, dataset_name='/', mode='w'):
                     file.write("\n")
     elif ext == '.h5':
         with h5py.File(file_name, mode) as h5f:
-            if dataset_name[-1] is not '/':
-                dataset_name = dataset_name + '/'
+            if group_name[-1] is not '/':
+                group_name = group_name + '/'
 
             for fb_i, fb in enumerate(fiber_bundles):
-                dset_fb = h5f[dataset_name + str(fb_i) + '/']
+                grp_fb = h5f.create_group(group_name + str(fb_i) + '/')
                 for i, f in enumerate(fb):
-                    dset_fb[str(i) + '/data'] = f[:, :]
+                    grp_fb[str(i)] = f[:, :]
     else:
         raise TypeError(ext + ' is not implemented yet')
