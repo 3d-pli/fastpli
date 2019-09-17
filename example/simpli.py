@@ -1,4 +1,6 @@
 import numpy as np
+import numpy.ma as ma
+
 import h5py
 import os
 
@@ -63,6 +65,10 @@ with h5py.File(
         images = simpli.run_simulation(label_field, vec_field,
                                        tissue_properties, np.deg2rad(theta),
                                        np.deg2rad(phi))
+
+        # for resizing set nan values to image background
+        images[np.isnan(images)] = simpli.light_intensity / 4
+
         h5f['data/' + str(t)] = images
 
         # apply optic to simulation
