@@ -91,7 +91,7 @@ class MainTest(unittest.TestCase):
         self.simpli.wavelength = 525
 
         image = self.simpli.run_simulation(label_field, vec_field,
-                                          tissue_properties, 0, 0)
+                                           tissue_properties, 0, 0)
 
         with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
             h5f['tissue'] = label_field.astype(np.uint16)
