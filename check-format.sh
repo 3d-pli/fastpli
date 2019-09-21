@@ -33,6 +33,6 @@ if [ -n "$python" ]; then
    if [ -z "$1" ] || [ "$1" = "p" ]; then
       $python -m yapf -i -r -p --style google $script_dir/src
       $python -m yapf -i -r -p --style google $script_dir/tests
-      $python -m yapf -i -r -p --style google $script_dir/example
+      $python -m yapf -i -r -p --style google $script_dir/examples
    fi
 fi

@@ -10,12 +10,27 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 # Fiber Architecture Simulation Toolbox for PLI
 
 ## Installation:
+### with venv:
 ```sh
 make install
 ```
+### with pip:
+```sh
+make build
+pip3 install build/
+```
 
-## Known Issues:
-If you run a python script with 'mpirun' and use h5py, h5py has to be installed with 'make h5py-mpi'. Only one version of h5py can be installed.
+### examples:
+```sh
+pip3 install -r examples/requirements.txt
+```
+
+## Parallel HDF5io:
+h5py has to be installed with mpi flags: 
+```sh
+make h5py-mpi
+```
+Only one version of h5py can be installed.
 
 ## Required Programs:
  - G++/Clang
@@ -33,8 +48,11 @@ If you run a python script with 'mpirun' and use h5py, h5py has to be installed 
 ## Used Libraries:
  - pybind11
 
+## Additional Informations:
+[program structure](docs/structure.md)
+
 ## TODOs:
-look [here](TODO.md)
+[TODOs](docs/TODO.md)
 
 ## Authors
 * **Felix Matuschke**
