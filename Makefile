@@ -40,10 +40,6 @@ ${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
 git-submodules:
 	git submodule update --init
 
-.PHONY: requirements
-requirements:
-	${VENV}/bin/pip3 install -r requirements.txt -q
-
 .PHONY: example/requirements
 example/requirements:
 	${VENV}/bin/pip3 install -r example/requirements.txt -q
@@ -57,8 +53,9 @@ uninstall:
 	${VENV}/bin/pip3 uninstall fastpli -y
 
 .PHONY: development
-development: ${VENV} git-submodules requirements example/requirements clean-cmake build
-	${VENV}/bin/pip3 ${INSTALL}
+development: install example/requirements
+	${VENV}/bin/pip3 install yapf -q
+	${VENV}/bin/pip3 install pep8 -q
 
 .ONESHELL:
 build/:

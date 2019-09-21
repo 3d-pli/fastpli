@@ -1,9 +1,3 @@
-# additional requirements for developing
-yapf
-tqdm
-matplotlib
-imageio
-
 # tested package version dependencies
 # h5py==2.9.0
 # mpi4py==3.0.2
