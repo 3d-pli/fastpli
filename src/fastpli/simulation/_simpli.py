@@ -52,6 +52,7 @@ class Simpli:
         self._step_size = 1.0
         self._interpolate = True
         self._untilt_sensor = True
+        self._flip_z_beam = False
         self._wavelength = None
 
         self._omp_num_threads = 1
@@ -75,6 +76,7 @@ class Simpli:
             'light_intensity': self._light_intensity,
             'wavelength': self._wavelength,
             'untilt_sensor': self._untilt_sensor,
+            'flip_z_beam': self._flip_z_beam,
             'omp_num_threads': self._omp_num_threads,
             'debug': self._debug
         }
@@ -251,6 +253,14 @@ class Simpli:
     @untilt_sensor.setter
     def untilt_sensor(self, untilt_sensor):
         self._untilt_sensor = bool(untilt_sensor)
+
+    @property
+    def flip_z_beam(self):
+        return self._flip_z_beam
+
+    @flip_z_beam.setter
+    def flip_z_beam(self, flip_z_beam):
+        self._flip_z_beam = bool(flip_z_beam)
 
     @property
     def fiber_bundles(self):
@@ -430,7 +440,7 @@ class Simpli:
         self._sim.set_pli_setup(self._step_size, self._light_intensity,
                                 self._voxel_size, self._wavelength,
                                 self._interpolate, self._untilt_sensor,
-                                self._filter_rotations)
+                                self._flip_z_beam, self._filter_rotations)
 
     def run_simulation(self, label_field, vec_field, tissue_properties, theta,
                        phi):

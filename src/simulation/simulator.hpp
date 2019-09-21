@@ -56,7 +56,7 @@ class PliSimulator {
    void CalculateDimensions(const vm::Vec3<long long> &global_dim);
    void CheckDimension();
 
-   int GetLabel(const long long x, const long long y, const long long z) const;
+   int GetLabel(const long long x, const long long y, long long z) const;
    int GetLabel(const vm::Vec3<long long> p) const {
       return GetLabel(p.x(), p.y(), p.z());
    };
@@ -70,7 +70,7 @@ class PliSimulator {
    };
 
    vm::Vec3<double> GetVec(const long long x, const long long y,
-                           const long long z) const;
+                           long long z) const;
    vm::Vec3<double> GetVec(const vm::Vec3<long long> p) const {
       return GetVec(p.x(), p.y(), p.z());
    };

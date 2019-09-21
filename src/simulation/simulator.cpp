@@ -286,7 +286,11 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 }
 
 int PliSimulator::GetLabel(const long long x, const long long y,
-                           const long long z) const {
+                           long long z) const {
+
+   if (setup_->flip_z)
+      z = dim_.local.z() - 1 - z;
+
    size_t idx = x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
 #ifndef NDEBUG
    if (idx >= label_field_.size())
@@ -296,9 +300,13 @@ int PliSimulator::GetLabel(const long long x, const long long y,
 }
 
 vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
-                                      const long long z) const {
+                                      long long z) const {
+   if (setup_->flip_z)
+      z = dim_.local.z() - 1 - z;
+
    size_t idx =
        x * dim_.local.y() * dim_.local.z() * 3 + y * dim_.local.z() * 3 + z * 3;
+
 #ifndef NDEBUG
    if (idx >= vector_field_.size())
       Abort(3116);
@@ -306,6 +314,7 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
    return vm::Vec3<double>(vector_field_[idx], vector_field_[idx + 1],
                            vector_field_[idx + 2]);
 }
+
 vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
                                       const double z,
                                       const bool interpolate) const {
