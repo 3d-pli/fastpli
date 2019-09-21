@@ -17,7 +17,7 @@ def Rotate(fiber_bundles, rot, offset=None):
     for j, fb in enumerate(fiber_bundles):
         for i, f in enumerate(fb):
             fiber_bundles[j][i] = fiber.Rotate(fiber_bundles[j][i], rot, offset)
-            return fiber_bundles
+    return fiber_bundles
 
 
 def Translate(fiber_bundles, offset):
