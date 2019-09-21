@@ -1,4 +1,3 @@
-import os
 import unittest
 import numpy as np
 
@@ -119,13 +118,8 @@ class MainTest(unittest.TestCase):
         self.assertTrue(self.solver.omp_num_threads >= 0)
 
     def test_opengl(self):
-        display = ""
-        try:
-            display = os.environ['DISPLAY']
-        except BaseException:
-            print("test_opengl: no display detected")
-        if display:
-            self.solver.draw_scene()
+        self.solver.draw_scene()
+        self.solver.draw_scene()
         self.assertTrue(True)
 
 

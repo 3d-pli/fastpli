@@ -3,6 +3,7 @@ from .__solver import _Solver
 from ...version import __version__
 
 import numpy as np
+import os
 
 
 class Solver(_Solver):
@@ -25,6 +26,7 @@ class Solver(_Solver):
         self._obj_mean_length = 0
         self._col_voi = None
         self._omp_num_threads = 1
+        self._display = None
 
         super()._set_omp_num_threads(self._omp_num_threads)
 
@@ -121,3 +123,15 @@ class Solver(_Solver):
         self._omp_num_threads = int(num)
         self._omp_num_threads = super()._set_omp_num_threads(
             self._omp_num_threads)
+
+    def draw_scene(self):
+        if self._display is None:
+            try:
+                os.environ['DISPLAY']
+                self._display = True
+            except BaseException:
+                print("test_opengl: no display detected")
+                self._display = False
+
+        if self._display:
+            super().draw_scene()
