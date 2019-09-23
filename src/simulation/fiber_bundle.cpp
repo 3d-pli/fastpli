@@ -12,7 +12,8 @@ namespace fiber {
 
 namespace layer {
 
-Property::Property(double s, double n, double m, char o) : scale(s), dn(n), mu(m) {
+Property::Property(double s, double n, double m, char o)
+    : scale(s), dn(n), mu(m) {
    if (o == 'b')
       orientation = Orientation::background;
    else if (o == 'p')

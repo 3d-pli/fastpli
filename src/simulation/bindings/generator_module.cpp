@@ -27,13 +27,14 @@ PYBIND11_MODULE(__generation, m) {
 
    py::class_<PliGenerator>(m, "_Generator")
        .def(py::init())
-       .def("set_volume",
-            [](PliGenerator &self, std::array<size_t, 3> global_dim,
-               std::array<double, 3> origin, double pixel_size) {
-               self.SetVolume(vm::cast<long long>(vm::Vec3<size_t>(global_dim)),
-                              origin, pixel_size);
-            },
-            py::arg("global_dim"), py::arg("origin"), py::arg("pixel_size"))
+       .def(
+           "set_volume",
+           [](PliGenerator &self, std::array<size_t, 3> global_dim,
+              std::array<double, 3> origin, double pixel_size) {
+              self.SetVolume(vm::cast<long long>(vm::Vec3<size_t>(global_dim)),
+                             origin, pixel_size);
+           },
+           py::arg("global_dim"), py::arg("origin"), py::arg("pixel_size"))
        .def(
            "set_fiber_bundles",
            [](PliGenerator &self,
@@ -96,31 +97,32 @@ PYBIND11_MODULE(__generation, m) {
                    reinterpret_cast<void *>(comm_address));
                self.SetMPIComm(comm);
             })
-       .def("run_generation",
-            [](PliGenerator &self, bool only_label, bool progress_bar) {
-               std::vector<int> *label_field;
-               std::vector<float> *vector_field;
-               setup::PhyProps properties;
+       .def(
+           "run_generation",
+           [](PliGenerator &self, bool only_label, bool progress_bar) {
+              std::vector<int> *label_field;
+              std::vector<float> *vector_field;
+              setup::PhyProps properties;
 
-               std::tie(label_field, vector_field, properties) =
-                   self.RunTissueGeneration(only_label, progress_bar);
+              std::tie(label_field, vector_field, properties) =
+                  self.RunTissueGeneration(only_label, progress_bar);
 
-               std::vector<size_t> dim_label_field =
-                   vm::cast<size_t>(self.dim_local());
-               std::vector<size_t> dim_vector_field;
-               if (!only_label) {
-                  dim_vector_field = dim_label_field;
-                  dim_vector_field.push_back(3);
-               }
-               std::vector<size_t> dim_prop{properties.size(), 2};
+              std::vector<size_t> dim_label_field =
+                  vm::cast<size_t>(self.dim_local());
+              std::vector<size_t> dim_vector_field;
+              if (!only_label) {
+                 dim_vector_field = dim_label_field;
+                 dim_vector_field.push_back(3);
+              }
+              std::vector<size_t> dim_prop{properties.size(), 2};
 
-               return std::make_tuple(
-                   object::Vec2NpArray(label_field, dim_label_field),
-                   object::Vec2NpArray(vector_field, dim_vector_field),
-                   object::Vec2NpArray(
-                       new std::vector<double>(properties.vector()), dim_prop));
-            },
-            py::arg("only_label") = false, py::arg("progress_bar") = false)
+              return std::make_tuple(
+                  object::Vec2NpArray(label_field, dim_label_field),
+                  object::Vec2NpArray(vector_field, dim_vector_field),
+                  object::Vec2NpArray(
+                      new std::vector<double>(properties.vector()), dim_prop));
+           },
+           py::arg("only_label") = false, py::arg("progress_bar") = false)
        .def("dim_local",
             [](PliGenerator &self) { return self.dim_local().data_; })
        .def("dim_offset",

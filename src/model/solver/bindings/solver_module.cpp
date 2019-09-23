@@ -52,17 +52,18 @@ PYBIND11_MODULE(__solver, m) {
                return fiber_bundles;
             })
        .def("_set_omp_num_threads", &World::set_omp_num_threads)
-       .def("_set_parameters",
-            [](World &self, float drag, float obj_min_radius,
-               float obj_mean_length) {
-               World::WorldParameter wp;
-               wp.drag = drag;
-               wp.obj_min_radius = obj_min_radius;
-               wp.obj_mean_length = obj_mean_length;
-               self.set_parameter(wp);
-            },
-            py::arg("drag") = 0, py::arg("obj_min_radius") = 10,
-            py::arg("obj_mean_length") = 10)
+       .def(
+           "_set_parameters",
+           [](World &self, float drag, float obj_min_radius,
+              float obj_mean_length) {
+              World::WorldParameter wp;
+              wp.drag = drag;
+              wp.obj_min_radius = obj_min_radius;
+              wp.obj_mean_length = obj_mean_length;
+              self.set_parameter(wp);
+           },
+           py::arg("drag") = 0, py::arg("obj_min_radius") = 10,
+           py::arg("obj_mean_length") = 10)
        .def("_get_parameters",
             [](World &self) {
                auto p = self.get_parameter();
