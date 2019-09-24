@@ -164,7 +164,6 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    auto light_positions = CalcStartingLightPositions(theta, phi);
 
    while (!light_positions.empty()) {
-
 #pragma omp parallel for
       for (size_t s = 0; s < light_positions.size(); s++) {
 
@@ -175,10 +174,14 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          auto ccd_pos = light_position.ccd;
          auto s_vec = s_vec_0;
 
-         if (!stored_s_vec_.empty())
+         if (!stored_s_vec_.empty()) {
             // TODO: check this!
             std::copy(stored_s_vec_.begin() + s * n_rho,
                       stored_s_vec_.begin() + (s + 1) * n_rho, s_vec.begin());
+
+            if ((s + 1) * n_rho > stored_s_vec_.size())
+               Abort(9855);
+         }
 
          for (; local_pos.z() > -0.5 && local_pos.z() < dim_.local.z() - 0.5;
               local_pos += light_step) {
@@ -248,8 +251,10 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                 local_pos.y() < static_cast<double>(dim_.local.y()) - 0.5) {
 
 #ifndef NDEBUG
-               if (ccd_idx * n_rho >= intensity_signal.size())
+               if (ccd_idx * n_rho >= intensity_signal.size()) {
+                  std::cerr << mpi_->my_rank() << ": " << ccd_pos << std::endl;
                   Abort(3112);
+               }
 #endif
                for (auto rho = 0u; rho < n_rho; rho++) {
                   s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
@@ -263,17 +268,21 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
       light_positions.clear();
 
       if (mpi_) {
-         std::tie(light_positions, stored_s_vec_) = mpi_->CommunicateData();
-
-         if (debug_) {
-            auto num_communications = mpi_->Allreduce(light_positions.size());
-            std::cout << "rank " << mpi_->my_rank()
-                      << ": num_communications: " << num_communications
-                      << std::endl;
+         // stay in communication loop until all processes do not have to
+         // communicate anymore.
+         int num_communications = 0;
+         while (light_positions.empty() &&
+                mpi_->Allreduce(light_positions.size()) != 0) {
+            std::tie(light_positions, stored_s_vec_) = mpi_->CommunicateData();
+            num_communications = mpi_->Allreduce(light_positions.size());
+            if (debug_) {
+               std::cout << "rank " << mpi_->my_rank()
+                         << ": num_communications: " << num_communications
+                         << std::endl;
+            }
          }
       }
    }
-
    return intensity_signal;
 }
 
