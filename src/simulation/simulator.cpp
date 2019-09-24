@@ -156,8 +156,6 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    const vm::Vec3<double> light_dir_vec = LightDirectionUnitVector(theta, phi);
    const vm::Vec3<int> light_dir_comp = LightDirectionComponent(light_dir_vec);
    const vm::Vec3<double> light_step = light_dir_vec * setup_->step_size;
-   const auto TransformSensorPosToStart =
-       GetSensorToStartTransformation(theta, phi);
 
    std::vector<double> intensity_signal(
        dim_.local.x() * dim_.local.y() * n_rho,
@@ -178,8 +176,6 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          auto s_vec = s_vec_0;
 
          if (!stored_s_vec_.empty())
-            // use signal from mpi buffer -> no because of communication
-            // direction!
             // TODO: check this!
             std::copy(stored_s_vec_.begin() + s * n_rho,
                       stored_s_vec_.begin() + (s + 1) * n_rho, s_vec.begin());
@@ -416,42 +412,14 @@ PliSimulator::LightDirectionComponent(const vm::Vec3<double> &dir_vec) const {
    return dir_comp;
 }
 
-std::function<vm::Vec3<double>(long long, long long)>
-PliSimulator::GetSensorToStartTransformation(const double theta,
-                                             const double phi) const {
-
-   if (setup_->untilt_sensor) {
-      const auto dz = dim_.local.z() - 1;
-      // FIXME: const auto dz = dim_.z() - 0.5;
-
-      // special tilting angles
-      vm::Vec2<double> shift;
-      if (theta == 0)
-         shift = vm::Vec2<double>(0.0, 0.0);
-      else if (phi == 0)
-         shift = vm::Vec2<double>(tan(theta) * dz, 0.0);
-      else if (phi == M_PI_2)
-         shift = vm::Vec2<double>(0.0, tan(theta) * dz);
-      else if (phi == M_PI)
-         shift = vm::Vec2<double>(-tan(theta) * dz, 0.0);
-      else if (phi == 3 * M_PI_2)
-         shift = vm::Vec2<double>(0.0, -tan(theta) * dz);
-      else
-         shift =
-             vm::Vec2<double>(tan(theta) * cos(phi), tan(theta) * sin(phi)) *
-             dz;
-
-      return [=](long long x, long long y) -> vm::Vec3<double> {
-         return vm::Vec3<double>(x - shift.x(), y - shift.y(), 0.0);
-      };
-   } else {
-      // TODO: implement back projection
-      return std::function<vm::Vec3<double>(long long, long long)>();
-   }
-}
-
 std::vector<Coordinates>
 PliSimulator::CalcStartingLightPositions(const double phi, const double theta) {
+
+   if (!setup_->untilt_sensor) {
+      // TODO: calculate without untilt
+      std::cerr << "!untilt_sensor not implemented yet" << std::endl;
+      Abort(3117);
+   }
 
    std::vector<Coordinates> light_positions;
 

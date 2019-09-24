@@ -94,9 +94,6 @@ class PliSimulator {
    vm::Vec3<int>
    LightDirectionComponent(const vm::Vec3<double> &direction_vec) const;
 
-   std::function<vm::Vec3<double>(long long, long long)>
-   GetSensorToStartTransformation(const double theta, const double phi) const;
-
    std::vector<Coordinates> CalcStartingLightPositions(const double phi,
                                                        const double theta);
 
