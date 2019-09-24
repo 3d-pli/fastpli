@@ -153,8 +153,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
    auto light_positions = CalcStartingLightPositions(theta, phi);
 
-   bool flag_all_done = false;
-   while (!flag_all_done) {
+   while (!light_positions.empty()) {
 
 #pragma omp parallel for
       for (size_t s = 0; s < light_positions.size(); s++) {
@@ -166,26 +165,21 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          auto ccd_pos = light_position.ccd;
          auto s_vec = s_vec_0;
 
-#pragma omp critical
-         if (local_pos.z() >= 0.5) {
-            s_vec.clear();
-            for (auto i = 0u; i < n_rho; i++) {
-               if (signal_buffer_.empty())
-                  Abort(3111);
-
-               s_vec.push_back(signal_buffer_.back());
-               signal_buffer_.pop_back();
-            }
-            // reverse s_vec since signal_buffer_.pop_back();
-            std::reverse(s_vec.begin(), s_vec.end());
-         }
+         if (!stored_s_vec_.empty())
+            // use signal from mpi buffer -> no because of communication
+            // direction!
+            // TODO: check this!
+            std::copy(stored_s_vec_.begin() + s * n_rho,
+                      stored_s_vec_.begin() + (s + 1) * n_rho, s_vec.begin());
 
          for (; local_pos.z() > -0.5 && local_pos.z() < dim_.local.z() - 0.5;
               local_pos += light_step) {
 
             // check if communication is neccesary
             if (CheckMPIHalo(local_pos, light_dir_comp, s_vec, light_position))
-               // next light ray
+               // if necessary, s_vec and the light position will be stored into
+               // an mpi buffer and send at the end of the loop to the
+               // appropriat ranks
                break;
 
             auto label = GetLabel(local_pos);
@@ -258,27 +252,17 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          }
       }
 
-#pragma omp critical
-      if (mpi_) {
-#ifndef NDEBUG
-         if (!signal_buffer_.empty())
-            Abort(3113);
-#endif
-         mpi_->CommunicateData(light_positions, signal_buffer_);
-         int num_communications =
-             mpi_->Allreduce(light_positions.size() + signal_buffer_.size());
+      light_positions.clear();
 
-#ifndef NDEBUG
-         if (signal_buffer_.size() != light_positions.size() * n_rho)
-            Abort(3114);
-#endif
-         flag_all_done = num_communications == 0;
-         if (debug_)
+      if (mpi_) {
+         std::tie(light_positions, stored_s_vec_) = mpi_->CommunicateData();
+
+         if (debug_) {
+            auto num_communications = mpi_->Allreduce(light_positions.size());
             std::cout << "rank " << mpi_->my_rank()
                       << ": num_communications: " << num_communications
                       << std::endl;
-      } else {
-         flag_all_done = true;
+         }
       }
    }
 

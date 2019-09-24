@@ -1,9 +1,9 @@
 #include "my_mpi.hpp"
 
 #include <array>
-#include <chrono>
 #include <iostream>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include <mpi.h>
@@ -120,7 +120,7 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
    }
 }
 
-void MyMPI::ClearBuffer() {
+void MyMPI::ClearInternalBuffer() {
 
    number_of_dests_ = 0;
    number_of_recvs_ = 0;
@@ -167,15 +167,16 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
 
 #ifndef NDEBUG
    if (num_rho_ != static_cast<int>(light.size()))
-      MPI_Abort(my_comm_, 1114);
+      MPI_Abort(my_comm_, 1115);
 #endif
 }
 
-void MyMPI::CommunicateData(std::vector<Coordinates> &scan_grid,
-                            std::vector<vm::Vec4<double>> &intensity_buffer) {
+std::tuple<std::vector<Coordinates>, std::vector<vm::Vec4<double>>>
+MyMPI::CommunicateData() {
    SndRcv();
-   BufferToVariable(scan_grid, intensity_buffer);
-   ClearBuffer();
+   auto data = InternalBufferToVariable();
+   ClearInternalBuffer();
+   return data;
 }
 
 void MyMPI::SndRcv() {
@@ -220,7 +221,7 @@ void MyMPI::SndRcv() {
       MPI_Probe(sender, tag_ + ind, COMM_CART_, &status);
       MPI_Get_count(&status, MPI_DOUBLE, &count);
       if (count == MPI_UNDEFINED)
-         MPI_Abort(my_comm_, 1110);
+         MPI_Abort(my_comm_, 1116);
 
       if (debug_)
          std::cout << "rank " << my_rank_ << " from " << sender
@@ -239,15 +240,14 @@ int MyMPI::Allreduce(int value) {
    return sum;
 }
 
-void MyMPI::BufferToVariable(std::vector<Coordinates> &scan_grid,
-                             std::vector<vm::Vec4<double>> &intensity_buffer) {
-   // TODO: should be return value
-   scan_grid.clear();
-   intensity_buffer.clear();
+std::tuple<std::vector<Coordinates>, std::vector<vm::Vec4<double>>>
+MyMPI::InternalBufferToVariable() {
+   std::vector<Coordinates> light_positions;
+   std::vector<vm::Vec4<double>> light_signals;
 
 #ifndef NDEBUG
    if (num_rho_ <= 0)
-      MPI_Abort(my_comm_, 1115);
+      MPI_Abort(my_comm_, 1117);
 #endif
 
    Coordinates pos_ccd;
@@ -265,20 +265,22 @@ void MyMPI::BufferToVariable(std::vector<Coordinates> &scan_grid,
              *reinterpret_cast<long long *>(&rcv_buffer_[ind][i + 3]);
          pos_ccd.ccd.y() =
              *reinterpret_cast<long long *>(&rcv_buffer_[ind][i + 4]);
-         scan_grid.push_back(pos_ccd);
+         light_positions.push_back(pos_ccd);
 
          size_t first_elm = 5;
          size_t last_elm = first_elm + 4 * num_rho_;
 
          for (auto j = first_elm; j < last_elm; j += 4) {
-            intensity_buffer.push_back(vm::Vec4<double>(
+            light_signals.push_back(vm::Vec4<double>(
                 rcv_buffer_[ind][i + j + 0], rcv_buffer_[ind][i + j + 1],
                 rcv_buffer_[ind][i + j + 2], rcv_buffer_[ind][i + j + 3]));
          }
       }
 #ifndef NDEBUG
-      if (scan_grid.size() * num_rho_ != intensity_buffer.size())
-         MPI_Abort(my_comm_, 1116);
+      if (light_positions.size() * num_rho_ != light_signals.size())
+         MPI_Abort(my_comm_, 1118);
 #endif
    }
+
+   return std::make_tuple(light_positions, light_signals);
 }

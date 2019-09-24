@@ -2,6 +2,7 @@
 #define SIMULATION_MY_MPI_HPP_
 
 #include <array>
+#include <tuple>
 #include <vector>
 
 #include "helper.hpp"
@@ -14,22 +15,17 @@ class MyMPI {
    MyMPI(const MPI_Comm comm);
    ~MyMPI();
 
-   // MPI functions
-   void Barrier() { MPI_Barrier(MPI_COMM_WORLD); };
    void CreateCartGrid(vm::Vec3<long long> dim_global);
 
-   // TODO: mpi for simulation.cpp
    // communication
    void set_num_rho(int num_rho) { num_rho_ = num_rho; };
-   void ClearBuffer();
+
    void PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
                           std::vector<vm::Vec4<double>> light, int direction);
 
-   void CommunicateData(std::vector<Coordinates> &scan_xy,
-                        std::vector<vm::Vec4<double>> &intensity_buffer);
-   void SndRcv();
-   void BufferToVariable(std::vector<Coordinates> &scan_xy,
-                         std::vector<vm::Vec4<double>> &intensity_buffer);
+   std::tuple<std::vector<Coordinates>, std::vector<vm::Vec4<double>>>
+   CommunicateData();
+
    int Allreduce(int value);
 
    // getter
@@ -42,6 +38,11 @@ class MyMPI {
    Dimensions dim_vol() const { return dim_vol_; };
 
  private:
+   void SndRcv();
+   void ClearInternalBuffer();
+   std::tuple<std::vector<Coordinates>, std::vector<vm::Vec4<double>>>
+   InternalBufferToVariable();
+
 #ifndef NDEBUG
    const bool debug_ = true;
 #else

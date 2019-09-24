@@ -49,7 +49,7 @@ class PliSimulator {
    object::container::NpArray<int> label_field_;
    object::container::NpArray<float> vector_field_;
 
-   std::vector<vm::Vec4<double>> signal_buffer_;
+   std::vector<vm::Vec4<double>> stored_s_vec_;
 
    std::unique_ptr<MyMPI> mpi_;
 
