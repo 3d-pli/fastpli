@@ -499,42 +499,51 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    if (!mpi_)
       return false;
 
-   // this can happen, because CalcStartingLightPositions() is not sensitiv to
-   // the mpi-halo yet
-   if (local_pos.z() == 0)
-      return true;
-
    const auto low = dim_.offset;
    const auto up = dim_.offset + dim_.local;
 
-   bool flag = false;
    // x - halo communication:
    if ((local_pos.x() < 0 && shift_direct.x() == -1 && low.x() != 0) ||
        (local_pos.x() > dim_.local.x() - 0.5 && shift_direct.x() == 1 &&
         up.x() != dim_.global.x() - 0.5)) {
+
+      // ignore light in halo position at the beginning
+      if (local_pos.z() == 0)
+         return true; // dont save, but do not process either
+
 #pragma omp critical
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.x() * 1);
-      flag = true;
+      return true;
 
       // y-halo communication:
    } else if ((local_pos.y() < 0 && shift_direct.y() == -1 && low.y() != 0) ||
               (local_pos.y() > dim_.local.y() - 0.5 && shift_direct.y() == 1 &&
                up.y() != dim_.global.y() - 0.5)) {
+
+      // ignore light in halo position at the beginning
+      if (local_pos.z() == 0)
+         return true; // dont save, but do not process either
+
 #pragma omp critical
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.y() * 2);
-      flag = true;
+      return true;
 
       // z-halo communication:
    } else if ((local_pos.z() < 0 && shift_direct.z() == -1 && low.z() != 0) ||
               (local_pos.z() > dim_.local.z() - 0.5 && shift_direct.z() == 1 &&
                up.z() != dim_.global.z() - 0.5)) {
+
+      // ignore light in halo position at the beginning
+      if (local_pos.z() == 0)
+         return true; // dont save, but do not process either
+
 #pragma omp critical
       mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
                               s_vec, shift_direct.z() * 3);
-      flag = true;
+      return true;
    }
 
-   return flag;
+   return false;
 }
