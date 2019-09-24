@@ -12,6 +12,32 @@
 #include "my_mpi.hpp"
 #include "objects/np_array_container.hpp"
 
+// Optical Elements
+vm::Mat4x4<double> PolX(const double p) {
+   // see dissertation hendrik wiese
+   vm::Mat4x4<double> M = {{1, p, 0, 0, p, 1, 0, 0, 0, 0, sqrt(1 - p * p), 0, 0,
+                            0, 0, sqrt(1 - p * p)}};
+   return M * 0.5;
+}
+
+vm::Mat4x4<double> PolY(const double p) {
+   // see dissertation hendrik wiese
+   vm::Mat4x4<double> M = {{1, -p, 0, 0, -p, 1, 0, 0, 0, 0, sqrt(1 - p * p), 0,
+                            0, 0, 0, sqrt(1 - p * p)}};
+   return M * 0.5;
+}
+
+vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) {
+   vm::Mat4x4<double> M = {
+       {1, 0, 0, 0, 0, pow(cos(beta), 2) + cos(ret) * pow(sin(beta), 2),
+        (1 - cos(ret)) * sin(beta) * cos(beta), -sin(ret) * sin(beta), 0,
+        (1 - cos(ret)) * sin(beta) * cos(beta),
+        pow(sin(beta), 2) + cos(ret) * pow(cos(beta), 2), sin(ret) * cos(beta),
+        0, sin(ret) * sin(beta), -sin(ret) * cos(beta), cos(ret)}};
+   return M;
+}
+
+// PliSimulator
 void PliSimulator::Abort(const int num) const {
    if (mpi_) {
       MPI_Abort(mpi_->comm(), num);
@@ -112,26 +138,12 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    const double thickness = setup_->voxel_size * 1e-6 * setup_->step_size;
 
    // polarizer and lambda/4 retarder
-   const double pol_x = 1; // TODO: via setup_
-   const double pol_y = 1;
+   const double polarization_x = 1; // TODO: via setup_
+   const double polarization_y = 1; // TODO: via setup_
 
-   vm::Mat4x4<double> polarizer_x(0);
-   vm::Mat4x4<double> polarizer_y(0);
-   vm::Mat4x4<double> m_lambda_4 = RetarderMatrix(M_PI_2, -M_PI_2);
-
-   // FIXME: WRONG!! for p != 1
-   polarizer_x(0, 0) = pol_x * pol_x;
-   polarizer_x(0, 1) = pol_x * pol_x;
-   polarizer_x(1, 0) = pol_x * pol_x;
-   polarizer_x(1, 1) = pol_x * pol_x;
-
-   polarizer_y(0, 0) = pol_y * pol_y;
-   polarizer_y(0, 1) = -pol_y * pol_y;
-   polarizer_y(1, 0) = -pol_y * pol_y;
-   polarizer_y(1, 1) = pol_y * pol_y;
-
-   polarizer_x *= 0.5;
-   polarizer_y *= 0.5;
+   auto polarizer_x = PolX(polarization_x);
+   auto polarizer_y = PolY(polarization_y);
+   auto m_lambda_4 = RetarderMatrix(M_PI_2, -M_PI_2);
 
    // initial values
    vm::Vec4<double> signal_0 = {{setup_->light_intensity, 0, 0, 0}};
@@ -477,17 +489,6 @@ PliSimulator::CalcStartingLightPositions(const double phi, const double theta) {
    }
 
    return light_positions;
-}
-
-vm::Mat4x4<double> PliSimulator::RetarderMatrix(const double beta,
-                                                const double ret) const {
-   vm::Mat4x4<double> M = {
-       {1, 0, 0, 0, 0, pow(cos(beta), 2) + cos(ret) * pow(sin(beta), 2),
-        (1 - cos(ret)) * sin(beta) * cos(beta), -sin(ret) * sin(beta), 0,
-        (1 - cos(ret)) * sin(beta) * cos(beta),
-        pow(sin(beta), 2) + cos(ret) * pow(cos(beta), 2), sin(ret) * cos(beta),
-        0, sin(ret) * sin(beta), -sin(ret) * cos(beta), cos(ret)}};
-   return M;
 }
 
 bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,

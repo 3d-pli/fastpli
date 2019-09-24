@@ -100,8 +100,6 @@ class PliSimulator {
    std::vector<Coordinates> CalcStartingLightPositions(const double phi,
                                                        const double theta);
 
-   vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) const;
-
    bool CheckMPIHalo(const vm::Vec3<double> &local_pos,
                      const vm::Vec3<int> &shift_direct,
                      const std::vector<vm::Vec4<double>> &s_vec,
