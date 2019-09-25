@@ -155,10 +155,10 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
 #endif
 
    // save all data in buffer. Order is important!
-   for (auto elm : pos)
+   for (auto &elm : pos)
       snd_buffer_[ind].push_back(elm);
 
-   for (auto elm : ccd)
+   for (auto &elm : ccd)
       snd_buffer_[ind].push_back(*reinterpret_cast<double *>(&elm));
 
    for (auto elm : light)
