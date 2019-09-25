@@ -117,7 +117,6 @@ clean-build:
 
 .PHONY: clean-venv
 clean-venv:
-	chmod -R +x env/
 	rm -rf ${VENV}
 
 .PHONY: clean-src
