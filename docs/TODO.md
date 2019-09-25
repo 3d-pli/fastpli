@@ -10,17 +10,16 @@ back to [readme](README.md)
 - [ ] std::vector(float) for fibers
 - [ ] helper_math.hpp
 ## simpli
-- [ ] PM inverse light direction
+- [ ] non untilt case
+- [x] PM inverse light direction
 - [ ] stokes vs jones
-- [ ] polarisation value px, py
+- [x] polarisation value px, py
 - [ ] check filter rotations
 - [ ] check tilt direction
 - [ ] check ALL input variables
 - [ ] enlarge simulation for tilting <-> crop results
-- [ ] too many arguments as property
 - [ ] np.array for cells
 - [ ] optic: new_size = np.array(np.array(image.shape) // resize, dtype=int)
-- [ ] multisampling 
 ## VCS
 - [ ] memory warning for fiber_bundles (gets quite big for small segment lengths)
   - [ ] non linear splitting and merging
