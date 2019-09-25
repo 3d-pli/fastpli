@@ -160,7 +160,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
       for (size_t s = 0; s < light_positions.size(); s++) {
 
          auto light_position = light_positions[s];
-         bool flag_ray_sended = false;
+         bool flag_save_ray = true;
 
          auto local_pos = light_position.tissue - vm::cast<double>(dim_.offset);
          auto ccd_pos = light_position.ccd;
@@ -184,9 +184,12 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
               local_pos += light_step) {
 
             // check if communication is neccesary
-            if (CheckMPIHalo(local_pos, light_dir_comp, s_vec, light_position))
+            if (CheckMPIHalo(local_pos, light_dir_comp, s_vec,
+                             light_position)) {
                // next light ray
+               flag_save_ray = false;
                break;
+            }
 
             auto label = GetLabel(local_pos);
 
@@ -235,7 +238,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             }
          }
 
-         if (!flag_ray_sended) {
+         if (flag_save_ray) {
             // save only, if light ray has reached the end of the volume
             size_t ccd_idx = (ccd_pos.x() - dim_.offset.x()) * dim_.local.y() +
                              (ccd_pos.y() - dim_.offset.y());
