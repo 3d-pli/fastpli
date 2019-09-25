@@ -8,4 +8,4 @@ RUN apt-get install -y libopenmpi-dev freeglut3-dev libhdf5-openmpi-dev
 ENV HDF5_DIR /usr/lib/x86_64-linux-gnu/hdf5/openmpi
 WORKDIR /code/fastpli
 
-CMD git clean -d -f -x && make git-submodules && make BUILD=release install && make BUILD=release test
+CMD git clean -d -f -x && make BUILD=release install && make tests
