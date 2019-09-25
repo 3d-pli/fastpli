@@ -27,9 +27,7 @@ class World {
    // defaults
    World() = default;
    World(World &&) = default;
-   World(const World &) = default;
    World &operator=(World &&) = default;
-   World &operator=(const World &) = default;
    ~World() = default;
 
    // getter

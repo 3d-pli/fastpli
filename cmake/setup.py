@@ -3,7 +3,7 @@ import sys
 import setuptools
 
 if sys.version_info < (3, 0):
-    sys.exit('Sorry, Python < 3.0 is not supported')
+    sys.exit('You should not use Python 2.* anyway')
 
 # copy src files into build folder
 os.system('cp -r ${CMAKE_SOURCE_DIR}/src/fastpli ${CMAKE_CURRENT_BINARY_DIR}/')
