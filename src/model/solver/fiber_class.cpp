@@ -14,6 +14,10 @@ Fiber::Fiber(const object::Fiber &fiber, const size_t f_idx)
 
    fiber_idx_ = f_idx;
    speed_.assign(points_.size(), vm::Vec3<double>(0));
+
+   max_speed_ = std::numeric_limits<double>::max();
+   for (auto &r : radii_)
+      max_speed_ = std::min(max_speed_, std::abs(r) * 0.2);
 }
 
 size_t Fiber::ConeSize() const {
@@ -36,12 +40,11 @@ std::vector<object::Cone> Fiber::Cones() const {
 }
 
 void Fiber::Move() {
+   assert(max_speed_ > 0);
    for (size_t i = 0; i < points_.size(); i++) {
       auto const norm = vm::length(speed_[i]);
-      auto const max_speed =
-          radii_[i] * 0.1; // TODO: small fibers are to small ....
-      if (norm > max_speed)
-         speed_[i] *= max_speed / norm;
+      if (norm > max_speed_)
+         speed_[i] *= max_speed_ / norm;
 
       points_[i] += speed_[i];
    }
@@ -83,19 +86,14 @@ bool Fiber::CheckRadius(const double obj_min_radius) {
       auto const gamma = std::acos((c * c - a * a - b * b) / (-2.0f * a * b));
 
       if (r < obj_min_radius || gamma < 60.0f / 180.0f * M_PI) {
-         // std::cout << "i:" << i << " " << r << "<" << obj_min_radius << ", "
-         // << k_max_speed_ << std::endl;
-
-         auto max_speed =
-             std::min(radii_[i - 1], std::min(radii_[i], radii_[i + 1])) * 0.2;
          auto const v1 = p1 - p2;
          auto const v2 = p3 - p2;
          auto dv = v1 + v2;
          vm::normalize(dv);
 
-         pos_new[i] = points_[i] + dv * max_speed;
-         pos_new[i - 1] = points_[i - 1] - dv * max_speed * 0.25;
-         pos_new[i + 1] = points_[i + 1] - dv * max_speed * 0.25;
+         pos_new[i] = points_[i] + dv * max_speed_ * 0.2;
+         pos_new[i - 1] = points_[i - 1] - dv * max_speed_ * 0.05;
+         pos_new[i + 1] = points_[i + 1] - dv * max_speed_ * 0.05;
 
          solved = false;
       }
@@ -119,11 +117,13 @@ bool Fiber::CheckLength(const double obj_mean_length) {
       auto distance = vm::length(points_[i + 1] - points_[i]);
       if (distance > max) {
          Split(i);
+         i--;
          solved = false;
       } else if (distance < min) {
          if (points_.size() == 2)
             return true;
          Combine(i);
+         i--;
          solved = false;
       }
    }
@@ -142,7 +142,7 @@ void Fiber::Split(size_t idx) {
 }
 
 void Fiber::Combine(size_t idx) {
-   // TODO: thats not merging, thats deleting!
+   // TODO: FIXME: not merging, thats deleting, but close enough
 
    if (ConeSize() <= 1)
       return;
@@ -162,19 +162,6 @@ void Fiber::Combine(size_t idx) {
       points_.erase(points_.begin() + idx + 1);
       radii_.erase(radii_.begin() + idx + 1);
       speed_.erase(speed_.begin() + idx + 1);
-
-      // TODO: check
-      // auto const pos_new = (points_[idx] + points_[idx + 1]) * 0.5;
-      // auto const r_new = (radii_[idx] + radii_[idx + 1]) * 0.5;
-      // auto const v_new = (speed_[idx] + speed_[idx + 1]) * 0.5;
-
-      // points_.erase(points_.begin() + idx, points_.begin() + idx + 2);
-      // radii_.erase(radii_.begin() + idx, radii_.begin() + idx + 2);
-      // speed_.erase(speed_.begin() + idx, speed_.begin() + idx + 2);
-
-      // points_.insert(points_.begin() + idx, pos_new);
-      // radii_.insert(radii_.begin() + idx, r_new);
-      // speed_.insert(speed_.begin() + idx, v_new);
    }
 }
 

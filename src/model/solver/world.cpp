@@ -65,6 +65,7 @@ void World::set_fibers(const object::FiberBundles &fiber_bundles) {
    // free memory
    fibers_ = std::vector<geometry::Fiber>();
    map_fb_idx_ = std::map<size_t, std::pair<size_t, size_t>>();
+   double max_speed = std::numeric_limits<double>::max();
 
    size_t fb_idx = 0;
    for (auto const &fb : fiber_bundles) {
@@ -72,10 +73,14 @@ void World::set_fibers(const object::FiberBundles &fiber_bundles) {
       for (auto const &f : fb) {
          map_fb_idx_[fibers_.size()] = std::make_pair(fb_idx, f_idx);
          fibers_.push_back(geometry::Fiber(f, fibers_.size()));
+         max_speed = std::min(max_speed, fibers_.back().max_speed());
          f_idx++;
       }
       fb_idx++;
    }
+
+   for (auto &f : fibers_)
+      f.set_max_speed(max_speed);
 }
 
 void World::set_fibers_vector(
@@ -84,6 +89,7 @@ void World::set_fibers_vector(
    // free memory
    fibers_ = std::vector<geometry::Fiber>();
    map_fb_idx_ = std::map<size_t, std::pair<size_t, size_t>>();
+   double max_speed = std::numeric_limits<double>::max();
 
    size_t fb_idx = 0;
    for (auto const &fb : fiber_bundles) {
@@ -91,10 +97,14 @@ void World::set_fibers_vector(
       for (auto const &f : fb) {
          map_fb_idx_[fibers_.size()] = std::make_pair(fb_idx, f_idx);
          fibers_.push_back(geometry::Fiber(object::Fiber(f), fibers_.size()));
+         max_speed = std::min(max_speed, fibers_.back().max_speed());
          f_idx++;
       }
       fb_idx++;
    }
+
+   for (auto &f : fibers_)
+      f.set_max_speed(max_speed);
 }
 
 int World::set_omp_num_threads(int i) {
@@ -247,5 +257,4 @@ void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
                 << std::endl;
    }
 }
-
 #endif //_VIS_LIBRARIES

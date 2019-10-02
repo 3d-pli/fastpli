@@ -30,6 +30,9 @@ class Fiber : public object::Fiber {
    std::vector<object::Cone> Cones() const;
 
    // manipulators
+   const double &max_speed() const { return max_speed_; };
+   void set_max_speed(double max_speed) { max_speed_ = max_speed; };
+
    void Move();
    void Drag(const double drag = 1);
    bool CheckRadius(const double obj_min_radius);
@@ -44,8 +47,7 @@ class Fiber : public object::Fiber {
    std::vector<vm::Vec3<double>> speed_;
    size_t fiber_idx_;
 
-   // const double k_max_speed_ = 0.1; // TODO: should be dependend on min obj
-   // size
+   double max_speed_ = 0;
 };
 } // namespace geometry
 
