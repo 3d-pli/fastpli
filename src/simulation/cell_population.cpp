@@ -28,16 +28,13 @@ Population::Population(std::vector<std::vector<double>> cells,
 
       cells_.emplace_back(object::Cell(points, radii));
    }
-
    property_ = property;
-
    CalculateVoi();
 }
 
 Population::Population(std::vector<object::Cell> cells, Property property) {
    cells_.swap(cells);
    property_ = property;
-
    CalculateVoi();
 }
 
@@ -74,7 +71,6 @@ void Population::RotateAroundPoint(const vm::Mat3x3<double> &rot_mat,
 void Population::Translate(const vm::Vec3<double> &translation) {
    for (auto &cell : cells_)
       cell.Translate(translation);
-
    CalculateVoi();
 }
 

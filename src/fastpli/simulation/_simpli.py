@@ -51,9 +51,10 @@ class Simpli:
         self._light_intensity = None
         self._step_size = 1.0
         self._interpolate = True
-        self._untilt_sensor = True
+        self._untilt_sensor_view = True
         self._flip_z_beam = False
         self._wavelength = None
+        self._tissue_refrection = 1
 
         self._omp_num_threads = 1
         self._debug = False
@@ -75,7 +76,7 @@ class Simpli:
             'filter_rotations': self._filter_rotations,
             'light_intensity': self._light_intensity,
             'wavelength': self._wavelength,
-            'untilt_sensor': self._untilt_sensor,
+            'untilt_sensor_view': self._untilt_sensor_view,
             'flip_z_beam': self._flip_z_beam,
             'omp_num_threads': self._omp_num_threads,
             'debug': self._debug
@@ -130,11 +131,10 @@ class Simpli:
     def resolution(self):
         return (self._resolution)
 
-    @voxel_size.setter
+    @resolution.setter
     def resolution(self, resolution):
         if not isinstance(resolution, (int, float)):
             raise TypeError("resolution : (int, float)")
-
         if resolution <= 0:
             raise ValueError("resolution <= 0")
 
@@ -220,7 +220,7 @@ class Simpli:
 
     @light_intensity.setter
     def light_intensity(self, light_intensity):
-        self._light_intensity = light_intensity
+        self._light_intensity = float(light_intensity)
 
     @property
     def wavelength(self):
@@ -228,7 +228,15 @@ class Simpli:
 
     @wavelength.setter
     def wavelength(self, wavelength):
-        self._wavelength = wavelength
+        self._wavelength = float(wavelength)
+
+    @property
+    def tissue_refrection(self):
+        return self._tissue_refrection
+
+    @tissue_refrection.setter
+    def tissue_refrection(self, tissue_refrection):
+        self._tissue_refrection = float(tissue_refrection)
 
     @property
     def step_size(self):
@@ -236,7 +244,7 @@ class Simpli:
 
     @step_size.setter
     def step_size(self, step_size):
-        self._step_size = step_size
+        self._step_size = float(step_size)
 
     @property
     def interpolate(self):
@@ -247,12 +255,12 @@ class Simpli:
         self._interpolate = bool(interpolate)
 
     @property
-    def untilt_sensor(self):
-        return self._untilt_sensor
+    def untilt_sensor_view(self):
+        return self._untilt_sensor_view
 
-    @untilt_sensor.setter
-    def untilt_sensor(self, untilt_sensor):
-        self._untilt_sensor = bool(untilt_sensor)
+    @untilt_sensor_view.setter
+    def untilt_sensor_view(self, untilt_sensor_view):
+        self._untilt_sensor_view = bool(untilt_sensor_view)
 
     @property
     def flip_z_beam(self):
@@ -439,8 +447,9 @@ class Simpli:
 
         self._sim.set_pli_setup(self._step_size, self._light_intensity,
                                 self._voxel_size, self._wavelength,
-                                self._interpolate, self._untilt_sensor,
-                                self._flip_z_beam, self._filter_rotations)
+                                self._tissue_refrection, self._interpolate,
+                                self._untilt_sensor_view, self._flip_z_beam,
+                                self._filter_rotations)
 
     def run_simulation(self, label_field, vec_field, tissue_properties, theta,
                        phi):
@@ -610,9 +619,9 @@ class Simpli:
 
         transmittance, direction, retardation = epa.epa(image_stack)
         if mask is not None:
-            transmittance[~mask] = float('nan')
-            direction[~mask] = float('nan')
-            retardation[~mask] = float('nan')
+            transmittance[np.invert(mask)] = float('nan')
+            direction[np.invert(mask)] = float('nan')
+            retardation[np.invert(mask)] = float('nan')
 
         return transmittance, direction, retardation
 

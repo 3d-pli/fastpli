@@ -7,11 +7,10 @@
 #include <vector>
 
 #include "fiber_bundle.hpp"
-#include "helper.hpp"
 #include "include/aabb.hpp"
 #include "include/omp.hpp"
 #include "include/vemath.hpp"
-#include "simulator.hpp"
+#include "setup.hpp"
 
 int PliGenerator::set_omp_num_threads(int i) {
    if (i != 0) {
@@ -34,7 +33,7 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                                   std::to_string(global_dim.y()) + "," +
                                   std::to_string(global_dim.z()) + "]");
 
-   dim_ = Dimensions();
+   dim_ = setup::Dimensions();
    if (mpi_) {
       mpi_->CreateCartGrid(global_dim);
       dim_ = mpi_->dim_vol();
@@ -476,8 +475,14 @@ setup::PhyProps PliGenerator::GetPropertyList() const {
    for (size_t f = 0; f < fiber_bundles_org_.size(); f++) {
       for (size_t l = 0; l < fiber_bundles_org_[f].layer_size(); l++) {
          auto id = 1 + l + f * max_layer_; //+1 for brackground
-         properties.dn(id) = fiber_bundles_org_[f].layer_dn(l);
+
          properties.mu(id) = fiber_bundles_org_[f].layer_mu(l);
+
+         if (fiber_bundles_org_[f].layer_orientation(l) ==
+             fiber::layer::Orientation::background)
+            properties.dn(id) = 0;
+         else
+            properties.dn(id) = fiber_bundles_org_[f].layer_dn(l);
       }
    }
 

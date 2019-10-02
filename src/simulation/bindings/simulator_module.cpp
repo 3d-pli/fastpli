@@ -22,16 +22,18 @@ PYBIND11_MODULE(__simulation, m) {
        .def(
            "set_pli_setup",
            [](PliSimulator &self, double step_size, double light_intensity,
-              double voxel_size, double wavelength, bool interpolate,
-              bool untilt_sensor, bool flip_z,
+              double voxel_size, double wavelength, double tissue_refrection,
+              bool interpolate, bool untilt_sensor_view, bool flip_z,
               std::vector<double> filter_rotations) {
               self.SetSetup(setup::Setup(step_size, light_intensity, voxel_size,
-                                         wavelength, interpolate, untilt_sensor,
+                                         wavelength, tissue_refrection,
+                                         interpolate, untilt_sensor_view,
                                          flip_z, filter_rotations));
            },
            py::arg("step_size"), py::arg("light_intensity"),
-           py::arg("voxel_size"), py::arg("wavelength"), py::arg("interpolate"),
-           py::arg("untilt_sensor"), py::arg("flip_z"),
+           py::arg("voxel_size"), py::arg("wavelength"),
+           py::arg("tissue_refrection"), py::arg("interpolate"),
+           py::arg("untilt_sensor_view"), py::arg("flip_z"),
            py::arg("filter_rotations"))
        .def("set_mpi_comm",
             [](PliSimulator &self, long long comm_address) {
@@ -53,7 +55,7 @@ PYBIND11_MODULE(__simulation, m) {
 
               auto image = new std::vector<double>(
                   self.RunSimulation(dim, label_container, vector_container,
-                                     properties, theta, phi));
+                                     properties, setup::Tilting(theta, phi)));
 
               std::vector<size_t> dim_image =
                   vm::cast<size_t>(self.GetImageDim());

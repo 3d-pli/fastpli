@@ -5,7 +5,34 @@
 #include <utility>
 #include <vector>
 
+#include "include/vemath.hpp"
+
 namespace setup {
+
+struct Dimensions {
+   vm::Vec3<long long> global{0};
+   vm::Vec3<long long> local{0};
+   vm::Vec3<long long> offset{0};
+   vm::Vec3<double> origin{0};
+};
+
+struct Coordinates {
+   vm::Vec3<double> tissue;
+   vm::Vec2<long long> ccd;
+};
+
+struct Tilting {
+   Tilting(const double theta, const double phi) : theta(theta), phi(phi) {
+      if (std::abs(theta) >= M_PI_2)
+         throw std::invalid_argument("abs(theta) >= pi/2: " +
+                                     std::to_string(theta));
+   };
+
+   // FIXME: Tilting should be const, not theta and phi
+   const double theta;
+   const double phi;
+};
+
 class PhyProps {
  public:
    PhyProps() = default;
@@ -41,11 +68,13 @@ struct Setup {
 
    Setup(const double step_size, const double light_intensity,
          const double voxel_size, const double wavelength,
-         const bool interpolate, const bool untilt_sensor, const bool flip_z,
+         const double tissue_refrection, const bool interpolate,
+         const bool untilt_sensor_view, const bool flip_z,
          const std::vector<double> filter_rotations)
        : step_size(step_size), light_intensity(light_intensity),
          voxel_size(voxel_size), wavelength(wavelength),
-         interpolate(interpolate), untilt_sensor(untilt_sensor), flip_z(flip_z),
+         tissue_refrection(tissue_refrection), interpolate(interpolate),
+         untilt_sensor_view(untilt_sensor_view), flip_z(flip_z),
          filter_rotations(filter_rotations) {
 
       if (step_size <= 0)
@@ -64,6 +93,10 @@ struct Setup {
          throw std::invalid_argument("wavelength <= 0: " +
                                      std::to_string(wavelength));
 
+      if (tissue_refrection < 1)
+         throw std::invalid_argument("tissue_refrection < 1: " +
+                                     std::to_string(tissue_refrection));
+
       if (filter_rotations.empty())
          throw std::invalid_argument("filter_rotations is empty: []");
    };
@@ -72,8 +105,9 @@ struct Setup {
    const double light_intensity;
    const double voxel_size;
    const double wavelength;
+   const double tissue_refrection;
    const bool interpolate;
-   const bool untilt_sensor;
+   const bool untilt_sensor_view;
    const bool flip_z;
    const std::vector<double> filter_rotations;
 };

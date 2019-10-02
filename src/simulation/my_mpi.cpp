@@ -171,7 +171,7 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
 #endif
 }
 
-std::tuple<std::vector<Coordinates>, std::vector<vm::Vec4<double>>>
+std::tuple<std::vector<setup::Coordinates>, std::vector<vm::Vec4<double>>>
 MyMPI::CommunicateData() {
    SndRcv();
    auto data = InternalBufferToVariable();
@@ -240,9 +240,9 @@ int MyMPI::Allreduce(int value) {
    return sum;
 }
 
-std::tuple<std::vector<Coordinates>, std::vector<vm::Vec4<double>>>
+std::tuple<std::vector<setup::Coordinates>, std::vector<vm::Vec4<double>>>
 MyMPI::InternalBufferToVariable() {
-   std::vector<Coordinates> light_positions;
+   std::vector<setup::Coordinates> light_positions;
    std::vector<vm::Vec4<double>> light_signals;
 
 #ifndef NDEBUG
@@ -250,7 +250,7 @@ MyMPI::InternalBufferToVariable() {
       MPI_Abort(my_comm_, 1117);
 #endif
 
-   Coordinates pos_ccd;
+   setup::Coordinates pos_ccd;
    for (auto ind = 0u; ind < send_direction_.size(); ind++) {
 
       if (rcv_buffer_[ind].size() == 0)

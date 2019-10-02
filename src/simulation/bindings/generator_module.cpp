@@ -12,15 +12,12 @@
 #include <mpi.h>
 
 #include "../generator.hpp"
-#include "../helper.hpp"
 #include "../setup.hpp"
 #include "objects/cell.hpp"
 #include "objects/fiber.hpp"
 #include "objects/np_array_helper.hpp"
 
 namespace py = pybind11;
-
-// TODO: expose vm::vec with vec->data_ as an array
 
 PYBIND11_MODULE(__generation, m) {
    m.doc() = "Generation of tissue for SimPLI";

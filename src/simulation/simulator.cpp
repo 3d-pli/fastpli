@@ -6,11 +6,11 @@
 #include <memory>
 #include <vector>
 
-#include "helper.hpp"
 #include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
 #include "objects/np_array_container.hpp"
+#include "setup.hpp"
 
 // Optical Elements
 vm::Mat4x4<double> PolX(const double p) {
@@ -116,8 +116,8 @@ std::vector<double>
 PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                             object::container::NpArray<int> label_field,
                             object::container::NpArray<float> vector_field,
-                            setup::PhyProps properties, const double theta,
-                            const double phi) {
+                            setup::PhyProps properties,
+                            const setup::Tilting tilt) {
 
    // transfer data to class
    label_field_ = std::move(label_field);
@@ -129,9 +129,6 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
       throw std::invalid_argument("pli_setup not set yet");
    CalculateDimensions(global_dim);
    CheckDimension();
-
-   if (std::abs(theta) >= M_PI_2)
-      throw std::invalid_argument("illegal light path");
 
    const auto n_rho = setup_->filter_rotations.size();
    const double lambda = setup_->wavelength * 1e-9;
@@ -151,9 +148,9 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    const std::vector<vm::Vec4<double>> s_vec_0(n_rho, signal_0);
 
    const vm::Mat3x3<double> rotation =
-       vm::rot_pi_cases::Mat3RotZYZ(phi, theta, -phi);
+       vm::rot_pi_cases::Mat3RotZYZ(tilt.phi, tilt.theta, -tilt.phi);
 
-   const vm::Vec3<double> light_dir_vec = LightDirectionUnitVector(theta, phi);
+   const vm::Vec3<double> light_dir_vec = LightDirectionUnitVector(tilt);
    const vm::Vec3<int> light_dir_comp = LightDirectionComponent(light_dir_vec);
    const vm::Vec3<double> light_step = light_dir_vec * setup_->step_size;
 
@@ -161,7 +158,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
        dim_.local.x() * dim_.local.y() * n_rho,
        std::numeric_limits<double>::quiet_NaN());
 
-   auto light_positions = CalcStartingLightPositions(theta, phi);
+   auto light_positions = CalcStartingLightPositions(tilt);
 
    while (!light_positions.empty()) {
 #pragma omp parallel for
@@ -175,21 +172,21 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          auto s_vec = s_vec_0;
 
          if (!stored_s_vec_.empty()) {
-            // TODO: check this!
+#ifndef NDEBUG
+            if ((s + 1) * n_rho > stored_s_vec_.size())
+               Abort(3111);
+#endif
             std::copy(stored_s_vec_.begin() + s * n_rho,
                       stored_s_vec_.begin() + (s + 1) * n_rho, s_vec.begin());
-
-            if ((s + 1) * n_rho > stored_s_vec_.size())
-               Abort(9855);
          }
 
-         for (; local_pos.z() > -0.5 && local_pos.z() < dim_.local.z() - 0.5;
+         for (; std::round(local_pos.z()) >= 0 &&
+                std::round(local_pos.z()) < dim_.local.z();
               local_pos += light_step) {
 
             // check if communication is neccesary
             if (CheckMPIHalo(local_pos, light_dir_comp, s_vec,
                              light_position)) {
-               // next light ray
                flag_save_ray = false;
                break;
             }
@@ -201,7 +198,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             auto mu = properties_.mu(label) * 1e3;
             const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
 
-            if (dn == 0) {
+            // FIXME: if label == 0, then dn should always be 0
+            if (dn == 0 || label == 0) {
                if (mu == 0)
                   continue;
 
@@ -213,7 +211,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             auto vec = GetVec(local_pos, setup_->interpolate);
             const auto d_rel = dn * 4.0 * thickness / lambda;
 
-            if (theta != 0)
+            if (tilt.theta != 0)
                vec = vm::dot(rotation, vec);
 
             // calculate spherical coordinates
@@ -238,6 +236,13 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                               -a1 * sin_b + b1 * cos_b,
                               -c1 * sin_r + s_vec[rho][3] * cos_r}};
                s_vec[rho] *= attenuation;
+
+               if (std::isnan(s_vec[rho][0]) || std::isnan(s_vec[rho][1]) ||
+                   std::isnan(s_vec[rho][2]) || std::isnan(s_vec[rho][3])) {
+                  std::cerr << "nan: " << ccd_pos << "::" << local_pos
+                            << std::endl;
+                  exit(EXIT_FAILURE);
+               }
             }
          }
 
@@ -246,22 +251,16 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             size_t ccd_idx = (ccd_pos.x() - dim_.offset.x()) * dim_.local.y() +
                              (ccd_pos.y() - dim_.offset.y());
 
-            // save signal only if light beam did not leave xy border
-            if (local_pos.x() >= -0.5 && local_pos.y() >= -0.5 &&
-                local_pos.x() < static_cast<double>(dim_.local.x()) - 0.5 &&
-                local_pos.y() < static_cast<double>(dim_.local.y()) - 0.5) {
-
 #ifndef NDEBUG
-               if (ccd_idx * n_rho >= intensity_signal.size()) {
-                  std::cerr << mpi_->my_rank() << ": " << ccd_pos << std::endl;
-                  Abort(3112);
-               }
+            if (ccd_idx * n_rho >= intensity_signal.size()) {
+               std::cerr << "int signal: " << ccd_pos << std::endl;
+               Abort(3112);
+            }
 #endif
-               for (auto rho = 0u; rho < n_rho; rho++) {
-                  s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
-                  assert(!std::isnan(s_vec[rho][0]));
-                  intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
-               }
+            for (auto rho = 0u; rho < n_rho; rho++) {
+               s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
+               assert(!std::isnan(s_vec[rho][0]));
+               intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
             }
          }
       }
@@ -293,11 +292,16 @@ int PliSimulator::GetLabel(const long long x, const long long y,
    if (setup_->flip_z)
       z = dim_.local.z() - 1 - z;
 
+   if (x < 0 || x >= dim_.local.x() || y < 0 || y >= dim_.local.y() || z < 0 ||
+       z >= dim_.local.z())
+      return 0;
+
    size_t idx = x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
-#ifndef NDEBUG
-   if (idx >= label_field_.size())
-      Abort(3115);
-#endif
+
+   if (idx < 0 || idx >= label_field_.size()) {
+      Abort(3456);
+   }
+
    return label_field_[idx];
 }
 
@@ -391,23 +395,24 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
 }
 
 vm::Vec3<double>
-PliSimulator::LightDirectionUnitVector(const double theta,
-                                       const double phi) const {
+PliSimulator::LightDirectionUnitVector(const setup::Tilting tilt) const {
 
    // special tilting angles
-   if (theta == 0)
-      return vm::Vec3<double>(0, 0, 1);
-   else if (phi == 0)
-      return vm::Vec3<double>(sin(theta), 0.0, cos(theta));
-   else if (phi == M_PI_2)
-      return vm::Vec3<double>(0.0, sin(theta), cos(theta));
-   else if (phi == M_PI)
-      return vm::Vec3<double>(-sin(theta), 0.0, cos(theta));
-   else if (phi == 3 * M_PI_2)
-      return vm::Vec3<double>(0.0, -sin(theta), cos(theta));
+   // if (tilt.theta == 0)
+   //    return vm::Vec3<double>(0, 0, 1);
+   // else if (tilt.phi == 0)
+   //    return vm::Vec3<double>(sin(tilt.theta), 0.0, cos(tilt.theta));
+   // else if (tilt.phi == M_PI_2)
+   //    return vm::Vec3<double>(0.0, sin(tilt.theta), cos(tilt.theta));
+   // else if (tilt.phi == M_PI)
+   //    return vm::Vec3<double>(-sin(tilt.theta), 0.0, cos(tilt.theta));
+   // else if (tilt.phi == 3 * M_PI_2)
+   //    return vm::Vec3<double>(0.0, -sin(tilt.theta), cos(tilt.theta));
 
-   return vm::Vec3<double>(cos(phi) * sin(theta), sin(phi) * sin(theta),
-                           cos(theta));
+   return vm::Vec3<double>(
+       vm::rot_pi_cases::cos(tilt.phi) * vm::rot_pi_cases::sin(tilt.theta),
+       vm::rot_pi_cases::sin(tilt.phi) * vm::rot_pi_cases::sin(tilt.theta),
+       vm::rot_pi_cases::cos(tilt.theta));
 }
 
 vm::Vec3<int>
@@ -422,38 +427,152 @@ PliSimulator::LightDirectionComponent(const vm::Vec3<double> &dir_vec) const {
    return dir_comp;
 }
 
-std::vector<Coordinates>
-PliSimulator::CalcStartingLightPositions(const double phi, const double theta) {
+std::vector<setup::Coordinates>
+PliSimulator::CalcStartingLightPositions(const setup::Tilting &tilt) {
+   if (setup_->untilt_sensor_view)
+      return CalcStartingLightPositionsUntilted(tilt);
+   else
+      return CalcStartingLightPositionsTilted(tilt);
+}
 
-   if (!setup_->untilt_sensor) {
-      // TODO: calculate without untilt
-      std::cerr << "!untilt_sensor not implemented yet" << std::endl;
-      Abort(3117);
-   }
+std::vector<setup::Coordinates>
+PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
+   std::vector<setup::Coordinates> light_positions;
+   /**
+    * This function calculates the position of the initial beam on the bottom
+    * plane. Layer of the fabric/label_field_.
+    * 1. rotate the tissue in the LS (laboratory system) to the inclined
+    * position.
+    * 2. intersection point of the ccd position with the top plane
+    * 3. Rotate coordinate to RF (Rotating Frame of tissue).
+    * 4. light beam light beam is transferred to the lower tissue plane, the
+    * starting point.
+    */
 
-   std::vector<Coordinates> light_positions;
+   auto shift =
+       LightDirectionUnitVector(tilt) / cos(tilt.theta) * dim_.global.z();
 
-   Coordinates data_point;
-   vm::Vec3<double> shift =
-       LightDirectionUnitVector(phi, theta) * (dim_.global.z() - 1);
+   // rotate tissue vector -> theta is inside tissue, refraction!
+   // if light tiltes to one direction, the tissue tilts to the other
+   const auto rot = vm::rot_pi_cases::Mat3RotZYZ(
+       tilt.phi, asin(sin(-tilt.theta) * setup_->tissue_refrection), -tilt.phi);
+
+   const auto rot_inv = vm::rot_pi_cases::Mat3RotZYZ(
+       tilt.phi, -asin(sin(-tilt.theta) * setup_->tissue_refrection),
+       -tilt.phi);
+
+   // top plane: P = pc+pt+p1*s+p2*t
+   // rotated top plane: P' = pc + rot(pt) + rot(p1) *s + rot(p2) * t
+   const auto pc = vm::cast<double>(dim_.global - 1) * 0.5;
+   vm::Vec3<double> pt = {-pc.x(), -pc.y(), pc.z()};
+   vm::Vec3<double> p1 = {1, 0, 0};
+   vm::Vec3<double> p2 = {0, 1, 0};
+
+   pt = vm::dot(rot, pt);
+   p1 = vm::dot(rot, p1);
+   p2 = vm::dot(rot, p2);
+
+   // find position of light_beam(ccd_x=0, ccd_y=0) on top tissue plane
+   // solve linear equation:
+   const double a = p1.x();
+   const double b = p2.x();
+   const double c = p1.y();
+   const double d = p2.y();
 
    // begin at ccd pos
    for (long long ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
       for (long long ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
-         // transform to bottom position
-         auto tis_x = ccd_x - shift.x();
-         auto tis_y = ccd_y - shift.y();
 
-         if (tis_x < dim_.offset.x() - 0.5 ||
-             tis_x > (dim_.offset.x() + dim_.local.x() - 0.5))
-            continue;
-         if (tis_y < dim_.offset.y() - 0.5 ||
-             tis_y > (dim_.offset.y() + dim_.local.y() - 0.5))
-            continue;
+         const double e = ccd_x - pc.x() - pt.x();
+         const double f = ccd_y - pc.y() - pt.y();
 
+         const double D = a * d - c * b;
+         const double Ds = e * d - f * b;
+         const double Dt = a * f - c * e;
+
+         const double s = Ds / D;
+         const double t = Dt / D;
+
+         // TODO: test: elementwise inv-rot
+         // position of ccd-tissue intersection in LS
+         const vm::Vec3<double> p = pc + pt + p1 * s + p2 * t;
+
+         // rotate back to RF
+         const auto tissue = vm::dot(rot_inv, p - pc) + pc;
+
+         // transform to bottom tissue position
+         const double tis_x = tissue.x() - shift.x();
+         const double tis_y = tissue.y() - shift.y();
+
+         // check if procesed by another mpi rank
+         if (mpi_) {
+            auto my_coords = mpi_->my_coords();
+            auto glob_coords = mpi_->global_coords();
+            if (my_coords.x() != 0 && std::round(tis_x) < dim_.offset.x())
+               continue;
+            if (my_coords.x() != glob_coords.x() - 1 &&
+                std::round(tis_x) > (dim_.offset.x() + dim_.local.x() - 1))
+               continue;
+            if (my_coords.y() != 0 && std::round(tis_y) < dim_.offset.y())
+               continue;
+            if (my_coords.y() != glob_coords.y() - 1 &&
+                std::round(tis_y) > (dim_.offset.y() + dim_.local.y() - 1))
+               continue;
+         }
+
+         setup::Coordinates data_point;
          data_point.tissue = {tis_x, tis_y, 0.0};
          data_point.ccd = {ccd_x, ccd_y};
+         light_positions.push_back(data_point);
+      }
+   }
 
+   if (light_positions.size() == 0) {
+      if (mpi_)
+         std::cout << mpi_->my_rank() << ": Warning, light_positions is empty"
+                   << std::endl;
+      else
+         std::cout << 0 << ": Warning, light_positions is empty" << std::endl;
+   }
+
+   return light_positions;
+}
+
+std::vector<setup::Coordinates>
+PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
+   // TODO: check with outside tissue = background
+   std::vector<setup::Coordinates> light_positions;
+
+   auto shift =
+       LightDirectionUnitVector(tilt) / cos(tilt.theta) * dim_.global.z();
+
+   // begin at ccd pos
+   for (long long ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
+      for (long long ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
+
+         // transform to bottom tissue position
+         double tis_x = ccd_x - 0.5 * shift.x();
+         double tis_y = ccd_y - 0.5 * shift.y();
+
+         // check if procesed by another process
+         if (mpi_) {
+            auto my_coords = mpi_->my_coords();
+            auto glob_coords = mpi_->global_coords();
+            if (my_coords.x() != 0 && std::round(tis_x) < dim_.offset.x())
+               continue;
+            if (my_coords.x() != glob_coords.x() - 1 &&
+                std::round(tis_x) > (dim_.offset.x() + dim_.local.x() - 1))
+               continue;
+            if (my_coords.y() != 0 && std::round(tis_y) < dim_.offset.y())
+               continue;
+            if (my_coords.y() != glob_coords.y() - 1 &&
+                std::round(tis_y) > (dim_.offset.y() + dim_.local.y() - 1))
+               continue;
+         }
+
+         setup::Coordinates data_point;
+         data_point.tissue = {tis_x, tis_y, 0.0};
+         data_point.ccd = {ccd_x, ccd_y};
          light_positions.push_back(data_point);
       }
    }
@@ -472,7 +591,7 @@ PliSimulator::CalcStartingLightPositions(const double phi, const double theta) {
 bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
                                 const vm::Vec3<int> &shift_direct,
                                 const std::vector<vm::Vec4<double>> &s_vec,
-                                const Coordinates &startpos) {
+                                const setup::Coordinates &startpos) {
 
    if (!mpi_)
       return false;

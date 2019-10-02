@@ -5,8 +5,8 @@
 #include <tuple>
 #include <vector>
 
-#include "helper.hpp"
 #include "include/vemath.hpp"
+#include "setup.hpp"
 
 #include <mpi.h>
 
@@ -23,7 +23,7 @@ class MyMPI {
    void PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
                           std::vector<vm::Vec4<double>> light, int direction);
 
-   std::tuple<std::vector<Coordinates>, std::vector<vm::Vec4<double>>>
+   std::tuple<std::vector<setup::Coordinates>, std::vector<vm::Vec4<double>>>
    CommunicateData();
 
    int Allreduce(int value);
@@ -35,12 +35,12 @@ class MyMPI {
    vm::Vec3<int> my_coords() const { return my_coords_; };
    vm::Vec3<int> global_coords() const { return global_coords_; };
 
-   Dimensions dim_vol() const { return dim_vol_; };
+   setup::Dimensions dim_vol() const { return dim_vol_; };
 
  private:
    void SndRcv();
    void ClearInternalBuffer();
-   std::tuple<std::vector<Coordinates>, std::vector<vm::Vec4<double>>>
+   std::tuple<std::vector<setup::Coordinates>, std::vector<vm::Vec4<double>>>
    InternalBufferToVariable();
 
 #ifndef NDEBUG
@@ -53,8 +53,7 @@ class MyMPI {
    int my_rank_ = 0;
    int numP_ = 1;
 
-   Dimensions dim_vol_{};
-   // Dimensions dim_ccd_{};
+   setup::Dimensions dim_vol_{};
 
    vm::Vec3<int> my_coords_ = {-1, -1, -1};
    vm::Vec3<int> global_coords_ = {-1, -1, -1};

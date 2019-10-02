@@ -7,13 +7,11 @@
 
 #include "cell_population.hpp"
 #include "fiber_bundle.hpp"
-#include "helper.hpp"
 #include "include/aabb.hpp"
 #include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
 #include "setup.hpp"
-#include "simulator.hpp"
 
 class PliGenerator {
 
@@ -36,7 +34,7 @@ class PliGenerator {
    int set_omp_num_threads(int num);
 
    // getter
-   Dimensions dim() const { return dim_; };
+   setup::Dimensions dim() const { return dim_; };
    vm::Vec3<long long> dim_local() const { return dim_.local; };
    vm::Vec3<long long> dim_global() const { return dim_.global; };
    vm::Vec3<long long> dim_offset() const { return dim_.offset; };
@@ -50,7 +48,7 @@ class PliGenerator {
 #endif
 
    double pixel_size_{0};
-   Dimensions dim_;
+   setup::Dimensions dim_;
    aabb::AABB<double, 3> volume_bb_{};
 
    std::unique_ptr<MyMPI> mpi_ = nullptr;

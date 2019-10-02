@@ -5,7 +5,6 @@
 #include <memory>
 #include <vector>
 
-#include "helper.hpp"
 #include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
@@ -31,8 +30,7 @@ class PliSimulator {
    RunSimulation(const vm::Vec3<long long> &dim,
                  object::container::NpArray<int> label_field,
                  object::container::NpArray<float> vector_field,
-                 setup::PhyProps properties, const double theta,
-                 const double phi);
+                 setup::PhyProps properties, const setup::Tilting tilt);
 
    int set_omp_num_threads(int num);
 
@@ -43,7 +41,7 @@ class PliSimulator {
    const bool debug_ = false;
 #endif
 
-   Dimensions dim_{};
+   setup::Dimensions dim_{};
    std::unique_ptr<setup::Setup> setup_;
    setup::PhyProps properties_;
    object::container::NpArray<int> label_field_;
@@ -89,18 +87,21 @@ class PliSimulator {
       return InterpolateVec(p.x(), p.y(), p.z(), interpolate);
    };
 
-   vm::Vec3<double> LightDirectionUnitVector(const double theta,
-                                             const double phi) const;
+   vm::Vec3<double> LightDirectionUnitVector(const setup::Tilting tilt) const;
    vm::Vec3<int>
    LightDirectionComponent(const vm::Vec3<double> &direction_vec) const;
 
-   std::vector<Coordinates> CalcStartingLightPositions(const double phi,
-                                                       const double theta);
+   std::vector<setup::Coordinates>
+   CalcStartingLightPositions(const setup::Tilting &tilt);
+   std::vector<setup::Coordinates>
+   CalcStartingLightPositionsTilted(const setup::Tilting &tilt);
+   std::vector<setup::Coordinates>
+   CalcStartingLightPositionsUntilted(const setup::Tilting &tilt);
 
    bool CheckMPIHalo(const vm::Vec3<double> &local_pos,
                      const vm::Vec3<int> &shift_direct,
                      const std::vector<vm::Vec4<double>> &s_vec,
-                     const Coordinates &startpos);
+                     const setup::Coordinates &startpos);
 
    void Abort(const int num) const;
 };
