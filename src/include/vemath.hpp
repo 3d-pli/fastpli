@@ -28,6 +28,9 @@ template <typename T, size_t M, size_t N> struct MatMxN {
    MatMxN(const std::array<T, M * N> &a) {
       std::copy(a.begin(), a.end(), data_.begin());
    }
+   MatMxN(std::initializer_list<T> il) {
+      std::copy(il.begin(), il.end(), data_.begin());
+   }
 
    // x, y, z, w functionality
    template <typename TT>
@@ -467,32 +470,25 @@ template <typename T> Mat3x3<T> Mat3RotZYZ(T gamma, T beta, T alpha) {
 
 namespace rot_pi_cases {
 template <typename T> constexpr T sin(T v) {
-   if (v == 0)
+   v = std::fmod(v, 2 * M_PI);
+   if (v == 0 || v == M_PI || v == -M_PI)
       return 0;
-   else if (v == M_PI_2)
+   else if (v == M_PI_2 || v == -(M_PI + M_PI_2))
       return 1;
-   else if (v == M_PI)
-      return 0;
-   else if (v == M_PI + M_PI_2)
+   else if (v == M_PI + M_PI_2 || v == -M_PI_2)
       return -1;
-   else if (v == 2 * M_PI)
-      return 0;
-
    return std::sin(v);
 }
 
 template <typename T> constexpr T cos(T v) {
+   v = std::fmod(v, 2 * M_PI);
    if (v == 0)
       return 1;
-   else if (v == M_PI_2)
+   else if (v == M_PI_2 || v == M_PI + M_PI_2 || v == -M_PI_2 ||
+            v == -(M_PI + M_PI_2))
       return 0;
-   else if (v == M_PI)
+   else if (v == M_PI || v == -M_PI)
       return -1;
-   else if (v == M_PI + M_PI_2)
-      return 0;
-   else if (v == 2 * M_PI)
-      return 1;
-
    return std::cos(v);
 }
 
@@ -504,7 +500,6 @@ template <typename T> Mat3x3<T> Mat2Rot(T alpha) {
 template <typename T> Mat3x3<T> Mat3RotX(T alpha) {
    T sin_a = sin(alpha);
    T cos_a = cos(alpha);
-
    return Mat3x3<T>({1, 0, 0, 0, cos_a, -sin_a, 0, sin_a, cos_a});
 }
 template <typename T> Mat3x3<T> Mat3RotY(T alpha) {
