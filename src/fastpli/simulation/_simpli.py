@@ -4,12 +4,13 @@ from .__simulation import _Simulator
 
 from ..version import __version__
 
-from fastpli.analysis import rofl, epa
+from fastpli.analysis import rofl, epa, affine_transformation
 from fastpli.simulation import optic
 from fastpli.tools import rotation
 
 import numpy as np
 import warnings
+import copy
 
 import h5py
 from PIL import Image
@@ -614,6 +615,34 @@ class Simpli:
         scale = self._resolution / self._voxel_size
         size = np.array(np.array(image.shape) // scale, dtype=int)
         return optic.resize(image, size, resample_mode)
+
+    def apply_untilt(self, images, theta, phi):
+
+        images = copy.deepcopy(images)
+
+        p = self._dim
+        pc = 0.5 * self._dim
+        pc[2] = 0
+
+        p_out = np.array([[p[0], p[1], 0], [p[0], 0, 0], [0, p[1], 0]])
+        rot = rotation.theta_phi(-theta, phi)
+
+        p_in = np.array([np.dot(rot, p - pc) + pc for p in p_out])
+
+        # TODO: refraction has to be implemented
+
+        M = affine_transformation.calc_back_affine_transformation(
+            p_in[:, :2], p_out[:, :2])
+
+        nn_image = np.zeros_like(images)
+        for idx in range(images.shape[2]):
+            for i in range(images.shape[0]):
+                for j in range(images.shape[1]):
+                    nn_image[i, j,
+                             idx] = affine_transformation.nearest_neighbors(
+                                 i, j, images[:, :, idx], np.linalg.inv(M))
+
+        return nn_image
 
     def apply_epa(self, image_stack, mask=None):
 
