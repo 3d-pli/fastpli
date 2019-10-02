@@ -298,7 +298,7 @@ int PliSimulator::GetLabel(const long long x, const long long y,
 
    size_t idx = x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
 
-   if (idx < 0 || idx >= label_field_.size()) {
+   if (idx >= label_field_.size()) {
       Abort(3456);
    }
 
