@@ -5,7 +5,7 @@ default: install
 help:
 	@echo "make install"
 	@echo "make examples/requirements"
-	@echo "make tests"
+	@echo "make test"
 	@echo "make clean"
 
 BUILD := release
@@ -77,8 +77,8 @@ build: build/ build/Makefile
 	cd build
 	${MAKE}
 
-.PHONY: tests
-tests:
+.PHONY: test
+test:
 	${VENV}/bin/python3 -m unittest discover -s tests -p '*_test.py'
 
 .PHONY: h5py-serial

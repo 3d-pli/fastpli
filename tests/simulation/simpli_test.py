@@ -87,9 +87,13 @@ class MainTest(unittest.TestCase):
         self.simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
         self.simpli.light_intensity = 26000
         self.simpli.voxel_size = 1
-        self.simpli.untilt_sensor = True
         self.simpli.wavelength = 525
+        self.simpli.untilt_sensor_view = False
 
+        image = self.simpli.run_simulation(label_field, vec_field,
+                                           tissue_properties, 0, 0)
+
+        self.simpli.untilt_sensor_view = True
         image = self.simpli.run_simulation(label_field, vec_field,
                                            tissue_properties, 0, 0)
 
