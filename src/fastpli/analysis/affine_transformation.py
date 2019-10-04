@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.interpolate
 
 from numba import njit
 
@@ -25,9 +26,28 @@ def _nearest_neighbors(image, M):
     return image_nn
 
 
-@njit(cache=True)
-def _cubic_spline(image, M):
-    pass
+def _interpolate_griddata(image, M, mode):
+    ''' written for simpli images[x,y,rho]
+    '''
+    image = np.atleast_3d(image)
+    image_nn = np.empty_like(image)
+
+    grid_i, grid_j = np.mgrid[0:image.shape[0], 0:image.shape[1]]
+
+    # points -> coordinates in transformed image
+    points = np.array(
+        [grid_i.flatten(),
+         grid_j.flatten(),
+         np.ones(grid_j.size)])
+    points = (M @ points)[0:2, :]
+
+    for k in range(image.shape[2]):
+        image_nn[:, :, k] = scipy.interpolate.griddata(points.T,
+                                                       image[:, :, k].flatten(),
+                                                       (grid_i, grid_j),
+                                                       method=mode)
+
+    return image_nn
 
 
 def calc_matrix(p_in, p_out):
@@ -51,17 +71,19 @@ def calc_matrix(p_in, p_out):
     return np.vstack([M, [0, 0, 1]])
 
 
-@njit(cache=True)
 def exec_matrix(M, x, y):
     x, y, _ = M @ np.array([x, y, 1.0])
     return x, y
 
 
-def image(image, M, mode='NN'):
+def image(image, M, mode='nearest'):
     ''' written for simpli images[x,y,rho]
     '''
-    if mode == 'NN':
+    if mode == 'nearest':
         new_image = _nearest_neighbors(image, M)
+    elif mode == 'linear' or mode == 'cubic':
+        new_image = _interpolate_griddata(image, M, mode)
+
     else:
         raise ValueError("mode \"{}\" does not exist".format(mode))
 

@@ -616,7 +616,7 @@ class Simpli:
         size = np.array(np.array(image.shape) // scale, dtype=int)
         return optic.resize(image, size, resample_mode)
 
-    def apply_untilt(self, images, theta, phi, mode='NN'):
+    def apply_untilt(self, images, theta, phi, mode='nearest'):
 
         if theta == 0:
             return images
