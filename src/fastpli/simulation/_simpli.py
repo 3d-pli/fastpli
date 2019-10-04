@@ -616,33 +616,28 @@ class Simpli:
         size = np.array(np.array(image.shape) // scale, dtype=int)
         return optic.resize(image, size, resample_mode)
 
-    def apply_untilt(self, images, theta, phi):
+    def apply_untilt(self, images, theta, phi, mode='NN'):
 
-        images = copy.deepcopy(images)
+        if theta == 0:
+            return images
 
+        # calculate transformation matrix
         p = self._dim
-        pc = 0.5 * self._dim
-        pc[2] = 0
-
+        p_rot = 0.5 * np.array([p[0], p[1], 0])
         p_out = np.array([[p[0], p[1], 0], [p[0], 0, 0], [0, p[1], 0]])
         rot = rotation.theta_phi(-theta, phi)
 
-        p_in = np.array([np.dot(rot, p - pc) + pc for p in p_out])
+        p_in = np.array([np.dot(rot, p - p_rot) + p_rot for p in p_out])
 
         # TODO: refraction has to be implemented
 
-        M = affine_transformation.calc_back_affine_transformation(
-            p_in[:, :2], p_out[:, :2])
+        M = affine_transformation.calc_matrix(p_in[:, :2], p_out[:, :2])
 
-        nn_image = np.zeros_like(images)
-        for idx in range(images.shape[2]):
-            for i in range(images.shape[0]):
-                for j in range(images.shape[1]):
-                    nn_image[i, j,
-                             idx] = affine_transformation.nearest_neighbors(
-                                 i, j, images[:, :, idx], np.linalg.inv(M))
+        images_untilt = affine_transformation.image(images, M, mode)
+        if images.ndim == 3:
+            images_untilt = np.atleast_3d(images_untilt)
 
-        return nn_image
+        return images_untilt
 
     def apply_epa(self, image_stack, mask=None):
 
