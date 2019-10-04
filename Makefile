@@ -103,7 +103,10 @@ docker-build:
 
 .PHONY: docker
 docker: docker-build
-	docker cp . fastpli-test:/code/fastpli/
+	rm -rf /tmp/fastpli
+	git clone . /tmp/fastpli
+	docker cp /tmp/fastpli fastpli-test:/code/
+	rm -rf /tmp/fastpli
 	docker start -i fastpli-test
 
 .PHONY: clean
