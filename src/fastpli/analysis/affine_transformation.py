@@ -20,8 +20,8 @@ def _nearest_neighbors(image, M):
     for i in range(image.shape[0]):
         for j in range(image.shape[1]):
             x, y, _ = M @ np.array([i, j, 1.0])
-            ii = max(0, min(x_max, int(round(x))))
-            jj = max(0, min(y_max, int(round(y))))
+            ii = max(0, min(x_max, int(np.rint(x))))
+            jj = max(0, min(y_max, int(np.rint(y))))
             image_nn[i, j, :] = image[ii, jj, :]
     return image_nn
 
@@ -80,6 +80,7 @@ def image(image, M, mode='nearest'):
     ''' written for simpli images[x,y,rho]
     '''
     if mode == 'nearest':
+        # this is faster then scipy.interpolate.griddata('nearest')
         new_image = _nearest_neighbors(image, M)
     elif mode == 'linear' or mode == 'cubic':
         new_image = _interpolate_griddata(image, M, mode)
