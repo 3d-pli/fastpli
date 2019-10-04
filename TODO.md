@@ -1,5 +1,5 @@
 
-back to [readme](README.md)
+[readme](README.md)
 
 # KNOWN ISSUES:
 * memory usage of simpli unknown if voi is set before pixel_size
@@ -10,7 +10,8 @@ back to [readme](README.md)
 - [ ] std::vector(float) for fibers
 - [ ] helper_math.hpp
 ## simpli
-- [ ] non untilt case
+- [ ] interpolation for mu, dn, ...
+- [x] non untilt case
 - [x] PM inverse light direction
 - [ ] stokes vs jones
 - [x] polarisation value px, py

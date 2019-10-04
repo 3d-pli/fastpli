@@ -46,7 +46,6 @@ class Simpli:
         self._dim_origin = np.array([0, 0, 0], dtype=np.float64)
         self._voxel_size = None
         self._resolution = None
-        self._flip_direction = np.array([0, 0, 0], dtype=np.bool)
 
         self._filter_rotations = None
         self._light_intensity = None
@@ -73,12 +72,14 @@ class Simpli:
             'dim_origin': self._dim_origin,
             'voxel_size': self._voxel_size,
             'resolution': self._resolution,
-            'flip_direction': self._flip_direction,
             'filter_rotations': self._filter_rotations,
             'light_intensity': self._light_intensity,
-            'wavelength': self._wavelength,
+            'step_size': self._step_size,
+            'interpolate': self._interpolate,
             'untilt_sensor_view': self._untilt_sensor_view,
             'flip_z_beam': self._flip_z_beam,
+            'wavelength': self._wavelength,
+            'tissue_refrection': self._tissue_refrection,
             'omp_num_threads': self._omp_num_threads,
             'debug': self._debug
         }
@@ -186,20 +187,6 @@ class Simpli:
         self._dim_origin = voi[::2]
 
         self._print_debug("dim and dim_origin recalculated")
-
-    @property
-    def flip_direction(self):
-        return (self._flip_direction)
-
-    @flip_direction.setter
-    def flip_direction(self, flip_direction):
-
-        flip_direction = np.array(flip_direction, dtype=np.bool)
-
-        if flip_direction.size != 3 or flip_direction.shape != 1:
-            raise TypeError("flip_direction : 3d bool")
-
-        self._flip_direction = flip_direction
 
     @property
     def filter_rotations(self):
