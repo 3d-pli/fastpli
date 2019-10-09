@@ -106,7 +106,17 @@ void PliSimulator::CalculateDimensions(const vm::Vec3<long long> &global_dim) {
                                   "dim_.local.z()* 3 != vector_field_.size()");
 }
 
-void PliSimulator::CheckDimension() {
+void PliSimulator::CheckInput() {
+
+   if (!setup_)
+      throw std::invalid_argument("pli_setup not set yet");
+
+   if (label_field_.size() == 0)
+      throw std::invalid_argument("label_field.size() == 0");
+
+   if (label_field_.size() * 3 != vector_field_.size())
+      throw std::invalid_argument(
+          "label_field_.size()*3 != vector_field_.size()");
 
    int min = std::numeric_limits<int>::max();
    int max = std::numeric_limits<int>::min();
@@ -121,6 +131,13 @@ void PliSimulator::CheckDimension() {
 
    if (static_cast<size_t>(max) >= properties_.size())
       throw std::invalid_argument("label exceed properties.size()");
+
+   if (properties_.dn(0) != 0)
+      throw std::invalid_argument("background birefringence has to be 0");
+
+   for (auto i = 0u; i < properties_.size(); i++)
+      if (properties_.mu(i) < 0)
+         throw std::invalid_argument("properties_.mu(i) < 0");
 }
 
 // #############################################################################
@@ -138,11 +155,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    vector_field_ = std::move(vector_field);
    properties_ = properties;
 
-   // pre calculations and sanity checks
-   if (!setup_)
-      throw std::invalid_argument("pli_setup not set yet");
+   CheckInput();
    CalculateDimensions(global_dim);
-   CheckDimension();
 
    const auto n_rho = setup_->filter_rotations.size();
    const double lambda = setup_->wavelength * 1e-9;
@@ -219,8 +233,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             const auto mu = properties_.mu(label) * 1e3;
             const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
 
-            // FIXME: if label == 0, then dn should always be 0
             if (dn == 0 || label == 0) {
+               // label == 0 if background or outside tissue -> no vector
                if (mu == 0)
                   continue;
 
@@ -327,7 +341,7 @@ int PliSimulator::GetLabel(const long long x, const long long y,
 
    if (x < 0 || x >= dim_.local.x() || y < 0 || y >= dim_.local.y() || z < 0 ||
        z >= dim_.local.z())
-      return 0;
+      return 0; // Outside of tissue -> background
 
    const size_t idx =
        x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;

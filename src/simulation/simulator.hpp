@@ -52,7 +52,7 @@ class PliSimulator {
    std::unique_ptr<MyMPI> mpi_;
 
    void CalculateDimensions(const vm::Vec3<long long> &global_dim);
-   void CheckDimension();
+   void CheckInput();
 
    int GetLabel(const long long x, const long long y, long long z) const;
    int GetLabel(const vm::Vec3<long long> p) const {
