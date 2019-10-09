@@ -5,7 +5,11 @@ from ._ROFL_with_jacobi import _execute_fit as rofl_fit
 from . import epa
 
 
-def rofl(data, tilt_angle=np.deg2rad(5.5), gain=3, dir_offset=0):
+def rofl(data,
+         tilt_angle=np.deg2rad(5.5),
+         gain=3,
+         dir_offset=0,
+         grad_mode=False):
     '''
     data: np.array([tilts,stack])
     '''
@@ -28,7 +32,7 @@ def rofl(data, tilt_angle=np.deg2rad(5.5), gain=3, dir_offset=0):
 
     params, params_conf, func, n_iter = rofl_fit(direction, 6, 6, dir_offset,
                                                  tilt_angle, data[:, x, y, :],
-                                                 gain, True, False)
+                                                 gain, grad_mode, False)
 
     return params[0], params[1], params[2], params_conf[0], params_conf[
         1], params_conf[2], func, n_iter
@@ -39,7 +43,8 @@ def rofl_stack(data,
                gain=3,
                dir_offset=0,
                mask=None,
-               num_threads=2):
+               num_threads=2,
+               grad_mode=False):
     '''
     data: np.array([tilts,x,y,stack])
     '''
@@ -87,7 +92,7 @@ def rofl_stack(data,
                 else:
                     params, params_conf, func, n_iter = rofl_fit(
                         direction_map[x, y], 6, 6, dir_offset, tilt_angle,
-                        data[:, x, y, :], gain, True, False)
+                        data[:, x, y, :], gain, grad_mode, False)
                     directionmap[x, y] = params[0]
                     inclmap[x, y] = params[1]
                     trelmap[x, y] = params[2]
