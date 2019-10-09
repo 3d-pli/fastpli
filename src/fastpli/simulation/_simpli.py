@@ -643,10 +643,12 @@ class Simpli:
             gain=3.0,  # only LAP!
             dir_offset=0,
             mask=None,
-            num_threads=2):
+            num_threads=2,
+            grad_mode=False):
 
         rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = rofl.rofl_stack(
-            tilting_stack, tilt_angle, gain, dir_offset, mask, num_threads)
+            tilting_stack, tilt_angle, gain, dir_offset, mask, num_threads,
+            grad_mode)
 
         return rofl_direction, rofl_incl, rofl_t_rel, (dirdevmap, incldevmap,
                                                        treldevmap, funcmap,
