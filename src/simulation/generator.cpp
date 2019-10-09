@@ -12,6 +12,10 @@
 #include "include/vemath.hpp"
 #include "setup.hpp"
 
+// #############################################################################
+// PliGenerator Init functions
+// #############################################################################
+
 int PliGenerator::set_omp_num_threads(int i) {
    if (i != 0) {
       if (i > omp_get_num_procs())
@@ -113,6 +117,10 @@ void PliGenerator::SetCellPopulations(
 void PliGenerator::SetMPIComm(const MPI_Comm comm) {
    mpi_ = std::make_unique<MyMPI>(comm);
 }
+
+// #############################################################################
+// Generation
+// #############################################################################
 
 std::tuple<std::vector<int> *, std::vector<float> *, setup::PhyProps>
 PliGenerator::RunTissueGeneration(const bool only_label,
@@ -296,6 +304,10 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    return std::make_tuple(label_field, vector_field, GetPropertyList());
 }
 
+// #############################################################################
+// Fill Cell Types
+// #############################################################################
+
 void PliGenerator::FillVoxelsAroundFiberSegment(
     const size_t fb_idx, const size_t f_idx, const size_t s_idx,
     std::vector<int> &label_field, std::vector<float> &vector_field,
@@ -339,23 +351,24 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
             std::tie(min_point, t) =
                 ShortestPointToLineSegmentVecCalculation(point, p, q);
 
-            float dist_squ = vm::length2(min_point - point);
-            float ly_r = fiber.CalcRadius(s_idx, t);
-            float const &f_ly_sqr = layers_scale_sqr.back();
+            const float dist_squ = vm::length2(min_point - point);
+            const float ly_r = fiber.CalcRadius(s_idx, t);
+            const float &f_ly_sqr = layers_scale_sqr.back();
             if (dist_squ > f_ly_sqr * ly_r * ly_r)
                continue;
 
-            size_t ind =
+            const size_t ind =
                 (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
                 (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
             assert(ind < label_field.size());
 
             if (array_distance[ind] >= dist_squ) {
                // find corresponding layer
-               auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
-                                              layers_scale_sqr.end(),
-                                              dist_squ / (ly_r * ly_r));
-               int ly_idx = std::distance(layers_scale_sqr.begin(), ly_itr);
+               const auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
+                                                    layers_scale_sqr.end(),
+                                                    dist_squ / (ly_r * ly_r));
+               const int ly_idx =
+                   std::distance(layers_scale_sqr.begin(), ly_itr);
 
                array_distance[ind] = dist_squ;
                label_field[ind] = ly_idx + 1 + fb_idx * max_layer_;
@@ -414,21 +427,20 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
       for (long long y = std::floor(min.y()); y < std::floor(max.y()); y++) {
          for (long long z = std::floor(min.z()); z < std::floor(max.z()); z++) {
 
-            vm::Vec3<double> point(x, y, z);
-
-            auto dist_squ = vm::length2(p - point);
-            auto r = cell.radii()[s_idx];
+            const vm::Vec3<double> point(x, y, z);
+            const auto dist_squ = vm::length2(p - point);
+            const auto r = cell.radii()[s_idx];
 
             if (dist_squ > scale_sqr * r * r)
                continue;
 
-            size_t ind =
+            const size_t ind =
                 (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
                 (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
             assert(ind < label_field.size());
 
-            int new_label = cp_idx + max_layer_ * num_fiber_bundles_ +
-                            1; // +1 for background
+            const int new_label = cp_idx + max_layer_ * num_fiber_bundles_ +
+                                  1; // +1 for background
 
             if (array_distance[ind] > dist_squ ||
                 (array_distance[ind] == dist_squ &&
@@ -441,23 +453,27 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
    }
 }
 
+// #############################################################################
+// Helper
+// #############################################################################
+
 std::tuple<vm::Vec3<double>, double>
 PliGenerator::ShortestPointToLineSegmentVecCalculation(
     const vm::Vec3<double> &p, const vm::Vec3<double> &s0,
     const vm::Vec3<double> &s1) {
-   auto v = s1 - s0;
-   auto w = p - s0;
+   const auto v = s1 - s0;
+   const auto w = p - s0;
 
-   auto c1 = vm::dot(w, v);
+   const auto c1 = vm::dot(w, v);
    if (c1 < 0)
       return std::make_tuple(s0, 0);
 
-   auto c2 = vm::dot(v, v);
+   const auto c2 = vm::dot(v, v);
    if (c2 <= c1)
       return std::make_tuple(s1, 1);
 
-   auto b = c1 / c2;
-   auto pb = s0 + v * b;
+   const auto b = c1 / c2;
+   const auto pb = s0 + v * b;
 
    return std::make_tuple(pb, b);
 }

@@ -88,9 +88,9 @@ class PliSimulator {
    CalcStartingLightPositionsUntilted(const setup::Tilting &tilt);
 
    bool CheckMPIHalo(const vm::Vec3<double> &local_pos,
+                     const vm::Vec2<long long> &ccd_pos,
                      const vm::Vec3<int> &shift_direct,
-                     const std::vector<vm::Vec4<double>> &s_vec,
-                     const setup::Coordinates &startpos);
+                     const std::vector<vm::Vec4<double>> &s_vec);
 
    void Abort(const int num) const;
 };

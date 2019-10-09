@@ -152,9 +152,9 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    const double polarization_x = 1; // TODO: via setup_
    const double polarization_y = 1; // TODO: via setup_
 
-   auto polarizer_x = PolX(polarization_x);
-   auto polarizer_y = PolY(polarization_y);
-   auto m_lambda_4 = RetarderMatrix(M_PI_2, -M_PI_2);
+   const auto polarizer_x = PolX(polarization_x);
+   const auto polarizer_y = PolY(polarization_y);
+   const auto m_lambda_4 = RetarderMatrix(M_PI_2, -M_PI_2);
 
    // initial values
    vm::Vec4<double> signal_0 = {{setup_->light_intensity, 0, 0, 0}};
@@ -182,11 +182,11 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 #pragma omp parallel for
       for (size_t s = 0; s < light_positions.size(); s++) {
 
-         auto light_position = light_positions[s];
          bool flag_save_ray = true;
 
-         auto local_pos = light_position.tissue - vm::cast<double>(dim_.offset);
-         auto ccd_pos = light_position.ccd;
+         auto local_pos =
+             light_positions[s].tissue - vm::cast<double>(dim_.offset);
+         const auto ccd_pos = light_positions[s].ccd;
          auto s_vec = s_vec_0;
 
          if (!stored_s_vec_.empty()) {
@@ -207,17 +207,16 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
               local_pos += light_step) {
 
             // check if communication is neccesary
-            if (CheckMPIHalo(local_pos, light_dir_comp, s_vec,
-                             light_position)) {
+            if (CheckMPIHalo(local_pos, ccd_pos, light_dir_comp, s_vec)) {
                flag_save_ray = false;
                break;
             }
 
-            auto label = GetLabel(local_pos);
+            const auto label = GetLabel(local_pos);
 
             // calculate physical parameters
-            auto dn = properties_.dn(label);
-            auto mu = properties_.mu(label) * 1e3;
+            const auto dn = properties_.dn(label);
+            const auto mu = properties_.mu(label) * 1e3;
             const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
 
             // FIXME: if label == 0, then dn should always be 0
@@ -249,9 +248,9 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                const auto sin_b = sin(-beta);
                const auto cos_b = cos(-beta);
 
-               auto a1 = s_vec[rho][1] * cos_b - s_vec[rho][2] * sin_b;
-               auto c1 = s_vec[rho][1] * sin_b + s_vec[rho][2] * cos_b;
-               auto b1 = c1 * cos_r + s_vec[rho][3] * sin_r;
+               const auto a1 = s_vec[rho][1] * cos_b - s_vec[rho][2] * sin_b;
+               const auto c1 = s_vec[rho][1] * sin_b + s_vec[rho][2] * cos_b;
+               const auto b1 = c1 * cos_r + s_vec[rho][3] * sin_r;
 
                // is equivalent to (R*M*R*S)*att
                s_vec[rho] = {{s_vec[rho][0], a1 * cos_b + b1 * sin_b,
@@ -318,7 +317,7 @@ int PliSimulator::GetLabel(const double x, const double y,
    return GetLabel(static_cast<long long>(std::floor(x)),
                    static_cast<long long>(std::floor(y)),
                    static_cast<long long>(std::floor(z)));
-};
+}
 
 int PliSimulator::GetLabel(const long long x, const long long y,
                            long long z) const {
@@ -330,7 +329,8 @@ int PliSimulator::GetLabel(const long long x, const long long y,
        z >= dim_.local.z())
       return 0;
 
-   size_t idx = x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
+   const size_t idx =
+       x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
 
    if (idx >= label_field_.size()) {
       Abort(3456);
@@ -360,7 +360,7 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
    if (setup_->flip_z)
       z = dim_.local.z() - 1 - z;
 
-   size_t idx =
+   const size_t idx =
        x * dim_.local.y() * dim_.local.z() * 3 + y * dim_.local.z() * 3 + z * 3;
 
 #ifndef NDEBUG
@@ -373,32 +373,21 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
 
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               double z) const {
+   // Trilinear interpolate
 
    if (setup_->flip_z)
       z = dim_.local.z() - 1 - z;
 
-   // Trilinear interpolate
-   auto x0 = static_cast<long long>(std::floor(x));
-   auto y0 = static_cast<long long>(std::floor(y));
-   auto z0 = static_cast<long long>(std::floor(z));
+   const auto x0 = std::max(static_cast<long long>(std::floor(x)), 0LL);
+   const auto y0 = std::max(static_cast<long long>(std::floor(y)), 0LL);
+   const auto z0 = std::max(static_cast<long long>(std::floor(z)), 0LL);
 
-   auto x1 = static_cast<long long>(std::ceil(x));
-   auto y1 = static_cast<long long>(std::ceil(y));
-   auto z1 = static_cast<long long>(std::ceil(z));
-
-   if (x0 < 0)
-      x0 = 0;
-   if (y0 < 0)
-      y0 = 0;
-   if (z0 < 0)
-      z0 = 0;
-
-   if (x1 >= dim_.local.x())
-      x1 = dim_.local.x() - 1;
-   if (y1 >= dim_.local.y())
-      y1 = dim_.local.y() - 1;
-   if (z1 >= dim_.local.z())
-      z1 = dim_.local.z() - 1;
+   const auto x1 =
+       std::min(static_cast<long long>(std::ceil(x)), dim_.local.x() - 1);
+   const auto y1 =
+       std::min(static_cast<long long>(std::ceil(y)), dim_.local.y() - 1);
+   const auto z1 =
+       std::min(static_cast<long long>(std::ceil(z)), dim_.local.z() - 1);
 
    if (x0 == x1 && y0 == y1 && z0 == z1)
       return GetVec(x0, y0, z0);
@@ -414,22 +403,22 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    if (z0 == z1)
       zd = 0;
 
-   auto c000 = GetVec(x0, y0, z0);
-   auto c100 = GetVec(x1, y0, z0);
-   auto c010 = GetVec(x0, y1, z0);
-   auto c110 = GetVec(x1, y1, z0);
-   auto c001 = GetVec(x0, y0, z1);
-   auto c101 = GetVec(x1, y0, z1);
-   auto c011 = GetVec(x0, y1, z1);
-   auto c111 = GetVec(x1, y1, z1);
+   const auto c000 = GetVec(x0, y0, z0);
+   const auto c100 = GetVec(x1, y0, z0);
+   const auto c010 = GetVec(x0, y1, z0);
+   const auto c110 = GetVec(x1, y1, z0);
+   const auto c001 = GetVec(x0, y0, z1);
+   const auto c101 = GetVec(x1, y0, z1);
+   const auto c011 = GetVec(x0, y1, z1);
+   const auto c111 = GetVec(x1, y1, z1);
 
-   auto c00 = c000 * (1 - xd) + c100 * xd;
-   auto c01 = c001 * (1 - xd) + c101 * xd;
-   auto c10 = c010 * (1 - xd) + c110 * xd;
-   auto c11 = c011 * (1 - xd) + c111 * xd;
+   const auto c00 = c000 * (1 - xd) + c100 * xd;
+   const auto c01 = c001 * (1 - xd) + c101 * xd;
+   const auto c10 = c010 * (1 - xd) + c110 * xd;
+   const auto c11 = c011 * (1 - xd) + c111 * xd;
 
-   auto c0 = c00 * (1 - yd) + c10 * yd;
-   auto c1 = c01 * (1 - yd) + c11 * yd;
+   const auto c0 = c00 * (1 - yd) + c10 * yd;
+   const auto c1 = c01 * (1 - yd) + c11 * yd;
 
    return c0 * (1 - zd) + c1 * zd;
 }
@@ -536,8 +525,8 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
 
          // check if procesed by another mpi rank
          if (mpi_) {
-            auto my_coords = mpi_->my_coords();
-            auto glob_coords = mpi_->global_coords();
+            const auto my_coords = mpi_->my_coords();
+            const auto glob_coords = mpi_->global_coords();
             if (my_coords.x() != 0 && std::floor(tis_x) < dim_.offset.x())
                continue;
             if (my_coords.x() != glob_coords.x() - 1 &&
@@ -582,8 +571,8 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
 
          // transform to bottom tissue position
          // light pos starts in the middle of pixel
-         double tis_x = (ccd_x + 0.5) - 0.5 * shift.x();
-         double tis_y = (ccd_y + 0.5) - 0.5 * shift.y();
+         const double tis_x = (ccd_x + 0.5) - 0.5 * shift.x();
+         const double tis_y = (ccd_y + 0.5) - 0.5 * shift.y();
 
          // check if procesed by another process
          if (mpi_) {
@@ -623,9 +612,9 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
 // MPI functions
 // #############################################################################
 bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
+                                const vm::Vec2<long long> &ccd_pos,
                                 const vm::Vec3<int> &shift_direct,
-                                const std::vector<vm::Vec4<double>> &s_vec,
-                                const setup::Coordinates &startpos) {
+                                const std::vector<vm::Vec4<double>> &s_vec) {
 
    if (!mpi_)
       return false;
@@ -643,8 +632,8 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
          return true; // dont save, but do not process either
 
 #pragma omp critical
-      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
-                              s_vec, shift_direct.x() * 1);
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), ccd_pos, s_vec,
+                              shift_direct.x() * 1);
       return true;
 
       // y-halo communication:
@@ -657,8 +646,8 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
          return true; // dont save, but do not process either
 
 #pragma omp critical
-      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
-                              s_vec, shift_direct.y() * 2);
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), ccd_pos, s_vec,
+                              shift_direct.y() * 2);
       return true;
 
       // z-halo communication:
@@ -671,8 +660,8 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
          return true; // dont save, but do not process either
 
 #pragma omp critical
-      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), startpos.ccd,
-                              s_vec, shift_direct.z() * 3);
+      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), ccd_pos, s_vec,
+                              shift_direct.z() * 3);
       return true;
    }
 
