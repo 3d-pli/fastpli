@@ -325,15 +325,15 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    vm::Vec3<double> min_point{};
    const auto &layers_scale_sqr = fb.layers_scale_sqr();
 
-   for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
+   for (long long x = std::floor(min.x()); x < std::floor(max.x()); x++) {
 
       if (omp_in_parallel())
          // because of omp parallel for thread safe operations
          if (x % omp_get_max_threads() != omp_get_thread_num())
             continue;
 
-      for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
-         for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
+      for (long long y = std::floor(min.y()); y < std::floor(max.y()); y++) {
+         for (long long z = std::floor(min.z()); z < std::floor(max.z()); z++) {
             vm::Vec3<double> point(x, y, z);
 
             std::tie(min_point, t) =
@@ -404,15 +404,15 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
    const auto max = cell_sphere_bb.max;
 
    const auto scale_sqr = cp.scale_sqr();
-   for (int x = std::round(min.x()); x < std::round(max.x()); x++) {
+   for (long long x = std::floor(min.x()); x < std::floor(max.x()); x++) {
 
       // because of omp parallel
       if (omp_in_parallel())
          if (x % omp_get_max_threads() != omp_get_thread_num())
             continue;
 
-      for (int y = std::round(min.y()); y < std::round(max.y()); y++) {
-         for (int z = std::round(min.z()); z < std::round(max.z()); z++) {
+      for (long long y = std::floor(min.y()); y < std::floor(max.y()); y++) {
+         for (long long z = std::floor(min.z()); z < std::floor(max.z()); z++) {
 
             vm::Vec3<double> point(x, y, z);
 

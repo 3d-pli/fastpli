@@ -12,7 +12,11 @@
 #include "objects/np_array_container.hpp"
 #include "setup.hpp"
 
+namespace pi_case = vm::rot_pi_cases;
+
+// #############################################################################
 // Optical Elements
+// #############################################################################
 vm::Mat4x4<double> PolX(const double p) {
    // see dissertation hendrik wiese
    vm::Mat4x4<double> M = {{1, p, 0, 0, p, 1, 0, 0, 0, 0, sqrt(1 - p * p), 0, 0,
@@ -29,15 +33,22 @@ vm::Mat4x4<double> PolY(const double p) {
 
 vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) {
    vm::Mat4x4<double> M = {
-       {1, 0, 0, 0, 0, pow(cos(beta), 2) + cos(ret) * pow(sin(beta), 2),
-        (1 - cos(ret)) * sin(beta) * cos(beta), -sin(ret) * sin(beta), 0,
-        (1 - cos(ret)) * sin(beta) * cos(beta),
-        pow(sin(beta), 2) + cos(ret) * pow(cos(beta), 2), sin(ret) * cos(beta),
-        0, sin(ret) * sin(beta), -sin(ret) * cos(beta), cos(ret)}};
+       {1, 0, 0, 0, 0,
+        pow(pi_case::cos(beta), 2) +
+            pi_case::cos(ret) * pow(pi_case::sin(beta), 2),
+        (1 - pi_case::cos(ret)) * pi_case::sin(beta) * pi_case::cos(beta),
+        -pi_case::sin(ret) * pi_case::sin(beta), 0,
+        (1 - pi_case::cos(ret)) * pi_case::sin(beta) * pi_case::cos(beta),
+        pow(pi_case::sin(beta), 2) +
+            pi_case::cos(ret) * pow(pi_case::cos(beta), 2),
+        pi_case::sin(ret) * pi_case::cos(beta), 0,
+        pi_case::sin(ret) * pi_case::sin(beta),
+        -pi_case::sin(ret) * pi_case::cos(beta), pi_case::cos(ret)}};
    return M;
 }
-
-// PliSimulator
+// #############################################################################
+// PliSimulator Init functions
+// #############################################################################
 void PliSimulator::Abort(const int num) const {
    if (mpi_) {
       MPI_Abort(mpi_->comm(), num);
@@ -112,6 +123,9 @@ void PliSimulator::CheckDimension() {
       throw std::invalid_argument("label exceed properties.size()");
 }
 
+// #############################################################################
+// Simulation
+// #############################################################################
 std::vector<double>
 PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                             object::container::NpArray<int> label_field,
@@ -159,6 +173,10 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
        std::numeric_limits<double>::quiet_NaN());
 
    auto light_positions = CalcStartingLightPositions(tilt);
+   // add half step so that the coordinate is in the center of its current light
+   // path
+   for (auto &lp : light_positions)
+      lp.tissue += light_step * 0.5;
 
    while (!light_positions.empty()) {
 #pragma omp parallel for
@@ -172,6 +190,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
          auto s_vec = s_vec_0;
 
          if (!stored_s_vec_.empty()) {
+            // from a mpi communication
 #ifndef NDEBUG
             if ((s + 1) * n_rho > stored_s_vec_.size())
                Abort(3111);
@@ -180,8 +199,11 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                       stored_s_vec_.begin() + (s + 1) * n_rho, s_vec.begin());
          }
 
-         for (; std::round(local_pos.z()) >= 0 &&
-                std::round(local_pos.z()) < dim_.local.z();
+         // go inside loop as long midpoint of current step is inside tissue.
+         // local_pos.x and local_pos.y are guaranteed to be safe by
+         // CalcStartingLightPositions()
+         for (; std::floor(local_pos.z()) >= 0 &&
+                std::floor(local_pos.z()) < dim_.local.z();
               local_pos += light_step) {
 
             // check if communication is neccesary
@@ -237,12 +259,14 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                               -c1 * sin_r + s_vec[rho][3] * cos_r}};
                s_vec[rho] *= attenuation;
 
+#ifndef NDEBUG
                if (std::isnan(s_vec[rho][0]) || std::isnan(s_vec[rho][1]) ||
                    std::isnan(s_vec[rho][2]) || std::isnan(s_vec[rho][3])) {
                   std::cerr << "nan: " << ccd_pos << "::" << local_pos
                             << std::endl;
-                  exit(EXIT_FAILURE);
+                  Abort(3658);
                }
+#endif
             }
          }
 
@@ -286,6 +310,16 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    return intensity_signal;
 }
 
+// #############################################################################
+// Get Label
+// #############################################################################
+int PliSimulator::GetLabel(const double x, const double y,
+                           const double z) const {
+   return GetLabel(static_cast<long long>(std::floor(x)),
+                   static_cast<long long>(std::floor(y)),
+                   static_cast<long long>(std::floor(z)));
+};
+
 int PliSimulator::GetLabel(const long long x, const long long y,
                            long long z) const {
 
@@ -305,6 +339,22 @@ int PliSimulator::GetLabel(const long long x, const long long y,
    return label_field_[idx];
 }
 
+// #############################################################################
+// Get Vector
+// #############################################################################
+vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
+                                      const double z,
+                                      const bool interpolate) const {
+
+   if (interpolate)
+      return InterpolateVec(x, y, z);
+   else
+      // Nearest Neighbor
+      return GetVec(static_cast<long long>(std::floor(x)),
+                    static_cast<long long>(std::floor(y)),
+                    static_cast<long long>(std::floor(z)));
+}
+
 vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
                                       long long z) const {
    if (setup_->flip_z)
@@ -321,21 +371,11 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
                            vector_field_[idx + 2]);
 }
 
-vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
-                                      const double z,
-                                      const bool interpolate) const {
-   return InterpolateVec(x, y, z, interpolate);
-}
-
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
-                                              const double z,
-                                              const bool interpolate) const {
+                                              double z) const {
 
-   // NN interpolate
-   if (!interpolate)
-      return GetVec(static_cast<long long>(std::round(x)),
-                    static_cast<long long>(std::round(y)),
-                    static_cast<long long>(std::round(z)));
+   if (setup_->flip_z)
+      z = dim_.local.z() - 1 - z;
 
    // Trilinear interpolate
    auto x0 = static_cast<long long>(std::floor(x));
@@ -394,25 +434,14 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    return c0 * (1 - zd) + c1 * zd;
 }
 
+// #############################################################################
+// Light Path functions
+// #############################################################################
 vm::Vec3<double>
 PliSimulator::LightDirectionUnitVector(const setup::Tilting tilt) const {
-
-   // special tilting angles
-   // if (tilt.theta == 0)
-   //    return vm::Vec3<double>(0, 0, 1);
-   // else if (tilt.phi == 0)
-   //    return vm::Vec3<double>(sin(tilt.theta), 0.0, cos(tilt.theta));
-   // else if (tilt.phi == M_PI_2)
-   //    return vm::Vec3<double>(0.0, sin(tilt.theta), cos(tilt.theta));
-   // else if (tilt.phi == M_PI)
-   //    return vm::Vec3<double>(-sin(tilt.theta), 0.0, cos(tilt.theta));
-   // else if (tilt.phi == 3 * M_PI_2)
-   //    return vm::Vec3<double>(0.0, -sin(tilt.theta), cos(tilt.theta));
-
-   return vm::Vec3<double>(
-       vm::rot_pi_cases::cos(tilt.phi) * vm::rot_pi_cases::sin(tilt.theta),
-       vm::rot_pi_cases::sin(tilt.phi) * vm::rot_pi_cases::sin(tilt.theta),
-       vm::rot_pi_cases::cos(tilt.theta));
+   return vm::Vec3<double>(pi_case::cos(tilt.phi) * pi_case::sin(tilt.theta),
+                           pi_case::sin(tilt.phi) * pi_case::sin(tilt.theta),
+                           pi_case::cos(tilt.theta));
 }
 
 vm::Vec3<int>
@@ -463,7 +492,7 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
 
    // top plane: P = pc+pt+p1*s+p2*t
    // rotated top plane: P' = pc + rot(pt) + rot(p1) *s + rot(p2) * t
-   const auto pc = vm::cast<double>(dim_.global - 1) * 0.5;
+   const auto pc = vm::cast<double>(dim_.global) * 0.5;
    vm::Vec3<double> pt = {-pc.x(), -pc.y(), pc.z()};
    vm::Vec3<double> p1 = {1, 0, 0};
    vm::Vec3<double> p2 = {0, 1, 0};
@@ -483,8 +512,9 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
    for (long long ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
       for (long long ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
 
-         const double e = ccd_x - pc.x() - pt.x();
-         const double f = ccd_y - pc.y() - pt.y();
+         // light pos starts in the middle of pixel
+         const double e = ccd_x + 0.5 - pc.x() - pt.x();
+         const double f = ccd_y + 0.5 - pc.y() - pt.y();
 
          const double D = a * d - c * b;
          const double Ds = e * d - f * b;
@@ -508,15 +538,15 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
          if (mpi_) {
             auto my_coords = mpi_->my_coords();
             auto glob_coords = mpi_->global_coords();
-            if (my_coords.x() != 0 && std::round(tis_x) < dim_.offset.x())
+            if (my_coords.x() != 0 && std::floor(tis_x) < dim_.offset.x())
                continue;
             if (my_coords.x() != glob_coords.x() - 1 &&
-                std::round(tis_x) > (dim_.offset.x() + dim_.local.x() - 1))
+                std::floor(tis_x) > (dim_.offset.x() + dim_.local.x() - 1))
                continue;
-            if (my_coords.y() != 0 && std::round(tis_y) < dim_.offset.y())
+            if (my_coords.y() != 0 && std::floor(tis_y) < dim_.offset.y())
                continue;
             if (my_coords.y() != glob_coords.y() - 1 &&
-                std::round(tis_y) > (dim_.offset.y() + dim_.local.y() - 1))
+                std::floor(tis_y) > (dim_.offset.y() + dim_.local.y() - 1))
                continue;
          }
 
@@ -551,22 +581,23 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
       for (long long ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
 
          // transform to bottom tissue position
-         double tis_x = ccd_x - 0.5 * shift.x();
-         double tis_y = ccd_y - 0.5 * shift.y();
+         // light pos starts in the middle of pixel
+         double tis_x = (ccd_x + 0.5) - 0.5 * shift.x();
+         double tis_y = (ccd_y + 0.5) - 0.5 * shift.y();
 
          // check if procesed by another process
          if (mpi_) {
             auto my_coords = mpi_->my_coords();
             auto glob_coords = mpi_->global_coords();
-            if (my_coords.x() != 0 && std::round(tis_x) < dim_.offset.x())
+            if (my_coords.x() != 0 && std::floor(tis_x) < dim_.offset.x())
                continue;
             if (my_coords.x() != glob_coords.x() - 1 &&
-                std::round(tis_x) > (dim_.offset.x() + dim_.local.x() - 1))
+                std::floor(tis_x) > (dim_.offset.x() + dim_.local.x() - 1))
                continue;
-            if (my_coords.y() != 0 && std::round(tis_y) < dim_.offset.y())
+            if (my_coords.y() != 0 && std::floor(tis_y) < dim_.offset.y())
                continue;
             if (my_coords.y() != glob_coords.y() - 1 &&
-                std::round(tis_y) > (dim_.offset.y() + dim_.local.y() - 1))
+                std::floor(tis_y) > (dim_.offset.y() + dim_.local.y() - 1))
                continue;
          }
 
@@ -588,6 +619,9 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
    return light_positions;
 }
 
+// #############################################################################
+// MPI functions
+// #############################################################################
 bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
                                 const vm::Vec3<int> &shift_direct,
                                 const std::vector<vm::Vec4<double>> &s_vec,

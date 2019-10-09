@@ -58,11 +58,7 @@ class PliSimulator {
    int GetLabel(const vm::Vec3<long long> p) const {
       return GetLabel(p.x(), p.y(), p.z());
    };
-   int GetLabel(const double x, const double y, const double z) const {
-      return GetLabel(static_cast<long long>(std::round(x)),
-                      static_cast<long long>(std::round(y)),
-                      static_cast<long long>(std::round(z)));
-   };
+   int GetLabel(const double x, const double y, const double z) const;
    int GetLabel(const vm::Vec3<double> p) const {
       return GetLabel(p.x(), p.y(), p.z());
    };
@@ -73,24 +69,17 @@ class PliSimulator {
       return GetVec(p.x(), p.y(), p.z());
    };
    vm::Vec3<double> GetVec(const double x, const double y, const double z,
-                           const bool interpolate = true) const;
+                           const bool interpolate) const;
    vm::Vec3<double> GetVec(const vm::Vec3<double> p,
-                           const bool interpolate = true) const {
+                           const bool interpolate) const {
       return GetVec(p.x(), p.y(), p.z(), interpolate);
    };
-
    vm::Vec3<double> InterpolateVec(const double x, const double y,
-                                   const double z,
-                                   const bool interpolate = true) const;
-   vm::Vec3<double> InterpolateVec(const vm::Vec3<double> p,
-                                   bool interpolate = true) const {
-      return InterpolateVec(p.x(), p.y(), p.z(), interpolate);
-   };
+                                   double z) const;
 
    vm::Vec3<double> LightDirectionUnitVector(const setup::Tilting tilt) const;
    vm::Vec3<int>
    LightDirectionComponent(const vm::Vec3<double> &direction_vec) const;
-
    std::vector<setup::Coordinates>
    CalcStartingLightPositions(const setup::Tilting &tilt);
    std::vector<setup::Coordinates>
