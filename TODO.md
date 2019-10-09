@@ -11,6 +11,8 @@
 - [ ] helper_math.hpp
 ## simpli
 - [ ] interpolation for mu, dn, ...
+- [ ] stepsize == dim.z
+- [ ] rotate volume in simipli.generation
 - [x] non untilt case
 - [x] PM inverse light direction
 - [ ] stokes vs jones
