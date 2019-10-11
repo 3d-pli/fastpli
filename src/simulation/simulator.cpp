@@ -1,5 +1,6 @@
 #include "simulator.hpp"
 
+#include <cmath>
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -17,6 +18,7 @@ namespace pi_case = vm::rot_pi_cases;
 // #############################################################################
 // Optical Elements
 // #############################################################################
+
 vm::Mat4x4<double> PolX(const double p) {
    // see dissertation hendrik wiese
    vm::Mat4x4<double> M = {{1, p, 0, 0, p, 1, 0, 0, 0, 0, sqrt(1 - p * p), 0, 0,
@@ -50,6 +52,7 @@ vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) {
 // #############################################################################
 // PliSimulator Init functions
 // #############################################################################
+
 void PliSimulator::Abort(const int num) const {
    if (mpi_) {
       MPI_Abort(mpi_->comm(), num);
@@ -144,6 +147,7 @@ void PliSimulator::CheckInput() {
 // #############################################################################
 // Simulation
 // #############################################################################
+
 std::vector<double>
 PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                             object::container::NpArray<int> label_field,
@@ -330,11 +334,13 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 // #############################################################################
 // Get Label
 // #############################################################################
+
+auto llfloor = [](double x) { return static_cast<long long>(std::floor(x)); };
+auto llceil = [](double x) { return static_cast<long long>(std::ceil(x)); };
+
 int PliSimulator::GetLabel(const double x, const double y,
                            const double z) const {
-   return GetLabel(static_cast<long long>(std::floor(x)),
-                   static_cast<long long>(std::floor(y)),
-                   static_cast<long long>(std::floor(z)));
+   return GetLabel(llfloor(x), llfloor(y), llfloor(z));
 }
 
 int PliSimulator::GetLabel(const long long x, const long long y,
@@ -361,17 +367,28 @@ int PliSimulator::GetLabel(const long long x, const long long y,
 // #############################################################################
 // Get Vector
 // #############################################################################
+
 vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
                                       const double z,
                                       const bool interpolate) const {
 
-   if (interpolate)
-      return InterpolateVec(x, y, z);
-   else
-      // Nearest Neighbor
-      return GetVec(static_cast<long long>(std::floor(x)),
-                    static_cast<long long>(std::floor(y)),
-                    static_cast<long long>(std::floor(z)));
+   if (interpolate) {
+      // only interpolate if all neighbors are the same tissue
+
+      auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z));
+
+      if (GetLabel(llfloor(x), llfloor(y), llfloor(z)) == label &&
+          GetLabel(llceil(x), llfloor(y), llfloor(z)) == label &&
+          GetLabel(llfloor(x), llceil(y), llfloor(z)) == label &&
+          GetLabel(llceil(x), llceil(y), llfloor(z)) == label &&
+          GetLabel(llfloor(x), llfloor(y), llceil(z)) == label &&
+          GetLabel(llceil(x), llfloor(y), llceil(z)) == label &&
+          GetLabel(llfloor(x), llceil(y), llceil(z)) == label &&
+          GetLabel(llceil(x), llceil(y), llceil(z)) == label)
+         return InterpolateVec(x, y, z);
+   }
+   // Nearest Neighbor
+   return GetVec(llfloor(x), llfloor(y), llfloor(z));
 }
 
 vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
@@ -397,16 +414,13 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    if (setup_->flip_z)
       z = dim_.local.z() - 1 - z;
 
-   const auto x0 = std::max(static_cast<long long>(std::floor(x)), 0LL);
-   const auto y0 = std::max(static_cast<long long>(std::floor(y)), 0LL);
-   const auto z0 = std::max(static_cast<long long>(std::floor(z)), 0LL);
+   const auto x0 = std::max(llfloor(x), 0LL);
+   const auto y0 = std::max(llfloor(y), 0LL);
+   const auto z0 = std::max(llfloor(z), 0LL);
 
-   const auto x1 =
-       std::min(static_cast<long long>(std::ceil(x)), dim_.local.x() - 1);
-   const auto y1 =
-       std::min(static_cast<long long>(std::ceil(y)), dim_.local.y() - 1);
-   const auto z1 =
-       std::min(static_cast<long long>(std::ceil(z)), dim_.local.z() - 1);
+   const auto x1 = std::min(llceil(x), dim_.local.x() - 1);
+   const auto y1 = std::min(llceil(y), dim_.local.y() - 1);
+   const auto z1 = std::min(llceil(z), dim_.local.z() - 1);
 
    if (x0 == x1 && y0 == y1 && z0 == z1)
       return GetVec(x0, y0, z0);
@@ -445,6 +459,7 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
 // #############################################################################
 // Light Path functions
 // #############################################################################
+
 vm::Vec3<double>
 PliSimulator::LightDirectionUnitVector(const setup::Tilting tilt) const {
    return vm::Vec3<double>(pi_case::cos(tilt.phi) * pi_case::sin(tilt.theta),
@@ -630,6 +645,7 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
 // #############################################################################
 // MPI functions
 // #############################################################################
+
 bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
                                 const vm::Vec2<long long> &ccd_pos,
                                 const vm::Vec3<int> &shift_direct,
