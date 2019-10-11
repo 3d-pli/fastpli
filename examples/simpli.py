@@ -66,9 +66,6 @@ with h5py.File(
                                        tissue_properties, np.deg2rad(theta),
                                        np.deg2rad(phi))
 
-        # for resizing set nan values to image background
-        images[np.isnan(images)] = simpli.light_intensity / 4
-
         h5f['data/' + str(t)] = images
 
         # apply optic to simulation
