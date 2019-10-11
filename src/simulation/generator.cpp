@@ -122,7 +122,8 @@ void PliGenerator::SetMPIComm(const MPI_Comm comm) {
 // Generation
 // #############################################################################
 
-std::tuple<std::vector<int> *, std::vector<float> *, setup::PhyProps>
+std::tuple<std::vector<int> *, std::vector<float> *,
+           std::vector<setup::PhyProps>>
 PliGenerator::RunTissueGeneration(const bool only_label,
                                   const bool progress_bar) {
 
@@ -478,34 +479,36 @@ PliGenerator::ShortestPointToLineSegmentVecCalculation(
    return std::make_tuple(pb, b);
 }
 
-setup::PhyProps PliGenerator::GetPropertyList() const {
+std::vector<setup::PhyProps> PliGenerator::GetPropertyList() const {
 
-   setup::PhyProps properties(fiber_bundles_org_.size() * max_layer_ + 1 +
-                              cell_populations_org_.size());
+   std::vector<setup::PhyProps> properties(fiber_bundles_org_.size() *
+                                               max_layer_ +
+                                           1 + cell_populations_org_.size());
 
    // background
    // TODO: set background properties
-   properties.dn(0) = 0;
-   properties.mu(0) = 0;
+   // properties[0].dn = 0;
+   // properties[0].mu = 0;
+   properties[0] = setup::PhyProps(0, 0); // dn has to be 0 for brackground
 
    for (size_t f = 0; f < fiber_bundles_org_.size(); f++) {
       for (size_t l = 0; l < fiber_bundles_org_[f].layer_size(); l++) {
          auto id = 1 + l + f * max_layer_; //+1 for brackground
 
-         properties.mu(id) = fiber_bundles_org_[f].layer_mu(l);
+         properties[id].mu = fiber_bundles_org_[f].layer_mu(l);
 
          if (fiber_bundles_org_[f].layer_orientation(l) ==
              fiber::layer::Orientation::background)
-            properties.dn(id) = 0;
+            properties[id].dn = 0;
          else
-            properties.dn(id) = fiber_bundles_org_[f].layer_dn(l);
+            properties[id].dn = fiber_bundles_org_[f].layer_dn(l);
       }
    }
 
    for (size_t c = 0; c < cell_populations_org_.size(); c++) {
       auto id = 1 + num_fiber_bundles_ * max_layer_ + c; //+1 for brackground
-      properties.dn(id) = 0;
-      properties.mu(id) = cell_populations_org_[c].mu();
+      properties[id].dn = 0;
+      properties[id].mu = cell_populations_org_[c].mu();
    }
 
    return properties;

@@ -25,10 +25,17 @@ PYBIND11_MODULE(__simulation, m) {
               double voxel_size, double wavelength, double tissue_refrection,
               bool interpolate, bool untilt_sensor_view, bool flip_z,
               std::vector<double> filter_rotations) {
-              self.SetSetup(setup::Setup(step_size, light_intensity, voxel_size,
-                                         wavelength, tissue_refrection,
-                                         interpolate, untilt_sensor_view,
-                                         flip_z, filter_rotations));
+              setup::Setup setup;
+              setup.step_size = step_size;
+              setup.light_intensity = light_intensity;
+              setup.voxel_size = voxel_size;
+              setup.wavelength = wavelength;
+              setup.tissue_refrection = tissue_refrection;
+              setup.interpolate = interpolate;
+              setup.untilt_sensor_view = untilt_sensor_view;
+              setup.flip_z = flip_z;
+              setup.filter_rotations = filter_rotations;
+              self.SetSetup(setup);
            },
            py::arg("step_size"), py::arg("light_intensity"),
            py::arg("voxel_size"), py::arg("wavelength"),
@@ -50,8 +57,13 @@ PYBIND11_MODULE(__simulation, m) {
               double phi) {
               auto label_container = object::NpArray2Container(label_array);
               auto vector_container = object::NpArray2Container(vector_array);
-              auto properties =
-                  setup::PhyProps(object::NpArray2Vector<double>(prop_array));
+
+              auto prop_vec = object::NpArray2Vector<double>(prop_array);
+              std::vector<setup::PhyProps> properties;
+              for (auto i = 0u; i < prop_vec.size(); i += 2)
+                 properties.push_back(
+                     // [2*i] -> dn, [2*i+1] -> mu
+                     setup::PhyProps(prop_vec[i], prop_vec[i + 1]));
 
               auto image = new std::vector<double>(
                   self.RunSimulation(dim, label_container, vector_container,

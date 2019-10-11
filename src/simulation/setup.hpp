@@ -22,61 +22,28 @@ struct Coordinates {
 };
 
 struct Tilting {
-   Tilting(const double theta, const double phi) : theta(theta), phi(phi) {
-      if (std::abs(theta) >= M_PI_2)
-         throw std::invalid_argument("abs(theta) >= pi/2: " +
-                                     std::to_string(theta));
-   };
+   Tilting() = default;
+   Tilting(double theta, double phi) : theta(theta), phi(phi){};
 
-   // FIXME: Tilting should be const, not theta and phi
-   const double theta;
-   const double phi;
+   double theta{0};
+   double phi{0};
 };
 
-class PhyProps {
- public:
+struct PhyProps {
    PhyProps() = default;
-   PhyProps(size_t i) { data_.resize(2 * i); };
-   PhyProps(std::vector<double> data) : data_(data){};
+   PhyProps(double dn, double mu) : dn(dn), mu(mu){};
 
-   std::pair<double, double> operator[](size_t i) {
-      assert(2 * i + 1 < data_.size());
-      return std::make_pair(dn(i), mu(i));
-   }
-
-   double &dn(size_t i) {
-      assert(2 * i + 0 < data_.size());
-      return data_[2 * i + 0];
-   }
-   double &mu(size_t i) {
-      assert(2 * i + 1 < data_.size());
-      return data_[2 * i + 1];
-   }
-   size_t size() { return data_.size() / 2; }
-   void push_back(double dn, double mu) {
-      data_.push_back(dn);
-      data_.push_back(mu);
+   void Check(void) const {
+      if (mu < 0)
+         throw std::invalid_argument("mu < 0: " + std::to_string(mu));
    };
 
-   std::vector<double> vector() { return data_; }
-
- private:
-   std::vector<double> data_;
+   double dn{0};
+   double mu{0};
 };
 
 struct Setup {
-
-   Setup(const double step_size, const double light_intensity,
-         const double voxel_size, const double wavelength,
-         const double tissue_refrection, const bool interpolate,
-         const bool untilt_sensor_view, const bool flip_z,
-         const std::vector<double> filter_rotations)
-       : step_size(step_size), light_intensity(light_intensity),
-         voxel_size(voxel_size), wavelength(wavelength),
-         tissue_refrection(tissue_refrection), interpolate(interpolate),
-         untilt_sensor_view(untilt_sensor_view), flip_z(flip_z),
-         filter_rotations(filter_rotations) {
-
+   void Check(void) const {
       if (step_size <= 0)
          throw std::invalid_argument("step_size <= 0: " +
                                      std::to_string(step_size));
@@ -99,17 +66,17 @@ struct Setup {
 
       if (filter_rotations.empty())
          throw std::invalid_argument("filter_rotations is empty: []");
-   };
+   }
 
-   const double step_size;
-   const double light_intensity;
-   const double voxel_size;
-   const double wavelength;
-   const double tissue_refrection;
-   const bool interpolate;
-   const bool untilt_sensor_view;
-   const bool flip_z;
-   const std::vector<double> filter_rotations;
+   double step_size{1};
+   double light_intensity{0};
+   double voxel_size{1};
+   double wavelength{0};
+   double tissue_refrection{0};
+   bool interpolate{false};
+   bool untilt_sensor_view{false};
+   bool flip_z{false};
+   std::vector<double> filter_rotations;
 };
 
 } // namespace setup

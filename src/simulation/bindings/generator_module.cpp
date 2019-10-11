@@ -99,7 +99,7 @@ PYBIND11_MODULE(__generation, m) {
            [](PliGenerator &self, bool only_label, bool progress_bar) {
               std::vector<int> *label_field;
               std::vector<float> *vector_field;
-              setup::PhyProps properties;
+              std::vector<setup::PhyProps> properties;
 
               std::tie(label_field, vector_field, properties) =
                   self.RunTissueGeneration(only_label, progress_bar);
@@ -113,11 +113,17 @@ PYBIND11_MODULE(__generation, m) {
               }
               std::vector<size_t> dim_prop{properties.size(), 2};
 
+              std::vector<double> prop_vec;
+              for (auto elm : properties) {
+                 prop_vec.push_back(elm.dn);
+                 prop_vec.push_back(elm.mu);
+              }
+
               return std::make_tuple(
                   object::Vec2NpArray(label_field, dim_label_field),
                   object::Vec2NpArray(vector_field, dim_vector_field),
-                  object::Vec2NpArray(
-                      new std::vector<double>(properties.vector()), dim_prop));
+                  object::Vec2NpArray(new std::vector<double>(prop_vec),
+                                      dim_prop));
            },
            py::arg("only_label") = false, py::arg("progress_bar") = false)
        .def("dim_local",

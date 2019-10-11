@@ -30,7 +30,8 @@ class PliSimulator {
    RunSimulation(const vm::Vec3<long long> &dim,
                  object::container::NpArray<int> label_field,
                  object::container::NpArray<float> vector_field,
-                 setup::PhyProps properties, const setup::Tilting tilt);
+                 std::vector<setup::PhyProps> properties,
+                 const setup::Tilting tilt);
 
    int set_omp_num_threads(int num);
 
@@ -42,12 +43,12 @@ class PliSimulator {
 #endif
 
    setup::Dimensions dim_{};
-   std::unique_ptr<setup::Setup> setup_;
-   setup::PhyProps properties_;
-   object::container::NpArray<int> label_field_;
-   object::container::NpArray<float> vector_field_;
+   std::unique_ptr<const setup::Setup> setup_;
+   std::unique_ptr<const std::vector<setup::PhyProps>> properties_;
+   std::unique_ptr<const object::container::NpArray<int>> label_field_;
+   std::unique_ptr<const object::container::NpArray<float>> vector_field_;
 
-   std::vector<vm::Vec4<double>> stored_s_vec_;
+   std::vector<vm::Vec4<double>> stored_mpi_s_vec_;
 
    std::unique_ptr<MyMPI> mpi_;
 
