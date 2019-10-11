@@ -16,7 +16,7 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.' +
                driver='mpio',
                comm=MPI.COMM_WORLD) as h5f:
 
-    ### Setup Simpli for Tissue Generation
+    # Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli(MPI.COMM_WORLD)
     simpli.voxel_size = 1  # in mu meter
     simpli.set_voi([-60, 60, -60, 60, -30, 30])  # in mu meter
@@ -32,14 +32,14 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.' +
         str(round(simpli.memory_usage('MB') / MPI.COMM_WORLD.Get_size(), 2)) +
         ' MB')
 
-    ### Generate Tissue
+    # Generate Tissue
     print("Run Generation:")
     label_field, vec_field, tissue_properties = simpli.generate_tissue()
 
     simpli.save_mpi_array_as_h5(h5f, label_field.astype(np.uint16), 'tissue')
     simpli.save_mpi_array_as_h5(h5f, vec_field, 'vectorfield')
 
-    ### Simulate PLI Measurement ###
+    # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000  # a.u.
     simpli.untilt_sensor = True

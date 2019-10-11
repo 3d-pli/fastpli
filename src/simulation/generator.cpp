@@ -196,32 +196,29 @@ PliGenerator::RunTissueGeneration(const bool only_label,
                                          only_label);
          }
 
-         if (progress_bar) {
-#pragma omp single
-            {
-               progress_counter++;
+         if (progress_bar && omp_get_thread_num() == 0) {
+            progress_counter++;
 
-               const int barWidth = 60;
-               const int progress =
-                   progress_counter * 100 / (num_fibers_ + num_cells_);
+            const int barWidth = 60;
+            const int progress =
+                progress_counter * 100 / (num_fibers_ + num_cells_);
 
-               if (progress - lastProgress > 1 ||
-                   progress_counter == (num_fibers_ + num_cells_) ||
-                   progress_counter == 1) {
-                  std::cout << ": [";
-                  const int pos = (barWidth * progress) / 100;
-                  for (int pb = 0; pb < barWidth; ++pb) {
-                     if (pb < pos)
-                        std::cout << "=";
-                     else if (pb == pos)
-                        std::cout << ">";
-                     else
-                        std::cout << " ";
-                  }
-                  std::cout << "] " << progress << " %\r";
-                  std::cout.flush();
-                  lastProgress = progress;
+            if (progress - lastProgress > 1 ||
+                progress_counter == (num_fibers_ + num_cells_) ||
+                progress_counter == 1) {
+               std::cout << ": [";
+               const int pos = (barWidth * progress) / 100;
+               for (int pb = 0; pb < barWidth; ++pb) {
+                  if (pb < pos)
+                     std::cout << "=";
+                  else if (pb == pos)
+                     std::cout << ">";
+                  else
+                     std::cout << " ";
                }
+               std::cout << "] " << progress << " %\r";
+               std::cout.flush();
+               lastProgress = progress;
             }
          }
       }
@@ -251,31 +248,27 @@ PliGenerator::RunTissueGeneration(const bool only_label,
                                    array_distance);
          }
 
-         if (progress_bar) {
-#pragma omp single
-            {
-               progress_counter++;
-               int barWidth = 60;
-               int progress =
-                   progress_counter * 100 / (num_fibers_ + num_cells_);
+         if (progress_bar && omp_get_thread_num() == 0) {
+            progress_counter++;
+            int barWidth = 60;
+            int progress = progress_counter * 100 / (num_fibers_ + num_cells_);
 
-               if (progress - lastProgress > 1 ||
-                   progress_counter == (num_fibers_ + num_cells_) ||
-                   progress_counter == 1) {
-                  std::cout << ": [";
-                  int pos = (barWidth * progress) / 100;
-                  for (int pb = 0; pb < barWidth; ++pb) {
-                     if (pb < pos)
-                        std::cout << "=";
-                     else if (pb == pos)
-                        std::cout << ">";
-                     else
-                        std::cout << " ";
-                  }
-                  std::cout << "] " << progress << " %\r";
-                  std::cout.flush();
-                  lastProgress = progress;
+            if (progress - lastProgress > 1 ||
+                progress_counter == (num_fibers_ + num_cells_) ||
+                progress_counter == 1) {
+               std::cout << ": [";
+               int pos = (barWidth * progress) / 100;
+               for (int pb = 0; pb < barWidth; ++pb) {
+                  if (pb < pos)
+                     std::cout << "=";
+                  else if (pb == pos)
+                     std::cout << ">";
+                  else
+                     std::cout << " ";
                }
+               std::cout << "] " << progress << " %\r";
+               std::cout.flush();
+               lastProgress = progress;
             }
          }
       }

@@ -24,11 +24,11 @@ np.random.seed(42)
 with h5py.File(
         '/tmp/fastpli.example.' + FILE_BASE + '.' + fastpli.__git__hash__ +
         '.h5', 'w') as h5f:
-    ### save script ###
+    # save script
     with open(os.path.abspath(__file__), 'r') as f:
         h5f['script'] = f.read()
 
-    ### Setup Simpli for Tissue Generation
+    # Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli()
     simpli.omp_num_threads = 2
     simpli.voxel_size = 0.5  # in mu meter
@@ -42,7 +42,7 @@ with h5py.File(
     print('VOI:', simpli.get_voi())
     print('Memory:', str(round(simpli.memory_usage('MB'), 2)) + ' MB')
 
-    ### Generate Tissue
+    # Generate Tissue
     print("Run Generation:")
     label_field, vec_field, tissue_properties = simpli.generate_tissue()
 
@@ -50,7 +50,7 @@ with h5py.File(
     h5f['vectorfield'] = vec_field
     h5f['tissue_properties'] = tissue_properties
 
-    ### Simulate PLI Measurement ###
+    # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000  # a.u.
     simpli.interpolate = True
