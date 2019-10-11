@@ -167,6 +167,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    size_t progress_counter = 0;
 
 #pragma omp parallel
+   // every thread runs all elements, writing splits x_range
+   // faster then parallel for in FillVoxelsAroundFiberSegment()
    for (size_t fb_idx = 0; fb_idx < fiber_bundles_.size(); fb_idx++) {
       const auto &fb = fiber_bundles_[fb_idx];
 
@@ -195,7 +197,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          }
 
          if (progress_bar) {
-#pragma omp critical
+#pragma omp single
             {
                progress_counter++;
 
@@ -229,7 +231,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    if (debug_)
       std::cout << "generating cells: " << num_cells_ << std::endl;
 
-#pragma omp parallel
+#pragma omp parallel // every thread runs all elements, writing splits x_range
    for (size_t cp_idx = 0; cp_idx < cell_populations_.size(); cp_idx++) {
       const auto &cp = cell_populations_[cp_idx];
 
@@ -250,7 +252,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          }
 
          if (progress_bar) {
-#pragma omp critical
+#pragma omp single
             {
                progress_counter++;
                int barWidth = 60;
