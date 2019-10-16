@@ -400,8 +400,11 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
        x * dim_.local.y() * dim_.local.z() * 3 + y * dim_.local.z() * 3 + z * 3;
 
 #ifndef NDEBUG
-   if (idx >= vector_field_->size())
+   if ((*vector_field_)[idx] == 0 && (*vector_field_)[idx + 1] == 0 &&
+       (*vector_field_)[idx + 2] == 0)
       Abort(3115);
+   if (idx >= vector_field_->size())
+      Abort(3116);
 #endif
    return vm::Vec3<double>((*vector_field_)[idx], (*vector_field_)[idx + 1],
                            (*vector_field_)[idx + 2]);
@@ -410,10 +413,6 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               double z) const {
    // Trilinear interpolate
-
-   if (setup_->flip_z)
-      z = dim_.local.z() - 1 - z;
-
    const auto x0 = std::max(llfloor(x), 0LL);
    const auto y0 = std::max(llfloor(y), 0LL);
    const auto z0 = std::max(llfloor(z), 0LL);
