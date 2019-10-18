@@ -50,6 +50,7 @@ def rofl_stack(data,
     '''
 
     data = np.array(data, copy=False)
+
     if mask is None:
         mask = np.ones((data.shape[1], data.shape[2]), bool)
 
@@ -65,6 +66,10 @@ def rofl_stack(data,
     if gain <= 0:
         raise ValueError("rofl gain <= 0")
 
+    data_shr = pymp.shared.array(data.shape, data.dtype)
+    data_shr = data
+
+    direction_map = pymp.shared.array(data.shape[1:3], float)
     direction_map = pymp.shared.array(data.shape[1:3], float)
     direction_map[:, :] = epa.direction(data[0, :, :, :])
 
@@ -92,7 +97,7 @@ def rofl_stack(data,
                 else:
                     params, params_conf, func, n_iter = rofl_fit(
                         direction_map[x, y], 6, 6, dir_offset, tilt_angle,
-                        data[:, x, y, :], gain, grad_mode, False)
+                        data_shr[:, x, y, :], gain, grad_mode, False)
                     directionmap[x, y] = params[0]
                     inclmap[x, y] = params[1]
                     trelmap[x, y] = params[2]
@@ -102,4 +107,6 @@ def rofl_stack(data,
                     funcmap[x, y] = func
                     itermap[x, y] = n_iter
 
-    return directionmap, inclmap, trelmap, dirdevmap, incldevmap, treldevmap, funcmap, itermap
+    return np.array(directionmap), np.array(inclmap), np.array(
+        trelmap), np.array(dirdevmap), np.array(incldevmap), np.array(
+            treldevmap), np.array(funcmap), np.array(itermap)
