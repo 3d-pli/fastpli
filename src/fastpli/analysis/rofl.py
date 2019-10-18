@@ -16,7 +16,7 @@ def rofl(data,
 
     data = np.array(data, copy=False)
 
-    if len(data.shape) != 2:
+    if data.ndim != 2:
         raise TypeError("data: np.array([tilts,stack])")
 
     if data.shape[0] != 5:
@@ -31,8 +31,8 @@ def rofl(data,
     direction = epa.direction(data)
 
     params, params_conf, func, n_iter = rofl_fit(direction, 6, 6, dir_offset,
-                                                 tilt_angle, data[:, x, y, :],
-                                                 gain, grad_mode, False)
+                                                 tilt_angle, data, gain,
+                                                 grad_mode, False)
 
     return params[0], params[1], params[2], params_conf[0], params_conf[
         1], params_conf[2], func, n_iter
@@ -54,7 +54,7 @@ def rofl_stack(data,
     if mask is None:
         mask = np.ones((data.shape[1], data.shape[2]), bool)
 
-    if len(data.shape) != 4:
+    if data.ndim != 4:
         raise TypeError("data: np.array([tilts,x,y,stack])")
 
     if data.shape[0] != 5:
