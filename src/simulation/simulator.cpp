@@ -200,7 +200,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
       lp.tissue += light_step * 0.5;
 
    while (!light_positions.empty()) {
-#pragma omp parallel for
+#pragma omp parallel for schedule(guided)
       for (size_t s = 0; s < light_positions.size(); s++) {
 
          bool flag_save_ray = true;
