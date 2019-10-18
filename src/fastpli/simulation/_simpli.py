@@ -10,10 +10,6 @@ from fastpli.tools import rotation
 
 import numpy as np
 import warnings
-import copy
-
-import h5py
-from PIL import Image
 
 # TODO: write json -> parameter function
 
@@ -460,9 +456,10 @@ class Simpli:
 
         image = self._sim.run_simulation(self._dim, label_field, vec_field,
                                          tissue_properties, theta, phi)
+        if np.min(image.flatten()) < 0:
+            raise ValueError("intensity < 0 detected")
 
-        return image.astype(
-            np.float32)  # optic resize will force float32 because of PIL
+        return image
 
     @property
     def omp_num_threads(self):
@@ -583,15 +580,16 @@ class Simpli:
             image_stack,
             delta_sigma=0.71,  # only for LAP!
             gain=3.0,  # only for LAP!
-            resample_mode=Image.BILINEAR):
+            order=1,
+            num_threads=2):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
 
         return optic.apply(image_stack, self._voxel_size, self._resolution,
-                           delta_sigma, gain, resample_mode)
+                           delta_sigma, gain, order, num_threads)
 
-    def apply_resize(self, image, resample_mode=Image.BILINEAR):
+    def apply_resize(self, image, order=1):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
@@ -599,9 +597,8 @@ class Simpli:
         if self._voxel_size is None:
             raise TypeError("voxel_size is not set")
 
-        scale = self._resolution / self._voxel_size
-        size = np.array(np.array(image.shape) // scale, dtype=int)
-        return optic.resize(image, size, resample_mode)
+        scale = self._voxel_size / self._resolution
+        return optic.resize(image, scale, order)
 
     def apply_untilt(self, images, theta, phi, mode='nearest'):
 

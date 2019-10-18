@@ -17,9 +17,7 @@ setuptools.setup(
     author_email='f.matuschke@fz-juelich.de',
     url=
     'http://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html',
-    install_requires=[
-        'numpy', 'numba', 'pymp-pypi', 'mpi4py', 'scipy', 'pillow', 'h5py'
-    ],
+    install_requires=['numpy', 'numba', 'pymp-pypi', 'mpi4py', 'scipy', 'h5py'],
     # test_suite='' # use make test instead
     zip_safe=False,
     package_dir={'': '${CMAKE_CURRENT_BINARY_DIR}'},
