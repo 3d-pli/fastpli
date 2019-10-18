@@ -83,7 +83,7 @@ with h5py.File(
 
     # save mask for analysis
     mask = np.sum(label_field, 2) > 0
-    mask = simpli.apply_resize(1.0 * mask) > 0.1
+    mask = simpli.apply_optic(1.0 * mask, gain=0) > 0.1
     h5f['optic/mask'] = np.uint8(mask)
     mask = None  # keep analysing all pixels
 
