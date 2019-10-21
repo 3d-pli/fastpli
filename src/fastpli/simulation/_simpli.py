@@ -147,16 +147,13 @@ class Simpli:
 
     def get_voi(self):
         if self._voxel_size is None:
-            return None
-            self._print_debug("voxel_size is not set, voi can't be calculated")
+            raise ValueError("voxel_size is not set, voi can't be calculated")
 
         if self._dim is None:
-            return None
-            self._print_debug("dim is not set, voi can't be calculated")
+            raise ValueError("dim is not set, voi can't be calculated")
 
         if self._dim_origin is None:
-            return None
-            self._print_debug("dim_origin is not set, voi can't be calculated")
+            raise ValueError("dim_origin is not set, voi can't be calculated")
 
         voi = np.zeros((6,))
         voi[::2] = self._dim_origin
