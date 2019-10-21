@@ -23,9 +23,9 @@ def resize(image, scale, order=1):
     with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore",
-            "From scipy 0.13.0, the output shape of zoom\(\) is calculated "
-            "with round\(\) instead of int\(\) - for these inputs the size of "
-            "the returned array has changed.")
+            r"From scipy 0.13.0, the output shape of zoom\(\) is calculated "
+            r"with round\(\) instead of int\(\) - for these inputs the size of "
+            r"the returned array has changed.")
         return scipy.ndimage.zoom(image, scale, order=order)
 
 
