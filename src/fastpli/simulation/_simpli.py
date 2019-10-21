@@ -1,4 +1,3 @@
-# from . import __generation as generation
 from .__generation import _Generator
 from .__simulation import _Simulator
 
@@ -9,9 +8,8 @@ from fastpli.simulation import optic
 from fastpli.tools import rotation
 
 import numpy as np
+import multiprocessing as mp
 import warnings
-
-# TODO: write json -> parameter function
 
 
 class Simpli:
@@ -54,6 +52,7 @@ class Simpli:
 
         self._omp_num_threads = 1
         self._debug = False
+        self._mp_pool = None
 
         self._freeze()
 
@@ -485,6 +484,15 @@ class Simpli:
 
         self._omp_num_threads = num_threads_gen
 
+        if self._omp_num_threads > 1:
+            if self._mp_pool:
+                self._mp_pool.close()
+            self._mp_pool = mp.Pool(processes=self._omp_num_threads)
+        else:
+            if self._mp_pool:
+                self._mp_pool.close()
+            self._mp_pool = None
+
     def memory_usage(self, unit='MB', item='all'):
         if not isinstance(item, str):
             raise TypeError('item has to be str')
@@ -577,19 +585,10 @@ class Simpli:
 
     def apply_optic(
             self,
-            image_stack,
+            data,
             delta_sigma=0.71,  # only for LAP!
             gain=3.0,  # only for LAP!
-            order=1,
-            num_threads=2):
-
-        if self._resolution is None:
-            raise TypeError("resolution is not set")
-
-        return optic.apply(image_stack, self._voxel_size, self._resolution,
-                           delta_sigma, gain, order, num_threads)
-
-    def apply_resize(self, image, order=1):
+            order=1):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
@@ -597,8 +596,66 @@ class Simpli:
         if self._voxel_size is None:
             raise TypeError("voxel_size is not set")
 
+        image_stack = np.atleast_3d(np.array(data, copy=False))
+        if image_stack.ndim > 3:
+            raise TypeError("image_stack can be 1d, 2d or 3d")
+
         scale = self._voxel_size / self._resolution
-        return optic.resize(image, scale, order)
+        size = np.array(np.round(np.array(image_stack.shape[0:2]) * scale),
+                        dtype=int)
+
+        res_image_stack = np.empty((size[0], size[1], image_stack.shape[2]),
+                                   dtype=image_stack.dtype)
+
+        if self._mp_pool:
+            input_data = [(image_stack[:, :, i], delta_sigma, scale, order)
+                          for i in range(image_stack.shape[2])]
+            results = self._mp_pool.starmap(optic.filter_resize, input_data)
+            for i in range(image_stack.shape[2]):
+                res_image_stack[:, :, i] = results[i]
+        else:
+            for i in range(image_stack.shape[2]):
+                res_image_stack[:, :, i] = optic.filter_resize(
+                    image_stack[:, :, i], delta_sigma, scale, order)
+
+        if np.min(res_image_stack.flatten()) < 0:
+            raise ValueError("intensity < 0 detected")
+
+        if gain > 0:
+            res_image_stack = optic.add_noise(res_image_stack, gain)
+
+        return np.squeeze(res_image_stack)
+
+    def apply_resize(self, data, order=1):
+
+        if self._resolution is None:
+            raise TypeError("resolution is not set")
+
+        if self._voxel_size is None:
+            raise TypeError("voxel_size is not set")
+
+        image_stack = np.atleast_3d(np.array(data, copy=False))
+        if image_stack.ndim > 3:
+            raise TypeError("image_stack can be 1d, 2d or 3d")
+
+        scale = self._voxel_size / self._resolution
+        size = np.array(np.round(np.array(image_stack.shape[0:2]) * scale),
+                        dtype=int)
+
+        res_image_stack = np.empty((size[0], size[1], image_stack.shape[2]),
+                                   dtype=image_stack.dtype)
+        if self._mp_pool:
+            input_data = [(image_stack[:, :, i], scale, order)
+                          for i in range(image_stack.shape[2])]
+            results = self._mp_pool.starmap(optic.resize, input_data)
+            for i in range(image_stack.shape[2]):
+                res_image_stack[:, :, i] = results[i]
+        else:
+            for i in range(image_stack.shape[2]):
+                res_image_stack[:, :, i] = optic.resize(image_stack[:, :, i],
+                                                        scale, order)
+
+        return np.squeeze(res_image_stack)
 
     def apply_untilt(self, images, theta, phi, mode='nearest'):
 
@@ -614,7 +671,6 @@ class Simpli:
         p_in = np.array([np.dot(rot, p - p_rot) + p_rot for p in p_out])
 
         # TODO: refraction has to be implemented
-
         M = affine_transformation.calc_matrix(p_in[:, :2], p_out[:, :2])
 
         images_untilt = affine_transformation.image(images, M, mode)
@@ -623,9 +679,12 @@ class Simpli:
 
         return images_untilt
 
-    def apply_epa(self, image_stack, mask=None):
+    def apply_epa(self, data, mask=None):
+        ''' 
+        data = np.array(x,y,rho)
+        '''
 
-        transmittance, direction, retardation = epa.epa(image_stack)
+        transmittance, direction, retardation = epa.epa(data)
         if mask is not None:
             transmittance[np.invert(mask)] = float('nan')
             direction[np.invert(mask)] = float('nan')
@@ -635,18 +694,61 @@ class Simpli:
 
     def apply_rofl(
             self,
-            tilting_stack,
+            data,
             tilt_angle=np.deg2rad(5.5),  # only LAP!
             gain=3.0,  # only LAP!
             dir_offset=0,
             mask=None,
             num_threads=2,
             grad_mode=False):
+        ''' 
+        data = np.array(tilt,x,y,rho)
+        '''
 
-        rofl_direction, rofl_incl, rofl_t_rel, dirdevmap, incldevmap, treldevmap, funcmap, itermap = rofl.rofl_stack(
-            tilting_stack, tilt_angle, gain, dir_offset, mask, num_threads,
-            grad_mode)
+        data = np.array(data, dtype=float, copy=False)
 
-        return rofl_direction, rofl_incl, rofl_t_rel, (dirdevmap, incldevmap,
-                                                       treldevmap, funcmap,
-                                                       itermap)
+        if data.ndim != 4:
+            raise TypeError("data: np.array([tilts,x,y,stack])")
+
+        if data.shape[0] != 5:
+            raise ValueError("data need 1 + 4 measurements")
+
+        if data.shape[-1] <= 3:
+            raise ValueError("data needs at least 3 equidistand rotations")
+
+        if gain <= 0:
+            raise ValueError("rofl gain <= 0")
+
+        if mask is None:
+            mask = np.ones((data.shape[1], data.shape[2]), bool)
+
+        directionmap = np.empty_like(mask, dtype=data.dtype)
+        inclmap = np.empty_like(mask, dtype=data.dtype)
+        trelmap = np.empty_like(mask, dtype=data.dtype)
+        dirdevmap = np.empty_like(mask, dtype=data.dtype)
+        incldevmap = np.empty_like(mask, dtype=data.dtype)
+        treldevmap = np.empty_like(mask, dtype=data.dtype)
+        funcmap = np.empty_like(mask, dtype=data.dtype)
+        itermap = np.empty_like(mask, dtype=data.dtype)
+
+        if self._mp_pool:
+            for j in range(data.shape[2]):
+                input_data = [(data[:, i, j, :], tilt_angle, gain, dir_offset,
+                               grad_mode) for i in range(data.shape[1])]
+                results = self._mp_pool.starmap(rofl.rofl, input_data)
+
+                for i, result in enumerate(results):
+                    directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
+                        i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
+                            i, j], itermap[i, j] = result
+        else:
+            for i in range(data.shape[1]):
+                for j in range(data.shape[2]):
+                    directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
+                        i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
+                            i, j], itermap[i, j] = rofl.rofl(
+                                data[:, i, j, :], tilt_angle, gain, dir_offset,
+                                grad_mode)
+
+        return directionmap, inclmap, trelmap, (dirdevmap, incldevmap,
+                                                treldevmap, funcmap, itermap)

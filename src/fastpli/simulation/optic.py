@@ -1,6 +1,8 @@
 import numpy as np
 import warnings
 import scipy.ndimage
+import multiprocessing as mp
+import ctypes
 
 
 def add_noise(image, gain):
@@ -29,35 +31,5 @@ def resize(image, scale, order=1):
         return scipy.ndimage.zoom(image, scale, order=order)
 
 
-def apply(
-        image_stack,
-        org_pixel_size,  # mu meter
-        res_pixel_size,  # mu meter
-        delta_sigma=0.71,  # only for LAP!
-        gain=3,  # only for LAP!
-        order=1,
-        num_threads=2):
-
-    image_stack = np.atleast_3d(np.array(image_stack))
-    if image_stack.ndim > 3:
-        raise TypeError("image_stack can be 1d, 2d or 3d")
-
-    scale = org_pixel_size / res_pixel_size
-    size = np.array(np.round(np.array(image_stack.shape[0:2]) * scale),
-                    dtype=int)
-
-    res_image_stack = np.empty((size[0], size[1], image_stack.shape[2]),
-                               dtype=image_stack.dtype)
-
-    for i in range(image_stack.shape[2]):
-        res_image_stack[:, :, i] = resize(
-            filter(image_stack[:, :, i], delta_sigma / scale), scale, order)
-
-    if np.min(res_image_stack.flatten()) < 0:
-        raise ValueError("intensity < 0 detected")
-
-    # add noise
-    if gain > 0:
-        res_image_stack = add_noise(res_image_stack, gain)
-
-    return np.squeeze(res_image_stack)
+def filter_resize(image, delta_sigma, scale, order):
+    return resize(filter(image, delta_sigma / scale), scale, order)
