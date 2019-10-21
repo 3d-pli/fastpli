@@ -28,8 +28,8 @@ def direction(data):
     n = data.shape[-1]
     rho_2 = 2 * np.linspace(0, np.pi, n, False, dtype=data.dtype)
 
-    a1 = 2 * np.sum(data * np.sin(rho_2), 2) / n
-    b1 = 2 * np.sum(data * np.cos(rho_2), 2) / n
+    a1 = 2 * np.sum(data * np.sin(rho_2), -1) / n
+    b1 = 2 * np.sum(data * np.cos(rho_2), -1) / n
 
     d = 0.5 * np.arctan2(-b1, a1) + np.pi
 
