@@ -3,7 +3,7 @@ import copy
 
 from . import fiber
 
-
+# TODO: array.copy
 def Resize(fiber_bundles, scale, mod='all'):
     fiber_bundles = copy.deepcopy(fiber_bundles)
     for j, fb in enumerate(fiber_bundles):

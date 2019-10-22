@@ -1,6 +1,7 @@
 import numpy as np
 from ...tools.rotation import a_on_b
 
+# TODO: hexgrid_shape
 
 def _hexgrid(a, b, spacing):
     # dx = np.sin(np.deg2rad(30)) * spacing
@@ -17,6 +18,7 @@ def _hexgrid(a, b, spacing):
     return np.concatenate((points_0, points_1), axis=1).T
 
 
+# TODO: crop rectangle(a,b,input) if non hex grid
 def rectangle(a, b, spacing, mode='center'):
 
     if mode == 'center':

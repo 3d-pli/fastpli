@@ -2,11 +2,14 @@
 [readme](README.md)
 
 # KNOWN ISSUES:
-* memory usage of simpli unknown if voi is set before pixel_size
+* multiprocessing has initial high cpu values with model.solver! 
 * simpli.resolution does not call property
 * nan values detected in light signal (for 90degree fibers?)
 
 # TODOs:
+- [ ] consistent vois
+- [ ] user friendly sandbox
+- [ ] examples
 - [ ] std::vector(float) for fibers
 - [ ] helper_math.hpp
 ## simpli

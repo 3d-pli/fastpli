@@ -109,6 +109,7 @@ class Solver(_Solver):
 
     @col_voi.setter
     def col_voi(self, voi):
+        # TODO:
         if not isinstance(voi, tuple):
             raise TypeError("col_voi := (min, max)")
         self._col_voi = voi

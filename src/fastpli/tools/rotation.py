@@ -16,6 +16,7 @@ def z(phi):
                      (np.sin(phi), np.cos(phi), 0), (0, 0, 1)), float)
 
 
+# TODO: what the ...
 def z_2d(phi):
     return z(phi)[:-1, :-1]
 
