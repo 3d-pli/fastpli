@@ -1,12 +1,10 @@
-import numpy as np
-import numpy.ma as ma
-
-import h5py
-import os
-
 import fastpli.simulation
 import fastpli.analysis
 import fastpli.io
+
+import numpy as np
+import h5py
+import os
 
 import imageio
 
@@ -32,7 +30,7 @@ with h5py.File(
     simpli = fastpli.simulation.Simpli()
     simpli.omp_num_threads = 2
     simpli.voxel_size = 0.5  # in mu meter
-    simpli.set_voi([-60, 60, -60, 60, -30, 30])  # in mu meter
+    simpli.set_voi([-60] * 3, [60] * 3)  # in mu meter
     simpli.fiber_bundles = fastpli.io.fiber.load(
         os.path.join(FILE_PATH, 'cube.dat'))
     simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
