@@ -585,7 +585,8 @@ class Simpli:
             data,
             delta_sigma=0.71,  # only for LAP!
             gain=3.0,  # only for LAP!
-            order=1):
+            order=1,
+            resample=False):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
@@ -604,16 +605,29 @@ class Simpli:
         res_image_stack = np.empty((size[0], size[1], image_stack.shape[2]),
                                    dtype=image_stack.dtype)
 
-        if self._mp_pool:
-            input_data = [(image_stack[:, :, i], delta_sigma, scale, order)
-                          for i in range(image_stack.shape[2])]
-            results = self._mp_pool.starmap(optic.filter_resize, input_data)
-            for i in range(image_stack.shape[2]):
-                res_image_stack[:, :, i] = results[i]
+        if not resample:
+            if self._mp_pool:
+                input_data = [(image_stack[:, :, i], delta_sigma, scale, order)
+                              for i in range(image_stack.shape[2])]
+                results = self._mp_pool.starmap(optic.filter_resize, input_data)
+                for i in range(image_stack.shape[2]):
+                    res_image_stack[:, :, i] = results[i]
+            else:
+                for i in range(image_stack.shape[2]):
+                    res_image_stack[:, :, i] = optic.filter_resize(
+                        image_stack[:, :, i], delta_sigma, scale, order)
         else:
-            for i in range(image_stack.shape[2]):
-                res_image_stack[:, :, i] = optic.filter_resize(
-                    image_stack[:, :, i], delta_sigma, scale, order)
+            if self._mp_pool:
+                input_data = [(image_stack[:, :, i], delta_sigma, scale)
+                              for i in range(image_stack.shape[2])]
+                results = self._mp_pool.starmap(optic.filter_resample,
+                                                input_data)
+                for i in range(image_stack.shape[2]):
+                    res_image_stack[:, :, i] = results[i]
+            else:
+                for i in range(image_stack.shape[2]):
+                    res_image_stack[:, :, i] = optic.filter_resample(
+                        image_stack[:, :, i], delta_sigma, scale)
 
         if np.min(res_image_stack.flatten()) < 0:
             raise ValueError("intensity < 0 detected")

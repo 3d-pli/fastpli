@@ -1,8 +1,7 @@
 import numpy as np
 import warnings
 import scipy.ndimage
-import multiprocessing as mp
-import ctypes
+from numba import njit
 
 
 def add_noise(image, gain):
@@ -21,6 +20,28 @@ def filter2d(image, sigma):
         scipy.ndimage.fourier_gaussian(np.fft.fft2(image), sigma=sigma)).real
 
 
+@njit(cache=True)
+def resample(image, scale):
+    sx = int(round(image.shape[0] * scale))
+    sy = int(round(image.shape[1] * scale))
+    data = np.zeros((sx, sy), dtype=image.dtype)
+    divisor = np.zeros((sx, sy), dtype=np.int64)
+
+    for i in range(image.shape[0]):
+        ii = int(np.floor((i + 0.5) * scale))
+        if ii >= data.shape[0]:
+            continue
+        for j in range(image.shape[1]):
+            jj = int(np.floor((j + 0.5) * scale))
+            if jj >= data.shape[1]:
+                continue
+            divisor[ii, jj] += 1
+            data[ii, jj] += image[i, j]
+    data = np.divide(data, divisor)
+
+    return data
+
+
 def resize(image, scale, order=1):
     with warnings.catch_warnings():
         warnings.filterwarnings(
@@ -33,3 +54,7 @@ def resize(image, scale, order=1):
 
 def filter_resize(image, delta_sigma, scale, order):
     return resize(filter(image, delta_sigma / scale), scale, order)
+
+
+def filter_resample(image, delta_sigma, scale):
+    return resample(filter(image, delta_sigma / scale), scale)
