@@ -2,13 +2,13 @@ from .__generation import _Generator
 from .__simulation import _Simulator
 
 from ..version import __version__
-
-from fastpli.analysis import rofl, epa, affine_transformation
-from fastpli.simulation import optic
-from fastpli.tools import rotation
+from ..analysis import rofl, epa, affine_transformation
+from ..simulation import optic
+from ..tools import rotation
 
 import numpy as np
 import warnings
+
 
 class Simpli:
     __isfrozen = False
@@ -35,7 +35,7 @@ class Simpli:
         self._cells_populations = None
         self._cells_populations_properties = None
         self._dim = None
-        self._dim_origin = np.array([0, 0, 0], dtype=np.float64)
+        self._dim_origin = np.array([0, 0, 0], dtype=float)
         self._voxel_size = None
         self._resolution = None
 
@@ -76,10 +76,6 @@ class Simpli:
             'debug': self._debug
         }
 
-    def _print_debug(self, msg):
-        if self._debug:
-            print("debug: " + msg)
-
     @property
     def debug(self):
         return self._debug
@@ -94,10 +90,14 @@ class Simpli:
 
     @dim.setter
     def dim(self, dim):
-        self._dim = np.array(dim, dtype=np.int64)
+        dim = np.array(dim)
+        if dim.dtype != int:
+            raise TypeError("dim is not np.array(int)")
 
-        if not np.array_equal(self._dim, dim):
-            raise ValueError("dim would changed because it was not an integer")
+        if dim.ndim != 3:
+            raise TypeError("dim.ndim != 3")
+
+        self._dim = dim
 
     @property
     def dim_origin(self):
@@ -105,7 +105,7 @@ class Simpli:
 
     @dim_origin.setter
     def dim_origin(self, dim_origin):
-        self._dim_origin = np.array(dim_origin, dtype=np.float64)
+        self._dim_origin = np.array(dim_origin, dtype=float)
 
     @property
     def voxel_size(self):
@@ -113,12 +113,8 @@ class Simpli:
 
     @voxel_size.setter
     def voxel_size(self, voxel_size):
-        if not isinstance(voxel_size, (int, float)):
-            raise TypeError("voxel_size : (int, float)")
-
         if voxel_size <= 0:
             raise ValueError("voxel_size <= 0")
-
         self._voxel_size = float(voxel_size)
 
     @property
@@ -127,20 +123,9 @@ class Simpli:
 
     @resolution.setter
     def resolution(self, resolution):
-        if not isinstance(resolution, (int, float)):
-            raise TypeError("resolution : (int, float)")
         if resolution <= 0:
             raise ValueError("resolution <= 0")
-
         self._resolution = float(resolution)
-
-    @property
-    def voi(self):
-        raise NotImplementedError("voi has to be get/set via get/set_voi()")
-
-    @voi.setter
-    def voi(self, voi):
-        raise NotImplementedError("voi has to be get/set via get/set_voi()")
 
     def get_voi(self):
         if self._voxel_size is None:
@@ -155,27 +140,32 @@ class Simpli:
         voi = np.zeros((6,))
         voi[::2] = self._dim_origin
         voi[1::2] = voi[::2] + self._dim * self._voxel_size
-        return voi
 
-    def set_voi(self, voi):
-        voi = np.array(voi, dtype=np.float64)
-        if voi.size != 6 or voi.shape[0] != 6:
-            raise TypeError("voi: wrong shape, has to be (6,)")
+        min = np.array(voi[0::2])
+        max = np.array(voi[1::2])
+        return min, max
 
-        if voi[0] > voi[1] or voi[2] > voi[3] or voi[4] > voi[5]:
-            raise ValueError(
-                "voi not corrected sorted: (x_min, x_max, y_min, y_max, z_min, z_max)"
-            )
+    def set_voi(self, min, max):
+        '''
+        min: [x_min, y_min, z_min]
+        max: [x_max, y_max, z_max]
+        '''
+
+        min = np.array(min, dtype=float)
+        max = np.array(max, dtype=float)
+
+        if min.ndim != 1 or max.ndim != 1:
+            raise TypeError("min,max : ndim != 1")
+        if min.size != 3 or max.size != 3:
+            raise TypeError("min,max : size != 1")
+        if np.all(min >= max):
+            raise ValueError("min >= max")
 
         if self._voxel_size is None:
             raise TypeError("voxel_size is not set yet")
-        tmp = np.array(voi / self._voxel_size)
-        self._dim = np.array(
-            (int(tmp[1] - tmp[0]), int(tmp[3] - tmp[2]), int(tmp[5] - tmp[4])),
-            dtype=np.int64)
-        self._dim_origin = voi[::2]
 
-        self._print_debug("dim and dim_origin recalculated")
+        self._dim = np.array((max - min) / self._voxel_size, dtype=int)
+        self._dim_origin = min
 
     @property
     def filter_rotations(self):
@@ -183,8 +173,7 @@ class Simpli:
 
     @filter_rotations.setter
     def filter_rotations(self, filter_rotations):
-
-        filter_rotations = np.array(filter_rotations, dtype=np.float64)
+        filter_rotations = np.array(filter_rotations, dtype=float)
 
         if filter_rotations.size == 0 or filter_rotations.ndim != 1:
             raise TypeError("filter_rotations : nx1")
@@ -254,7 +243,7 @@ class Simpli:
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
 
-        if fbs is None:
+        if not fbs:
             self._fiber_bundles = None
             return
 
@@ -266,13 +255,13 @@ class Simpli:
                 raise TypeError("fb is not a list")
 
             for f_i, f in enumerate(fb):
-                fbs[fb_i][f_i] = np.array(f, dtype=np.float64, copy=False)
+                fbs[fb_i][f_i] = np.array(f, dtype=float)
 
-                if len(fbs[fb_i][f_i].shape) != 2:
-                    raise TypeError("fiber size need to be nx4")
+                if fbs[fb_i][f_i].ndim != 2:
+                    raise TypeError("fiber.shape != nx4")
 
                 if fbs[fb_i][f_i].shape[1] != 4:
-                    raise TypeError("fiber size need to be nx4")
+                    raise TypeError("fiber.shape != nx4")
 
         self._fiber_bundles = fbs
 
@@ -288,31 +277,22 @@ class Simpli:
             return
 
         if not isinstance(bundle_layer_properties, (list, tuple)):
-            raise TypeError("properties must be a list(list(tuples))")
-
-        if not self._fiber_bundles:
-            raise ValueError("fiber_bundles have not been set yet")
-
-        if len(self._fiber_bundles) != len(bundle_layer_properties):
-            raise TypeError(
-                "properties must have the same size as fiber_bundles")
+            raise TypeError("properties != list(list(tuples))")
 
         self._fiber_bundles_properties = []
         for prop in bundle_layer_properties:
             if not isinstance(prop, (list, tuple)):
-                raise TypeError("properties must be a list(list(tuples))")
+                raise TypeError("properties != list(list(tuples))")
 
             self._fiber_bundles_properties.append([])
             for ly in prop:
                 if len(ly) != 4:
-                    raise TypeError(
-                        "properties must have len 4 (float, float, float, char)"
-                    )
+                    raise TypeError("layer != (float, float, float, char)")
 
                 if ly[1] < 0 and ly[-1] is 'r':
-                    warnings.warn('birefringence negative and radial')
+                    warnings.warn("birefringence negative and radial")
                 if ly[1] > 0 and ly[-1] is 'p':
-                    warnings.warn('birefringence positive and parallel')
+                    warnings.warn("birefringence positive and parallel")
 
         self._fiber_bundles_properties = bundle_layer_properties
 
@@ -327,14 +307,14 @@ class Simpli:
             return
 
         if not isinstance(cps, (list, tuple)):
-            raise TypeError("cells_populations is not a list")
+            raise TypeError("cells_populations != list")
 
         for cp_i, cp in enumerate(cps):
             if not isinstance(cp, (list, tuple)):
-                raise TypeError("cells_population is not a list")
+                raise TypeError("cells_population != list")
 
             for c_i, c in enumerate(cp):
-                cps[cp_i][c_i] = np.array(c, dtype=np.float64, copy=False)
+                cps[cp_i][c_i] = np.array(c, dtype=float)
 
                 if len(cps[cp_i][c_i].shape) != 2:
                     raise TypeError("cell size need to be nx4")
@@ -372,25 +352,23 @@ class Simpli:
     def _check_property_length(self):
         if self._fiber_bundles:
             if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
-                raise TypeError(
-                    "properties must have the same size as fiber_bundles")
+                raise TypeError("len(fiber_bundles) != len(properties)")
 
         if self._cells_populations:
             if len(self._cells_populations) != len(
                     self._cells_populations_properties):
-                raise TypeError(
-                    "properties must have the same size as cell_populations")
+                raise TypeError("len(cell_populations) != len(cell_properties)")
 
     def generate_tissue(self, only_label=False, progress_bar=False):
 
         if self._dim is None:
-            raise ValueError('dim not set')
+            raise ValueError("dim not set")
 
         if self._dim_origin is None:
-            raise ValueError('dim_origin not set')
+            raise ValueError("dim_origin not set")
 
         if self._voxel_size is None:
-            raise ValueError('voxel_size not set')
+            raise ValueError("voxel_size not set")
 
         self._check_property_length()
 
@@ -408,19 +386,19 @@ class Simpli:
 
     def _init_pli_setup(self):
         if self._step_size <= 0:
-            raise ValueError('step_size <= 0')
+            raise ValueError("step_size <= 0")
 
         if self._light_intensity is None:
-            raise ValueError('light_intensity not set')
+            raise ValueError("light_intensity not set")
 
         if self._voxel_size is None:
-            raise ValueError('voxel_size not set')
+            raise ValueError("voxel_size not set")
 
         if self._wavelength is None:
-            raise ValueError('wavelength not set')
+            raise ValueError("wavelength not set")
 
         if self._filter_rotations is None:
-            raise ValueError('filter_rotations not set')
+            raise ValueError("filter_rotations not set")
 
         self._sim.set_pli_setup(self._step_size, self._light_intensity,
                                 self._voxel_size, self._wavelength,
@@ -431,23 +409,27 @@ class Simpli:
     def run_simulation(self, label_field, vec_field, tissue_properties, theta,
                        phi):
 
-        label_field = np.array(label_field, dtype=np.int32, copy=False)
-        vec_field = np.array(vec_field, dtype=np.float32, copy=False)
+        label_field_ = np.array(label_field, dtype=np.int32, copy=False)
+        vec_field_ = np.array(vec_field, dtype=np.float32, copy=False)
+
+        if label_field_ is not label_field:
+            warnings.warn("label_field is copied", UserWarning)
+        if vec_field_ is not vec_field:
+            warnings.warn("vec_field is copied", UserWarning)
 
         self._init_pli_setup()
 
         tissue_properties = np.array(tissue_properties)
-        if len(tissue_properties.shape) != 2:
-            raise ValueError("tissue_properties wrong shape")
+        if tissue_properties.ndim != 2:
+            raise ValueError("tissue_properties.ndim !=2")
 
         if tissue_properties.shape[1] != 2:
-            raise ValueError("tissue_properties wrong shape")
+            raise ValueError("tissue_properties.shape[1] != 2")
 
-        if tissue_properties.shape[0] <= np.max(label_field.flatten()):
-            raise ValueError(
-                "tissue_properties.shape[0] < np.max(label_field.flatten())")
+        if tissue_properties.shape[0] <= np.max(label_field_.flatten()):
+            raise ValueError("tissue_properties.shape[0] < np.max(label_field)")
 
-        image = self._sim.run_simulation(self._dim, label_field, vec_field,
+        image = self._sim.run_simulation(self._dim, label_field_, vec_field_,
                                          tissue_properties, theta, phi)
         if np.min(image.flatten()) < 0:
             raise ValueError("intensity < 0 detected")
@@ -462,64 +444,63 @@ class Simpli:
     def omp_num_threads(self, num_threads):
 
         if not isinstance(num_threads, int):
-            raise TypeError("num_threads has to be a positiv integer")
+            raise TypeError("num_threads != int")
 
         if num_threads <= 0:
-            raise TypeError("num_threads has to be a positiv integer")
+            raise TypeError("num_threads <= 0")
 
         num_threads_gen = self._gen.set_omp_num_threads(num_threads)
         num_threads_sim = self._sim.set_omp_num_threads(num_threads)
 
         if num_threads_gen != num_threads_sim:
-            raise ValueError("num_threads_gen != num_threads_sim")
+            raise AssertionError("num_threads_gen != num_threads_sim")
 
         if num_threads_gen != num_threads:
-            warnings.warn("reduced num_threads: " + str(num_threads_gen))
+            warnings.warn("reduced num_threads: " + str(num_threads_gen),
+                          UserWarning)
 
         self._omp_num_threads = num_threads_gen
 
     def memory_usage(self, unit='MB', item='all'):
-        if not isinstance(item, str):
-            raise TypeError('item has to be str')
 
-        if not isinstance(unit, str):
-            raise TypeError('unit has to be str')
-
-        if unit == 'B':
-            div = 1024**0
-        elif unit == 'kB':
-            div = 1024**1
-        elif unit == 'MB':
+        if unit == 'MB':
             div = 1024**2
         elif unit == 'GB':
             div = 1024**3
         else:
-            raise ValueError('allowed is only B, kB, MB, GB')
+            raise ValueError("allowed is only \"MB\", \"GB\"")
 
         if self._dim is None:
-            raise TypeError('dimension not set yet')
+            raise TypeError("dimension not set yet")
 
         if item == 'label_field':
+            # label_field + distance_array
             return np.prod(self._dim) * (32 + 32) / 8 / div
         elif item == 'all':
             return np.prod(self._dim) * (32 + 32 + 3 * 32) / 8 / div
         else:
-            raise ValueError('allowed is only label_field or all')
+            raise ValueError("allowed is only \"label_field\" or \"all\"")
 
-    def save_mpi_array_as_h5(self, h5f, data, data_name, lock_dim=None):
+    def save_mpi_array_as_h5(self, h5f, input, data_name, lock_dim=None):
+        '''
+        simpli can be seperated into different mpi processes.
+        This function provides a parallel hdf5 io to save data
+        inside the same h5-file.
+        '''
+        # TODO: check functionality
 
         dim_local = self._gen.dim_local()
         dim_offset = self._gen.dim_offset()
 
-        if not isinstance(data, np.ndarray):
+        if not isinstance(input, np.ndarray):
             raise TypeError(
                 "only numpy arrays are compatible with save_mpi_array_as_h5")
 
         dset_dim = np.copy(self._dim)
-        if len(data.shape) < len(dset_dim):
-            dset_dim = dset_dim[:len(data.shape)]
-        if len(data.shape) > len(dset_dim):
-            dset_dim = np.append(dset_dim, data.shape[3:])
+        if len(input.shape) < len(dset_dim):
+            dset_dim = dset_dim[:len(input.shape)]
+        if len(input.shape) > len(dset_dim):
+            dset_dim = np.append(dset_dim, input.shape[3:])
 
         if lock_dim:
             if isinstance(lock_dim, int):
@@ -527,55 +508,59 @@ class Simpli:
 
             lock_dim = list(lock_dim)
             for l in lock_dim:
-                dset_dim[l] = data.shape[l]
+                dset_dim[l] = input.shape[l]
 
-        dset = h5f.create_dataset(data_name, dset_dim, dtype=data.dtype)
+        dset = h5f.create_dataset(data_name, dset_dim, dtype=input.dtype)
 
-        if len(data.shape) == 2:
-            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(data.shape[0]):
+        if len(input.shape) == 2:
+            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
+                for i in range(input.shape[0]):
                     dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
-                         dim_local[1]] = data[i, :]
+                         dim_local[1]] = input[i, :]
             else:
                 dset[dim_offset[0]:dim_offset[0] +
                      dim_local[0], dim_offset[1]:dim_offset[1] +
-                     dim_local[1]] = data
+                     dim_local[1]] = input
 
-        elif len(data.shape) == 3:
-            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(data.shape[0]):
+        elif len(input.shape) == 3:
+            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
+                for i in range(input.shape[0]):
                     dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
                          dim_local[1], dim_offset[2]:dim_offset[2] +
-                         dim_local[2]] = data[i, :]
+                         dim_local[2]] = input[i, :]
             else:
                 dset[dim_offset[0]:dim_offset[0] +
                      dim_local[0], dim_offset[1]:dim_offset[1] +
                      dim_local[1], dim_offset[2]:dim_offset[2] +
-                     dim_local[2]] = data
+                     dim_local[2]] = input
 
-        elif len(data.shape) > 3:
-            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(data.shape[0]):
+        elif len(input.shape) > 3:
+            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
+                for i in range(input.shape[0]):
                     dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
                          dim_local[1], dim_offset[2]:dim_offset[2] +
-                         dim_local[2], :] = data[i, :]
+                         dim_local[2], :] = input[i, :]
             else:
                 dset[dim_offset[0]:dim_offset[0] +
                      dim_local[0], dim_offset[1]:dim_offset[1] +
                      dim_local[1], dim_offset[2]:dim_offset[2] +
-                     dim_local[2], :] = data
+                     dim_local[2], :] = input
 
         else:
             raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
 
     def apply_optic(
             self,
-            data,
+            input,
             delta_sigma=0.71,  # only for LAP!
             gain=3.0,  # only for LAP!
             order=1,
             resample=False,
             mp_pool=None):
+        ''' 
+        input = np.array(x,y(,rho))
+        use resample, resize will be removed in the future
+        '''
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
@@ -583,50 +568,44 @@ class Simpli:
         if self._voxel_size is None:
             raise TypeError("voxel_size is not set")
 
-        image_stack = np.atleast_3d(np.array(data, copy=False))
-        if image_stack.ndim > 3:
-            raise TypeError("image_stack can be 1d, 2d or 3d")
+        input = np.atleast_3d(np.array(input))
+        if input.ndim > 3:
+            raise TypeError("input can be 1d, 2d or 3d")
 
         scale = self._voxel_size / self._resolution
-        size = np.array(np.round(np.array(image_stack.shape[0:2]) * scale),
-                        dtype=int)
+        size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
 
-        res_image_stack = np.empty((size[0], size[1], image_stack.shape[2]),
-                                   dtype=image_stack.dtype)
+        output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
 
-        if not resample:
-            if mp_pool:
-                input_data = [(image_stack[:, :, i], delta_sigma, scale, order)
-                              for i in range(image_stack.shape[2])]
-                results = mp_pool.starmap(optic.filter_resize, input_data)
-                for i in range(image_stack.shape[2]):
-                    res_image_stack[:, :, i] = results[i]
-            else:
-                for i in range(image_stack.shape[2]):
-                    res_image_stack[:, :, i] = optic.filter_resize(
-                        image_stack[:, :, i], delta_sigma, scale, order)
+        if resample:
+            filter_resize = lambda input, delta_sigma, scale, order: optic.filter_resample(
+                input, delta_sigma.scale)
         else:
-            if mp_pool:
-                input_data = [(image_stack[:, :, i], delta_sigma, scale)
-                              for i in range(image_stack.shape[2])]
-                results = mp_pool.starmap(optic.filter_resample,
-                                                input_data)
-                for i in range(image_stack.shape[2]):
-                    res_image_stack[:, :, i] = results[i]
-            else:
-                for i in range(image_stack.shape[2]):
-                    res_image_stack[:, :, i] = optic.filter_resample(
-                        image_stack[:, :, i], delta_sigma, scale)
+            filter_resize = optic.filter_resize
 
-        if np.min(res_image_stack.flatten()) < 0:
-            raise ValueError("intensity < 0 detected")
+        if mp_pool:
+            chunk = [(input[:, :, i], delta_sigma, scale, order)
+                     for i in range(input.shape[2])]
+            results = mp_pool.starmap(filter_resize, chunk)
+            for i in range(input.shape[2]):
+                output[:, :, i] = results[i]
+        else:
+            for i in range(input.shape[2]):
+                output[:, :, i] = filter_resize(input[:, :, i], delta_sigma,
+                                                scale, order)
+
+        if np.min(output.flatten()) < 0:
+            raise AssertionError("intensity < 0 detected")
 
         if gain > 0:
-            res_image_stack = optic.add_noise(res_image_stack, gain)
+            output = optic.add_noise(output, gain)
 
-        return np.squeeze(res_image_stack)
+        return np.squeeze(output)
 
-    def apply_resize(self, data, order=1, mp_pool=None):
+    def apply_resize(self, input, order=1, mp_pool=None):
+        ''' 
+        input = np.array(x,y(,rho))
+        '''
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
@@ -634,36 +613,36 @@ class Simpli:
         if self._voxel_size is None:
             raise TypeError("voxel_size is not set")
 
-        image_stack = np.atleast_3d(np.array(data, copy=False))
+        input = np.atleast_3d(np.array(input))
         if image_stack.ndim > 3:
-            raise TypeError("image_stack can be 1d, 2d or 3d")
+            raise TypeError("input can be 1d, 2d or 3d")
 
         scale = self._voxel_size / self._resolution
-        size = np.array(np.round(np.array(image_stack.shape[0:2]) * scale),
-                        dtype=int)
+        size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
 
-        res_image_stack = np.empty((size[0], size[1], image_stack.shape[2]),
-                                   dtype=image_stack.dtype)
+        output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
         if mp_pool:
-            input_data = [(image_stack[:, :, i], scale, order)
-                          for i in range(image_stack.shape[2])]
+            input_data = [
+                (input[:, :, i], scale, order) for i in range(input.shape[2])
+            ]
             results = mp_pool.starmap(optic.resize, input_data)
-            for i in range(image_stack.shape[2]):
-                res_image_stack[:, :, i] = results[i]
+            for i in range(input.shape[2]):
+                output[:, :, i] = results[i]
         else:
-            for i in range(image_stack.shape[2]):
-                res_image_stack[:, :, i] = optic.resize(image_stack[:, :, i],
-                                                        scale, order)
+            for i in range(input.shape[2]):
+                output[:, :, i] = optic.resize(input[:, :, i], scale, order)
+        return np.squeeze(output)
 
-        return np.squeeze(res_image_stack)
-
-    def apply_untilt(self, images, theta, phi, mode='nearest'):
+    def apply_untilt(self, input, theta, phi, mode='nearest'):
+        ''' 
+        input = np.array(x,y(,rho))
+        '''
 
         if theta == 0:
-            return images
+            return input
 
         # calculate transformation matrix
-        p = self._dim
+        p = self._dim.copy()
         p_rot = 0.5 * np.array([p[0], p[1], 0])
         p_out = np.array([[p[0], p[1], 0], [p[0], 0, 0], [0, p[1], 0]])
         rot = rotation.theta_phi(-theta, phi)
@@ -673,18 +652,18 @@ class Simpli:
         # TODO: refraction has to be implemented
         M = affine_transformation.calc_matrix(p_in[:, :2], p_out[:, :2])
 
-        images_untilt = affine_transformation.image(images, M, mode)
-        if images.ndim == 3:
-            images_untilt = np.atleast_3d(images_untilt)
+        output = affine_transformation.image(input, M, mode)
+        if input.ndim == 3:
+            output = np.atleast_3d(output)
 
-        return images_untilt
+        return output
 
-    def apply_epa(self, data, mask=None):
+    def apply_epa(self, input, mask=None):
         ''' 
-        data = np.array(x,y,rho)
+        input = np.array(x,y,rho)
         '''
 
-        transmittance, direction, retardation = epa.epa(data)
+        transmittance, direction, retardation = epa.epa(input)
         if mask is not None:
             transmittance[np.invert(mask)] = float('nan')
             direction[np.invert(mask)] = float('nan')
@@ -694,7 +673,7 @@ class Simpli:
 
     def apply_rofl(
             self,
-            data,
+            input,
             tilt_angle=np.deg2rad(5.5),  # only LAP!
             gain=3.0,  # only LAP!
             dir_offset=0,
@@ -702,52 +681,52 @@ class Simpli:
             mp_pool=None,
             grad_mode=False):
         ''' 
-        data = np.array(tilt,x,y,rho)
+        input = np.array(tilt,x,y,rho)
         '''
 
-        data = np.array(data, dtype=float, copy=False)
+        input = np.array(input, copy=False)
 
-        if data.ndim != 4:
-            raise TypeError("data: np.array([tilts,x,y,stack])")
+        if input.ndim != 4:
+            raise TypeError("input: np.array([tilts,x,y,stack])")
 
-        if data.shape[0] != 5:
-            raise ValueError("data need 1 + 4 measurements")
+        if input.shape[0] != 5:
+            raise ValueError("input need 1 + 4 measurements")
 
-        if data.shape[-1] <= 3:
-            raise ValueError("data needs at least 3 equidistand rotations")
+        if input.shape[-1] <= 3:
+            raise ValueError("input needs at least 3 equidistand rotations")
 
         if gain <= 0:
             raise ValueError("rofl gain <= 0")
 
         if mask is None:
-            mask = np.ones((data.shape[1], data.shape[2]), bool)
+            mask = np.ones((input.shape[1], input.shape[2]), bool)
 
-        directionmap = np.empty_like(mask, dtype=data.dtype)
-        inclmap = np.empty_like(mask, dtype=data.dtype)
-        trelmap = np.empty_like(mask, dtype=data.dtype)
-        dirdevmap = np.empty_like(mask, dtype=data.dtype)
-        incldevmap = np.empty_like(mask, dtype=data.dtype)
-        treldevmap = np.empty_like(mask, dtype=data.dtype)
-        funcmap = np.empty_like(mask, dtype=data.dtype)
-        itermap = np.empty_like(mask, dtype=data.dtype)
+        directionmap = np.empty_like(mask, dtype=input.dtype)
+        inclmap = np.empty_like(mask, dtype=input.dtype)
+        trelmap = np.empty_like(mask, dtype=input.dtype)
+        dirdevmap = np.empty_like(mask, dtype=input.dtype)
+        incldevmap = np.empty_like(mask, dtype=input.dtype)
+        treldevmap = np.empty_like(mask, dtype=input.dtype)
+        funcmap = np.empty_like(mask, dtype=input.dtype)
+        itermap = np.empty_like(mask, dtype=input.dtype)
 
         if mp_pool:
-            for j in range(data.shape[2]):
-                input_data = [(data[:, i, j, :], tilt_angle, gain, dir_offset,
-                               grad_mode) for i in range(data.shape[1])]
-                results = mp_pool.starmap(rofl.rofl, input_data)
+            for j in range(input.shape[2]):
+                chunk = [(input[:, i, j, :], tilt_angle, gain, dir_offset,
+                          grad_mode) for i in range(input.shape[1])]
+                results = mp_pool.starmap(rofl.rofl, chunk)
 
                 for i, result in enumerate(results):
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = result
         else:
-            for i in range(data.shape[1]):
-                for j in range(data.shape[2]):
+            for i in range(input.shape[1]):
+                for j in range(input.shape[2]):
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = rofl.rofl(
-                                data[:, i, j, :], tilt_angle, gain, dir_offset,
+                                input[:, i, j, :], tilt_angle, gain, dir_offset,
                                 grad_mode)
 
         return directionmap, inclmap, trelmap, (dirdevmap, incldevmap,
