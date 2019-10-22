@@ -17,7 +17,7 @@ if __name__ == '__main__':
     simpli = fastpli.simulation.Simpli()
     simpli.pixel_size = 32
     simpli.resolution = 64
-    simpli.set_voi([0, 640, 0, 640, 0, 64])
+    simpli.set_voi([0] * 3, [640, 640, 64])
     fiber_radius = 64
     fiber_bundles = [[]]
 

@@ -50,7 +50,6 @@ class MainTest(unittest.TestCase):
             tilt_angle=np.deg2rad(TILTS[-1][0]),
             gain=3,  # only LAP!
             dir_offset=0,
-            num_threads=1,
             grad_mode=False)
 
         t_rel = 4 * simpli.voxel_size * abs(

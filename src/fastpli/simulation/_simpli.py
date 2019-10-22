@@ -94,8 +94,11 @@ class Simpli:
         if dim.dtype != int:
             raise TypeError("dim is not np.array(int)")
 
-        if dim.ndim != 3:
-            raise TypeError("dim.ndim != 3")
+        if dim.size != 3:
+            raise TypeError("dim.size != 3")
+
+        if dim.ndim != 1:
+            raise TypeError("dim.ndim != 1")
 
         self._dim = dim
 
