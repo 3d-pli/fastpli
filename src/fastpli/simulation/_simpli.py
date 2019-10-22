@@ -8,9 +8,7 @@ from fastpli.simulation import optic
 from fastpli.tools import rotation
 
 import numpy as np
-import multiprocessing as mp
 import warnings
-
 
 class Simpli:
     __isfrozen = False
@@ -52,7 +50,6 @@ class Simpli:
 
         self._omp_num_threads = 1
         self._debug = False
-        self._mp_pool = None
 
         self._freeze()
 
@@ -481,15 +478,6 @@ class Simpli:
 
         self._omp_num_threads = num_threads_gen
 
-        if self._omp_num_threads > 1:
-            if self._mp_pool:
-                self._mp_pool.close()
-            self._mp_pool = mp.Pool(processes=self._omp_num_threads)
-        else:
-            if self._mp_pool:
-                self._mp_pool.close()
-            self._mp_pool = None
-
     def memory_usage(self, unit='MB', item='all'):
         if not isinstance(item, str):
             raise TypeError('item has to be str')
@@ -586,7 +574,8 @@ class Simpli:
             delta_sigma=0.71,  # only for LAP!
             gain=3.0,  # only for LAP!
             order=1,
-            resample=False):
+            resample=False,
+            mp_pool=None):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
@@ -606,10 +595,10 @@ class Simpli:
                                    dtype=image_stack.dtype)
 
         if not resample:
-            if self._mp_pool:
+            if mp_pool:
                 input_data = [(image_stack[:, :, i], delta_sigma, scale, order)
                               for i in range(image_stack.shape[2])]
-                results = self._mp_pool.starmap(optic.filter_resize, input_data)
+                results = mp_pool.starmap(optic.filter_resize, input_data)
                 for i in range(image_stack.shape[2]):
                     res_image_stack[:, :, i] = results[i]
             else:
@@ -617,10 +606,10 @@ class Simpli:
                     res_image_stack[:, :, i] = optic.filter_resize(
                         image_stack[:, :, i], delta_sigma, scale, order)
         else:
-            if self._mp_pool:
+            if mp_pool:
                 input_data = [(image_stack[:, :, i], delta_sigma, scale)
                               for i in range(image_stack.shape[2])]
-                results = self._mp_pool.starmap(optic.filter_resample,
+                results = mp_pool.starmap(optic.filter_resample,
                                                 input_data)
                 for i in range(image_stack.shape[2]):
                     res_image_stack[:, :, i] = results[i]
@@ -637,7 +626,7 @@ class Simpli:
 
         return np.squeeze(res_image_stack)
 
-    def apply_resize(self, data, order=1):
+    def apply_resize(self, data, order=1, mp_pool=None):
 
         if self._resolution is None:
             raise TypeError("resolution is not set")
@@ -655,10 +644,10 @@ class Simpli:
 
         res_image_stack = np.empty((size[0], size[1], image_stack.shape[2]),
                                    dtype=image_stack.dtype)
-        if self._mp_pool:
+        if mp_pool:
             input_data = [(image_stack[:, :, i], scale, order)
                           for i in range(image_stack.shape[2])]
-            results = self._mp_pool.starmap(optic.resize, input_data)
+            results = mp_pool.starmap(optic.resize, input_data)
             for i in range(image_stack.shape[2]):
                 res_image_stack[:, :, i] = results[i]
         else:
@@ -710,7 +699,7 @@ class Simpli:
             gain=3.0,  # only LAP!
             dir_offset=0,
             mask=None,
-            num_threads=2,
+            mp_pool=None,
             grad_mode=False):
         ''' 
         data = np.array(tilt,x,y,rho)
@@ -742,11 +731,11 @@ class Simpli:
         funcmap = np.empty_like(mask, dtype=data.dtype)
         itermap = np.empty_like(mask, dtype=data.dtype)
 
-        if self._mp_pool:
+        if mp_pool:
             for j in range(data.shape[2]):
                 input_data = [(data[:, i, j, :], tilt_angle, gain, dir_offset,
                                grad_mode) for i in range(data.shape[1])]
-                results = self._mp_pool.starmap(rofl.rofl, input_data)
+                results = mp_pool.starmap(rofl.rofl, input_data)
 
                 for i, result in enumerate(results):
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
