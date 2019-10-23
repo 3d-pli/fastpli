@@ -14,6 +14,7 @@ build-debug:
   stage: debug
   only:
     - development
+    - master
     - TestCI
   tags:
     - docker
@@ -24,7 +25,10 @@ build-debug:
     - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
     - make git-submodules
     - make BUILD=debug install
-    - make BUILD=debug test
+    - make BUILD test
+    - make examples/requirements
+    - env/bin/python3 examples/model_solver.py
+    - env/bin/python3 examples/simpli.py
 
 build-release:
   stage: release
@@ -37,4 +41,7 @@ build-release:
     - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
     - make git-submodules
     - make BUILD=release install
-    - make BUILD=release test
+    - make test
+    - make examples/requirements
+    - env/bin/python3 examples/model_solver.py
+    - env/bin/python3 examples/simpli.py
