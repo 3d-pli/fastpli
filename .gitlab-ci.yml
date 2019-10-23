@@ -1,47 +1,50 @@
 image: ubuntu:latest
 
-before_script:
-  - apt-get update -qq && apt-get upgrade -y
-  - apt-get install -y gcc g++ cmake make git
-  - apt-get install -y python3-dev python3-venv
-  - apt-get install -y libopenmpi-dev freeglut3-dev libhdf5-openmpi-dev
-
 stages:
-  - debug
-  - release
+   - test
 
-build-debug:
-  stage: debug
-  only:
-    - development
-    - master
-    - TestCI
-  tags:
-    - docker
-  except:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /WIP/
-  script:
-    - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
-    - make git-submodules
-    - make BUILD=debug install
-    - make test
-    - make examples/requirements
-    - env/bin/python3 examples/model_solver.py
-    - env/bin/python3 examples/simpli.py
+before_script:
+   - export DEBIAN_FRONTEND=noninteractive
+   - apt-get update -qq && apt-get upgrade -y
+   - apt-get install -y gcc g++ cmake make git
+   - apt-get install -y python3-dev python3-venv
+   - apt-get install -y libopenmpi-dev freeglut3-dev libhdf5-openmpi-dev
 
-build-release:
-  stage: release
-  only: 
-    - master
-    - TestCI
-  tags:
-    - docker
-  script:
-    - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
-    - make git-submodules
-    - make BUILD=release install
-    - make test
-    - make examples/requirements
-    - env/bin/python3 examples/model_solver.py
-    - env/bin/python3 examples/simpli.py
+test:debug:
+   stage: test
+   only:
+      - development
+      - master
+      - TestCI
+   tags:
+      - docker
+   except:
+      variables:
+         - $CI_COMMIT_MESSAGE =~ /WIP/
+   script:
+      - make BUILD=debug install
+      - make test
+      - make examples/requirements
+      - env/bin/python3 examples/model_solver.py
+      - env/bin/python3 examples/simpli.py
+
+# TODO: test-mpi 
+# - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
+
+test:release:
+   stage: test
+   only: 
+      - development
+      - master
+      - TestCI
+   tags:
+      - docker
+   except:
+      variables:
+         - $CI_COMMIT_MESSAGE =~ /WIP/
+   script:
+      - make BUILD=release install
+      - make test
+      - make examples/requirements
+      - env/bin/python3 examples/model_solver.py
+      - env/bin/python3 examples/simpli.py
