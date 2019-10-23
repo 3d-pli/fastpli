@@ -10,52 +10,78 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 # Fiber Architecture Simulation Toolbox for PLI
 
 ## Installation:
-### with venv:
 ```sh
-make install
-```
-### with pip:
-```sh
+# Compiling the source code and generating setup.py
 make build
-pip3 install build/
+
+# installation with pip
+pip3 install build/.
 ```
 
-### examples:
+## examples:
 ```sh
+# install required modules for examples
 pip3 install -r examples/requirements.txt
+
+# run examples
+python3 examples/model_solver.py
+python3 examples/simpli.py
 ```
 
-## Parallel HDF5io:
-h5py has to be installed with mpi flags: 
-```sh
-make h5py-mpi
-```
-Only one version of h5py can be installed.
-
-## Required Programs:
- - G++/Clang
+# Dependencies
+## Requirements:
+ - C++
  - Make
  - CMake
  - Python3
- - HDF5
  - MPI
- - OpenMP
 
 ## Optional Packages:
  - OpenGL
  - CUDA
 
-## Used Libraries:
+## Submodules:
  - pybind11
 
-## Additional Informations:
+# MPI execution:
+The PLI simulation library simPLI supports mpi.
+
+## Volume generation:
+The generated volume will be splitt corresponding to the mpi processes. Each mpi process calculates the label_field and vector_field volume seperatly.
+
+## PLI simulation:
+Each mpi process simulates the light-tissue interaction on its volume. When a light beam needs to change to a neighboured volume, it is transmitted via mpi communication.
+
+## Parallel HDF5io:
+To be able to save the seperated data into a single hdf5 file, a paralel implementation of h5py is needed. However, a parallel installation of h5py is required. However, h5py can only be installed either serially or in parallel:
+```sh
+# serial:
+make h5py-serial
+
+# parallel:
+make h5py-mpi
+
+# clean:
+h5py-clean
+```
+
+## example:
+```sh
+# simpli supports mpi 
+mpiexec -n 2 python3 examples/simpli_mpi.py
+```
+
+# Additional Informations:
 [program structure](docs/structure.md)
 
 ## TODOs:
 [TODOs](docs/TODO.md)
 
+
+---
 ## Authors
-* **Felix Matuschke**
+* **Felix Matuschke**: INM1 - Forschungszentrum Jülich
+
 
 ## License
 This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file for details
