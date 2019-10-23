@@ -8,20 +8,11 @@ import os
 
 import imageio
 
-
-def data2image(data):
-    return np.swapaxes(np.flip(data, 1), 0, 1)
-
-
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 
-np.random.seed(42)
-
-with h5py.File(
-        '/tmp/fastpli.example.' + FILE_BASE + '.' + fastpli.__git__hash__ +
-        '.h5', 'w') as h5f:
+with h5py.File('simpli.h5', 'w') as h5f:
     # save script
     with open(os.path.abspath(__file__), 'r') as f:
         h5f['script'] = f.read()
@@ -33,6 +24,9 @@ with h5py.File(
     simpli.set_voi([-60] * 3, [60] * 3)  # in mu meter
     simpli.fiber_bundles = fastpli.io.fiber.load(
         os.path.join(FILE_PATH, 'cube.dat'))
+
+    # (layer_scale, dn, mu, optical-axis)
+    # b: background, p: parallel, r: radial
     simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                         (0.666, 0, 5, 'b'),
                                         (1.0, 0.004, 1, 'r')]]
@@ -93,7 +87,10 @@ with h5py.File(
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
     h5f['rofl/trel'] = rofl_t_rel
 
+    def data2image(data):
+        return np.swapaxes(np.flip(data, 1), 0, 1)
+
     imageio.imwrite(
-        '/tmp/fastpli.example' + FILE_BASE + '.png',
+        'simpli.png',
         data2image(
             fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
