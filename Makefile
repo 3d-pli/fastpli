@@ -110,7 +110,7 @@ docker: docker-build
 	docker start -i fastpli-test
 
 .PHONY: clean
-clean: clean-build clean-venv #clean-src
+clean: clean-build #clean-venv clean-src
 
 .PHONY: clean-build
 clean-build:
