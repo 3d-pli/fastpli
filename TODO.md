@@ -27,6 +27,8 @@
 - [ ] np.array for cells
 - [ ] optic: new_size = np.array(np.array(image.shape) // resize, dtype=int)
 ## VCS
+- [ ] warning if fiber radius, segmentlength and rmin are questionable
+- [ ] warning if collision close to 0 but "never ending"
 - [ ] memory warning for fiber_bundles (gets quite big for small segment lengths)
   - [ ] non linear splitting and merging
 - [ ] split volume first into equal cubes, and then into a octtree
