@@ -1,12 +1,10 @@
-.PHONY: default
-default: install
-
 .PHONY: help
 help:
-	@echo "make install"
+	@echo "make install -- installation of venv with fastpli"
+	@echo "make build -- compilation of fastpli and providing of build/setup.py"
 	@echo "make examples/requirements"
 	@echo "make test"
-	@echo "make clean"
+	@echo "make clean-all"
 
 BUILD := release
 VENV := env
@@ -49,14 +47,15 @@ examples/requirements:
 install: ${VENV} git-submodules uninstall build
 	${VENV}/bin/pip3 ${INSTALL}
 
+.PHONY: development
+development: ${VENV} git-submodules uninstall build examples/requirements
+	${VENV}/bin/pip3 install -e build/. -q
+	${VENV}/bin/pip3 install yapf -q
+	${VENV}/bin/pip3 install pep8 -q
+
 .PHONY: uninstall
 uninstall:
 	${VENV}/bin/pip3 uninstall fastpli -y
-
-.PHONY: development
-development: install examples/requirements
-	${VENV}/bin/pip3 install yapf -q
-	${VENV}/bin/pip3 install pep8 -q
 
 .ONESHELL:
 build/:
@@ -110,7 +109,10 @@ docker: docker-build
 	docker start -i fastpli-test
 
 .PHONY: clean
-clean: clean-build #clean-venv clean-src
+clean: clean-build clean-src
+
+.PHONY: clean-all
+clean-all: clean-build clean-src clean-venv
 
 .PHONY: clean-build
 clean-build:
@@ -124,7 +126,7 @@ clean-venv:
 
 .PHONY: clean-src
 clean-src:
-	@echo rm src/**/*.so
+	@echo clean src
 	@find src/ -name "*egg-info" -exec rm -r {} +
 	@find src/ -name "*.so" -exec rm {} +
 	@find src/ -name "__pycache__" -exec rm -r {} +

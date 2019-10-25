@@ -6,7 +6,7 @@ if sys.version_info < (3, 0):
     sys.exit('You should not use Python 2.* anyway')
 
 # copy src files into build folder
-os.system('cp -r ${CMAKE_SOURCE_DIR}/src/fastpli ${CMAKE_CURRENT_BINARY_DIR}/')
+os.system('cp -al ${CMAKE_SOURCE_DIR}/src/fastpli ${CMAKE_CURRENT_BINARY_DIR}/')
 
 setuptools.setup(
     name='fastpli',
@@ -20,6 +20,7 @@ setuptools.setup(
     install_requires=['numpy', 'numba', 'mpi4py', 'scipy', 'h5py'],
     # test_suite='' # use make test instead
     zip_safe=False,
-    package_dir={'': '${CMAKE_CURRENT_BINARY_DIR}'},
-    packages=setuptools.find_packages('${CMAKE_CURRENT_BINARY_DIR}'),
+    package_dir={'': os.path.relpath('${CMAKE_CURRENT_BINARY_DIR}')},
+    packages=setuptools.find_packages(
+        os.path.relpath('${CMAKE_CURRENT_BINARY_DIR}')),
     package_data={'': ['*.so']})

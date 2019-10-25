@@ -7,6 +7,7 @@
 .tmux.sh
 .worktrees/
 *env*/
+
 src/include/version.hpp
 src/fastpli/version.py
 
