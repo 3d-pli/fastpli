@@ -1,25 +1,12 @@
 import fastpli.model.sandbox
-import fastpli.io
-import fastpli.tools
 
 import numpy as np
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
 
 def set_axes_equal(ax):
-    '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
-    cubes as cubes, etc..  This is one possible solution to Matplotlib's
-    ax.set_aspect('equal') and ax.axis('equal') not working for 3D.
-
-    Input
-      ax: a matplotlib axis, e.g., as output from plt.gca().
-    '''
-
     x_limits = ax.get_xlim3d()
     y_limits = ax.get_ylim3d()
     z_limits = ax.get_zlim3d()
@@ -31,8 +18,6 @@ def set_axes_equal(ax):
     z_range = abs(z_limits[1] - z_limits[0])
     z_middle = np.mean(z_limits)
 
-    # The plot bounding box is a sphere in the sense of the infinity
-    # norm, hence I call half the max range the plot radius.
     plot_radius = 0.5 * max([x_range, y_range, z_range])
 
     ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
@@ -40,22 +25,28 @@ def set_axes_equal(ax):
     ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
-p0 = (0, 80, 0)
-p1 = (0, 80, 100)
+# set parameter
+p0 = (0, 80, 50)
+p1 = (40, 80, 100)
 r0 = 20
 r1 = 40
-alpha = np.deg2rad(60)
-beta = alpha + np.deg2rad(45)
+alpha = np.deg2rad(20)
+beta = alpha + np.deg2rad(180)
 mode = 'r'  # 'p' 'c' 'r'
 spacing = 5
-steps = 100
 radius = 1
 
-data = fastpli.model.sandbox.shape.cylinder(p0, p1, r0, r1, alpha, beta, mode,
-                                            spacing, steps)
+# create circular shaped triangular seeds
+seeds = fastpli.model.sandbox.seeds.triangle_grid(400, 400, spacing)
+seeds = seeds - np.array([200, 200])
 
-for d in data:
-    ax.plot(d[:, 0], d[:, 1], d[:, 2])
+fiber_bundle = fastpli.model.sandbox.build.cylinder(p0, p1, r0, r1, seeds,
+                                                    radius, alpha, beta, mode)
 
+# plot trajectories
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+for fiber in fiber_bundle:
+    ax.plot(fiber[:, 0], fiber[:, 1], fiber[:, 2])
 set_axes_equal(ax)
 plt.show()

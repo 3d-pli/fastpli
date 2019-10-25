@@ -97,20 +97,25 @@ def cylinder(p0,
     steps = int(steps)
 
     # project angles -> [0, 2*np.pi)
-    alpha = alpha % (2.0 * np.pi)
-    alpha[alpha < 0] += +2.0 * np.pi
-    beta = beta % (2.0 * np.pi)
-    beta[beta < 0] += +2.0 * np.pi
 
-    if seeds.ndim != 2 or (seeds.shape[1] != 2 and seeds.shape[1] != 3):
-        raise TypeError('seeds : (nx2)-array or (nx3)-array')
+    alpha = alpha % (2.0 * np.pi)
+    if alpha < 0:
+        alpha += 2.0 * np.pi
+
+    if beta != 2 * np.pi:
+        beta = beta % (2.0 * np.pi)
+    if beta < 0:
+        beta += 2.0 * np.pi
+
+    if seeds.ndim != 2 or seeds.shape[1] != 2:
+        raise TypeError('seeds : (nx2)-array')
     if seeds.shape[1] == 2:
         seeds = np.insert(seeds, 2, 0, axis=1)
 
     if radii.ndim != 1:
         raise TypeError('radii : (n)-array')
     if radii.size == 1:
-        radii = np.repeat(radii, seeds.shape[2])
+        radii = np.repeat(radii, seeds.shape[0])
     if radii.size != seeds.shape[0]:
         raise ValueError('radii must have the same length as seeds')
 
@@ -119,13 +124,17 @@ def cylinder(p0,
     if mode == 'parallel' or mode == 'p':
         rot = rotation.a_on_b(np.array((0, 0, 1)), dp)
 
+        # crop seeds
         seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 >= r0**2, :]
+        seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 <= r1**2, :]
+
         phi = np.arctan2(seeds[:, 1], seeds[:, 0])
 
         # project angles -> [0, 2*np.pi)
         phi = phi % (2.0 * np.pi)
         phi[phi < 0] += 2.0 * np.pi
 
+        # crop seeds
         seeds = seeds[(phi > alpha) & (phi < beta), :]
         seeds = np.dot(rot, seeds.T).T
 
@@ -135,15 +144,19 @@ def cylinder(p0,
 
     elif mode == 'circular' or mode == 'c':
         # create first z-zylinder which is afterwards rotated
-        a = r1 - r0
+        # a = r1 - r0
         b = np.linalg.norm(dp)
 
-        # rotate plane into first position
+        # crop seeds
+        seeds = seeds[seeds[:, 0] >= r0]
+        seeds = seeds[seeds[:, 0] <= r1]
+        seeds = seeds[seeds[:, 2] >= 0]
+        seeds = seeds[seeds[:, 2] <= b]
+
+        # rotate plane into first position (x-z)
         r = (r0 + r1) / 2.0
         rot = rotation.a_on_b(np.array((0, 0, 1)), np.array((0, 1, 0)))
-
         seeds = np.dot(rot, seeds.T).T
-        seeds[:, 0] += r
 
         # keep rotating plane along cylinder
         rot = rotation.z((beta - alpha) / (steps - 1))
@@ -152,48 +165,49 @@ def cylinder(p0,
             for i in range(steps):
                 sub_data[i, :] = p
                 p = np.dot(rot, p)
-            data.append(sub_data.copy())
+            fiber_bundle.append(sub_data.copy())
 
         # rotate cylinder into final position
         rot = rotation.z(alpha)
-        for i in range(len(data)):
-            data[i] = np.dot(rot, data[i].T).T
+        for i in range(len(fiber_bundle)):
+            fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
 
         rot = rotation.a_on_b(np.array((0, 0, 1)), dp)
-        for i in range(len(data)):
-            data[i] = np.dot(rot, data[i].T).T
+        for i in range(len(fiber_bundle)):
+            fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
 
-        for i in range(len(data)):
-            data[i] = data[i] + (p0.T + p1.T) * 0.5
+        for i in range(len(fiber_bundle)):
+            fiber_bundle[i] = fiber_bundle[i] + p0.T
 
     elif mode == 'radial' or mode == 'r':
         a = r0 * (beta - alpha)
         b = np.linalg.norm(dp)
-        seeds[:, 0] += a / 2
 
+        seeds = seeds[seeds[:, 0] >= 0]
+        seeds = seeds[seeds[:, 0] <= a]
+        seeds = seeds[seeds[:, 1] >= 0]
+        seeds = seeds[seeds[:, 1] <= b]
+
+        # wrap seeds onto inner cylinder wall and extend to outer wall
         for p in seeds:
             x0 = r0 * np.cos(p[0] / a * (beta - alpha))
             y0 = r0 * np.sin(p[0] / a * (beta - alpha))
             x1 = r1 * np.cos(p[0] / a * (beta - alpha))
             y1 = r1 * np.sin(p[0] / a * (beta - alpha))
 
-            x = np.interp(np.arange(steps), [0, steps - 1], [x0, x1])
-            y = np.interp(np.arange(steps), [0, steps - 1], [y0, y1])
-            z = np.ones(x.size) * p[1]
-
-            data.append(np.array([x, y, z]).T)
+            fiber_bundle.append(np.array([[x0, y0, p[1]], [x1, y1, p[1]]]))
 
         # rotate cylinder into final position
         rot = rotation.z(alpha)
-        for i in range(len(data)):
-            data[i] = np.dot(rot, data[i].T).T
+        for i in range(len(fiber_bundle)):
+            fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
 
         rot = rotation.a_on_b(np.array((0, 0, 1)), dp)
-        for i in range(len(data)):
-            data[i] = np.dot(rot, data[i].T).T
+        for i in range(len(fiber_bundle)):
+            fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
 
-        for i in range(len(data)):
-            data[i] = data[i] + (p0.T + p1.T) * 0.5
+        for i in range(len(fiber_bundle)):
+            fiber_bundle[i] = fiber_bundle[i] + (p0.T + p1.T) * 0.5
 
     else:
         raise ValueError('mode has to be "parallel" or "radial"')
@@ -221,6 +235,7 @@ def _ray_box_intersection_pp(p0, p1, b_min, b_max):
 
 
 def cuboid(a, b, phi, theta, seeds, radii):
+
     a = np.array(a, float)
     b = np.array(b, float)
     phi = float(phi)
