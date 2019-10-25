@@ -2,8 +2,8 @@ import os
 import sys
 import setuptools
 
-if sys.version_info < (3, 0):
-    sys.exit('You should not use Python 2.* anyway')
+if sys.version_info < (3, 6):
+    sys.exit('Python >= 3.6 required')
 
 # copy src files into build folder
 os.system('cp -al ${CMAKE_SOURCE_DIR}/src/fastpli ${CMAKE_CURRENT_BINARY_DIR}/')

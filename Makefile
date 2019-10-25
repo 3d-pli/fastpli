@@ -51,7 +51,7 @@ install: ${VENV} git-submodules uninstall build
 development: ${VENV} git-submodules uninstall build examples/requirements
 	${VENV}/bin/pip3 install -e build/. -q
 	${VENV}/bin/pip3 install yapf -q
-	${VENV}/bin/pip3 install pep8 -q
+	${VENV}/bin/pip3 install pylint -q
 
 .PHONY: uninstall
 uninstall:
