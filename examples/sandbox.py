@@ -1,4 +1,4 @@
-import fastpli.model.sandbox
+import fastpli.model.sandbox as sandbox
 
 import numpy as np
 
@@ -25,28 +25,51 @@ def set_axes_equal(ax):
     ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
-# set parameter
-p0 = (0, 80, 50)
-p1 = (40, 80, 100)
-r0 = 20
-r1 = 40
-alpha = np.deg2rad(20)
-beta = alpha + np.deg2rad(180)
-mode = 'r'  # 'p' 'c' 'r'
-spacing = 5
-radius = 1
+def plot_fiber_bundle(fb):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for fiber in fb:
+        ax.plot(fiber[:, 0], fiber[:, 1], fiber[:, 2])
+    set_axes_equal(ax)
+    plt.show()
+
+
+# create fiber bundle along trajectory
+if False:
+    seeds = sandbox.seeds.triangular_grid(a=42, b=42, spacing=4, center=True)
+    circ_seeds = sandbox.seeds.crop_circle(radius=21, seeds=seeds)
+    t = np.linspace(0, 2 * np.pi, 50, True)
+    traj = np.array((10 * t, np.cos(t), np.zeros(t.size))).T
+    fiber_bundle = sandbox.build.bundle(traj=traj,
+                                        seeds=circ_seeds,
+                                        radii=np.random.uniform(
+                                            0.5, 0.8, circ_seeds.shape[0]),
+                                        scale=2 + 0.5 * np.sin(t))
+    plot_fiber_bundle(fiber_bundle)
 
 # create circular shaped triangular seeds
-seeds = fastpli.model.sandbox.seeds.triangle_grid(400, 400, spacing)
-seeds = seeds - np.array([200, 200])
+if False:
+    seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
+    fiber_bundle = sandbox.build.cylinder(
+        p=(0, 80, 50),
+        q=(40, 80, 100),
+        r_in=20,
+        r_out=40,
+        seeds=seeds,
+        radii=1,
+        alpha=np.deg2rad(20),
+        beta=np.deg2rad(160),
+        mode='r'  # 'c', 'p'
+    )
+    plot_fiber_bundle(fiber_bundle)
 
-fiber_bundle = fastpli.model.sandbox.build.cylinder(p0, p1, r0, r1, seeds,
-                                                    radius, alpha, beta, mode)
-
-# plot trajectories
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-for fiber in fiber_bundle:
-    ax.plot(fiber[:, 0], fiber[:, 1], fiber[:, 2])
-set_axes_equal(ax)
-plt.show()
+# create circular shaped triangular seeds
+if True:
+    seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
+    fiber_bundle = sandbox.build.cuboid(p=(0, 80, 50),
+                                        q=(40, 80, 100),
+                                        phi=np.deg2rad(42),
+                                        theta=np.deg2rad(75),
+                                        seeds=seeds,
+                                        radii=1)
+    plot_fiber_bundle(fiber_bundle)
