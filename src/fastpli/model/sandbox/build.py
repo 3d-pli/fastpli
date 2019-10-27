@@ -3,12 +3,25 @@ from ...tools import rotation
 
 
 def bundle(traj, seeds, radii, scale=1):
-    '''
-    traj: fiber_bundle trajectory: (nx3)-array
-    seeds: fiber seeds on a 2d plane: (mx2)-array
-    radii: fiber seeds radii: (int, float, (m)-array)
-    scale: scale seeds along traj: (n)-array
-    '''
+    """
+    Generates a fiber bundle along a trajectory. The fibers will be generated coresponding to their seed points. They can be scaled along the trajectory.
+
+    Parameters
+    ----------
+    traj : (n,3)-array like
+        fiber_bundle trajectory
+    seeds : (m,2)-array like
+        fiber seed points on a 2d plane
+    radii : float or (m,)-array like
+        fiber seeds constant or individual radii
+    scale : (n,)-array like, optional
+        scale seeds along traj     
+    
+    Returns
+    -------
+    res : list((nx4)-array)
+        list of fibers with (x,y,z,r)-coordinates
+    """
 
     traj = np.array(traj, copy=False, dtype=float)
     seeds = np.array(seeds, dtype=float, ndmin=2)
@@ -75,15 +88,32 @@ def cylinder(p,
              beta=2 * np.pi,
              mode='p',
              steps=360):
-    '''
-    p,q: (x,y,z)-points of begin and end of cylinder
-    r_in,r_out: inner and outer radius of cylinder
-    seeds: fiber seeds on a 2d plane: (mx2)-array
-    radii: fiber seeds radii: (int, float, (m)-array)
-    alpha, beta: fibers are between alpha end beta inside cylinder
-    mode: \"parallel\", \"circular\", \"radial\"
-    steps: in circular mode
-    '''
+    """
+    Generated a fiber bundle inside a cylinder
+
+    Parameters
+    ----------
+    p,q : (3,)-array like
+        (x,y,z)-points of begin and end of cylinder
+    r_in,r_out : 
+        inner and outer radius of cylinder
+    seeds : (m,2)-array like
+        fiber seeds on a 2d plane
+    radii : float or (n,)-array like
+        fiber seeds radii
+    alpha, beta : float
+        fibers are between alpha end beta inside cylinder
+    mode : char or string
+        \"p\", \"parallel\", \"c\", \"circular\", \"r\", \"radial\"
+    steps : int
+        steps along fibers in circular mode   
+    
+    Returns
+    -------
+    res : list((nx4)-array)
+        list of fibers with (x,y,z,r)-coordinates
+    """
+
 
     p = np.array(p, dtype=float)
     q = np.array(q, dtype=float)
@@ -224,12 +254,26 @@ def _ray_box_intersection_pp(p, q, b_min, b_max):
 
 
 def cuboid(p, q, phi, theta, seeds, radii):
-    '''
-    p,q: (x,y,z)-points of cuboid corners
-    phi, theta: spherical angles
-    seeds: fiber seeds on a 2d plane: (mx2)-array
-    radii: fiber seeds radii: (int, float, (m)-array)
-    '''
+    """
+    Generated a fiber bundle inside a cuboid along a axis
+
+    Parameters
+    ----------
+    p,q : (3,)-array like
+        (x,y,z)-points of cuboid corners
+    phi, theta : float
+        spherical angles of axis
+    seeds : (m,2)-array like
+        fiber seeds on a 2d plane
+    radii : float or (n,)-array like
+        fiber seeds radii
+    
+    Returns
+    -------
+    res : list((nx4)-array)
+        list of fibers with (x,y,z,r)-coordinates
+    """
+
     p = np.array(p, copy=False)
     q = np.array(q, copy=False)
     seeds = np.array(seeds, float)

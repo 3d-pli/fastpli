@@ -2,11 +2,26 @@ import numpy as np
 
 
 def triangular_grid(a, b, spacing, center=False, sort=True):
-    ''' 
-    2d triangular grid from [0,a)x[0,b)
-    center: grid from [-a/2,a/2)x[-b/2,b/2) with point at (0,0)
-    sort: lexsort x,y
-    '''
+    """
+    Generated 2d triangular grid of seed points inside [0,a)x[0,b).
+
+    Parameters
+    ----------
+    a, b : float
+        length and height of grid [0,a)x[0,b)
+    spacing : float
+        distance between seed points
+    center : bool, optional
+        If false, the seed points will be inside [0,a)x[0,b), beginning at (0,0)
+        If true, the grid will be inside [-a/2,a/2)x[-b/2,b/2) with a seed point at (0,0) 
+    sort : bool, optional
+        If true, the returning seed points are lexsorted along x,y
+
+    Returns
+    -------
+    res : (nx2)-array
+        seed points
+    """
 
     a = float(a)
     b = float(b)
@@ -40,11 +55,25 @@ if __name__ == "__main__":
 
 
 def crop_rectangle(a, b, seeds, radii=0):
-    '''
-    a,b : number: (0,0)--(a,b)
-    a,b : array: (xmin, ymin)--(xmax, ymax)
-    seeds: list of 2d coordinates
-    '''
+    """
+    Crops a sequence of 2-dim points inside a rectangle.
+
+    Parameters
+    ----------
+    a, b : float
+        cropping between [0,a]x[0,b]
+    a, b : (2,)-array like
+        cropping between [a[0],b[0]]x[a[1],b[1]]
+    seeds : (n,2)-array like
+        to be cropped seed points
+    radii : float or (n,)-array like, optional
+        seed points will be iterpreted as cricles with a ... or individual radii       
+    
+    Returns
+    -------
+    res : (nx2)-array
+        cropped seed points
+    """
 
     a = np.array(a, ndmin=1)
     b = np.array(b, ndmin=1)
@@ -68,6 +97,25 @@ def crop_rectangle(a, b, seeds, radii=0):
 
 
 def crop_circle(radius, seeds, center=[0, 0], radii=0):
+    """
+    Crops a sequence of 2-dim points inside a circle.
+
+    Parameters
+    ----------
+    radius : float
+        radius of circle area
+    seeds : (n,2)-array like
+        to be cropped seed points
+    center : (2,)-array lile
+        center of circle
+    radii : float or (n,)-array like, optional
+        seed points will be iterpreted as cricles with a ... or individual radii       
+    
+    Returns
+    -------
+    res : (nx2)-array
+        cropped seed points
+    """
 
     radius = float(radius)
     seeds = np.array(seeds, ndmin=2, copy=False)
