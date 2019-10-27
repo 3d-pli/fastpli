@@ -33,7 +33,6 @@ ${VENV}/bin/python3:
 
 .PHONY: ${VENV}
 ${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
-	${VENV}/bin/pip3 install --upgrade pip -q
 
 .PHONY: git-submodules
 git-submodules:
