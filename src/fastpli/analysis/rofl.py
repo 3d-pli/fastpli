@@ -1,6 +1,4 @@
 import numpy as np
-import multiprocessing as mp
-import ctypes
 
 from ._ROFL_with_jacobi import _execute_fit as rofl_fit
 from . import epa
