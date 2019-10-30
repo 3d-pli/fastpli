@@ -4,11 +4,11 @@ import numpy as np
 def Resize(fiber, scale, mod='all'):
     fiber = np.array(fiber, copy=True)
     if mod is 'all':
-        fiber = fiber * scale
+        fiber *= scale
     elif mod is 'points':
-        fiber[:, :3] = fiber[:, :3] * scale
+        fiber[:, :3] *= scale
     elif mod is 'radii':
-        fiber[:, -1] = fiber[:, -1] * scale
+        fiber[:, -1] *= scale
     else:
         raise ValueError('mod = [all, points, radii]')
     return fiber
@@ -28,5 +28,5 @@ def Rotate(fiber, rot, offset=None):
 def Translate(fiber, offset):
     fiber = np.array(fiber, copy=True)
     offset = np.array(offset, copy=False)
-    fiber[:, :3] = fiber[:, :3] + offset
+    fiber[:, :3] += offset
     return fiber

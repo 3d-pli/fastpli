@@ -8,13 +8,13 @@ def bundle(traj, seeds, radii, scale=1):
 
     Parameters
     ----------
-    traj : (n,3)-array like
+    traj : (n,3)-array_like
         fiber_bundle trajectory
-    seeds : (m,2)-array like
+    seeds : (m,2)-array_like
         fiber seed points on a 2d plane
-    radii : float or (m,)-array like
+    radii : float or (m,)-array_like
         fiber seeds constant or individual radii
-    scale : (n,)-array like, optional
+    scale : (n,)-array_like, optional
         scale seeds along traj     
     
     Returns
@@ -93,13 +93,13 @@ def cylinder(p,
 
     Parameters
     ----------
-    p,q : (3,)-array like
+    p,q : (3,)-array_like
         (x,y,z)-points of begin and end of cylinder
     r_in,r_out : 
         inner and outer radius of cylinder
-    seeds : (m,2)-array like
+    seeds : (m,2)-array_like
         fiber seeds on a 2d plane
-    radii : float or (n,)-array like
+    radii : float or (n,)-array_like
         fiber seeds radii
     alpha, beta : float
         fibers are between alpha end beta inside cylinder
@@ -259,13 +259,13 @@ def cuboid(p, q, phi, theta, seeds, radii):
 
     Parameters
     ----------
-    p,q : (3,)-array like
+    p,q : (3,)-array_like
         (x,y,z)-points of cuboid corners
     phi, theta : float
         spherical angles of axis
-    seeds : (m,2)-array like
+    seeds : (m,2)-array_like
         fiber seeds on a 2d plane
-    radii : float or (n,)-array like
+    radii : float or (n,)-array_like
         fiber seeds radii
     
     Returns
