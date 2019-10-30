@@ -3,12 +3,12 @@ import copy
 
 from . import fiber
 
-# TODO: array.copy
-def Resize(fiber_bundles, scale, mod='all'):
+
+def Rescale(fiber_bundles, scale, mod='all'):
     fiber_bundles = copy.deepcopy(fiber_bundles)
     for j, fb in enumerate(fiber_bundles):
         for i, f in enumerate(fb):
-            fiber_bundles[j][i] = fiber.Resize(fiber_bundles[j][i], scale, mod)
+            fiber_bundles[j][i] = fiber.Rescale(fiber_bundles[j][i], scale, mod)
     return fiber_bundles
 
 

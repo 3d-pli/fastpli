@@ -4,10 +4,10 @@ import copy
 from . import fiber
 
 
-def Resize(fiber_bundle, scale, mod='all'):
+def Rescale(fiber_bundle, scale, mod='all'):
     fiber_bundle = copy.deepcopy(fiber_bundle)
     for i, f in enumerate(fiber_bundle):
-        fiber_bundle[i] = fiber.Resize(fiber_bundle[i], scale, mod)
+        fiber_bundle[i] = fiber.Rescale(fiber_bundle[i], scale, mod)
     return fiber_bundle
 
 

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def Resize(fiber, scale, mod='all'):
+def Rescale(fiber, scale, mod='all'):
     fiber = np.array(fiber, copy=True)
     if mod is 'all':
         fiber *= scale
