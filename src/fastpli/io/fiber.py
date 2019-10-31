@@ -4,6 +4,20 @@ import h5py
 
 
 def load(file_name, group_name='/'):
+    """
+    Load fiberbundles configurations from a text file oder hdf5 file
+
+    Parameters
+    ----------
+    file_name : string
+        path to file
+    group_name : string, optional
+        path inside hdf5-file for fiber bundles
+
+    Returns
+    -------
+    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii) for each fiber point
+    """
     _, ext = os.path.splitext(file_name)
 
     fiber_bundles = [[]]
@@ -45,6 +59,19 @@ def load(file_name, group_name='/'):
 
 
 def save(file_name, fiber_bundles, group_name='/', mode='w'):
+    """
+    Save fiberbundles configurations to a text file oder hdf5 file
+
+    Parameters
+    ----------
+    file_name : string
+        path to file
+    fiber_bundles : list( list( (n,4)-array_like ) )
+    group_name : string, optional
+        path inside hdf5-file for fiber bundles
+    mode : string, optional
+        file mode of open() or h5py.File()
+    """
     _, ext = os.path.splitext(file_name)
 
     if ext == '.dat' or ext == '.txt':

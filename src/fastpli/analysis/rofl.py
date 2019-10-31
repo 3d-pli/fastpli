@@ -9,9 +9,19 @@ def rofl(data,
          gain=3,
          dir_offset=0,
          grad_mode=False):
-    '''
-    data: np.array([tilts,stack])
-    '''
+    """
+    Calculates modalities for a PLI image sequence
+
+    Parameters
+    ----------
+    data : (tilts, rho)-array_like
+        tilts must be [(0,0), (tilt_angle,0), (tilt_angle,pi/2), (tilt_angle,pi), (tilt_angle,3/2*pi)]
+        rho must be equidistance between [0,pi)
+
+    Returns
+    -------
+    res : diection, inclination, trel, ...
+    """
 
     data = np.array(data, copy=False)
 

@@ -2,6 +2,18 @@ import numpy as np
 
 
 def epa(data):
+    """
+    Calculates modalities for a PLI image sequence
+
+    Parameters
+    ----------
+    data : (x,y,rho)-array_like
+        rho index must be equidistance between [0,180) degree
+
+    Returns
+    -------
+    res : transmittance, direction, retardation
+    """
 
     data = np.array(data, copy=False)
 
@@ -22,6 +34,18 @@ def epa(data):
 
 
 def direction(data):
+    """
+    Calculates direction map for a PLI image sequence
+
+    Parameters
+    ----------
+    data : array_like
+        (x,y,rho)-array, rho index must be equidistance between [0,180) degree
+
+    Returns
+    -------
+    res : direction
+    """
 
     data = np.array(data, copy=False)
 
