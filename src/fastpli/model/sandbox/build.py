@@ -1,4 +1,5 @@
 import numpy as np
+from numba import njit
 from ...tools import rotation
 
 
@@ -233,6 +234,7 @@ def cylinder(p,
     return fiber_bundle
 
 
+@njit(cache=True)
 def _ray_box_intersection(p, dir, b_min, b_max):
 
     tmin = np.divide(b_min - p, dir)
@@ -243,12 +245,8 @@ def _ray_box_intersection(p, dir, b_min, b_max):
     return np.max(tmin), np.min(tmax)
 
 
+@njit(cache=True)
 def _ray_box_intersection_pp(p, q, b_min, b_max):
-
-    if np.any(np.maximum(p, q) < np.minimum(b_min, b_max)) or np.any(
-            np.minimum(p, q) > np.maximum(b_min, b_max)):
-        return 0, 0
-
     return _ray_box_intersection(p, q - p, b_min, b_max)
 
 
@@ -289,6 +287,12 @@ def cuboid(p, q, phi, theta, seeds, radii):
         raise ValueError("seeds : (nx2)-ndarray")
     seeds = np.insert(seeds, 2, 0, axis=1)
 
+    if radii.shape[0] == 1:
+        radii = np.ones(seeds.shape[0], radii.dtype) * radii
+
+    if seeds.shape[0] != radii.shape[0]:
+        raise ValueError("seeds.shape[1] != radii.shape[0]")
+
     # rotate fibers
     dir = np.array([
         np.cos(phi) * np.sin(theta),
@@ -299,10 +303,12 @@ def cuboid(p, q, phi, theta, seeds, radii):
     seeds = np.dot(rot, seeds.T).T + 0.5 * (p + q)
 
     fiber_bundle = []
+
     for s, r in zip(seeds, radii):
         # find ray box intersection
         s -= 0.5 * dir
         t_min, t_max = _ray_box_intersection_pp(s, s + dir, p, q)
+
         if t_min >= t_max:  # outside of volume
             continue
 
@@ -310,7 +316,7 @@ def cuboid(p, q, phi, theta, seeds, radii):
         p_max = s + t_max * dir
 
         fiber_bundle.append(
-            np.array([[p_min[0], p_min[1], p_min[2],
-                       r][p_max[0], p_max[1], p_max[2], r]]))
+            np.array([[p_min[0], p_min[1], p_min[2], r],
+                      [p_max[0], p_max[1], p_max[2], r]]))
 
     return fiber_bundle

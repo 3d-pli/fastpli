@@ -66,12 +66,15 @@ if PLOT:
     plot_fiber_bundle(fiber_bundle)
 
 # create circular shaped triangular seeds
-seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
-fiber_bundle = sandbox.build.cuboid(p=(0, 80, 50),
-                                    q=(40, 80, 100),
-                                    phi=np.deg2rad(42),
-                                    theta=np.deg2rad(75),
+p = np.array([0, 80, 50])
+q = np.array([40, 180, 100])
+d = np.max(np.abs(p - q)) * np.sqrt(3)
+seeds = sandbox.seeds.triangular_grid(a=d, b=d, spacing=5, center=True)
+fiber_bundle = sandbox.build.cuboid(p=p,
+                                    q=q,
+                                    phi=np.deg2rad(45),
+                                    theta=np.deg2rad(90),
                                     seeds=seeds,
                                     radii=1)
-if PLOT:
+if True:
     plot_fiber_bundle(fiber_bundle)
