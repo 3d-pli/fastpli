@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+PLOT = False
+
 
 def set_axes_equal(ax):
     x_limits = ax.get_xlim3d()
@@ -35,41 +37,41 @@ def plot_fiber_bundle(fb):
 
 
 # create fiber bundle along trajectory
-if False:
-    seeds = sandbox.seeds.triangular_grid(a=42, b=42, spacing=4, center=True)
-    circ_seeds = sandbox.seeds.crop_circle(radius=21, seeds=seeds)
-    t = np.linspace(0, 2 * np.pi, 50, True)
-    traj = np.array((10 * t, np.cos(t), np.zeros(t.size))).T
-    fiber_bundle = sandbox.build.bundle(traj=traj,
-                                        seeds=circ_seeds,
-                                        radii=np.random.uniform(
-                                            0.5, 0.8, circ_seeds.shape[0]),
-                                        scale=2 + 0.5 * np.sin(t))
+seeds = sandbox.seeds.triangular_grid(a=42, b=42, spacing=4, center=True)
+circ_seeds = sandbox.seeds.crop_circle(radius=21, seeds=seeds)
+t = np.linspace(0, 2 * np.pi, 50, True)
+traj = np.array((10 * t, np.cos(t), np.zeros(t.size))).T
+fiber_bundle = sandbox.build.bundle(traj=traj,
+                                    seeds=circ_seeds,
+                                    radii=np.random.uniform(
+                                        0.5, 0.8, circ_seeds.shape[0]),
+                                    scale=2 + 0.5 * np.sin(t))
+if PLOT:
     plot_fiber_bundle(fiber_bundle)
 
 # create circular shaped triangular seeds
-if False:
-    seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
-    fiber_bundle = sandbox.build.cylinder(
-        p=(0, 80, 50),
-        q=(40, 80, 100),
-        r_in=20,
-        r_out=40,
-        seeds=seeds,
-        radii=1,
-        alpha=np.deg2rad(20),
-        beta=np.deg2rad(160),
-        mode='r'  # 'c', 'p'
-    )
+seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
+fiber_bundle = sandbox.build.cylinder(
+    p=(0, 80, 50),
+    q=(40, 80, 100),
+    r_in=20,
+    r_out=40,
+    seeds=seeds,
+    radii=1,
+    alpha=np.deg2rad(20),
+    beta=np.deg2rad(160),
+    mode='r'  # 'c', 'p'
+)
+if PLOT:
     plot_fiber_bundle(fiber_bundle)
 
 # create circular shaped triangular seeds
-if True:
-    seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
-    fiber_bundle = sandbox.build.cuboid(p=(0, 80, 50),
-                                        q=(40, 80, 100),
-                                        phi=np.deg2rad(42),
-                                        theta=np.deg2rad(75),
-                                        seeds=seeds,
-                                        radii=1)
+seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
+fiber_bundle = sandbox.build.cuboid(p=(0, 80, 50),
+                                    q=(40, 80, 100),
+                                    phi=np.deg2rad(42),
+                                    theta=np.deg2rad(75),
+                                    seeds=seeds,
+                                    radii=1)
+if PLOT:
     plot_fiber_bundle(fiber_bundle)

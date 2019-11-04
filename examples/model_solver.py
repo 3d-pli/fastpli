@@ -14,14 +14,14 @@ np.random.seed(42)
 fiber_bundle_trj = []
 for phi in range(0, 91, 5):
     fiber_bundle_trj.append(
-        [200 * np.sin(np.deg2rad(phi)), 200 * np.cos(np.deg2rad(phi)), 0, 1])
+        [200 * np.sin(np.deg2rad(phi)), 200 * np.cos(np.deg2rad(phi)), 0])
 fiber_bundle_trj = np.array(fiber_bundle_trj)
 
-population = fastpli.model.sandbox.fill.circle(20, 5)
+population = fastpli.model.sandbox.seeds.triangular_circle(20, 5)
 
 fiber_radii = np.random.uniform(2.0, 5.0, population.shape[0])
-fiber_bundle = fastpli.model.sandbox.fill.bundle(fiber_bundle_trj, population,
-                                                 fiber_radii)
+fiber_bundle = fastpli.model.sandbox.build.bundle(fiber_bundle_trj, population,
+                                                  fiber_radii)
 
 fastpli.io.fiber.save('/tmp/fastpli.example.' + FILE_BASE + '.dat',
                       [fiber_bundle])

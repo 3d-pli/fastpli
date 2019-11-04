@@ -114,7 +114,6 @@ def cylinder(p,
         list of fibers with (x,y,z,r)-coordinates
     """
 
-
     p = np.array(p, dtype=float)
     q = np.array(q, dtype=float)
     r_in = float(r_in)
