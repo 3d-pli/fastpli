@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-PLOT = False
+PLOT = True
 
 
 def set_axes_equal(ax):
@@ -76,5 +76,5 @@ fiber_bundle = sandbox.build.cuboid(p=p,
                                     theta=np.deg2rad(90),
                                     seeds=seeds,
                                     radii=1)
-if True:
+if PLOT:
     plot_fiber_bundle(fiber_bundle)

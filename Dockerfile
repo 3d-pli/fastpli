@@ -12,5 +12,6 @@ CMD git clean -d -f -x && \
    make BUILD=debug install && \
    make test && \
    make examples/requirements && \
+   env/bin/python3 examples/sandbox.py && \
    env/bin/python3 examples/model_solver.py && \
    env/bin/python3 examples/simpli.py
