@@ -617,7 +617,7 @@ class Simpli:
             raise TypeError("voxel_size is not set")
 
         input = np.atleast_3d(np.array(input))
-        if image_stack.ndim > 3:
+        if input.ndim > 3:
             raise TypeError("input can be 1d, 2d or 3d")
 
         scale = self._voxel_size / self._resolution
