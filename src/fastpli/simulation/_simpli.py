@@ -9,6 +9,12 @@ from ..tools import rotation
 import numpy as np
 import warnings
 
+import importlib
+if importlib.util.find_spec("tqdm"):
+    from tqdm import tqdm
+else:
+    tqdm = lambda i: i
+
 
 class Simpli:
     __isfrozen = False
@@ -714,7 +720,7 @@ class Simpli:
         itermap = np.empty_like(mask, dtype=input.dtype)
 
         if mp_pool:
-            for j in range(input.shape[2]):
+            for j in tqdm(range(input.shape[2])):
                 chunk = [(input[:, i, j, :], tilt_angle, gain, dir_offset,
                           grad_mode) for i in range(input.shape[1])]
                 results = mp_pool.starmap(rofl.rofl, chunk)
@@ -724,7 +730,7 @@ class Simpli:
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = result
         else:
-            for i in range(input.shape[1]):
+            for i in tqdm(range(input.shape[1])):
                 for j in range(input.shape[2]):
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
