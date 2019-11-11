@@ -64,6 +64,20 @@ class MainTest(unittest.TestCase):
                                          radii=[1] * seeds.shape[0])
         self.assertTrue(np.array_equal(new_seeds, [[0, 0]]))
 
+    def test_build(self):
+        seeds = sb.seeds.triangular_circle(10, 1)
+        for m in ['p', 'r', 'c']:
+            fiber_bundle = sb.build.cylinder(p=(0, 0, 0),
+                                             q=(10, 10, 10),
+                                             r_in=5,
+                                             r_out=8,
+                                             seeds=seeds,
+                                             radii=1,
+                                             alpha=np.deg2rad(20),
+                                             beta=np.deg2rad(160),
+                                             mode=m)
+        self.assertTrue(True)
+
 
 if __name__ == '__main__':
     unittest.main()

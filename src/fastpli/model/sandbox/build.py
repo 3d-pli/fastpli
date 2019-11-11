@@ -103,7 +103,7 @@ def bundle(traj, seeds, radii, scale=1):
 @njit(cache=True)
 def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
     dp = q - p
-    rot = _rot_a_on_b(np.array((0, 0, 1)), dp)
+    rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
 
     # crop seeds
     seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 >= r_in**2, :]
@@ -120,8 +120,11 @@ def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
     seeds = np.dot(rot, seeds.T).T
 
     fiber_bundle = []
-    for s in seeds:
-        fiber_bundle.append(np.array([s + p, s + q]))
+    f = np.empty((2, 3), dtype=seeds.dtype)
+    for i in range(seeds.shape[0]):
+        f[0, :] = seeds[i, :] + p
+        f[1, :] = seeds[i, :] + q
+        fiber_bundle.append(f.copy())
 
     return fiber_bundle
 
@@ -182,22 +185,23 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     fiber_bundle = []
 
     # wrap seeds onto inner cylinder wall and extend to outer wall
-    for p in seeds:
-        x0 = r_in * np.cos(p[0] / a * (beta - alpha))
-        y0 = r_in * np.sin(p[0] / a * (beta - alpha))
-        x1 = r_out * np.cos(p[0] / a * (beta - alpha))
-        y1 = r_out * np.sin(p[0] / a * (beta - alpha))
+    for i in range(seeds.shape[0]):
+        x0 = r_in * np.cos(seeds[i, 0] / a * (beta - alpha))
+        y0 = r_in * np.sin(seeds[i, 0] / a * (beta - alpha))
+        x1 = r_out * np.cos(seeds[i, 0] / a * (beta - alpha))
+        y1 = r_out * np.sin(seeds[i, 0] / a * (beta - alpha))
 
-        fiber_bundle.append(np.array([[x0, y0, p[1]], [x1, y1, p[1]]]))
+        fiber_bundle.append(
+            np.array([[x0, y0, seeds[i, 1]], [x1, y1, seeds[i, 1]]]))
 
     # rotate cylinder into final position
     rot = _rot_z(alpha)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
+        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
 
     rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
+        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
 
     for i in range(len(fiber_bundle)):
         fiber_bundle[i] = fiber_bundle[i] + (p.T + q.T) * 0.5
