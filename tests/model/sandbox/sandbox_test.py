@@ -64,7 +64,7 @@ class MainTest(unittest.TestCase):
                                          radii=[1] * seeds.shape[0])
         self.assertTrue(np.array_equal(new_seeds, [[0, 0]]))
 
-    def test_build(self):
+    def test_build_cylinder(self):
         seeds = sb.seeds.triangular_circle(10, 1)
         for m in ['p', 'r', 'c']:
             fiber_bundle = sb.build.cylinder(p=(0, 0, 0),
@@ -76,6 +76,19 @@ class MainTest(unittest.TestCase):
                                              alpha=np.deg2rad(20),
                                              beta=np.deg2rad(160),
                                              mode=m)
+        self.assertTrue(True)
+
+    def test_build_cuboid(self):
+        p = np.array([0, 80, 50])
+        q = np.array([40, 180, 100])
+        d = np.max(np.abs(p - q)) * np.sqrt(3)
+        seeds = sb.seeds.triangular_grid(a=d, b=d, spacing=5, center=True)
+        fiber_bundle = sb.build.cuboid(p=p,
+                                       q=q,
+                                       phi=np.deg2rad(45),
+                                       theta=np.deg2rad(90),
+                                       seeds=seeds,
+                                       radii=1)
         self.assertTrue(True)
 
 

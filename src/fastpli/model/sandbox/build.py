@@ -24,6 +24,32 @@ def _rot_z(phi):
                      (np.sin(phi), np.cos(phi), 0), (0, 0, 1)), np.float64)
 
 
+@njit(cache=True)
+def _bundle(traj, seeds, radii, scale):
+    fiber_bundle = [np.empty((traj.shape[0], 4))] * seeds.shape[0]
+    tangent_old = np.array([0, 0, 1.0])
+
+    for i in range(0, traj.shape[0]):
+        if i == 0:
+            tangent_new = 0.5 * (traj[i + 1, :3] - traj[i, :3])
+        elif i == traj.shape[0] - 1:
+            tangent_new = 0.5 * (traj[i, :3] - traj[i - 1, :3])
+        else:
+            tangent_new = 0.5 * (traj[i + 1, :3] - traj[i - 1, :3])
+
+        tangent_new = tangent_new / np.linalg.norm(tangent_new)
+        R = _rot_a_on_b(tangent_old, tangent_new)
+
+        for j in range(0, seeds.shape[0]):
+            seeds[j, :] = np.dot(R, seeds[j, :])
+            fiber_bundle[j][i, :] = np.append(
+                seeds[j, :] * scale[i] + traj[i, :3], radii[j])
+
+        tangent_old = tangent_new.copy()
+
+    return fiber_bundle
+
+
 def bundle(traj, seeds, radii, scale=1):
     """
     Generates a fiber bundle along a trajectory. The fibers will be generated coresponding to their seed points. They can be scaled along the trajectory.
@@ -73,31 +99,11 @@ def bundle(traj, seeds, radii, scale=1):
     if scale.size != traj.shape[0]:
         raise ValueError('scale must have the same length as traj')
 
-    fiber_bundle = [np.empty([traj.shape[0], 4]) for i in range(seeds.shape[0])]
-    tangent_old = np.array([0, 0, 1], float)
-
-    for i in range(0, traj.shape[0]):
-        if i == 0:
-            tangent_new = 0.5 * (traj[i + 1, :3] - traj[i, :3])
-        elif i == traj.shape[0] - 1:
-            tangent_new = 0.5 * (traj[i, :3] - traj[i - 1, :3])
-        else:
-            tangent_new = 0.5 * (traj[i + 1, :3] - traj[i - 1, :3])
-
-        if np.all(tangent_new == 0):
+    for i in range(traj.shape[0] - 1):
+        if np.array_equal(traj[i + 1, :3], traj[i, :3]):
             raise TypeError('same point:', i)
 
-        tangent_new = tangent_new / np.linalg.norm(tangent_new)
-        R = _rot_a_on_b(tangent_old, tangent_new)
-
-        for j in range(0, seeds.shape[0]):
-            seeds[j, :] = np.dot(R, seeds[j, :])
-            fiber_bundle[j][i, :] = np.append(
-                seeds[j, :] * scale[i] + traj[i, :3], radii[j])
-
-        tangent_old = tangent_new.copy()
-
-    return fiber_bundle
+    return _bundle(traj, seeds, radii, scale)
 
 
 @njit(cache=True)
@@ -209,7 +215,7 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     return fiber_bundle
 
 
-@njit(cache=True)
+# @njit(cache=True)
 def add_radii(fiber_bundle, radii):
     for i, (f, r) in enumerate(zip(fiber_bundle, radii)):
         fiber_bundle[i] = np.concatenate((f, np.ones((f.shape[0], 1)) * r),
@@ -313,6 +319,30 @@ def _ray_box_intersection_pp(p, q, b_min, b_max):
     return _ray_box_intersection(p, q - p, b_min, b_max)
 
 
+@njit(cache=True)
+def _cuboid(p, q, dir, seeds, radii):
+    fiber_bundle = []
+
+    for i in range(seeds.shape[0]):
+        s = seeds[i, :]
+
+        # find ray box intersection
+        s -= 0.5 * dir
+        t_min, t_max = _ray_box_intersection_pp(s, s + dir, p, q)
+
+        if t_min >= t_max:  # outside of volume
+            continue
+
+        p_min = s + t_min * dir
+        p_max = s + t_max * dir
+
+        fiber_bundle.append(
+            np.array([[p_min[0], p_min[1], p_min[2], radii[i]],
+                      [p_max[0], p_max[1], p_max[2], radii[i]]]))
+
+    return fiber_bundle
+
+
 def cuboid(p, q, phi, theta, seeds, radii):
     """
     Generated a fiber bundle inside a cuboid along a axis
@@ -365,21 +395,4 @@ def cuboid(p, q, phi, theta, seeds, radii):
     rot = _rot_a_on_b(np.array([0, 0, 1.0]), dir)
     seeds = np.dot(rot, seeds.T).T + 0.5 * (p + q)
 
-    fiber_bundle = []
-
-    for s, r in zip(seeds, radii):
-        # find ray box intersection
-        s -= 0.5 * dir
-        t_min, t_max = _ray_box_intersection_pp(s, s + dir, p, q)
-
-        if t_min >= t_max:  # outside of volume
-            continue
-
-        p_min = s + t_min * dir
-        p_max = s + t_max * dir
-
-        fiber_bundle.append(
-            np.array([[p_min[0], p_min[1], p_min[2], r],
-                      [p_max[0], p_max[1], p_max[2], r]]))
-
-    return fiber_bundle
+    return _cuboid(p, q, dir, seeds, radii)
