@@ -3,6 +3,27 @@ from numba import njit
 from ...tools import rotation
 
 
+@njit(cache=True)
+def _rot_a_on_b(a, b):
+    a = a / np.linalg.norm(a)
+    b = b / np.linalg.norm(b)
+    if np.all(a == b):
+        return np.identity(3)
+
+    v = np.cross(a, b)
+    s = np.linalg.norm(v)
+    c = np.dot(a, b)
+    vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+    R = np.identity(3, np.float64) + vx + np.dot(vx, vx) * (1 - c) / s**2
+    return R
+
+
+@njit(cache=True)
+def _rot_z(phi):
+    return np.array(((np.cos(phi), -np.sin(phi), 0),
+                     (np.sin(phi), np.cos(phi), 0), (0, 0, 1)), np.float64)
+
+
 def bundle(traj, seeds, radii, scale=1):
     """
     Generates a fiber bundle along a trajectory. The fibers will be generated coresponding to their seed points. They can be scaled along the trajectory.
@@ -67,7 +88,7 @@ def bundle(traj, seeds, radii, scale=1):
             raise TypeError('same point:', i)
 
         tangent_new = tangent_new / np.linalg.norm(tangent_new)
-        R = rotation.a_on_b(tangent_old, tangent_new)
+        R = _rot_a_on_b(tangent_old, tangent_new)
 
         for j in range(0, seeds.shape[0]):
             seeds[j, :] = np.dot(R, seeds[j, :])
@@ -76,6 +97,119 @@ def bundle(traj, seeds, radii, scale=1):
 
         tangent_old = tangent_new.copy()
 
+    return fiber_bundle
+
+
+@njit(cache=True)
+def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
+    dp = q - p
+    rot = _rot_a_on_b(np.array((0, 0, 1)), dp)
+
+    # crop seeds
+    seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 >= r_in**2, :]
+    seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 <= r_out**2, :]
+
+    phi = np.arctan2(seeds[:, 1], seeds[:, 0])
+
+    # project angles -> [0, 2*np.pi)
+    phi = phi % (2.0 * np.pi)
+    phi[phi < 0] += 2.0 * np.pi
+
+    # crop seeds
+    seeds = seeds[(phi > alpha) & (phi < beta), :]
+    seeds = np.dot(rot, seeds.T).T
+
+    fiber_bundle = []
+    for s in seeds:
+        fiber_bundle.append(np.array([s + p, s + q]))
+
+    return fiber_bundle
+
+
+@njit(cache=True)
+def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
+    # create first z-zylinder which is afterwards rotated
+    dp = q - p
+    b = np.linalg.norm(dp)
+
+    # crop seeds
+    seeds = seeds[seeds[:, 0] >= r_in]
+    seeds = seeds[seeds[:, 0] <= r_out]
+    seeds = seeds[seeds[:, 1] >= 0]
+    seeds = seeds[seeds[:, 1] <= b]
+
+    # rotate plane into first position (x-z)
+    r = (r_in + r_out) / 2.0
+    rot = _rot_a_on_b(np.array((0, 0, 1.0)), np.array((0, 1.0, 0)))
+    seeds = np.ascontiguousarray(np.dot(rot, seeds.T).T)
+
+    # keep rotating plane along cylinder
+    rot = _rot_z((beta - alpha) / (steps - 1))
+    sub_data = np.empty((steps, 3))
+    fiber_bundle = []
+    for j in range(seeds.shape[0]):
+        for i in range(steps):
+            sub_data[i, :] = seeds[j, :]
+            seeds[j, :] = np.dot(rot, seeds[j, :])
+        fiber_bundle.append(sub_data.copy())
+
+    # rotate cylinder into final position
+    rot = _rot_z(alpha)
+    for i in range(len(fiber_bundle)):
+        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+
+    rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
+    for i in range(len(fiber_bundle)):
+        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+
+    for i in range(len(fiber_bundle)):
+        fiber_bundle[i] = fiber_bundle[i] + p.T
+
+    return fiber_bundle
+
+
+@njit(cache=True)
+def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
+    dp = q - p
+    a = r_in * (beta - alpha)
+    b = np.linalg.norm(dp)
+
+    seeds = seeds[seeds[:, 0] >= 0]
+    seeds = seeds[seeds[:, 0] <= a]
+    seeds = seeds[seeds[:, 1] >= 0]
+    seeds = seeds[seeds[:, 1] <= b]
+
+    fiber_bundle = []
+
+    # wrap seeds onto inner cylinder wall and extend to outer wall
+    for p in seeds:
+        x0 = r_in * np.cos(p[0] / a * (beta - alpha))
+        y0 = r_in * np.sin(p[0] / a * (beta - alpha))
+        x1 = r_out * np.cos(p[0] / a * (beta - alpha))
+        y1 = r_out * np.sin(p[0] / a * (beta - alpha))
+
+        fiber_bundle.append(np.array([[x0, y0, p[1]], [x1, y1, p[1]]]))
+
+    # rotate cylinder into final position
+    rot = _rot_z(alpha)
+    for i in range(len(fiber_bundle)):
+        fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
+
+    rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
+    for i in range(len(fiber_bundle)):
+        fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
+
+    for i in range(len(fiber_bundle)):
+        fiber_bundle[i] = fiber_bundle[i] + (p.T + q.T) * 0.5
+
+    return fiber_bundle
+
+
+@njit(cache=True)
+def add_radii(fiber_bundle, radii):
+    for i, (f, r) in enumerate(zip(fiber_bundle, radii)):
+        fiber_bundle[i] = np.concatenate((f, np.ones((f.shape[0], 1)) * r),
+                                         axis=1)
     return fiber_bundle
 
 
@@ -140,98 +274,21 @@ def cylinder(p,
         raise ValueError('radii must have the same length as seeds')
 
     dp = q - p
-    fiber_bundle = []
+    # fiber_bundle = []
     if mode == 'parallel' or mode == 'p':
-        rot = rotation.a_on_b(np.array((0, 0, 1)), dp)
-
-        # crop seeds
-        seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 >= r_in**2, :]
-        seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 <= r_out**2, :]
-
-        phi = np.arctan2(seeds[:, 1], seeds[:, 0])
-
-        # project angles -> [0, 2*np.pi)
-        phi = phi % (2.0 * np.pi)
-        phi[phi < 0] += 2.0 * np.pi
-
-        # crop seeds
-        seeds = seeds[(phi > alpha) & (phi < beta), :]
-        seeds = np.dot(rot, seeds.T).T
-
-        for s in seeds:
-            fiber_bundle.append(np.array([s + p, s + q]))
+        fiber_bundle = _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta)
 
     elif mode == 'circular' or mode == 'c':
-        # create first z-zylinder which is afterwards rotated
-        b = np.linalg.norm(dp)
-
-        # crop seeds
-        seeds = seeds[seeds[:, 0] >= r_in]
-        seeds = seeds[seeds[:, 0] <= r_out]
-        seeds = seeds[seeds[:, 1] >= 0]
-        seeds = seeds[seeds[:, 1] <= b]
-
-        # rotate plane into first position (x-z)
-        r = (r_in + r_out) / 2.0
-        rot = rotation.a_on_b(np.array((0, 0, 1)), np.array((0, 1, 0)))
-        seeds = np.dot(rot, seeds.T).T
-
-        # keep rotating plane along cylinder
-        rot = rotation.z((beta - alpha) / (steps - 1))
-        sub_data = np.empty((steps, 3))
-        for p in seeds:
-            for i in range(steps):
-                sub_data[i, :] = p
-                p = np.dot(rot, p)
-            fiber_bundle.append(sub_data.copy())
-
-        # rotate cylinder into final position
-        rot = rotation.z(alpha)
-        for i in range(len(fiber_bundle)):
-            fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
-
-        rot = rotation.a_on_b(np.array((0, 0, 1)), dp)
-        for i in range(len(fiber_bundle)):
-            fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
-
-        for i in range(len(fiber_bundle)):
-            fiber_bundle[i] = fiber_bundle[i] + p.T
+        fiber_bundle = _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta,
+                                          steps)
 
     elif mode == 'radial' or mode == 'r':
-        a = r_in * (beta - alpha)
-        b = np.linalg.norm(dp)
-
-        seeds = seeds[seeds[:, 0] >= 0]
-        seeds = seeds[seeds[:, 0] <= a]
-        seeds = seeds[seeds[:, 1] >= 0]
-        seeds = seeds[seeds[:, 1] <= b]
-
-        # wrap seeds onto inner cylinder wall and extend to outer wall
-        for p in seeds:
-            x0 = r_in * np.cos(p[0] / a * (beta - alpha))
-            y0 = r_in * np.sin(p[0] / a * (beta - alpha))
-            x1 = r_out * np.cos(p[0] / a * (beta - alpha))
-            y1 = r_out * np.sin(p[0] / a * (beta - alpha))
-
-            fiber_bundle.append(np.array([[x0, y0, p[1]], [x1, y1, p[1]]]))
-
-        # rotate cylinder into final position
-        rot = rotation.z(alpha)
-        for i in range(len(fiber_bundle)):
-            fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
-
-        rot = rotation.a_on_b(np.array((0, 0, 1)), dp)
-        for i in range(len(fiber_bundle)):
-            fiber_bundle[i] = np.dot(rot, fiber_bundle[i].T).T
-
-        for i in range(len(fiber_bundle)):
-            fiber_bundle[i] = fiber_bundle[i] + (p.T + q.T) * 0.5
+        fiber_bundle = _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta)
 
     else:
         raise ValueError('mode has to be "parallel" or "radial"')
 
-    for i, (f, r) in enumerate(zip(fiber_bundle, radii)):
-        fiber_bundle[i] = np.insert(f, 3, r, axis=1)
+    add_radii(fiber_bundle, radii)
 
     return fiber_bundle
 
@@ -301,7 +358,7 @@ def cuboid(p, q, phi, theta, seeds, radii):
         np.sin(phi) * np.sin(theta),
         np.cos(theta)
     ])
-    rot = rotation.a_on_b(np.array([0, 0, 1]), dir)
+    rot = _rot_a_on_b(np.array([0, 0, 1.0]), dir)
     seeds = np.dot(rot, seeds.T).T + 0.5 * (p + q)
 
     fiber_bundle = []
