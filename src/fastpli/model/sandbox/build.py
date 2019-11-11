@@ -158,9 +158,8 @@ def cylinder(p,
         seeds = seeds[(phi > alpha) & (phi < beta), :]
         seeds = np.dot(rot, seeds.T).T
 
-        for s, r in zip(seeds, radii):
-            fiber_bundle.append(
-                np.insert(np.array([s + p, s + q]), 3, r, axis=1))
+        for s in seeds:
+            fiber_bundle.append(np.array([s + p, s + q]))
 
     elif mode == 'circular' or mode == 'c':
         # create first z-zylinder which is afterwards rotated
@@ -169,8 +168,8 @@ def cylinder(p,
         # crop seeds
         seeds = seeds[seeds[:, 0] >= r_in]
         seeds = seeds[seeds[:, 0] <= r_out]
-        seeds = seeds[seeds[:, 2] >= 0]
-        seeds = seeds[seeds[:, 2] <= b]
+        seeds = seeds[seeds[:, 1] >= 0]
+        seeds = seeds[seeds[:, 1] <= b]
 
         # rotate plane into first position (x-z)
         r = (r_in + r_out) / 2.0
@@ -230,6 +229,9 @@ def cylinder(p,
 
     else:
         raise ValueError('mode has to be "parallel" or "radial"')
+
+    for i, (f, r) in enumerate(zip(fiber_bundle, radii)):
+        fiber_bundle[i] = np.insert(f, 3, r, axis=1)
 
     return fiber_bundle
 
