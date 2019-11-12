@@ -67,15 +67,15 @@ class MainTest(unittest.TestCase):
     def test_build_cylinder(self):
         seeds = sb.seeds.triangular_circle(10, 1)
         for m in ['p', 'r', 'c']:
-            fiber_bundle = sb.build.cylinder(p=(0, 0, 0),
-                                             q=(10, 10, 10),
-                                             r_in=5,
-                                             r_out=8,
-                                             seeds=seeds,
-                                             radii=1,
-                                             alpha=np.deg2rad(20),
-                                             beta=np.deg2rad(160),
-                                             mode=m)
+            sb.build.cylinder(p=(0, 0, 0),
+                              q=(10, 10, 10),
+                              r_in=5,
+                              r_out=8,
+                              seeds=seeds,
+                              radii=1,
+                              alpha=np.deg2rad(20),
+                              beta=np.deg2rad(160),
+                              mode=m)
         self.assertTrue(True)
 
     def test_build_cuboid(self):
@@ -83,13 +83,26 @@ class MainTest(unittest.TestCase):
         q = np.array([40, 180, 100])
         d = np.max(np.abs(p - q)) * np.sqrt(3)
         seeds = sb.seeds.triangular_grid(a=d, b=d, spacing=5, center=True)
-        fiber_bundle = sb.build.cuboid(p=p,
-                                       q=q,
-                                       phi=np.deg2rad(45),
-                                       theta=np.deg2rad(90),
-                                       seeds=seeds,
-                                       radii=1)
+        sb.build.cuboid(p=p,
+                        q=q,
+                        phi=np.deg2rad(45),
+                        theta=np.deg2rad(90),
+                        seeds=seeds,
+                        radii=1)
         self.assertTrue(True)
+
+    def test_build_bundle(self):
+        traj = np.array([[0, 0, 0], [0, 0, 100]])
+        seeds = np.array([[0, 0], [1, 1], [-1, 1]])
+        fiber_bundle = sb.build.bundle(traj, seeds, 1)
+
+        for i in range(len(fiber_bundle)):
+            self.assertTrue(
+                np.array_equal(fiber_bundle[i][0, :3],
+                               [seeds[i][0], seeds[i][1], 0]))
+            self.assertTrue(
+                np.array_equal(fiber_bundle[i][1, :3],
+                               [seeds[i][0], seeds[i][1], 100]))
 
 
 if __name__ == '__main__':

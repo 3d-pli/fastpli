@@ -26,7 +26,7 @@ def _rot_z(phi):
 
 @njit(cache=True)
 def _bundle(traj, seeds, radii, scale):
-    fiber_bundle = [np.empty((traj.shape[0], 4))] * seeds.shape[0]
+    fiber_bundle = [np.empty((traj.shape[0], 4)) for i in range(seeds.shape[0])]
     tangent_old = np.array([0, 0, 1.0])
 
     for i in range(0, traj.shape[0]):
@@ -100,7 +100,7 @@ def bundle(traj, seeds, radii, scale=1):
         raise ValueError('scale must have the same length as traj')
 
     for i in range(traj.shape[0] - 1):
-        if np.array_equal(traj[i + 1, :3], traj[i, :3]):
+        if np.array_equal(traj[i, :3], traj[i + 1, :3]):
             raise TypeError('same point:', i)
 
     return _bundle(traj, seeds, radii, scale)
