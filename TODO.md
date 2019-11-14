@@ -33,6 +33,12 @@
 - [ ] memory warning for fiber_bundles (gets quite big for small segment lengths)
   - [ ] non linear splitting and merging
 - [ ] split volume first into equal cubes, and then into a octtree
+- ideas:
+- [ ] not moving Regions and moving Regions
+- [ ] alowing only specific points of fibers to move
+- [ ] alow movement anly along a specified axis
+- [ ] move fibers as a group of bundles
+- [ ] looping fibers
   
 ## HPC:
 - [ ] JURON
