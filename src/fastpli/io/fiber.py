@@ -3,7 +3,7 @@ import numpy as np
 import h5py
 
 
-def load(file_name, group_name='/'):
+def load(file_name, group_name='fiber_bundles/'):
     """
     Load fiberbundles configurations from a text file oder hdf5 file
 
@@ -46,19 +46,17 @@ def load(file_name, group_name='/'):
             if group_name[-1] is not '/':
                 group_name = group_name + '/'
             fbs = h5f[group_name]
-            for i in range(len(fbs)):
-                if i != 0:
-                    fiber_bundles.append([])
-                fb = fbs[str(i)]
-                for j in range(len(fb)):
-                    fiber_bundles[-1].append(fb[str(j)][:].astype(float))
+            fiber_bundles.append([])
+            for fb in fbs:
+                for f in fbs[fb]:
+                    fiber_bundles[-1].append(fbs[fb][f][:].astype(float))
     else:
         raise TypeError(ext + ' is not implemented yet')
 
     return fiber_bundles
 
 
-def save(file_name, fiber_bundles, group_name='/', mode='w'):
+def save(file_name, fiber_bundles, group_name='fiber_bundles/', mode='w'):
     """
     Save fiberbundles configurations to a text file oder hdf5 file
 
