@@ -15,6 +15,7 @@ aabb::AABB<double, 3> Cone::aabb() const {
 bool Cone::CollideWith(const Cone cone) const {
    // TODO: radius varies along the length
    vm::Vec3<double> P, Q;
+   // TODO: check if aabb help speed up
    std::tie(P, Q) = MinDistanceVectorCones(cone);
    double min_dist = vm::length(P - Q);
    if (min_dist < (r + cone.r))
