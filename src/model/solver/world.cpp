@@ -123,12 +123,11 @@ bool World::BoundryChecking(int max_steps) {
    bool solved = fibers_.empty();
    for (; max_steps >= 0 && !solved; max_steps--) {
 
-#pragma omp parallel for
+#pragma omp parallel for reduction(&& : solved)
       for (auto i = 0u; i < fibers_.size(); i++) {
          bool flag_length =
              fibers_[i].CheckLength(w_parameter_.obj_mean_length);
          bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
-#pragma omp critical
          solved = flag_length && flag_radius;
       }
    }
@@ -184,37 +183,42 @@ bool World::Step() {
       std::vector<std::array<size_t, 4>> colliding_vec(colliding_list.begin(),
                                                        colliding_list.end());
 
-// set speed of colliding objects
-#pragma omp parallel for
+      // set speed of colliding objects
+      overlapping_ = 0;
+#pragma omp parallel for reduction(+ : overlapping_)
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
 
-         vm::Vec3<double> f0, f1, f2, f3;
-         std::tie(f0, f1, f2, f3) = fibers_[elm[0]].Cone(elm[1]).PushConesApart(
-             fibers_[elm[2]].Cone(elm[3]));
+         auto const [f0, f1, f2, f3, dist] =
+             fibers_[elm[0]].Cone(elm[1]).PushConesApart(
+                 fibers_[elm[2]].Cone(elm[3]));
 
          // WARNING: not thread safe
          fibers_[elm[0]].AddSpeed(elm[1], f0);
          fibers_[elm[0]].AddSpeed(elm[1] + 1, f1);
          fibers_[elm[2]].AddSpeed(elm[3], f2);
          fibers_[elm[2]].AddSpeed(elm[3] + 1, f3);
+
+         overlapping_ +=
+             1 - dist / (std::max(fibers_[elm[0]].radii()[elm[1]],
+                                  fibers_[elm[0]].radii()[elm[1] + 1]) +
+                         std::max(fibers_[elm[2]].radii()[elm[3]],
+                                  fibers_[elm[2]].radii()[elm[3] + 1]));
       }
    }
 
    // check fiber boundry conditions
-#pragma omp parallel for
+#pragma omp parallel for reduction(&& : solved)
    for (auto i = 0u; i < fibers_.size(); i++) {
       bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
-#pragma omp critical
       solved = solved && flag_radius;
    }
 
    if (!solved) {
-#pragma omp parallel for
+#pragma omp parallel for reduction(&& : solved)
       for (auto i = 0u; i < fibers_.size(); i++) {
          bool flag_length =
              fibers_[i].CheckLength(w_parameter_.obj_mean_length);
-#pragma omp critical
          solved = solved && flag_length;
       }
    }

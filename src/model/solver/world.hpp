@@ -54,12 +54,14 @@ class World {
  private:
    std::vector<geometry::Fiber> fibers_;
    std::map<size_t, std::pair<size_t, size_t>> map_fb_idx_;
+   aabb::AABB<double, 3> col_voi_ = aabb::AABB<double, 3>(vm::Vec3<double>(0));
    World::WorldParameter w_parameter_;
 
+   double overlapping_{0};
+
+   size_t max_level_{0};
    size_t num_obj_{0};
    size_t num_col_obj_{0};
-
-   aabb::AABB<double, 3> col_voi_ = aabb::AABB<double, 3>(vm::Vec3<double>(0));
 
 #if _VIS_LIBRARIES
    std::unique_ptr<Scene> scene_ = nullptr;

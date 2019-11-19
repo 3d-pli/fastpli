@@ -121,7 +121,8 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
          ids.push_back(id);
    }
 
-   auto const leafs = GenerateLeafs(ids, main_cube_, 0);
+   std::vector<std::vector<size_t>> leafs;
+   std::tie(leafs, max_level_) = GenerateLeafs(ids, main_cube_, 0);
 
 #pragma omp parallel for
    for (size_t i = 0; i < leafs.size(); i++) {
@@ -135,24 +136,21 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
    return results;
 }
 
-std::vector<std::vector<size_t>>
+std::tuple<std::vector<std::vector<size_t>>, int>
 OctTree::GenerateLeafs(const std::vector<size_t> &ids,
                        const aabb::AABB<double, 3> &cube, int level) {
 
    std::vector<std::vector<size_t>> tree_ids;
+   int max_level = level;
 
    if (ids.size() < kMaxParticle_ ||
        (cube.max.x() - cube.min.x()) < 2 * min_cube_size_) {
       tree_ids.push_back(ids);
-      if (max_level_ < level) {
-#pragma omp critical
-         max_level_ = level;
-      }
    } else {
       if (level <= kMaxThreadLevel_) {
          auto sub_cubes = SplitInto8Cubes(cube);
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static) reduction(max : max_level)
          for (auto i = 0; i < 8; i++) {
             std::vector<size_t> sub_ids;
             for (auto id : ids) {
@@ -160,7 +158,12 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
                   sub_ids.push_back(id);
             }
 
-            auto sub_tree = GenerateLeafs(sub_ids, sub_cubes[i], level + 1);
+            std::vector<std::vector<size_t>> sub_tree;
+            int m_level;
+            std::tie(sub_tree, m_level) =
+                GenerateLeafs(sub_ids, sub_cubes[i], level + 1);
+
+            max_level = std::max(max_level, m_level);
 
 #pragma omp critical
             {
@@ -179,7 +182,8 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
                   sub_ids.push_back(id);
             }
 
-            auto sub_tree = GenerateLeafs(sub_ids, sub_cubes[i], level + 1);
+            auto [sub_tree, max_level] =
+                GenerateLeafs(sub_ids, sub_cubes[i], level + 1);
             tree_ids.insert(tree_ids.end(),
                             std::make_move_iterator(sub_tree.begin()),
                             std::make_move_iterator(sub_tree.end()));
@@ -187,7 +191,7 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
       }
    }
 
-   return tree_ids;
+   return std::make_pair(tree_ids, max_level);
 }
 
 std::set<std::array<size_t, 4>>

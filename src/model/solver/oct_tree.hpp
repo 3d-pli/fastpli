@@ -3,6 +3,7 @@
 
 #include <array>
 #include <set>
+#include <tuple>
 #include <vector>
 
 #include "cone_class.hpp"
@@ -19,7 +20,7 @@ class OctTree {
    int max_level() { return max_level_; };
 
  private:
-   std::vector<std::vector<size_t>>
+   std::tuple<std::vector<std::vector<size_t>>, int>
    GenerateLeafs(const std::vector<size_t> &ids,
                  const aabb::AABB<double, 3> &cube, int level);
    std::set<std::array<size_t, 4>>

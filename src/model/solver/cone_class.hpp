@@ -29,7 +29,7 @@ struct Cone {
    std::tuple<vm::Vec3<double>, vm::Vec3<double>>
    MinDistanceVectorCones(const Cone cone) const;
    std::tuple<vm::Vec3<double>, vm::Vec3<double>, vm::Vec3<double>,
-              vm::Vec3<double>>
+              vm::Vec3<double>, double>
    PushConesApart(const Cone cone) const;
 
    vm::Vec3<double> p0, p1;

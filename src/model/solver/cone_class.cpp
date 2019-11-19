@@ -106,7 +106,7 @@ Cone::MinDistanceVectorCones(const Cone cone) const {
 }
 
 std::tuple<vm::Vec3<double>, vm::Vec3<double>, vm::Vec3<double>,
-           vm::Vec3<double>>
+           vm::Vec3<double>, double>
 Cone::PushConesApart(const Cone cone) const {
 
    // TODO: clean up
@@ -128,7 +128,7 @@ Cone::PushConesApart(const Cone cone) const {
           vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1,
           vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1,
           vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1,
-          vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1);
+          vm::Vec3<double>(dis(gen), dis(gen), dis(gen)) * 0.1, 1e-8f);
    }
 
    auto delta_speed =
@@ -146,8 +146,7 @@ Cone::PushConesApart(const Cone cone) const {
    auto f3 = -delta / norm * delta_speed * vm::length(Q - cone.p0) /
              vm::length(cone.p1 - cone.p0);
 
-   return std::make_tuple(f0, f1, f2, f3);
-   // return std::make_tuple(f, f, -f, -f);
+   return std::make_tuple(f0, f1, f2, f3, norm);
 }
 
 } // namespace object
