@@ -10,6 +10,7 @@
 namespace object {
 struct Cone {
    // defaults
+   Cone() = default;
    Cone(Cone &&) = default;
    Cone(const Cone &) = default;
    Cone &operator=(Cone &&) = default;

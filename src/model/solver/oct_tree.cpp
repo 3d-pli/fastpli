@@ -199,37 +199,49 @@ std::set<std::array<size_t, 4>>
 OctTree::TestCollision(const std::vector<size_t> &cone_ids) {
    std::set<std::array<size_t, 4>> result;
 
-   if (cone_ids.empty())
+   if (cone_ids.size() <= 1)
       return result;
 
+   std::vector<object::Cone> cones(cone_ids.size());
+   for (auto i = 0u; i < cone_ids.size(); i++)
+      cones[i] = cones_[cone_ids[i]];
+
+   std::vector<aabb::AABB<double, 3>> aabbs(cone_ids.size());
+   for (auto i = 0u; i < cone_ids.size(); i++)
+      aabbs[i] = cones[i].aabb();
+
    for (auto i = 0u; i < cone_ids.size() - 1; i++) {
+      auto const &cone1 = cones[i];
       for (auto j = i + 1; j < cone_ids.size(); j++) {
-         auto const cone1 = cones_[cone_ids[i]];
-         auto const cone2 = cones_[cone_ids[j]];
+         auto const &cone2 = cones[j];
 
-         if (cone1.fiber_idx == cone2.fiber_idx) {
-            // TODO: optimize(static_cast<ll>, all var ll, ...)
-            auto const delta = cone1.cone_idx >= cone2.cone_idx
-                                   ? cone1.cone_idx - cone2.cone_idx
-                                   : cone2.cone_idx - cone1.cone_idx;
+         if (aabb::Overlap(aabbs[i], aabbs[j])) {
+            if (cone1.fiber_idx == cone2.fiber_idx) {
+               // TODO: optimize(static_cast<ll>, all var ll, ...)
+               auto const delta = cone1.cone_idx >= cone2.cone_idx
+                                      ? cone1.cone_idx - cone2.cone_idx
+                                      : cone2.cone_idx - cone1.cone_idx;
 
-            // direct neighbor
-            if (delta <= 1)
-               continue;
+               // direct neighbor
+               if (delta <= 1)
+                  continue;
 
-            auto const mean_seg_length =
-                vm::length((cone1.p1 - cone1.p0) + (cone2.p1 - cone2.p0)) * 0.5;
+               auto const mean_seg_length =
+                   vm::length((cone1.p1 - cone1.p0) + (cone2.p1 - cone2.p0)) *
+                   0.5;
 
-            // check for linked chain intersection
-            auto const sum_r = cone1.r + cone2.r;
+               // check for linked chain intersection
+               auto const sum_r = cone1.r + cone2.r;
 
-            // TODO: assumption radii did not change much
-            if (2.0 / 3.0 * mean_seg_length * delta < sum_r * 2) // 2 for safety
-               continue;
-         }
-         if (cone1.CollideWith(cone2)) {
-            result.insert({cone1.fiber_idx, cone1.cone_idx, cone2.fiber_idx,
-                           cone2.cone_idx});
+               // TODO: assumption radii did not change much
+               if (2.0 / 3.0 * mean_seg_length * delta <
+                   sum_r * 2) // 2 for safety
+                  continue;
+            }
+            if (cone1.CollideWith(cone2)) {
+               result.insert({cone1.fiber_idx, cone1.cone_idx, cone2.fiber_idx,
+                              cone2.cone_idx});
+            }
          }
       }
    }
