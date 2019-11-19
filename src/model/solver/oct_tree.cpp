@@ -182,11 +182,12 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
                   sub_ids.push_back(id);
             }
 
-            auto [sub_tree, max_level] =
+            auto [sub_tree, m_level] =
                 GenerateLeafs(sub_ids, sub_cubes[i], level + 1);
             tree_ids.insert(tree_ids.end(),
                             std::make_move_iterator(sub_tree.begin()),
                             std::make_move_iterator(sub_tree.end()));
+            max_level = std::max(max_level, m_level);
          }
       }
    }
