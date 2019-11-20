@@ -9,7 +9,10 @@
 
 namespace object {
 aabb::AABB<double, 3> Cone::aabb() const {
-   return aabb::AABB<double, 3>(p0 - r, p1 + r);
+   auto aabb = aabb::AABB<double, 3>(p0, p1, false);
+   aabb.min -= r;
+   aabb.max += r;
+   return aabb;
 }
 
 bool Cone::CollideWith(const Cone cone) const {
