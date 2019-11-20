@@ -10,14 +10,17 @@ BUILD := release
 VENV := env
 
 CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug
+CMAKE.info := cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release
 CMAKE := ${CMAKE.${BUILD}}
 
 MAKE.debug := make
+MAKE.info := make -j
 MAKE.release := make -j
 MAKE := ${MAKE.${BUILD}}
 
 INSTALL.debug := install build/.
+INSTALL.info := install build/. -q
 INSTALL.release := install build/. -q
 INSTALL := ${INSTALL.${BUILD}}
 
