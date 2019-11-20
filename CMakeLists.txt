@@ -11,6 +11,16 @@ if( NOT CMAKE_BUILD_TYPE )
    set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+# warning if not release build
+if( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
+   set(warn "BUILD TYPE: ${CMAKE_BUILD_TYPE}")
+   if(NOT WIN32)
+      string(ASCII 27 Esc)
+      set(warn "${Esc}[1;33m${warn}${Esc}[m")
+   endif()
+   MESSAGE(WARNING "${warn}")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
