@@ -195,9 +195,9 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
    return std::make_pair(tree_ids, max_level);
 }
 
-std::set<std::array<size_t, 4>>
+std::vector<std::array<size_t, 4>>
 OctTree::TestCollision(const std::vector<size_t> &cone_ids) {
-   std::set<std::array<size_t, 4>> result;
+   std::vector<std::array<size_t, 4>> result;
 
    if (cone_ids.size() <= 1)
       return result;
@@ -239,8 +239,8 @@ OctTree::TestCollision(const std::vector<size_t> &cone_ids) {
                   continue;
             }
             if (cone1.CollideWith(cone2)) {
-               result.insert({cone1.fiber_idx, cone1.cone_idx, cone2.fiber_idx,
-                              cone2.cone_idx});
+               result.push_back({cone1.fiber_idx, cone1.cone_idx,
+                                 cone2.fiber_idx, cone2.cone_idx});
             }
          }
       }

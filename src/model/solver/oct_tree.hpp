@@ -23,7 +23,7 @@ class OctTree {
    std::tuple<std::vector<std::vector<size_t>>, int>
    GenerateLeafs(const std::vector<size_t> &ids,
                  const aabb::AABB<double, 3> &cube, int level);
-   std::set<std::array<size_t, 4>>
+   std::vector<std::array<size_t, 4>>
    TestCollision(const std::vector<size_t> &cone_ids);
 
    std::vector<object::Cone> cones_;
