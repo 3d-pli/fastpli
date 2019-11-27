@@ -110,12 +110,11 @@ OctTree::OctTree(const std::vector<geometry::Fiber> &fibers,
 
 std::set<std::array<size_t, 4>> OctTree::Run() {
    std::set<std::array<size_t, 4>> results;
-   std::vector<size_t> ids, all_ids;
-   all_ids.resize(cones_.size());
-   std::iota(all_ids.begin(), all_ids.end(), 0);
+   std::vector<size_t> ids;
+   ids.reserve(std::sqrt(cones_.size()));
    max_level_ = 0;
 
-   for (auto id : all_ids) {
+   for (size_t id = 0; id < cones_.size(); id++) {
       // TODO: test impact of aabb::Overlap
       if (aabb::Overlap(main_cube_, cones_[id].aabb()))
          ids.push_back(id);
