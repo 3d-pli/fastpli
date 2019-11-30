@@ -1,17 +1,21 @@
-.test/
-.nfs*
-*.h5
-*.dat
-*debug*
-*dev*
-.tmux.sh
-.worktrees/
+# build
+setup.py
+src/fastpli/version.py
+src/include/version.hpp
 *env*/
 
-src/include/version.hpp
-src/fastpli/version.py
-
+# data
+*.h5
+*.dat
 !examples/cube.dat
+
+# testing
+*dev*
+
+# misc
+.nfs*
+.tmux.sh
+.worktrees/
 
 # Created by https://www.gitignore.io/api/c++,python,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=c++,python,virtualenv,visualstudiocode

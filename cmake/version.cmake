@@ -19,7 +19,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
    )
 
    execute_process(
-      COMMAND git describe
+      COMMAND git describe --always
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
       OUTPUT_VARIABLE GIT_DESCRIBE_LOG
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -35,11 +35,13 @@ configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/version.hpp
    ${CMAKE_SOURCE_DIR}/src/include/version.hpp
 )
+
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/version.py
-   ${CMAKE_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}/version.py
+   ${PROJECT_LIB_DIR}/version.py
 )
+
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/setup.py
-   ${CMAKE_CURRENT_BINARY_DIR}/setup.py
+   ${CMAKE_SOURCE_DIR}/setup.py
 )

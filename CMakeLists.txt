@@ -34,6 +34,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 endif()
 
+set(PROJECT_LIB_DIR "${PROJECT_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}")
+
 ##########################################################################
 # BUILD VERSION FILES
 ##########################################################################

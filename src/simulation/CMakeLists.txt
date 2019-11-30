@@ -31,9 +31,9 @@ TARGET_LINK_LIBRARIES(__simulation PRIVATE ${MPI_LIBRARIES})
 
 # copy to fastpli build python path
 SET_TARGET_PROPERTIES(__generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY 
-                        "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}/${subdir}")
+                        "${PROJECT_LIB_DIR}/${subdir}")
 SET_TARGET_PROPERTIES(__simulation PROPERTIES LIBRARY_OUTPUT_DIRECTORY 
-                        "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}/${subdir}")
+                        "${PROJECT_LIB_DIR}/${subdir}")
 
 IF ( MPI_FOUND )
    TARGET_COMPILE_DEFINITIONS(${CoreModules} PRIVATE _FASTPLI_MPI_FOUND_)
