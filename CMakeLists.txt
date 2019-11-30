@@ -34,8 +34,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 endif()
 
-set(PROJECT_LIB_DIR "${PROJECT_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}")
-
 ##########################################################################
 # BUILD VERSION FILES
 ##########################################################################
@@ -83,6 +81,8 @@ FIND_PACKAGE( GLUT )
 # Sources
 ##########################################################################
 INCLUDE_DIRECTORIES( AFTER src)
+
+SET(PROJECT_LIB_DIR "${PROJECT_BINARY_DIR}/${CMAKE_PROJECT_NAME}")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/model/solver")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/objects")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/simulation")

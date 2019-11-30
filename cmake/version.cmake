@@ -10,14 +10,12 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
       OUTPUT_VARIABLE GIT_BRANCH
       OUTPUT_STRIP_TRAILING_WHITESPACE
    )
-
    execute_process(
       COMMAND git log -1 --format=%h
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
       OUTPUT_VARIABLE GIT_COMMIT_HASH
       OUTPUT_STRIP_TRAILING_WHITESPACE
    )
-
    execute_process(
       COMMAND git describe --always
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -35,13 +33,11 @@ configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/version.hpp
    ${CMAKE_SOURCE_DIR}/src/include/version.hpp
 )
-
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/version.py
-   ${PROJECT_LIB_DIR}/version.py
+   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}/version.py
 )
-
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/setup.py
-   ${CMAKE_SOURCE_DIR}/setup.py
+   ${CMAKE_CURRENT_BINARY_DIR}/setup.py
 )

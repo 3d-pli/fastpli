@@ -7,13 +7,12 @@ setuptools.setup(
     long_description='',
     author='Felix Matuschke',
     author_email='f.matuschke@fz-juelich.de',
-    url=
-    'http://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html',
+    url='http://www.fz-juelich.de/inm/inm-1/EN/Forschung/\
+        Fibre%20Architecture/Fibre%20Architecture_node.html',
     python_requires='>3.6.0',
     install_requires=['numpy', 'numba', 'mpi4py', 'scipy', 'h5py'],
     # test_suite='' # use make test instead
     zip_safe=False,
-    package_dir={'': 'src'},
-    packages=setuptools.find_packages('src'),
+    packages=setuptools.find_packages(),
     package_data={'': ['*.so']},
 )

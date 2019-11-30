@@ -19,9 +19,9 @@ MAKE.info := make -j
 MAKE.release := make -j
 MAKE := ${MAKE.${BUILD}}
 
-INSTALL.debug := install .
-INSTALL.info := install . -q
-INSTALL.release := install . -q
+INSTALL.debug := install build/.
+INSTALL.info := install build/. -q
+INSTALL.release := install build/. -q
 INSTALL := ${INSTALL.${BUILD}}
 
 ${VENV}/bin/pip3:
@@ -57,7 +57,7 @@ development: ${VENV} git-submodules build examples/requirements
 
 .PHONY: uninstall
 uninstall:
-	${VENV}/bin/pip3 uninstall fastpli -y
+	${VENV}/bin/pip3 uninstall fastpli -yq
 
 .ONESHELL:
 build/:
@@ -74,9 +74,13 @@ build/Makefile: build/
 
 .PHONY: build
 .ONESHELL:
-build: build/ build/Makefile
+build: build/ build/Makefile link-python
 	cd build
 	${MAKE}
+
+.PHONY: link-python
+link-python: 
+	cp -al --remove-destination src/fastpli build/
 
 .PHONY: test
 test:
@@ -126,11 +130,9 @@ clean-venv:
 	rm -rf ${VENV}
 
 .PHONY: clean-src
-.SILENT: clean-src
 clean-src:
-	echo cleaning src/
 	rm -f src/include/version.hpp
-	find src/ -name "*egg-info" -exec rm -r {} +
-	find src/ -name "*.so" -exec rm {} +
-	find src/ -name "__pycache__" -exec rm -r {} +
-	find tests/ -name "__pycache__" -exec rm -r {} +
+# find src/ -name "*egg-info" -exec rm -r {} +
+# find src/ -name "*.so" -exec rm {} +
+# find src/ -name "__pycache__" -exec rm -r {} +
+# find tests/ -name "__pycache__" -exec rm -r {} +
