@@ -125,6 +125,9 @@ def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
     seeds = seeds[(phi > alpha) & (phi < beta), :]
     seeds = np.dot(rot, seeds.T).T
 
+    if seeds.size == 0:
+        print("WARNING: cropped area is empty")
+
     fiber_bundle = []
     f = np.empty((2, 3), dtype=seeds.dtype)
     for i in range(seeds.shape[0]):
@@ -137,22 +140,27 @@ def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
 
 @njit(cache=True)
 def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
-    # create first z-zylinder which is afterwards rotated
+    # create cylinder which is afterwards rotated
     dp = q - p
-    b = np.linalg.norm(dp)
+    height = np.linalg.norm(dp)
 
     # crop seeds
     seeds = seeds[seeds[:, 0] >= r_in]
     seeds = seeds[seeds[:, 0] <= r_out]
     seeds = seeds[seeds[:, 1] >= 0]
-    seeds = seeds[seeds[:, 1] <= b]
+    seeds = seeds[seeds[:, 1] <= height]
 
-    # rotate plane into first position (x-z)
-    r = (r_in + r_out) / 2.0
-    rot = _rot_a_on_b(np.array((0, 0, 1.0)), np.array((0, 1.0, 0)))
-    seeds = np.ascontiguousarray(np.dot(rot, seeds.T).T)
+    if seeds.size == 0:
+        print("WARNING: cropped area is empty")
 
-    # keep rotating plane along cylinder
+    # seeds are along x-z
+    xz_seeds = np.empty_like(seeds)
+    xz_seeds[:, 0] = seeds[:, 0]
+    xz_seeds[:, 1] = seeds[:, 2]
+    xz_seeds[:, 2] = seeds[:, 1]
+    seeds = xz_seeds
+
+    # rotating plane along z-cylinder
     rot = _rot_z((beta - alpha) / (steps - 1))
     sub_data = np.empty((steps, 3))
     fiber_bundle = []
@@ -180,22 +188,24 @@ def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
 @njit(cache=True)
 def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     dp = q - p
-    a = r_in * (beta - alpha)
-    b = np.linalg.norm(dp)
+    width = r_in * (beta - alpha)
+    height = np.linalg.norm(dp)
 
     seeds = seeds[seeds[:, 0] >= 0]
-    seeds = seeds[seeds[:, 0] <= a]
+    seeds = seeds[seeds[:, 0] <= width]
     seeds = seeds[seeds[:, 1] >= 0]
-    seeds = seeds[seeds[:, 1] <= b]
+    seeds = seeds[seeds[:, 1] <= height]
+
+    if seeds.size == 0:
+        print("WARNING: cropped area is empty")
 
     fiber_bundle = []
-
-    # wrap seeds onto inner cylinder wall and extend to outer wall
+    # map seeds onto inner z-cylinder wall and extend to outer wall
     for i in range(seeds.shape[0]):
-        x0 = r_in * np.cos(seeds[i, 0] / a * (beta - alpha))
-        y0 = r_in * np.sin(seeds[i, 0] / a * (beta - alpha))
-        x1 = r_out * np.cos(seeds[i, 0] / a * (beta - alpha))
-        y1 = r_out * np.sin(seeds[i, 0] / a * (beta - alpha))
+        x0 = r_in * np.cos(seeds[i, 0] / width * (beta - alpha))
+        y0 = r_in * np.sin(seeds[i, 0] / width * (beta - alpha))
+        x1 = r_out * np.cos(seeds[i, 0] / width * (beta - alpha))
+        y1 = r_out * np.sin(seeds[i, 0] / width * (beta - alpha))
 
         fiber_bundle.append(
             np.array([[x0, y0, seeds[i, 1]], [x1, y1, seeds[i, 1]]]))
@@ -210,7 +220,7 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
         fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
 
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = fiber_bundle[i] + (p.T + q.T) * 0.5
+        fiber_bundle[i] = fiber_bundle[i] + p.T
 
     return fiber_bundle
 
