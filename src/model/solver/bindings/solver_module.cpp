@@ -79,6 +79,7 @@ PYBIND11_MODULE(__solver, m) {
        .def("boundry_checking", &World::BoundryChecking, py::arg("steps") = 1)
        .def_property_readonly("num_obj", &World::NumObj)
        .def_property_readonly("num_col_obj", &World::NumColObj)
+       .def_property_readonly("overlap", &World::Overlap)
        .def("draw_scene", &World::DrawScene, py::arg("rot_x") = 30,
             py::arg("rot_y") = 30, py::arg("rot_z") = 0,
             py::arg("only_col") = false);

@@ -40,11 +40,13 @@ for i in range(1000):
     solved = solver.step()
 
     if i % 10 == 0:
-        print("step:", i, solver.num_obj, solver.num_col_obj)
+        print("step: {}, {}, {}%".format(
+            i, solver.num_obj, solver.num_col_obj,
+            round(solver.overlap / solver.num_col_obj * 100)))
         solver.draw_scene()
 
     if solved:
-        print("step:", i, solver.num_obj, solver.num_col_obj)
+        print("step: {}, {}, {}%".format(i, solver.num_obj, 0))
         solver.draw_scene()
         break
 

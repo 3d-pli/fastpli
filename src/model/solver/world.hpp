@@ -33,6 +33,7 @@ class World {
    // getter
    size_t NumObj() const { return num_obj_; };
    size_t NumColObj() const { return num_col_obj_; };
+   double Overlap() const { return overlapping_; };
    object::FiberBundles get_fibers() const;
    std::vector<std::vector<std::vector<double>>> get_fibers_vector() const;
    World::WorldParameter get_parameter() const { return w_parameter_; };
