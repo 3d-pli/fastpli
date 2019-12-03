@@ -83,11 +83,13 @@ void PliSimulator::SetSetup(const setup::Setup setup) {
 
 void PliSimulator::CalculateDimensions(const vm::Vec3<long long> &global_dim) {
 
-   if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)
-      throw std::invalid_argument("global_dim[any] <= 0: [" +
-                                  std::to_string(global_dim.x()) + "," +
-                                  std::to_string(global_dim.y()) + "," +
-                                  std::to_string(global_dim.z()) + "]");
+   if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0) {
+      std::cerr << "global_dim[any] <= 0: [" + std::to_string(global_dim.x()) +
+                       "," + std::to_string(global_dim.y()) + "," +
+                       std::to_string(global_dim.z()) + "]"
+                << std::endl;
+      Abort(30000 + __LINE__);
+   }
 
    if (mpi_) {
       mpi_->CreateCartGrid(global_dim);
@@ -100,28 +102,39 @@ void PliSimulator::CalculateDimensions(const vm::Vec3<long long> &global_dim) {
    }
 
    if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 1ULL !=
-       label_field_->size())
-      throw std::invalid_argument("dim_.local.x() * dim_.local.y() * "
-                                  "dim_.local.z() != label_field_.size()");
+       label_field_->size()) {
+      std::cerr << "dim_.local.x() * dim_.local.y() * "
+                   "dim_.local.z() != label_field_.size()"
+                << std::endl;
+      Abort(30000 + __LINE__);
+   }
 
    if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 3ULL !=
-       vector_field_->size())
-      throw std::invalid_argument("dim_.local.x() * dim_.local.y() * "
-                                  "dim_.local.z()* 3 != vector_field_.size()");
+       vector_field_->size()) {
+      std::cerr << "dim_.local.x() * dim_.local.y() * "
+                   "dim_.local.z()* 3 != vector_field_.size()"
+                << std::endl;
+      Abort(30000 + __LINE__);
+   }
 }
 
 void PliSimulator::CheckInput() {
 
-   if (!setup_)
-      throw std::invalid_argument("pli_setup not set yet");
+   if (!setup_) {
+      std::cerr << "pli_setup not set yet" << std::endl;
+      Abort(30000 + __LINE__);
+   }
    setup_->Check();
 
-   if (label_field_->size() == 0)
-      throw std::invalid_argument("label_field.size() == 0");
+   if (label_field_->size() == 0) {
+      std::cerr << "label_field.size() == 0" << std::endl;
+      Abort(30000 + __LINE__);
+   }
 
-   if (label_field_->size() * 3 != vector_field_->size())
-      throw std::invalid_argument(
-          "label_field_.size()*3 != vector_field_.size()");
+   if (label_field_->size() * 3 != vector_field_->size()) {
+      std::cerr << "label_field_.size()*3 != vector_field_.size()" << std::endl;
+      Abort(30000 + __LINE__);
+   }
 
    int min = std::numeric_limits<int>::max();
    int max = std::numeric_limits<int>::min();
@@ -133,14 +146,20 @@ void PliSimulator::CheckInput() {
       max = std::max(max, (*label_field_)[i]);
    }
 
-   if (min < 0 || max < 0)
-      throw std::invalid_argument("label < 0 detected");
+   if (min < 0 || max < 0) {
+      std::cerr << "label < 0 detected" << std::endl;
+      Abort(30000 + __LINE__);
+   }
 
-   if (static_cast<size_t>(max) >= properties_->size())
-      throw std::invalid_argument("label exceed properties.size()");
+   if (static_cast<size_t>(max) >= properties_->size()) {
+      std::cerr << "label exceed properties.size()" << std::endl;
+      Abort(30000 + __LINE__);
+   }
 
-   if ((*properties_)[0].dn != 0)
-      throw std::invalid_argument("background birefringence has to be 0");
+   if ((*properties_)[0].dn != 0) {
+      std::cerr << "background birefringence has to be 0" << std::endl;
+      Abort(30000 + __LINE__);
+   }
 
    for (auto const &elm : *properties_)
       elm.Check();
@@ -214,8 +233,10 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
          if (!stored_mpi_s_vec_.empty()) {
 #ifndef NDEBUG
-            if ((s + 1) * n_rho > stored_mpi_s_vec_.size())
-               Abort(3111);
+            if ((s + 1) * n_rho > stored_mpi_s_vec_.size()) {
+               std::cerr << "stored_mpi_s_vec_" << std::endl;
+               Abort(30000 + __LINE__);
+            }
 #endif
             std::copy(stored_mpi_s_vec_.begin() + s * n_rho,
                       stored_mpi_s_vec_.begin() + (s + 1) * n_rho,
@@ -236,6 +257,12 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             }
 
             const auto label = GetLabel(local_pos);
+#ifndef NDEBUG
+            if (label >= static_cast<long long>(properties_->size())) {
+               std::cerr << "label ind >= properties.size()" << std::endl;
+               Abort(30000 + __LINE__);
+            }
+#endif
 
             // calculate physical parameters
             const auto dn = (*properties_)[label].dn;
@@ -286,7 +313,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                    std::isnan(s_vec[rho][2]) || std::isnan(s_vec[rho][3])) {
                   std::cerr << "nan: " << ccd_pos << "::" << local_pos
                             << std::endl;
-                  Abort(3112);
+                  Abort(30000 + __LINE__);
                }
 #endif
             }
@@ -300,7 +327,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 #ifndef NDEBUG
             if (ccd_idx * n_rho >= intensity_signal.size()) {
                std::cerr << "int signal: " << ccd_pos << std::endl;
-               Abort(3113);
+               Abort(30000 + __LINE__);
             }
 #endif
             for (auto rho = 0u; rho < n_rho; rho++) {
@@ -359,8 +386,10 @@ int PliSimulator::GetLabel(const long long x, const long long y,
        x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
 
 #ifndef NDEBUG
-   if (idx >= label_field_->size())
-      Abort(3114);
+   if (idx >= label_field_->size()) {
+      std::cerr << "idx >= label_field_->size()" << std::endl;
+      Abort(30000 + __LINE__);
+   }
 #endif
 
    return (*label_field_)[idx];
@@ -402,11 +431,15 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
        x * dim_.local.y() * dim_.local.z() * 3 + y * dim_.local.z() * 3 + z * 3;
 
 #ifndef NDEBUG
+   if (idx >= vector_field_->size()) {
+      std::cerr << "idx >= vector_field_->size()" << std::endl;
+      Abort(30000 + __LINE__);
+   }
    if ((*vector_field_)[idx] == 0 && (*vector_field_)[idx + 1] == 0 &&
-       (*vector_field_)[idx + 2] == 0)
-      Abort(3115);
-   if (idx >= vector_field_->size())
-      Abort(3116);
+       (*vector_field_)[idx + 2] == 0) {
+      std::cerr << "vector_field == 0" << std::endl;
+      Abort(30000 + __LINE__);
+   }
 #endif
    return vm::Vec3<double>((*vector_field_)[idx], (*vector_field_)[idx + 1],
                            (*vector_field_)[idx + 2]);

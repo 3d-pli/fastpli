@@ -16,6 +16,15 @@
 // PliGenerator Init functions
 // #############################################################################
 
+void PliGenerator::Abort(const int num) const {
+   if (mpi_) {
+      MPI_Abort(mpi_->comm(), num);
+   } else {
+      std::cerr << "ErrorCode: " << num << std::endl;
+      exit(EXIT_FAILURE);
+   }
+}
+
 int PliGenerator::set_omp_num_threads(int i) {
    if (i != 0) {
       if (i > omp_get_num_procs())
@@ -54,12 +63,15 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
          std::cout << "rank " << mpi_->my_rank()
                    << ": pixel_size = " << pixel_size_ << std::endl;
       }
+
 #ifndef NDEBUG
       if (vm::any_of(dim_.local, [&](long long i) { return i < 0; })) {
-         MPI_Abort(mpi_->comm(), 2111);
+         std::cerr << "dim_.local" << std::endl;
+         Abort(20000 + __LINE__);
       }
       if (dim_.local > dim_.global) {
-         MPI_Abort(mpi_->comm(), 2112);
+         std::cerr << "dim_.global" << std::endl;
+         Abort(20000 + __LINE__);
       }
 #endif
    } else {
@@ -74,10 +86,24 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
          std::cout << "dim.origin = " << dim_.origin << std::endl;
          std::cout << "pixel_size = " << pixel_size_ << std::endl;
       }
-      assert(dim_.local.x() >= 0);
-      assert(dim_.local.y() >= 0);
-      assert(dim_.local.z() >= 0);
-      assert(dim_.local <= dim_.global);
+#ifndef NDEBUG
+      if (dim_.local.x() < 0) {
+         std::cerr << "dim_.global" << std::endl;
+         Abort(20000 + __LINE__);
+      }
+      if (dim_.local.y() < 0) {
+         std::cerr << "dim_.global" << std::endl;
+         Abort(20000 + __LINE__);
+      }
+      if (dim_.local.z() < 0) {
+         std::cerr << "dim_.global" << std::endl;
+         Abort(20000 + __LINE__);
+      }
+      if (dim_.local > dim_.global) {
+         std::cerr << "dim_.global" << std::endl;
+         Abort(20000 + __LINE__);
+      }
+#endif
    }
 
    if (pixel_size <= 0)
@@ -309,13 +335,27 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
     std::vector<int> &label_field, std::vector<float> &vector_field,
     std::vector<float> &array_distance, const bool only_label) {
 
-   assert(fb_idx < fiber_bundles_.size());
+#ifndef NDEBUG
+   if (fb_idx >= fiber_bundles_.size()) {
+      std::cerr << "fb_idx" << std::endl;
+      Abort(20000 + __LINE__);
+   }
+#endif
    const auto &fb = fiber_bundles_[fb_idx];
-
-   assert(f_idx < fb.fibers().size());
+#ifndef NDEBUG
+   if (f_idx >= fb.fibers().size()) {
+      std::cerr << "f_idx" << std::endl;
+      Abort(20000 + __LINE__);
+   }
+#endif
    const auto &fiber = fb.fibers()[f_idx];
+#ifndef NDEBUG
+   if (s_idx + 1 >= fiber.size()) {
+      std::cerr << "s_idx" << std::endl;
+      Abort(20000 + __LINE__);
+   }
+#endif
 
-   assert(s_idx + 1 < fiber.size());
    const auto &p = fiber.points()[s_idx];
    const auto &q = fiber.points()[s_idx + 1];
    const auto max_radius =
@@ -356,7 +396,12 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
             const size_t ind =
                 (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
                 (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
-            assert(ind < label_field.size());
+#ifndef NDEBUG
+            if (ind >= label_field.size()) {
+               std::cerr << "ind >= label_field.size()" << std::endl;
+               Abort(20000 + __LINE__);
+            }
+#endif
 
             if (array_distance[ind] >= dist_squ) {
                // find corresponding layer
@@ -394,14 +439,26 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
                                           const size_t s_idx,
                                           std::vector<int> &label_field,
                                           std::vector<float> &array_distance) {
-
-   assert(cp_idx < cell_populations_.size());
+#ifndef NDEBUG
+   if (cp_idx >= cell_populations_.size()) {
+      std::cerr << "cp_idx" << std::endl;
+      Abort(20000 + __LINE__);
+   }
+#endif
    const auto &cp = cell_populations_[cp_idx];
-
-   assert(c_idx < cp.cells().size());
+#ifndef NDEBUG
+   if (c_idx >= cp.cells().size()) {
+      std::cerr << "c_idx" << std::endl;
+      Abort(20000 + __LINE__);
+   }
+#endif
    const auto &cell = cp.cells()[c_idx];
-
-   assert(s_idx < cell.size());
+#ifndef NDEBUG
+   if (s_idx >= cell.size()) {
+      std::cerr << "s_idx" << std::endl;
+      Abort(20000 + __LINE__);
+   }
+#endif
    const auto &p = cell.points()[s_idx];
 
    aabb::AABB<double, 3> cell_sphere_bb(p - cell.radii()[s_idx],
@@ -414,7 +471,6 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
 
    const auto scale_sqr = cp.scale_sqr();
    for (long long x = std::floor(min.x()); x < std::floor(max.x()); x++) {
-
       // because of omp parallel
       if (omp_in_parallel())
          if (x % omp_get_max_threads() != omp_get_thread_num())
@@ -433,7 +489,12 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
             const size_t ind =
                 (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
                 (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
-            assert(ind < label_field.size());
+#ifndef NDEBUG
+            if (ind >= label_field.size()) {
+               std::cerr << "ind >= label_field.size()" << std::endl;
+               Abort(20000 + __LINE__);
+            }
+#endif
 
             const int new_label = cp_idx + max_layer_ * num_fiber_bundles_ +
                                   1; // +1 for background

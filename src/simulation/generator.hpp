@@ -81,6 +81,8 @@ class PliGenerator {
                                             const vm::Vec3<double> &s1);
 
    std::vector<setup::PhyProps> GetPropertyList() const;
+
+   void Abort(const int num) const;
 };
 
 #endif // SIMULATION_GENERATOR_HPP_
