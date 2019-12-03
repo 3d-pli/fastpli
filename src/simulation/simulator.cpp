@@ -126,6 +126,8 @@ void PliSimulator::CheckInput() {
    int min = std::numeric_limits<int>::max();
    int max = std::numeric_limits<int>::min();
 
+// warning: can take a significant amount of time
+#pragma omp parallel for reduction(min : min) reduction(max : max)
    for (size_t i = 0; i < label_field_->size(); i++) {
       min = std::min(min, (*label_field_)[i]);
       max = std::max(max, (*label_field_)[i]);

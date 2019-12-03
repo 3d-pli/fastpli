@@ -435,8 +435,12 @@ class Simpli:
         if tissue_properties.shape[1] != 2:
             raise ValueError("tissue_properties.shape[1] != 2")
 
-        if tissue_properties.shape[0] <= np.max(label_field_.flatten()):
-            raise ValueError("tissue_properties.shape[0] < np.max(label_field)")
+        # takes on 1 thread much time, will be checked inside simulation
+        # if 0 < np.amin(label_field_):
+        #     raise ValueError("0 < np.max(label_field)")
+
+        # if tissue_properties.shape[0] <= np.amax(label_field_):
+        #     raise ValueError("tissue_properties.shape[0] < np.max(label_field)")
 
         image = self._sim.run_simulation(self._dim, label_field_, vec_field_,
                                          tissue_properties, theta, phi)
