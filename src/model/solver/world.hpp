@@ -31,9 +31,10 @@ class World {
    ~World() = default;
 
    // getter
-   size_t NumObj() const { return num_obj_; };
-   size_t NumColObj() const { return num_col_obj_; };
-   double Overlap() const { return overlapping_; };
+   size_t num_obj() const { return num_obj_; };
+   size_t num_col_obj() const { return num_col_obj_; };
+   double overlap() const { return fiber_overlap_; };
+   double max_speed() const { return max_speed_; };
    object::FiberBundles get_fibers() const;
    std::vector<std::vector<std::vector<double>>> get_fibers_vector() const;
    World::WorldParameter get_parameter() const { return w_parameter_; };
@@ -58,7 +59,8 @@ class World {
    aabb::AABB<double, 3> col_voi_ = aabb::AABB<double, 3>(vm::Vec3<double>(0));
    World::WorldParameter w_parameter_;
 
-   double overlapping_{0};
+   double fiber_overlap_{0};
+   double max_speed_{0};
 
    size_t max_level_{0};
    size_t num_obj_{0};
@@ -71,4 +73,5 @@ class World {
    // world functions
    bool CheckRadius();
    bool CheckLength();
+   void ResetFiberObjValues();
 };

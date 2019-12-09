@@ -65,7 +65,7 @@ void World::set_fibers(const object::FiberBundles &fiber_bundles) {
    // free memory
    fibers_ = std::vector<geometry::Fiber>();
    map_fb_idx_ = std::map<size_t, std::pair<size_t, size_t>>();
-   double max_speed = std::numeric_limits<double>::max();
+   max_speed_ = std::numeric_limits<double>::max();
 
    size_t fb_idx = 0;
    for (auto const &fb : fiber_bundles) {
@@ -73,14 +73,13 @@ void World::set_fibers(const object::FiberBundles &fiber_bundles) {
       for (auto const &f : fb) {
          map_fb_idx_[fibers_.size()] = std::make_pair(fb_idx, f_idx);
          fibers_.push_back(geometry::Fiber(f, fibers_.size()));
-         max_speed = std::min(max_speed, fibers_.back().max_speed());
+         max_speed_ = std::min(max_speed_, fibers_.back().max_speed());
          f_idx++;
       }
       fb_idx++;
    }
 
-   for (auto &f : fibers_)
-      f.set_max_speed(max_speed);
+   ResetFiberObjValues();
 }
 
 void World::set_fibers_vector(
@@ -89,7 +88,7 @@ void World::set_fibers_vector(
    // free memory
    fibers_ = std::vector<geometry::Fiber>();
    map_fb_idx_ = std::map<size_t, std::pair<size_t, size_t>>();
-   double max_speed = std::numeric_limits<double>::max();
+   max_speed_ = std::numeric_limits<double>::max();
 
    size_t fb_idx = 0;
    for (auto const &fb : fiber_bundles) {
@@ -97,14 +96,24 @@ void World::set_fibers_vector(
       for (auto const &f : fb) {
          map_fb_idx_[fibers_.size()] = std::make_pair(fb_idx, f_idx);
          fibers_.push_back(geometry::Fiber(object::Fiber(f), fibers_.size()));
-         max_speed = std::min(max_speed, fibers_.back().max_speed());
+         max_speed_ = std::min(max_speed_, fibers_.back().max_speed());
          f_idx++;
       }
       fb_idx++;
    }
 
-   for (auto &f : fibers_)
-      f.set_max_speed(max_speed);
+   ResetFiberObjValues();
+}
+
+void World::ResetFiberObjValues() {
+   fiber_overlap_ = 0;
+   max_level_ = 0;
+   num_obj_ = 0;
+   num_col_obj_ = 0;
+   for (auto &f : fibers_) {
+      f.set_max_speed(max_speed_);
+      num_obj_ += f.ConeSize();
+   }
 }
 
 int World::set_omp_num_threads(int i) {
@@ -184,8 +193,8 @@ bool World::Step() {
                                                        colliding_list.end());
 
       // set speed of colliding objects
-      overlapping_ = 0;
-#pragma omp parallel for reduction(+ : overlapping_)
+      fiber_overlap_ = 0;
+#pragma omp parallel for reduction(+ : fiber_overlap_)
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
 
@@ -199,7 +208,7 @@ bool World::Step() {
          fibers_[elm[2]].AddSpeed(elm[3], f2);
          fibers_[elm[2]].AddSpeed(elm[3] + 1, f3);
 
-         overlapping_ +=
+         fiber_overlap_ +=
              1 - dist / (std::max(fibers_[elm[0]].radii()[elm[1]],
                                   fibers_[elm[0]].radii()[elm[1] + 1]) +
                          std::max(fibers_[elm[2]].radii()[elm[3]],

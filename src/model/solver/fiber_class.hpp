@@ -44,10 +44,9 @@ class Fiber : public object::Fiber {
    void AddSpeed(size_t idx, const vm::Vec3<double> &v);
 
  protected:
-   std::vector<vm::Vec3<double>> speed_;
    size_t fiber_idx_;
-
    double max_speed_ = 0;
+   std::vector<vm::Vec3<double>> speed_;
 };
 } // namespace geometry
 
