@@ -1,5 +1,6 @@
 import fastpli.simulation
 import fastpli.analysis
+import fastpli.tools
 import fastpli.io
 
 import numpy as np
@@ -14,8 +15,10 @@ FILE_BASE = os.path.basename(FILE_NAME)
 
 with h5py.File('simpli.h5', 'w') as h5f:
     # save script
+    h5f['version'] = fastpli.__version__
     with open(os.path.abspath(__file__), 'r') as f:
         h5f['script'] = f.read()
+        h5f['pip_freeze'] = fastpli.tools.helper.pip_freeze()
 
     # Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli()
