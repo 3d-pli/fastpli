@@ -20,36 +20,35 @@ def load(file_name, group_name='fiber_bundles/'):
     """
     _, ext = os.path.splitext(file_name)
 
-    fiber_bundles = [[]]
-    if ext == '.dat' or ext == '.txt':
+    fiber_bundles = []
+    if ext in ['.dat', '.txt']:
         with open(file_name, 'r') as f:
             fiber = []
-            flag_fiber_bundle_end = False
+            fiber_bundles.append([])
             for line in f:
                 if line.strip():
-                    if flag_fiber_bundle_end:
-                        fiber_bundles.append([])
-                        flag_fiber_bundle_end = False
-
                     numbers = list(map(float, line.split()))
                     fiber.append(numbers[0:4])
                 if not line.strip():
                     if fiber:
-                        fiber_bundles[-1].append(np.array(fiber))
+                        fiber_bundles[-1].append(np.array(fiber, float))
                         fiber = []
-                    else:  # new bundle with double empty line
-                        flag_fiber_bundle_end = True
+                    else:  # new bundle
+                        fiber_bundles.append([])
             if fiber:
                 fiber_bundles[-1].append(np.array(fiber))
     elif ext == '.h5':
         with h5py.File(file_name, 'r') as h5f:
-            if group_name[-1] is not '/':
-                group_name = group_name + '/'
-            fbs = h5f[group_name]
-            fiber_bundles.append([])
-            for fb in fbs:
-                for f in fbs[fb]:
-                    fiber_bundles[-1].append(fbs[fb][f][:].astype(float))
+            fb_list = list(map(int, list(h5f[group_name])))
+            fb_list.sort()
+            for fb in fb_list:
+                fiber_bundles.append([])
+                f_list = h5f[group_name][str(fb)]
+                f_list = list(map(int, list(h5f[group_name][str(fb)])))
+                f_list.sort()
+                for f in f_list:
+                    fiber_bundles[-1].append(
+                        h5f[group_name][str(fb)][str(f)][:].astype(float))
     else:
         raise TypeError(ext + ' is not implemented yet')
 
@@ -72,13 +71,12 @@ def save(file_name, fiber_bundles, group_name='fiber_bundles/', mode='w'):
     """
     _, ext = os.path.splitext(file_name)
 
-    if ext == '.dat' or ext == '.txt':
+    if ext in ['.dat', '.txt']:
         with open(file_name, mode) as file:
             for fb, fiber_bundle in enumerate(fiber_bundles):
                 for fiber in fiber_bundle:
                     if fiber.shape[1] != 4 or len(fiber.shape) != 2:
                         raise TypeError('Wrong shape:', fiber.shape)
-
                     for line in fiber:
                         file.write(
                             str(line[0]) + " " + str(line[1]) + " " +
