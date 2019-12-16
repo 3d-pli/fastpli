@@ -126,7 +126,7 @@ int World::set_omp_num_threads(int i) {
    return omp_get_max_threads();
 }
 
-bool World::BoundryChecking(int max_steps) {
+bool World::BoundryCheck(int max_steps) {
    // check fiber boundry conditions
 
    bool solved = fibers_.empty();

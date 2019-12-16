@@ -49,7 +49,7 @@ class World {
 
    // world
    bool Step();
-   bool BoundryChecking(int max_steps);
+   bool BoundryCheck(int max_steps);
    void DrawScene(double rot_x = 0, double rot_y = 0, double rot_z = 0,
                   bool only_col = false);
 

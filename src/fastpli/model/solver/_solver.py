@@ -136,3 +136,14 @@ class Solver(_Solver):
 
         if self._display:
             super().draw_scene()
+
+    def boundry_check(self, fiber_bundles=None, n_max=100):
+        if fiber_bundles:
+            self.fiber_bundles = fiber_bundles
+
+        if not isinstance(n_max, int) or n_max <= 0:
+            raise TypeError("only integer > 0 allowed")
+
+        super().boundry_check(n_max)
+
+        return self.fiber_bundles
