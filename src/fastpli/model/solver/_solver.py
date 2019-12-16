@@ -125,7 +125,7 @@ class Solver(_Solver):
         self._omp_num_threads = super()._set_omp_num_threads(
             self._omp_num_threads)
 
-    def draw_scene(self):
+    def draw_scene(self, fiber_bundles=None):
         if self._display is None:
             try:
                 os.environ['DISPLAY']
@@ -133,6 +133,9 @@ class Solver(_Solver):
             except BaseException:
                 print("test_opengl: no display detected")
                 self._display = False
+
+        if fiber_bundles:
+            self.fiber_bundles = fiber_bundles
 
         if self._display:
             super().draw_scene()
