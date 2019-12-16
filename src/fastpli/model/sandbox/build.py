@@ -293,7 +293,6 @@ def cylinder(p,
     if radii.size != seeds.shape[0]:
         raise ValueError('radii must have the same length as seeds')
 
-    dp = q - p
     # fiber_bundle = []
     if mode == 'parallel' or mode == 'p':
         fiber_bundle = _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta)
@@ -325,11 +324,6 @@ def _ray_box_intersection(p, dir, b_min, b_max):
 
 
 @njit(cache=True)
-def _ray_box_intersection_pp(p, q, b_min, b_max):
-    return _ray_box_intersection(p, q - p, b_min, b_max)
-
-
-@njit(cache=True)
 def _cuboid(p, q, dir, seeds, radii):
     fiber_bundle = []
 
@@ -337,8 +331,7 @@ def _cuboid(p, q, dir, seeds, radii):
         s = seeds[i, :]
 
         # find ray box intersection
-        s -= 0.5 * dir
-        t_min, t_max = _ray_box_intersection_pp(s, s + dir, p, q)
+        t_min, t_max = _ray_box_intersection(s, dir, p, q)
 
         if t_min >= t_max:  # outside of volume
             continue
