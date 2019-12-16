@@ -445,6 +445,15 @@ vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
                            (*vector_field_)[idx + 2]);
 }
 
+vm::Vec3<double> VectorOrientationAddition(vm::Vec3<double> v,
+                                           vm::Vec3<double> u) {
+
+   if (vm::dot(v, u) >= 0)
+      return v + u;
+   else
+      return v - u;
+}
+
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               double z) const {
    // Trilinear interpolate
@@ -479,15 +488,15 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    const auto c011 = GetVec(x0, y1, z1);
    const auto c111 = GetVec(x1, y1, z1);
 
-   const auto c00 = c000 * (1 - xd) + c100 * xd;
-   const auto c01 = c001 * (1 - xd) + c101 * xd;
-   const auto c10 = c010 * (1 - xd) + c110 * xd;
-   const auto c11 = c011 * (1 - xd) + c111 * xd;
+   const auto c00 = VectorOrientationAddition(c000 * (1 - xd), c100 * xd);
+   const auto c01 = VectorOrientationAddition(c001 * (1 - xd), c101 * xd);
+   const auto c10 = VectorOrientationAddition(c010 * (1 - xd), c110 * xd);
+   const auto c11 = VectorOrientationAddition(c011 * (1 - xd), c111 * xd);
 
-   const auto c0 = c00 * (1 - yd) + c10 * yd;
-   const auto c1 = c01 * (1 - yd) + c11 * yd;
+   const auto c0 = VectorOrientationAddition(c00 * (1 - yd), c10 * yd);
+   const auto c1 = VectorOrientationAddition(c01 * (1 - yd), c11 * yd);
 
-   return c0 * (1 - zd) + c1 * zd;
+   return VectorOrientationAddition(c0 * (1 - zd), c1 * zd);
 }
 
 // #############################################################################
