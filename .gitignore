@@ -1,15 +1,19 @@
 # build
-setup.py
 src/include/version.hpp
 *env*/
+
+# examples
+examples/
+!examples/cube.dat
+!examples/model_solver.py
+!examples/requirements.txt
+!examples/sandbox.py
+!examples/simpli_mpi.py
+!examples/simpli.py
 
 # data
 *.h5
 *.dat
-!examples/cube.dat
-
-# testing
-*dev*
 
 # misc
 .nfs*

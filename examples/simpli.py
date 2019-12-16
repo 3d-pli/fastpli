@@ -13,7 +13,7 @@ FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 
-with h5py.File('simpli.h5', 'w') as h5f:
+with h5py.File(os.path.join(FILE_PATH, 'simpli.h5'), 'w') as h5f:
     # save script
     h5f['version'] = fastpli.__version__
     with open(os.path.abspath(__file__), 'r') as f:
@@ -94,6 +94,6 @@ with h5py.File('simpli.h5', 'w') as h5f:
         return np.swapaxes(np.flip(data, 1), 0, 1)
 
     imageio.imwrite(
-        'simpli.png',
+        os.path.join(FILE_PATH, 'simpli.png'),
         data2image(
             fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
