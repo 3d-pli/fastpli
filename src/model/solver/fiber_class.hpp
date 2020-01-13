@@ -35,8 +35,8 @@ class Fiber : public object::Fiber {
 
    void Move();
    void Drag(const double drag = 1);
-   bool CheckRadius(const double obj_min_radius);
-   bool CheckLength(const double obj_mean_length);
+   bool ApplyCurvatureConstrain(const double obj_min_radius);
+   bool ApplyConeLengthConstrain(const double obj_mean_length);
 
    void Split(size_t idx);
    void Combine(size_t idx);

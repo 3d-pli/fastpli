@@ -56,7 +56,7 @@ void Fiber::Drag(const double drag) {
    }
 }
 
-bool Fiber::CheckRadius(const double obj_min_radius) {
+bool Fiber::ApplyCurvatureConstrain(const double obj_min_radius) {
    auto solved = true;
 
    if (points_.size() <= 2)
@@ -103,7 +103,7 @@ bool Fiber::CheckRadius(const double obj_min_radius) {
    return solved;
 }
 
-bool Fiber::CheckLength(const double obj_mean_length) {
+bool Fiber::ApplyConeLengthConstrain(const double obj_mean_length) {
    auto solved = true;
 
    if (obj_mean_length == 0)

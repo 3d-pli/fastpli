@@ -49,7 +49,7 @@ class World {
 
    // world
    bool Step();
-   bool BoundryCheck(int max_steps);
+   bool ApplyBoundaryConditions(int max_steps);
    void DrawScene(double rot_x = 0, double rot_y = 0, double rot_z = 0,
                   bool only_col = false);
 
@@ -71,7 +71,7 @@ class World {
 #endif //_VIS_LIBRARIES
 
    // world functions
-   bool CheckRadius();
-   bool CheckLength();
-   void ResetFiberObjValues();
+   bool ApplyCurvatureConstrain();
+   bool ApplyConeLengthConstrain();
+   void ResetObjCounter();
 };

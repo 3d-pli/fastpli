@@ -125,7 +125,7 @@ class Solver(_Solver):
         self._omp_num_threads = super()._set_omp_num_threads(
             self._omp_num_threads)
 
-    def draw_scene(self, fiber_bundles=None):
+    def draw_scene(self):
         if self._display is None:
             try:
                 os.environ['DISPLAY']
@@ -134,19 +134,13 @@ class Solver(_Solver):
                 print("test_opengl: no display detected")
                 self._display = False
 
-        if fiber_bundles:
-            self.fiber_bundles = fiber_bundles
-
         if self._display:
             super().draw_scene()
 
-    def boundry_check(self, fiber_bundles=None, n_max=100):
-        if fiber_bundles:
-            self.fiber_bundles = fiber_bundles
-
+    def apply_boundary_conditions(self, n_max=10):
         if not isinstance(n_max, int) or n_max <= 0:
             raise TypeError("only integer > 0 allowed")
 
-        super().boundry_check(n_max)
+        super().apply_boundary_conditions(n_max)
 
         return self.fiber_bundles

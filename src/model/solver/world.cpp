@@ -79,7 +79,7 @@ void World::set_fibers(const object::FiberBundles &fiber_bundles) {
       fb_idx++;
    }
 
-   ResetFiberObjValues();
+   ResetObjCounter();
 }
 
 void World::set_fibers_vector(
@@ -102,10 +102,10 @@ void World::set_fibers_vector(
       fb_idx++;
    }
 
-   ResetFiberObjValues();
+   ResetObjCounter();
 }
 
-void World::ResetFiberObjValues() {
+void World::ResetObjCounter() {
    fiber_overlap_ = 0;
    max_level_ = 0;
    num_obj_ = 0;
@@ -126,8 +126,8 @@ int World::set_omp_num_threads(int i) {
    return omp_get_max_threads();
 }
 
-bool World::BoundryCheck(int max_steps) {
-   // check fiber boundry conditions
+bool World::ApplyBoundaryConditions(int max_steps) {
+   // check fiber boundary conditions
 
    bool solved = fibers_.empty();
    for (; max_steps >= 0 && !solved; max_steps--) {
@@ -135,8 +135,9 @@ bool World::BoundryCheck(int max_steps) {
 #pragma omp parallel for reduction(&& : solved)
       for (auto i = 0u; i < fibers_.size(); i++) {
          bool flag_length =
-             fibers_[i].CheckLength(w_parameter_.obj_mean_length);
-         bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
+             fibers_[i].ApplyConeLengthConstrain(w_parameter_.obj_mean_length);
+         bool flag_radius =
+             fibers_[i].ApplyCurvatureConstrain(w_parameter_.obj_min_radius);
          solved = flag_length && flag_radius;
       }
    }
@@ -216,10 +217,11 @@ bool World::Step() {
       }
    }
 
-   // check fiber boundry conditions
+   // check fiber boundary conditions
 #pragma omp parallel for reduction(&& : solved)
    for (auto i = 0u; i < fibers_.size(); i++) {
-      bool flag_radius = fibers_[i].CheckRadius(w_parameter_.obj_min_radius);
+      bool flag_radius =
+          fibers_[i].ApplyCurvatureConstrain(w_parameter_.obj_min_radius);
       solved = solved && flag_radius;
    }
 
@@ -227,7 +229,7 @@ bool World::Step() {
 #pragma omp parallel for reduction(&& : solved)
       for (auto i = 0u; i < fibers_.size(); i++) {
          bool flag_length =
-             fibers_[i].CheckLength(w_parameter_.obj_mean_length);
+             fibers_[i].ApplyConeLengthConstrain(w_parameter_.obj_mean_length);
          solved = solved && flag_length;
       }
    }

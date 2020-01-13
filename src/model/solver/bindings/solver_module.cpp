@@ -76,7 +76,8 @@ PYBIND11_MODULE(__solver, m) {
                self.set_colliding_voi(aabb::AABB<double, 3>(min, max));
             })
        .def("step", (bool (World::*)(void)) & World::Step)
-       .def("boundry_check", &World::BoundryCheck, py::arg("steps") = 1)
+       .def("apply_boundary_conditions", &World::ApplyBoundaryConditions,
+            py::arg("steps") = 1)
        .def_property_readonly("num_obj", &World::num_obj)
        .def_property_readonly("num_col_obj", &World::num_col_obj)
        .def_property_readonly("overlap", &World::overlap)

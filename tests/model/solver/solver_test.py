@@ -37,7 +37,7 @@ class MainTest(unittest.TestCase):
         self.assertTrue(fbs[0][0].shape[0] == 2)
         self.assertTrue(fbs[0][0][1, -1] == 2)
 
-        fbs = self.solver.boundry_check(n_max=1)
+        fbs = self.solver.apply_boundary_conditions(n_max=1)
         self.assertTrue(fbs[0][0].shape[0] == 3)
         self.assertTrue(np.isclose(fbs[0][0][1, -1], 1.5))
 
