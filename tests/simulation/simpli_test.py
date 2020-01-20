@@ -20,7 +20,8 @@ class MainTest(unittest.TestCase):
         self.simpli.voxel_size = 0.2
 
     def test_dict(self):
-        self.simpli.as_dict()
+        d = self.simpli.get_dict()
+        self.simpli.set_dict(d)
 
     def test_dimension(self):
         self.simpli.fiber_bundles = [[[[1, 3, 0, 2], [1, 3, 7, 2]]]]

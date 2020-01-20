@@ -3,17 +3,19 @@ from .__simulation import _Simulator
 
 from ..version import __version__
 from ..analysis import rofl, epa, affine_transformation
+from ..analysis.images import fom_hsv_black
 from ..simulation import optic
 from ..tools import rotation
+from ..tools.helper import pip_freeze
 
 import numpy as np
 import warnings
 
-import importlib
-if importlib.util.find_spec("tqdm"):
-    from tqdm import tqdm
-else:
-    tqdm = lambda i: i
+# import importlib
+# if importlib.util.find_spec("tqdm"):
+#     from tqdm import tqdm
+# else:
+#     tqdm = lambda i: i
 
 
 class Simpli:
@@ -24,63 +26,80 @@ class Simpli:
             raise TypeError("%r is a frozen class" % self)
         object.__setattr__(self, key, value)
 
-    def _freeze(self):
+    def __freeze(self):
         self.__isfrozen = True
 
     def __init__(self, mpi_comm=None):
 
-        self._gen = _Generator()
-        self._sim = _Simulator()
+        # LIBRARIES
+        self.__gen = _Generator()
+        self.__sim = _Simulator()
         if mpi_comm:
             from mpi4py import MPI
-            self._gen.set_mpi_comm(MPI._addressof(mpi_comm))
-            self._sim.set_mpi_comm(MPI._addressof(mpi_comm))
+            self.__gen.set_mpi_comm(MPI._addressof(mpi_comm))
+            self.__sim.set_mpi_comm(MPI._addressof(mpi_comm))
 
-        self._fiber_bundles = None
-        self._fiber_bundles_properties = None
-        self._cells_populations = None
-        self._cells_populations_properties = None
+        # DIMENSIONS
         self._dim = None
         self._dim_origin = np.array([0, 0, 0], dtype=float)
         self._voxel_size = None
-        self._resolution = None
 
+        # GENERATION
+        self._cells_populations = None
+        self._cells_populations_properties = None
+        self._fiber_bundles = None
+        self._fiber_bundles_properties = None
+
+        # SIMULATION
         self._filter_rotations = None
-        self._light_intensity = None
-        self._step_size = 1.0
-        self._interpolate = True
-        self._untilt_sensor_view = True
         self._flip_z_beam = False
-        self._wavelength = None
+        self._interpolate = True
+        self._light_intensity = None
+        self._resolution = None
+        self._step_size = 1.0
+        self._tilts = [(0, 0), (5, np.deg2rad(0)), (5, np.deg2rad(90)),
+                       (5, np.deg2rad(180)), (5, np.deg2rad(270))]
         self._tissue_refrection = 1
+        self._untilt_sensor_view = True
+        self._wavelength = None
 
+        # ANALYSIS
+        self._sensor_gain = None
+
+        # OTHER
         self._omp_num_threads = 1
         self._debug = False
 
-        self._freeze()
+        # freeze class
+        self.__freeze()
 
-    def as_dict(self):
-        return {
-            'version': __version__,
-            # 'fiber_bundles': self._fiber_bundles,
-            'fiber_bundles_properties': self._fiber_bundles_properties,
-            # 'cells_populations ': self._cells_populations,
-            'cells_populations_properties ': self._cells_populations_properties,
-            'dim': self._dim,
-            'dim_origin': self._dim_origin,
-            'voxel_size': self._voxel_size,
-            'resolution': self._resolution,
-            'filter_rotations': self._filter_rotations,
-            'light_intensity': self._light_intensity,
-            'step_size': self._step_size,
-            'interpolate': self._interpolate,
-            'untilt_sensor_view': self._untilt_sensor_view,
-            'flip_z_beam': self._flip_z_beam,
-            'wavelength': self._wavelength,
-            'tissue_refrection': self._tissue_refrection,
-            'omp_num_threads': self._omp_num_threads,
-            'debug': self._debug
-        }
+    def print(self, msg):
+        if self._verbose:
+            print(msg)
+
+    def get_dict(self):
+        '''
+        Get all member variables which are properties
+        '''
+
+        members = dict()
+        for key, value in self.__dict__.items():
+            if key == '_cells_populations' or key == '_fiber_bundles':
+                continue
+            if key.startswith("_") and not key.startswith(
+                    "__") and not key.startswith("_Simpli"):
+                members[key[1:]] = value
+        return members
+
+    def set_dict(self, input):
+        for key, value in input.items():
+            if key.startswith("_"):
+                raise ValueError("member variable cant be set directly")
+
+            if value is not None:
+                setattr(self, key, value)
+            else:
+                warnings.warn("None value in dict detected.")
 
     @property
     def debug(self):
@@ -196,6 +215,41 @@ class Simpli:
     @light_intensity.setter
     def light_intensity(self, light_intensity):
         self._light_intensity = float(light_intensity)
+
+    @property
+    def tilts(self):
+        return self._tilts
+
+    @tilts.setter
+    def tilts(self, tilts):
+        ''' [[theta, phi], ...]
+        '''
+
+        if not isinstance(tilts, (list, tuple, np.ndarray)):
+            raise TypeError("tilts is not a list or array")
+
+        tilts = np.array(tilts)
+        if tilts.ndim != 2:
+            raise TypeError("tilts.shape != nx2")
+        if tilts.shape[-1] != 2:
+            raise TypeError("tilts.shape != nx2")
+
+        self._tilts = tilts
+
+    @property
+    def sensor_gain(self):
+        return self._sensor_gain
+
+    @sensor_gain.setter
+    def sensor_gain(self, sensor_gain):
+
+        if not isinstance(sensor_gain, (int, float)):
+            raise TypeError("sensor_gain is not a number")
+
+        if sensor_gain <= 0:
+            raise ValueError("sensor_gain is <= 0")
+
+        self._sensor_gain = sensor_gain
 
     @property
     def wavelength(self):
@@ -370,6 +424,30 @@ class Simpli:
 
     def generate_tissue(self, only_label=False, progress_bar=False):
 
+        self._check_volume_input()
+        self._check_generation_input()
+
+        self.__gen.set_volume(self._dim, self._dim_origin, self._voxel_size)
+        if self._fiber_bundles:
+            self.__gen.set_fiber_bundles(self._fiber_bundles,
+                                         self._fiber_bundles_properties)
+        if self._cells_populations:
+            self.__gen.set_cell_populations(self._cells_populations,
+                                            self._cells_populations_properties)
+        label_field, vec_field, tissue_properties = self.__gen.run_generation(
+            only_label, progress_bar)
+
+        return label_field, vec_field, tissue_properties
+
+    def _init_pli_setup(self):
+        self._check_simulation_input()
+        self.__sim.set_pli_setup(self._step_size, self._light_intensity,
+                                 self._voxel_size, self._wavelength,
+                                 self._tissue_refrection, self._interpolate,
+                                 self._untilt_sensor_view, self._flip_z_beam,
+                                 self._filter_rotations)
+
+    def _check_volume_input(self):
         if self._dim is None:
             raise ValueError("dim not set")
 
@@ -379,21 +457,14 @@ class Simpli:
         if self._voxel_size is None:
             raise ValueError("voxel_size not set")
 
+        self.get_voi()
+
+    def _check_generation_input(self):
+        if not self._fiber_bundles and not self._cells_populations:
+            raise ValueError("fiber_bundles and cells_populations are not set")
         self._check_property_length()
 
-        self._gen.set_volume(self._dim, self._dim_origin, self._voxel_size)
-        if self._fiber_bundles:
-            self._gen.set_fiber_bundles(self._fiber_bundles,
-                                        self._fiber_bundles_properties)
-        if self._cells_populations:
-            self._gen.set_cell_populations(self._cells_populations,
-                                           self._cells_populations_properties)
-        label_field, vec_field, tissue_properties = self._gen.run_generation(
-            only_label, progress_bar)
-
-        return label_field, vec_field, tissue_properties
-
-    def _init_pli_setup(self):
+    def _check_simulation_input(self):
         if self._step_size <= 0:
             raise ValueError("step_size <= 0")
 
@@ -409,23 +480,17 @@ class Simpli:
         if self._filter_rotations is None:
             raise ValueError("filter_rotations not set")
 
-        self._sim.set_pli_setup(self._step_size, self._light_intensity,
-                                self._voxel_size, self._wavelength,
-                                self._tissue_refrection, self._interpolate,
-                                self._untilt_sensor_view, self._flip_z_beam,
-                                self._filter_rotations)
+    def _check_analysis_input(self):
+        if not np.all(self._tilts[:,-1]==np.deg2rad(np.array([0, 0, 90, 180, 270]))):
+            raise ValueError("Currently only the std tilting angles can be analysed.")
+
+        if not self._sensor_gain:
+            raise ValueError("sensor_gain not set")
 
     def run_simulation(self, label_field, vec_field, tissue_properties, theta,
                        phi):
 
-        label_field_ = np.array(label_field, dtype=np.int32, copy=False)
-        vec_field_ = np.array(vec_field, dtype=np.float32, copy=False)
-
-        if label_field_ is not label_field:
-            warnings.warn("label_field is copied", UserWarning)
-        if vec_field_ is not vec_field:
-            warnings.warn("vec_field is copied", UserWarning)
-
+        self._check_volume_input()
         self._init_pli_setup()
 
         tissue_properties = np.array(tissue_properties)
@@ -435,19 +500,149 @@ class Simpli:
         if tissue_properties.shape[1] != 2:
             raise ValueError("tissue_properties.shape[1] != 2")
 
-        # takes on 1 thread much time, will be checked inside simulation
-        # if 0 < np.amin(label_field_):
-        #     raise ValueError("0 < np.max(label_field)")
+        label_field_ = np.array(label_field, dtype=np.int32, copy=False)
+        vec_field_ = np.array(vec_field, dtype=np.float32, copy=False)
 
-        # if tissue_properties.shape[0] <= np.amax(label_field_):
-        #     raise ValueError("tissue_properties.shape[0] < np.max(label_field)")
+        if label_field_ is not label_field:
+            warnings.warn("label_field is copied", UserWarning)
+        if vec_field_ is not vec_field:
+            warnings.warn("vec_field is copied", UserWarning)
 
-        image = self._sim.run_simulation(self._dim, label_field_, vec_field_,
-                                         tissue_properties, theta, phi)
-        if np.min(image.flatten()) < 0:
+        images = self.__sim.run_simulation(self._dim, label_field_, vec_field_,
+                                           tissue_properties, theta, phi)
+        if np.min(images.flatten()) < 0:
             raise ValueError("intensity < 0 detected")
 
-        return image
+        return images
+
+    def run_simulation_pipeline(self,
+                                label_field,
+                                vec_field,
+                                tissue_properties,
+                                h5f=None):
+
+        if self._tilts is None:
+            raise ValueError("tilts not set")
+
+        tilting_stack = [None] * len(self._tilts)
+
+        for t, tilt in enumerate(self._tilts):
+            theta, phi = tilt[0], tilt[1]
+            images = self.run_simulation(label_field, vec_field,
+                                         tissue_properties, np.deg2rad(theta),
+                                         np.deg2rad(phi))
+
+            if h5f:
+                h5f['simulation/data/' + str(t)] = images
+                h5f['simulation/data/' + str(t)].attrs['theta'] = theta
+                h5f['simulation/data/' + str(t)].attrs['phi'] = phi
+
+            # apply optic to simulation
+            new_images = self.apply_optic(images, gain=self._sensor_gain)
+
+            if h5f:
+                h5f['simulation/optic/' + str(t)] = new_images
+                h5f['simulation/optic/' + str(t)].attrs['theta'] = theta
+                h5f['simulation/optic/' + str(t)].attrs['phi'] = phi
+
+            # calculate modalities
+            epa = self.apply_epa(new_images)
+
+            if h5f:
+                h5f['analysis/epa/' + str(t) + '/transmittance'] = epa[0]
+                h5f['analysis/epa/' + str(t) + '/direction'] = np.rad2deg(
+                    epa[1])
+                h5f['analysis/epa/' + str(t) + '/retardation'] = epa[2]
+
+                h5f['analysis/epa/' + str(t) +
+                    '/transmittance'].attrs['theta'] = theta
+                h5f['analysis/epa/' + str(t) +
+                    '/transmittance'].attrs['phi'] = phi
+                h5f['analysis/epa/' + str(t) +
+                    '/direction'].attrs['theta'] = theta
+                h5f['analysis/epa/' + str(t) + '/direction'].attrs['phi'] = phi
+                h5f['analysis/epa/' + str(t) +
+                    '/retardation'].attrs['theta'] = theta
+                h5f['analysis/epa/' + str(t) +
+                    '/retardation'].attrs['phi'] = phi
+
+            tilting_stack[t] = new_images
+
+        # pseudo mask
+        mask = np.sum(label_field, 2) > 0
+        mask = self.apply_resize(1.0 * mask) > 0.1
+        h5f['simulation/optic/mask'] = np.uint8(mask)
+
+        tilting_stack = np.array(tilting_stack)
+        while tilting_stack.ndim < 4:
+            tilting_stack = np.expand_dims(tilting_stack, axis=-2)
+
+        rofl_direction, rofl_incl, rofl_t_rel, _ = self.apply_rofl(
+            tilting_stack,
+            tilt_angle=np.deg2rad(self._tilts[-1][0]),
+            gain=self._sensor_gain,
+            mask=None)
+
+        if h5f:
+            h5f['analysis/rofl/direction'] = rofl_direction
+            h5f['analysis/rofl/inclination'] = rofl_incl
+            h5f['analysis/rofl/trel'] = rofl_t_rel
+
+            h5f['/parameter/dict'] = str(self.get_dict())
+
+        fom = fom_hsv_black(rofl_direction, rofl_incl)
+
+        return tilting_stack, (rofl_direction, rofl_incl, rofl_t_rel), fom
+
+    def run_pipeline(self, h5f=None, script=None, save=[], verbose=False):
+
+        self._check_volume_input()
+        self._check_generation_input()
+        self._check_simulation_input()
+        if self._tilts is None:
+            raise ValueError("tilts not set")
+
+        if h5f:
+            h5f['/parameter/version'] = __version__
+            h5f['/parameter/pip_freeze'] = pip_freeze()
+            if script:
+                h5f['/parameter/script'] = script
+
+        # run tissue generation
+        label_field, vec_field, tissue_properties = self.generate_tissue()
+
+        if h5f and save:
+
+            if not "label_field" in save or not "vec_field" in save:
+                raise ValueError("only label_field and vec_field are allowed")
+
+            if "label_field" in save:
+                dset = h5f.create_dataset('tissue/label_field',
+                                          label_field.shape,
+                                          dtype=np.uint16,
+                                          compression='gzip',
+                                          compression_opts=1)
+                dset[:] = label_field
+
+            if "vec_field" in save:
+                dset = h5f.create_dataset('tissue/vec_field',
+                                          vec_field.shape,
+                                          dtype=np.float32,
+                                          compression='gzip',
+                                          compression_opts=1)
+                dset[:] = vec_field
+            
+
+
+            h5f['tissue/tissue_properties'] = tissue_properties
+
+        tilting_stack, (rofl_direction, rofl_incl,
+                        rofl_t_rel), fom = self.run_simulation_pipeline(
+                            label_field, vec_field, tissue_properties, h5f)
+
+        return (label_field, vec_field,
+                tissue_properties), tilting_stack, (rofl_direction, rofl_incl,
+                                                    rofl_t_rel), fom
 
     @property
     def omp_num_threads(self):
@@ -462,8 +657,8 @@ class Simpli:
         if num_threads <= 0:
             raise TypeError("num_threads <= 0")
 
-        num_threads_gen = self._gen.set_omp_num_threads(num_threads)
-        num_threads_sim = self._sim.set_omp_num_threads(num_threads)
+        num_threads_gen = self.__gen.set_omp_num_threads(num_threads)
+        num_threads_sim = self.__sim.set_omp_num_threads(num_threads)
 
         if num_threads_gen != num_threads_sim:
             raise AssertionError("num_threads_gen != num_threads_sim")
@@ -502,8 +697,8 @@ class Simpli:
         '''
         # TODO: check functionality
 
-        dim_local = self._gen.dim_local()
-        dim_offset = self._gen.dim_offset()
+        dim_local = self.__gen.dim_local()
+        dim_offset = self.__gen.dim_offset()
 
         if not isinstance(input, np.ndarray):
             raise TypeError(
@@ -531,45 +726,44 @@ class Simpli:
                     dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
                          dim_local[1]] = input[i, :]
             else:
-                dset[dim_offset[0]:dim_offset[0] +
-                     dim_local[0], dim_offset[1]:dim_offset[1] +
-                     dim_local[1]] = input
+                dset[dim_offset[0]:dim_offset[0] + dim_local[0],
+                     dim_offset[1]:dim_offset[1] + dim_local[1]] = input
 
         elif len(input.shape) == 3:
             if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
                 for i in range(input.shape[0]):
-                    dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
-                         dim_local[1], dim_offset[2]:dim_offset[2] +
+                    dset[i + dim_offset[0],
+                         dim_offset[1]:dim_offset[1] + dim_local[1],
+                         dim_offset[2]:dim_offset[2] +
                          dim_local[2]] = input[i, :]
             else:
-                dset[dim_offset[0]:dim_offset[0] +
-                     dim_local[0], dim_offset[1]:dim_offset[1] +
-                     dim_local[1], dim_offset[2]:dim_offset[2] +
-                     dim_local[2]] = input
+                dset[dim_offset[0]:dim_offset[0] + dim_local[0],
+                     dim_offset[1]:dim_offset[1] + dim_local[1],
+                     dim_offset[2]:dim_offset[2] + dim_local[2]] = input
 
         elif len(input.shape) > 3:
             if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
                 for i in range(input.shape[0]):
-                    dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
-                         dim_local[1], dim_offset[2]:dim_offset[2] +
+                    dset[i + dim_offset[0],
+                         dim_offset[1]:dim_offset[1] + dim_local[1],
+                         dim_offset[2]:dim_offset[2] +
                          dim_local[2], :] = input[i, :]
             else:
-                dset[dim_offset[0]:dim_offset[0] +
-                     dim_local[0], dim_offset[1]:dim_offset[1] +
-                     dim_local[1], dim_offset[2]:dim_offset[2] +
-                     dim_local[2], :] = input
+                dset[dim_offset[0]:dim_offset[0] + dim_local[0],
+                     dim_offset[1]:dim_offset[1] + dim_local[1],
+                     dim_offset[2]:dim_offset[2] + dim_local[2], :] = input
 
         else:
             raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
 
     def apply_optic(
-            self,
-            input,
-            delta_sigma=0.71,  # only for LAP!
-            gain=3.0,  # only for LAP!
-            order=1,
-            resample=False,
-            mp_pool=None):
+        self,
+        input,
+        delta_sigma=0.71,  # only for LAP!
+        gain=3.0,  # only for LAP!
+        order=1,
+        resample=False,
+        mp_pool=None):
         ''' 
         input = np.array(x,y(,rho))
         use resample, resize will be removed in the future
@@ -685,14 +879,14 @@ class Simpli:
         return transmittance, direction, retardation
 
     def apply_rofl(
-            self,
-            input,
-            tilt_angle=np.deg2rad(5.5),  # only LAP!
-            gain=3.0,  # only LAP!
-            dir_offset=0,
-            mask=None,
-            mp_pool=None,
-            grad_mode=False):
+        self,
+        input,
+        tilt_angle=np.deg2rad(5.5),  # only LAP!
+        gain=3.0,  # only LAP!
+        dir_offset=0,
+        mask=None,
+        mp_pool=None,
+        grad_mode=False):
         ''' 
         input = np.array(tilt,x,y,rho)
         '''
@@ -724,9 +918,10 @@ class Simpli:
         itermap = np.empty_like(mask, dtype=input.dtype)
 
         if mp_pool:
-            for j in tqdm(range(input.shape[2])):
-                chunk = [(input[:, i, j, :], tilt_angle, gain, dir_offset,
-                          grad_mode) for i in range(input.shape[1])]
+            for j in range(input.shape[2]):
+                chunk = [(input[:, i,
+                                j, :], tilt_angle, gain, dir_offset, grad_mode)
+                         for i in range(input.shape[1])]
                 results = mp_pool.starmap(rofl.rofl, chunk)
 
                 for i, result in enumerate(results):
@@ -734,13 +929,15 @@ class Simpli:
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = result
         else:
-            for i in tqdm(range(input.shape[1])):
+            for i in range(input.shape[1]):
                 for j in range(input.shape[2]):
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
-                            i, j], itermap[i, j] = rofl.rofl(
-                                input[:, i, j, :], tilt_angle, gain, dir_offset,
-                                grad_mode)
+                            i,
+                            j], itermap[i,
+                                        j] = rofl.rofl(input[:, i, j, :],
+                                                       tilt_angle, gain,
+                                                       dir_offset, grad_mode)
 
         return directionmap, inclmap, trelmap, (dirdevmap, incldevmap,
                                                 treldevmap, funcmap, itermap)
