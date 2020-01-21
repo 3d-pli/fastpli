@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
 import h5py
+import os
+import warnings
 
 from fastpli.simulation import Simpli
 
@@ -21,7 +23,7 @@ class MainTest(unittest.TestCase):
 
     def test_dict(self):
         d = self.simpli.get_dict()
-        self.simpli.set_dict(d)
+        self.assertWarns(UserWarning, self.simpli.set_dict, d)
 
     def test_dimension(self):
         self.simpli.fiber_bundles = [[[[1, 3, 0, 2], [1, 3, 7, 2]]]]
@@ -102,6 +104,31 @@ class MainTest(unittest.TestCase):
             h5f['tissue'] = label_field.astype(np.uint16)
             h5f['vectorfield'] = vec_field
             h5f['data/0'] = image
+
+    def test_pipelline(self):
+        self.simpli.voxel_size = 1
+        self.simpli.dim = [10, 10, 10]
+        self.simpli.dim_origin = self.simpli.dim / 2
+        self.simpli.fiber_bundles = [[[[0, 0, 30, 100], [640, 640, 30, 100]]]]
+        self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
+                                                 (0.666, -0.004, 5, 'b'),
+                                                 (1.0, 0.004, 1, 'r')]]
+        self.simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
+        self.simpli.light_intensity = 26000
+        self.simpli.voxel_size = 1
+        self.simpli.wavelength = 525
+        self.simpli.untilt_sensor_view = False
+        self.simpli.sensor_gain = 3
+        self.simpli.optical_sigma = 0.71
+        self.simpli.resolution = 2
+        self.simpli.tilts = np.deg2rad(
+            np.array([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]))
+
+        with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
+            with open(os.path.abspath(__file__), 'r') as script:
+                self.simpli.run_pipeline(h5f=h5f,
+                                         script=script.read(),
+                                         save=["label_field", "vector_field"])
 
 
 if __name__ == '__main__':

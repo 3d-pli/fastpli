@@ -1,7 +1,7 @@
 from .__generation import _Generator
 from .__simulation import _Simulator
 
-from ..version import __version__
+from ..version import __version__, __compiler__, __libraries__
 from ..analysis import rofl, epa, affine_transformation
 from ..analysis.images import fom_hsv_black
 from ..simulation import optic
@@ -11,19 +11,14 @@ from ..tools.helper import pip_freeze
 import numpy as np
 import warnings
 
-# import importlib
-# if importlib.util.find_spec("tqdm"):
-#     from tqdm import tqdm
-# else:
-#     tqdm = lambda i: i
-
 
 class Simpli:
     __isfrozen = False
 
     def __setattr__(self, key, value):
         if self.__isfrozen and not hasattr(self, key):
-            raise TypeError("%r is a frozen class" % self)
+            raise TypeError("{} is a frozen class".format(
+                self.__class__.__name__))
         object.__setattr__(self, key, value)
 
     def __freeze(self):
@@ -56,6 +51,7 @@ class Simpli:
         self._interpolate = True
         self._light_intensity = None
         self._resolution = None
+        self._optical_sigma = None
         self._step_size = 1.0
         self._tilts = [(0, 0), (5, np.deg2rad(0)), (5, np.deg2rad(90)),
                        (5, np.deg2rad(180)), (5, np.deg2rad(270))]
@@ -69,11 +65,12 @@ class Simpli:
         # OTHER
         self._omp_num_threads = 1
         self._debug = False
+        self._verbose = False
 
         # freeze class
         self.__freeze()
 
-    def print(self, msg):
+    def _print(self, msg):
         if self._verbose:
             print(msg)
 
@@ -252,6 +249,21 @@ class Simpli:
         self._sensor_gain = sensor_gain
 
     @property
+    def optical_sigma(self):
+        return self._optical_sigma
+
+    @optical_sigma.setter
+    def optical_sigma(self, optical_sigma):
+
+        if not isinstance(optical_sigma, (int, float)):
+            raise TypeError("optical_sigma is not a number")
+
+        if optical_sigma <= 0:
+            raise ValueError("optical_sigma is <= 0")
+
+        self._optical_sigma = optical_sigma
+
+    @property
     def wavelength(self):
         return self._wavelength
 
@@ -282,6 +294,14 @@ class Simpli:
     @interpolate.setter
     def interpolate(self, interpolate):
         self._interpolate = bool(interpolate)
+
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, verbose):
+        self._verbose = bool(verbose)
 
     @property
     def untilt_sensor_view(self):
@@ -522,15 +542,26 @@ class Simpli:
                                 label_field,
                                 vector_field,
                                 tissue_properties,
-                                h5f=None):
+                                h5f=None,
+                                mp_pool=None):
 
         if self._tilts is None:
             raise ValueError("tilts not set")
 
+        flag_rofl = True
+        if np.any(self._tilts != np.deg2rad(
+                np.array([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5,
+                                                                    270)]))):
+            warnings.warn("Tilts not suitable for ROFL. Skipping analysis")
+            flag_rofl = False
+
         tilting_stack = [None] * len(self._tilts)
 
+        self._print("Simulate tilts:")
         for t, tilt in enumerate(self._tilts):
             theta, phi = tilt[0], tilt[1]
+            self._print("{}: theta: {} deg, phi: {} deg".format(
+                t, round(np.rad2deg(theta), 2), round(np.rad2deg(phi), 2)))
             images = self.run_simulation(label_field, vector_field,
                                          tissue_properties, theta, phi)
 
@@ -540,7 +571,9 @@ class Simpli:
                 h5f['simulation/data/' + str(t)].attrs['phi'] = phi
 
             # apply optic to simulation
-            new_images = self.apply_optic(images, gain=self._sensor_gain)
+            new_images = self.apply_optic(images,
+                                          mp_pool=mp_pool,
+                                          resample=False)
 
             if h5f:
                 h5f['simulation/optic/' + str(t)] = new_images
@@ -572,56 +605,86 @@ class Simpli:
 
         # pseudo mask
         mask = np.sum(label_field, 2) > 0
-        mask = self.apply_resize(1.0 * mask) > 0.1
+        mask = self.apply_optic_reshape(1.0 * mask, mp_pool=mp_pool) > 0.1
         h5f['simulation/optic/mask'] = np.uint8(mask)
 
         tilting_stack = np.array(tilting_stack)
         while tilting_stack.ndim < 4:
             tilting_stack = np.expand_dims(tilting_stack, axis=-2)
 
-        rofl_direction, rofl_incl, rofl_t_rel, _ = self.apply_rofl(
-            tilting_stack,
-            tilt_angle=np.deg2rad(self._tilts[-1][0]),
-            gain=self._sensor_gain,
-            mask=None)
+        if flag_rofl:
+            self._print("Analyse tilts")
+            rofl_direction, rofl_incl, rofl_t_rel, (
+                rofl_direction_conf, rofl_incl_conf, rofl_t_rel_conf, rofl_func,
+                rofl_n_iter) = self.apply_rofl(tilting_stack,
+                                               tilt_angle=np.deg2rad(
+                                                   self._tilts[-1][0]),
+                                               gain=self._sensor_gain,
+                                               mask=None,
+                                               mp_pool=mp_pool)
+        else:
+            rofl_direction = None
+            rofl_incl = None
+            rofl_t_rel = None
 
-        if h5f:
+            rofl_direction_conf = None
+            rofl_incl_conf = None
+            rofl_t_rel_conf = None
+            rofl_func = None
+            rofl_n_iter = None
+
+        if h5f and flag_rofl:
             h5f['analysis/rofl/direction'] = rofl_direction
             h5f['analysis/rofl/inclination'] = rofl_incl
-            h5f['analysis/rofl/trel'] = rofl_t_rel
+            h5f['analysis/rofl/t_rel'] = rofl_t_rel
 
+            h5f['analysis/rofl/direction_conf'] = rofl_direction_conf,
+            h5f['analysis/rofl/inclination_conf'] = rofl_incl_conf,
+            h5f['analysis/rofl/t_rel_conf'] = rofl_t_rel_conf,
+            h5f['analysis/rofl/func'] = rofl_func,
+            h5f['analysis/rofl/n_iter'] = rofl_n_iter
+
+        if h5f:
             h5f['/parameter/dict'] = str(self.get_dict())
 
-        fom = fom_hsv_black(rofl_direction, rofl_incl)
+        if flag_rofl:
+            fom = fom_hsv_black(rofl_direction, rofl_incl)
+        else:
+            fom = None
 
         return tilting_stack, (rofl_direction, rofl_incl, rofl_t_rel), fom
 
-    def run_pipeline(self, h5f=None, script=None, save=[], verbose=False):
+    def run_pipeline(self, h5f=None, script=None, save=[], mp_pool=None):
 
         self._check_volume_input()
         self._check_generation_input()
         self._check_simulation_input()
         if self._tilts is None:
-            raise ValueError("tilts not set")
+            raise ValueError("tilts is not set")
+        if self._optical_sigma is None:
+            raise ValueError("optical_sigma is not set")
 
         if h5f:
-            h5f['/parameter/version'] = fastpli.__version__
-            h5f['/parameter/compiler'] = fastpli.__compiler__
-            h5f['/parameter/libraries'] = fastpli.__libraries__
+            h5f['/parameter/version'] = __version__
+            h5f['/parameter/compiler'] = __compiler__
+            h5f['/parameter/libraries'] = __libraries__
             h5f['/parameter/pip_freeze'] = pip_freeze()
             if script:
                 h5f['/parameter/script'] = script
 
         # run tissue generation
+        self._print("Generate Tissue")
         label_field, vector_field, tissue_properties = self.generate_tissue()
 
         if h5f and save:
 
-            if not "label_field" in save or not "vector_field" in save:
-                raise ValueError(
-                    "only label_field and vector_field are allowed")
+            for s in save:
+                if s not in ["label_field", "vector_field"]:
+                    raise ValueError(
+                        "only label_field and vector_field are allowed")
 
             if "label_field" in save:
+                self._print("Save label_field")
                 dset = h5f.create_dataset('tissue/label_field',
                                           label_field.shape,
                                           dtype=np.uint16,
@@ -630,6 +693,7 @@ class Simpli:
                 dset[:] = label_field
 
             if "vector_field" in save:
+                self._print("Save vector_field")
                 dset = h5f.create_dataset('tissue/vector_field',
                                           vector_field.shape,
                                           dtype=np.float32,
@@ -641,7 +705,8 @@ class Simpli:
 
         tilting_stack, (rofl_direction, rofl_incl,
                         rofl_t_rel), fom = self.run_simulation_pipeline(
-                            label_field, vector_field, tissue_properties, h5f)
+                            label_field, vector_field, tissue_properties, h5f,
+                            mp_pool)
 
         return (label_field, vector_field,
                 tissue_properties), tilting_stack, (rofl_direction, rofl_incl,
@@ -759,24 +824,46 @@ class Simpli:
         else:
             raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
 
-    def apply_optic(
-        self,
-        input,
-        delta_sigma=0.71,  # only for LAP!
-        gain=3.0,  # only for LAP!
-        order=1,
-        resample=False,
-        mp_pool=None):
-        ''' 
+    def apply_optic(self, input, order=1, resample=True, mp_pool=None):
+        '''
         input = np.array(x,y(,rho))
-        use resample, resize will be removed in the future
+        resample = True -> binning of pixels to ccd pixels (like experiment)
+        resample = False -> interpolation of pixels
+        order: order of resize algorithm
         '''
 
-        if self._resolution is None:
-            raise TypeError("resolution is not set")
+        if not self._sensor_gain:
+            raise ValueError("sensor_gain not set")
+
+        output = self.apply_optic_reshape(input,
+                                          resample=resample,
+                                          order=order,
+                                          mp_pool=mp_pool)
+
+        if np.amin(output) < 0:
+            raise AssertionError("intensity < 0 detected")
+
+        if self._sensor_gain > 0:
+            output = optic.add_noise(output, self._sensor_gain)
+
+        return output
+
+    def apply_optic_reshape(self, input, resample=True, order=1, mp_pool=None):
+        '''
+        input = np.array(x,y(,rho))
+        resample = True -> binning of pixels to ccd pixels (like experiment)
+        resample = False -> interpolation of pixels
+        order: order of resize algorithm
+        '''
+
+        if self._optical_sigma is None:
+            raise ValueError("optical_sigma is None")
 
         if self._voxel_size is None:
-            raise TypeError("voxel_size is not set")
+            raise ValueError("voxel_size not set")
+
+        if self._resolution is None:
+            raise ValueError("resolution not set")
 
         input = np.atleast_3d(np.array(input))
         if input.ndim > 3:
@@ -789,62 +876,27 @@ class Simpli:
 
         if resample:
             filter_resize = lambda input, delta_sigma, scale, order: optic.filter_resample(
-                input, delta_sigma.scale)
+                input, delta_sigma, scale)
         else:
             filter_resize = optic.filter_resize
 
-        if mp_pool:
-            chunk = [(input[:, :, i], delta_sigma, scale, order)
+        if mp_pool and input.shape[2] > 1:
+            chunk = [(input[:, :, i], self._optical_sigma, scale, order)
                      for i in range(input.shape[2])]
+
             results = mp_pool.starmap(filter_resize, chunk)
             for i in range(input.shape[2]):
                 output[:, :, i] = results[i]
         else:
             for i in range(input.shape[2]):
-                output[:, :, i] = filter_resize(input[:, :, i], delta_sigma,
+                output[:, :, i] = filter_resize(input[:, :,
+                                                      i], self._optical_sigma,
                                                 scale, order)
 
-        if np.min(output.flatten()) < 0:
-            raise AssertionError("intensity < 0 detected")
-
-        if gain > 0:
-            output = optic.add_noise(output, gain)
-
-        return np.squeeze(output)
-
-    def apply_resize(self, input, order=1, mp_pool=None):
-        ''' 
-        input = np.array(x,y(,rho))
-        '''
-
-        if self._resolution is None:
-            raise TypeError("resolution is not set")
-
-        if self._voxel_size is None:
-            raise TypeError("voxel_size is not set")
-
-        input = np.atleast_3d(np.array(input))
-        if input.ndim > 3:
-            raise TypeError("input can be 1d, 2d or 3d")
-
-        scale = self._voxel_size / self._resolution
-        size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
-
-        output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
-        if mp_pool:
-            input_data = [
-                (input[:, :, i], scale, order) for i in range(input.shape[2])
-            ]
-            results = mp_pool.starmap(optic.resize, input_data)
-            for i in range(input.shape[2]):
-                output[:, :, i] = results[i]
-        else:
-            for i in range(input.shape[2]):
-                output[:, :, i] = optic.resize(input[:, :, i], scale, order)
         return np.squeeze(output)
 
     def apply_untilt(self, input, theta, phi, mode='nearest'):
-        ''' 
+        '''
         input = np.array(x,y(,rho))
         '''
 
@@ -869,7 +921,7 @@ class Simpli:
         return output
 
     def apply_epa(self, input, mask=None):
-        ''' 
+        '''
         input = np.array(x,y,rho)
         '''
 
@@ -881,16 +933,15 @@ class Simpli:
 
         return transmittance, direction, retardation
 
-    def apply_rofl(
-        self,
-        input,
-        tilt_angle=np.deg2rad(5.5),  # only LAP!
-        gain=3.0,  # only LAP!
-        dir_offset=0,
-        mask=None,
-        mp_pool=None,
-        grad_mode=False):
-        ''' 
+    def apply_rofl(self,
+                   input,
+                   tilt_angle,
+                   gain,
+                   dir_offset=0,
+                   mask=None,
+                   mp_pool=None,
+                   grad_mode=False):
+        '''
         input = np.array(tilt,x,y,rho)
         '''
 

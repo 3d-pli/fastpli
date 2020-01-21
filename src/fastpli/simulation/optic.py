@@ -50,6 +50,9 @@ def filter(image, sigma):
     res : ndarray
     """
 
+    if sigma == 0:
+        return image
+
     return scipy.ndimage.filters.gaussian_filter(image, sigma)
 
 
@@ -72,6 +75,9 @@ def filter2d(image, sigma):
     -----
     the 2d filter function can be faster then the 1d function.
     """
+
+    if sigma == 0:
+        return image
 
     return np.fft.ifft2(
         scipy.ndimage.fourier_gaussian(np.fft.fft2(image), sigma=sigma)).real
