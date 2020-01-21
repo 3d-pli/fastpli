@@ -25,6 +25,13 @@ class MainTest(unittest.TestCase):
         d = self.simpli.get_dict()
         self.assertWarns(UserWarning, self.simpli.set_dict, d)
 
+        # io
+        with h5py.File('/tmp/fastpli.test_.h5', 'w') as h5f:
+            h5f['dict'] = str(d)
+            d_read = h5f['dict'][...]
+            d_new = dict(eval(str(d_read)))
+            self.assertWarns(UserWarning, self.simpli.set_dict, d_new)
+
     def test_dimension(self):
         self.simpli.fiber_bundles = [[[[1, 3, 0, 2], [1, 3, 7, 2]]]]
         self.simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
@@ -129,6 +136,11 @@ class MainTest(unittest.TestCase):
                 self.simpli.run_pipeline(h5f=h5f,
                                          script=script.read(),
                                          save=["label_field", "vector_field"])
+
+        with h5py.File('/tmp/fastpli.test.h5', 'r') as h5f:
+            parameters = dict(eval(str(h5f['parameter/dict'][...])))
+            self.assertTrue(self.simpli.get_dict() == parameters)
+            self.assertWarns(UserWarning, self.simpli.set_dict, parameters)
 
 
 if __name__ == '__main__':

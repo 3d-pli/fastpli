@@ -85,7 +85,12 @@ class Simpli:
                 continue
             if key.startswith("_") and not key.startswith(
                     "__") and not key.startswith("_Simpli"):
-                members[key[1:]] = value
+
+                if isinstance(value, np.ndarray):
+                    members[key[1:]] = value.tolist()
+                else:
+                    members[key[1:]] = value
+
         return members
 
     def set_dict(self, input):
