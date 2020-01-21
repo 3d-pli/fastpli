@@ -517,7 +517,7 @@ class Simpli:
 
     def run_simulation_pipeline(self,
                                 label_field,
-                                vec_field,
+                                vector_field,
                                 tissue_properties,
                                 h5f=None):
 
@@ -528,9 +528,8 @@ class Simpli:
 
         for t, tilt in enumerate(self._tilts):
             theta, phi = tilt[0], tilt[1]
-            images = self.run_simulation(label_field, vec_field,
-                                         tissue_properties, np.deg2rad(theta),
-                                         np.deg2rad(phi))
+            images = self.run_simulation(label_field, vector_field,
+                                         tissue_properties, theta, phi)
 
             if h5f:
                 h5f['simulation/data/' + str(t)] = images
