@@ -481,8 +481,11 @@ class Simpli:
             raise ValueError("filter_rotations not set")
 
     def _check_analysis_input(self):
-        if not np.all(self._tilts[:,-1]==np.deg2rad(np.array([0, 0, 90, 180, 270]))):
-            raise ValueError("Currently only the std tilting angles can be analysed.")
+        if not np.all(
+                self._tilts[:,
+                            -1] == np.deg2rad(np.array([0, 0, 90, 180, 270]))):
+            raise ValueError(
+                "Currently only the std tilting angles can be analysed.")
 
         if not self._sensor_gain:
             raise ValueError("sensor_gain not set")
@@ -602,18 +605,21 @@ class Simpli:
             raise ValueError("tilts not set")
 
         if h5f:
-            h5f['/parameter/version'] = __version__
+            h5f['/parameter/version'] = fastpli.__version__
+            h5f['/parameter/compiler'] = fastpli.__compiler__
+            h5f['/parameter/libraries'] = fastpli.__libraries__
             h5f['/parameter/pip_freeze'] = pip_freeze()
             if script:
                 h5f['/parameter/script'] = script
 
         # run tissue generation
-        label_field, vec_field, tissue_properties = self.generate_tissue()
+        label_field, vector_field, tissue_properties = self.generate_tissue()
 
         if h5f and save:
 
-            if not "label_field" in save or not "vec_field" in save:
-                raise ValueError("only label_field and vec_field are allowed")
+            if not "label_field" in save or not "vector_field" in save:
+                raise ValueError(
+                    "only label_field and vector_field are allowed")
 
             if "label_field" in save:
                 dset = h5f.create_dataset('tissue/label_field',
@@ -623,23 +629,21 @@ class Simpli:
                                           compression_opts=1)
                 dset[:] = label_field
 
-            if "vec_field" in save:
-                dset = h5f.create_dataset('tissue/vec_field',
-                                          vec_field.shape,
+            if "vector_field" in save:
+                dset = h5f.create_dataset('tissue/vector_field',
+                                          vector_field.shape,
                                           dtype=np.float32,
                                           compression='gzip',
                                           compression_opts=1)
-                dset[:] = vec_field
-            
-
+                dset[:] = vector_field
 
             h5f['tissue/tissue_properties'] = tissue_properties
 
         tilting_stack, (rofl_direction, rofl_incl,
                         rofl_t_rel), fom = self.run_simulation_pipeline(
-                            label_field, vec_field, tissue_properties, h5f)
+                            label_field, vector_field, tissue_properties, h5f)
 
-        return (label_field, vec_field,
+        return (label_field, vector_field,
                 tissue_properties), tilting_stack, (rofl_direction, rofl_incl,
                                                     rofl_t_rel), fom
 
