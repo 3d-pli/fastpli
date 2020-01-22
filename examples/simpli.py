@@ -51,6 +51,8 @@ with h5py.File(os.path.join(FILE_PATH, 'simpli.h5'), 'w') as h5f:
     simpli.interpolate = True
     simpli.wavelength = 525  # in nm
     simpli.resolution = 20  # in mu meter
+    simpli.sensor_gain = 3
+    simpli.optical_sigma = 0.71  # in voxel size
     TILTS = [(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]
 
     tilting_stack = [None] * len(TILTS)
@@ -65,7 +67,7 @@ with h5py.File(os.path.join(FILE_PATH, 'simpli.h5'), 'w') as h5f:
 
         # apply optic to simulation
         print(images.shape)
-        images = simpli.apply_optic(images, gain=3)
+        images = simpli.apply_optic(images)
         h5f['optic/' + str(t)] = images
 
         # calculate modalities
@@ -78,22 +80,22 @@ with h5py.File(os.path.join(FILE_PATH, 'simpli.h5'), 'w') as h5f:
 
     # save mask for analysis
     mask = np.sum(label_field, 2) > 0
-    mask = simpli.apply_optic(1.0 * mask, gain=0) > 0.1
+    mask = simpli.apply_optic_reshape(1.0 * mask) > 0.1
     h5f['optic/mask'] = np.uint8(mask)
     mask = None  # keep analysing all pixels
 
     print("Run ROFL analysis:")
     rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
-        tilting_stack, tilt_angle=np.deg2rad(5.5), gain=3, mask=mask)
+        tilting_stack, tilt_angle=np.deg2rad(5.5), mask=mask)
 
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
     h5f['rofl/trel'] = rofl_t_rel
 
-    def data2image(data):
-        return np.swapaxes(np.flip(data, 1), 0, 1)
+    # def data2image(data):
+    #     return np.swapaxes(np.flip(data, 1), 0, 1)
 
-    imageio.imwrite(
-        os.path.join(FILE_PATH, 'simpli.png'),
-        data2image(
-            fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
+    # imageio.imwrite(
+    #     os.path.join(FILE_PATH, 'simpli.png'),
+    #     data2image(
+    #         fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))

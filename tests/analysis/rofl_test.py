@@ -45,12 +45,9 @@ class MainTest(unittest.TestCase):
             # calculate modalities
             tilting_stack[t] = images
 
+        simpli.sensor_gain = 3
         rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
-            tilting_stack,
-            tilt_angle=np.deg2rad(TILTS[-1][0]),
-            gain=3,  # only LAP!
-            dir_offset=0,
-            grad_mode=False)
+            tilting_stack, tilt_angle=np.deg2rad(TILTS[-1][0]), grad_mode=False)
 
         t_rel = 4 * simpli.voxel_size * abs(
             tissue_properties[1][0]) / (simpli.wavelength / 1e3)

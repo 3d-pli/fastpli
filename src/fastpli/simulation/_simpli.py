@@ -624,7 +624,6 @@ class Simpli:
                 rofl_n_iter) = self.apply_rofl(tilting_stack,
                                                tilt_angle=np.deg2rad(
                                                    self._tilts[-1][0]),
-                                               gain=self._sensor_gain,
                                                mask=None,
                                                mp_pool=mp_pool)
         else:
@@ -941,8 +940,6 @@ class Simpli:
     def apply_rofl(self,
                    input,
                    tilt_angle,
-                   gain,
-                   dir_offset=0,
                    mask=None,
                    mp_pool=None,
                    grad_mode=False):
@@ -961,8 +958,8 @@ class Simpli:
         if input.shape[-1] <= 3:
             raise ValueError("input needs at least 3 equidistand rotations")
 
-        if gain <= 0:
-            raise ValueError("rofl gain <= 0")
+        if self._sensor_gain is None:
+            raise ValueError("sensor_gain not defined")
 
         if mask is None:
             mask = np.ones((input.shape[1], input.shape[2]), bool)
@@ -978,9 +975,8 @@ class Simpli:
 
         if mp_pool:
             for j in range(input.shape[2]):
-                chunk = [(input[:, i,
-                                j, :], tilt_angle, gain, dir_offset, grad_mode)
-                         for i in range(input.shape[1])]
+                chunk = [(input[:, i, j, :], tilt_angle, self._sensor_gain, 0,
+                          grad_mode) for i in range(input.shape[1])]
                 results = mp_pool.starmap(rofl.rofl, chunk)
 
                 for i, result in enumerate(results):
@@ -994,9 +990,10 @@ class Simpli:
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i,
                             j], itermap[i,
-                                        j] = rofl.rofl(input[:, i, j, :],
-                                                       tilt_angle, gain,
-                                                       dir_offset, grad_mode)
+                                        j] = rofl.rofl(input[:, i,
+                                                             j, :], tilt_angle,
+                                                       self._sensor_gain, 0,
+                                                       grad_mode)
 
         return directionmap, inclmap, trelmap, (dirdevmap, incldevmap,
                                                 treldevmap, funcmap, itermap)
