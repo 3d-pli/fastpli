@@ -82,7 +82,7 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
 
     # save mask for analysis
     mask = np.sum(label_field, 2) > 0
-    mask = simpli.apply_optic_reshape(1.0 * mask) > 0.1
+    mask = simpli.apply_optic_resample(1.0 * mask) > 0.1
     h5f['simulation/optic/mask'] = np.uint8(mask)
     mask = None  # keep analysing all pixels
 

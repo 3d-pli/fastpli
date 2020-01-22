@@ -567,9 +567,7 @@ class Simpli:
                 h5f['simulation/data/' + str(t)].attrs['phi'] = phi
 
             # apply optic to simulation
-            new_images = self.apply_optic(images,
-                                          mp_pool=mp_pool,
-                                          resample=False)
+            new_images = self.apply_optic(images, mp_pool=mp_pool)
 
             if h5f:
                 h5f['simulation/optic/' + str(t)] = new_images
@@ -601,7 +599,7 @@ class Simpli:
 
         # pseudo mask
         mask = np.sum(label_field, 2) > 0
-        mask = self.apply_optic_reshape(1.0 * mask, mp_pool=mp_pool) > 0.1
+        mask = self.apply_optic_resample(1.0 * mask, mp_pool=mp_pool) > 0.1
         h5f['simulation/optic/mask'] = np.uint8(mask)
 
         tilting_stack = np.array(tilting_stack)
@@ -817,21 +815,15 @@ class Simpli:
         else:
             raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
 
-    def apply_optic(self, input, order=1, resample=True, mp_pool=None):
+    def apply_optic(self, input, mp_pool=None):
         '''
         input = np.array(x,y(,rho))
-        resample = True -> binning of pixels to ccd pixels (like experiment)
-        resample = False -> interpolation of pixels
-        order: order of resize algorithm
         '''
 
         if not self._sensor_gain:
             raise ValueError("sensor_gain not set")
 
-        output = self.apply_optic_reshape(input,
-                                          resample=resample,
-                                          order=order,
-                                          mp_pool=mp_pool)
+        output = self.apply_optic_resample(input, mp_pool=mp_pool)
 
         if np.amin(output) < 0:
             raise AssertionError("intensity < 0 detected")
@@ -841,12 +833,9 @@ class Simpli:
 
         return output
 
-    def apply_optic_reshape(self, input, resample=True, order=1, mp_pool=None):
+    def apply_optic_resample(self, input, mp_pool=None):
         '''
         input = np.array(x,y(,rho))
-        resample = True -> binning of pixels to ccd pixels (like experiment)
-        resample = False -> interpolation of pixels
-        order: order of resize algorithm
         '''
 
         if self._optical_sigma is None:
@@ -867,24 +856,18 @@ class Simpli:
 
         output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
 
-        if resample:
-            filter_resize = lambda input, delta_sigma, scale, order: optic.filter_resample(
-                input, delta_sigma, scale)
-        else:
-            filter_resize = optic.filter_resize
-
         if mp_pool and input.shape[2] > 1:
-            chunk = [(input[:, :, i], self._optical_sigma, scale, order)
+            chunk = [(input[:, :, i], self._optical_sigma, scale)
                      for i in range(input.shape[2])]
 
-            results = mp_pool.starmap(filter_resize, chunk)
+            results = mp_pool.starmap(optic.filter_resample, chunk)
             for i in range(input.shape[2]):
                 output[:, :, i] = results[i]
         else:
             for i in range(input.shape[2]):
-                output[:, :, i] = filter_resize(input[:, :,
-                                                      i], self._optical_sigma,
-                                                scale, order)
+                output[:, :,
+                       i] = optic.filter_resample(input[:, :, i],
+                                                  self._optical_sigma, scale)
 
         return np.squeeze(output)
 
