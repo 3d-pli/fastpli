@@ -3,7 +3,7 @@ src/include/version.hpp
 *env*/
 
 # examples
-examples/
+examples/*
 !examples/cube.dat
 !examples/model_solver.py
 !examples/requirements.txt

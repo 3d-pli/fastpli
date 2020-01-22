@@ -9,6 +9,8 @@ import os
 
 import imageio
 
+np.random.seed(42)
+
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
@@ -17,8 +19,8 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     # save script
     h5f['version'] = fastpli.__version__
     with open(os.path.abspath(__file__), 'r') as f:
-        h5f['script'] = f.read()
-        h5f['pip_freeze'] = fastpli.tools.helper.pip_freeze()
+        h5f['parameter/script'] = f.read()
+        h5f['parameter/pip_freeze'] = fastpli.tools.helper.pip_freeze()
 
     # Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli()
@@ -41,9 +43,9 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     print("Run Generation:")
     label_field, vec_field, tissue_properties = simpli.generate_tissue()
 
-    h5f['tissue'] = label_field.astype(np.uint16)
-    h5f['vectorfield'] = vec_field
-    h5f['tissue_properties'] = tissue_properties
+    h5f['tissue/label_field'] = label_field.astype(np.uint16)
+    h5f['tissue/vectorfield'] = vec_field
+    h5f['tissue/tissue_properties'] = tissue_properties
 
     # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
@@ -63,34 +65,34 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
         images = simpli.run_simulation(label_field, vec_field,
                                        tissue_properties, theta, phi)
 
-        h5f['data/' + str(t)] = images
+        h5f['simulation/data/' + str(t)] = images
 
         # apply optic to simulation
         print(images.shape)
         images = simpli.apply_optic(images)
-        h5f['optic/' + str(t)] = images
+        h5f['simulation/optic/' + str(t)] = images
 
         # calculate modalities
         epa = simpli.apply_epa(images)
-        h5f['epa/' + str(t) + '/transmittance'] = epa[0]
-        h5f['epa/' + str(t) + '/direction'] = np.rad2deg(epa[1])
-        h5f['epa/' + str(t) + '/retardation'] = epa[2]
+        h5f['analysis/epa/' + str(t) + '/transmittance'] = epa[0]
+        h5f['analysis/epa/' + str(t) + '/direction'] = np.rad2deg(epa[1])
+        h5f['analysis/epa/' + str(t) + '/retardation'] = epa[2]
 
         tilting_stack[t] = images
 
     # save mask for analysis
     mask = np.sum(label_field, 2) > 0
     mask = simpli.apply_optic_reshape(1.0 * mask) > 0.1
-    h5f['optic/mask'] = np.uint8(mask)
+    h5f['simulation/optic/mask'] = np.uint8(mask)
     mask = None  # keep analysing all pixels
 
     print("Run ROFL analysis:")
     rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(tilting_stack,
                                                                  mask=mask)
 
-    h5f['rofl/direction'] = np.rad2deg(rofl_direction)
-    h5f['rofl/inclination'] = np.rad2deg(rofl_incl)
-    h5f['rofl/trel'] = rofl_t_rel
+    h5f['analysis/rofl/direction'] = np.rad2deg(rofl_direction)
+    h5f['analysis/rofl/inclination'] = np.rad2deg(rofl_incl)
+    h5f['analysis/rofl/trel'] = rofl_t_rel
 
     # def data2image(data):
     #     return np.swapaxes(np.flip(data, 1), 0, 1)
