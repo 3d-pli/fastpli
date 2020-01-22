@@ -9,6 +9,8 @@ import fastpli.objects
 
 from fastpli.analysis._ROFL_with_jacobi import _calc_Int_single_fiber_fitted
 
+# TODO: test rofl, not simpli.apply_rofl
+
 
 class MainTest(unittest.TestCase):
 
@@ -32,22 +34,21 @@ class MainTest(unittest.TestCase):
         simpli.untilt_sensor_view = False
         simpli.wavelength = 525  # in nm
         simpli.step_size = 1  # in voxel_size
-        TILTS = [(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]
+        simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
+                                   (5.5, 270)])
+        tilting_stack = [None] * 5
 
-        tilting_stack = [None] * len(TILTS)
-
-        for t, (theta, phi) in enumerate(TILTS):
-            simpli.step_size = 1 / np.cos(np.deg2rad(theta))
+        for t, (theta, phi) in enumerate(simpli.tilts):
+            simpli.step_size = 1 / np.cos(theta)
             images = simpli.run_simulation(label_field, vec_field,
-                                           tissue_properties, np.deg2rad(theta),
-                                           np.deg2rad(phi))
+                                           tissue_properties, theta, phi)
 
             # calculate modalities
             tilting_stack[t] = images
 
         simpli.sensor_gain = 3
         rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
-            tilting_stack, tilt_angle=np.deg2rad(TILTS[-1][0]), grad_mode=False)
+            tilting_stack, grad_mode=False)
 
         t_rel = 4 * simpli.voxel_size * abs(
             tissue_properties[1][0]) / (simpli.wavelength / 1e3)

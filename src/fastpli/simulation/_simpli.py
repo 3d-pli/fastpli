@@ -53,8 +53,7 @@ class Simpli:
         self._resolution = None
         self._optical_sigma = None
         self._step_size = 1.0
-        self._tilts = [(0, 0), (5, np.deg2rad(0)), (5, np.deg2rad(90)),
-                       (5, np.deg2rad(180)), (5, np.deg2rad(270))]
+        self._tilts = None
         self._tissue_refrection = 1
         self._untilt_sensor_view = True
         self._wavelength = None
@@ -101,7 +100,7 @@ class Simpli:
             if value is not None:
                 setattr(self, key, value)
             else:
-                warnings.warn("None value in dict detected.")
+                warnings.warn("None value in dict detected")
 
     @property
     def debug(self):
@@ -230,7 +229,7 @@ class Simpli:
         if not isinstance(tilts, (list, tuple, np.ndarray)):
             raise TypeError("tilts is not a list or array")
 
-        tilts = np.array(tilts)
+        tilts = np.array(tilts, ndmin=2)
         if tilts.ndim != 2:
             raise TypeError("tilts.shape != nx2")
         if tilts.shape[-1] != 2:
@@ -505,16 +504,6 @@ class Simpli:
         if self._filter_rotations is None:
             raise ValueError("filter_rotations not set")
 
-    def _check_analysis_input(self):
-        if not np.all(
-                self._tilts[:,
-                            -1] == np.deg2rad(np.array([0, 0, 90, 180, 270]))):
-            raise ValueError(
-                "Currently only the std tilting angles can be analysed.")
-
-        if not self._sensor_gain:
-            raise ValueError("sensor_gain not set")
-
     def run_simulation(self, label_field, vec_field, tissue_properties, theta,
                        phi):
 
@@ -554,10 +543,12 @@ class Simpli:
             raise ValueError("tilts not set")
 
         flag_rofl = True
-        if np.any(self._tilts != np.deg2rad(
-                np.array([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5,
-                                                                    270)]))):
+        if np.any(self._tilts[:, 1] != np.deg2rad([0, 0, 90, 180, 270])
+                 ) or self._tilts[0, 0] != 0 or np.any(
+                     self._tilts[1:, 0] != self._tilts[1, 0]):
             warnings.warn("Tilts not suitable for ROFL. Skipping analysis")
+            print(np.rad2deg(self._tilts[:, 0]))
+            print(np.rad2deg(self._tilts))
             flag_rofl = False
 
         tilting_stack = [None] * len(self._tilts)
@@ -622,8 +613,6 @@ class Simpli:
             rofl_direction, rofl_incl, rofl_t_rel, (
                 rofl_direction_conf, rofl_incl_conf, rofl_t_rel_conf, rofl_func,
                 rofl_n_iter) = self.apply_rofl(tilting_stack,
-                                               tilt_angle=np.deg2rad(
-                                                   self._tilts[-1][0]),
                                                mask=None,
                                                mp_pool=mp_pool)
         else:
@@ -937,15 +926,20 @@ class Simpli:
 
         return transmittance, direction, retardation
 
-    def apply_rofl(self,
-                   input,
-                   tilt_angle,
-                   mask=None,
-                   mp_pool=None,
-                   grad_mode=False):
+    def apply_rofl(self, input, mask=None, mp_pool=None, grad_mode=False):
         '''
         input = np.array(tilt,x,y,rho)
         '''
+
+        if self._tilts is None:
+            raise ValueError("tilts not set")
+
+        if np.any(self._tilts[:, 1] != np.deg2rad([0, 0, 90, 180, 270])
+                 ) or self._tilts[0, 0] != 0 or np.any(
+                     self._tilts[1:, 0] != self._tilts[1, 0]):
+            raise ValueError("tilts not suitable for ROFL")
+
+        tilt_angle = self._tilts[1, 0]
 
         input = np.array(input, copy=False)
 

@@ -10,6 +10,7 @@ examples/
 !examples/sandbox.py
 !examples/simpli_mpi.py
 !examples/simpli.py
+!examples/simulation_pipeline.py
 
 # data
 *.h5

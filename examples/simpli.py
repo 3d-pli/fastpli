@@ -13,7 +13,7 @@ FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 
-with h5py.File(os.path.join(FILE_PATH, 'simpli.h5'), 'w') as h5f:
+with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     # save script
     h5f['version'] = fastpli.__version__
     with open(os.path.abspath(__file__), 'r') as f:
@@ -53,15 +53,15 @@ with h5py.File(os.path.join(FILE_PATH, 'simpli.h5'), 'w') as h5f:
     simpli.resolution = 20  # in mu meter
     simpli.sensor_gain = 3
     simpli.optical_sigma = 0.71  # in voxel size
-    TILTS = [(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]
+    simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
+                               (5.5, 270)])
 
-    tilting_stack = [None] * len(TILTS)
+    tilting_stack = [None] * 5
     print("Run Simulation:")
-    for t, (theta, phi) in enumerate(TILTS):
-        print(theta, phi)
+    for t, (theta, phi) in enumerate(simpli.tilts):
+        print(round(np.rad2deg(theta), 1), round(np.rad2deg(phi), 1))
         images = simpli.run_simulation(label_field, vec_field,
-                                       tissue_properties, np.deg2rad(theta),
-                                       np.deg2rad(phi))
+                                       tissue_properties, theta, phi)
 
         h5f['data/' + str(t)] = images
 
@@ -85,8 +85,8 @@ with h5py.File(os.path.join(FILE_PATH, 'simpli.h5'), 'w') as h5f:
     mask = None  # keep analysing all pixels
 
     print("Run ROFL analysis:")
-    rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
-        tilting_stack, tilt_angle=np.deg2rad(5.5), mask=mask)
+    rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(tilting_stack,
+                                                                 mask=mask)
 
     h5f['rofl/direction'] = np.rad2deg(rofl_direction)
     h5f['rofl/inclination'] = np.rad2deg(rofl_incl)

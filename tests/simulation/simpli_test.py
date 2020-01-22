@@ -142,6 +142,14 @@ class MainTest(unittest.TestCase):
             self.assertTrue(self.simpli.get_dict() == parameters)
             self.assertWarns(UserWarning, self.simpli.set_dict, parameters)
 
+    def test_rofl(self):
+        with self.assertRaisesRegex(ValueError, "tilts not set"):
+            self.simpli.apply_rofl(0)
+
+        with self.assertRaisesRegex(ValueError, "tilts not suitable for ROFL"):
+            self.simpli.tilts = [0, 1]
+            self.simpli.apply_rofl(0)
+
 
 if __name__ == '__main__':
     unittest.main()
