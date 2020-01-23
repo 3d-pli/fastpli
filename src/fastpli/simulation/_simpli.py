@@ -532,6 +532,53 @@ class Simpli:
 
         return images
 
+    def save_parameter(self, h5f, script=None):
+        h5f['parameter/dict'] = str(self.get_dict())
+        h5f['parameter/version'] = __version__
+        h5f['parameter/compiler'] = __compiler__
+        h5f['parameter/libraries'] = __libraries__
+        h5f['parameter/pip_freeze'] = pip_freeze()
+        if script:
+            h5f['parameter/script'] = script
+
+    def run_tissue_pipeline(self, h5f=None, script=None, save=[]):
+
+        self._check_volume_input()
+        self._check_generation_input()
+
+        # run tissue generation
+        self._print("Generate Tissue")
+        label_field, vector_field, tissue_properties = self.generate_tissue()
+
+        if h5f and save:
+
+            for s in save:
+                if s not in ["label_field", "vector_field"]:
+                    raise ValueError(
+                        "only label_field and vector_field are allowed")
+
+            if "label_field" in save:
+                self._print("Save label_field")
+                dset = h5f.create_dataset('tissue/label_field',
+                                          label_field.shape,
+                                          dtype=np.uint16,
+                                          compression='gzip',
+                                          compression_opts=1)
+                dset[:] = label_field
+
+            if "vector_field" in save:
+                self._print("Save vector_field")
+                dset = h5f.create_dataset('tissue/vector_field',
+                                          vector_field.shape,
+                                          dtype=np.float32,
+                                          compression='gzip',
+                                          compression_opts=1)
+                dset[:] = vector_field
+
+            h5f['tissue/tissue_properties'] = tissue_properties
+
+        return label_field, vector_field, tissue_properties
+
     def run_simulation_pipeline(self,
                                 label_field,
                                 vector_field,
@@ -540,7 +587,9 @@ class Simpli:
                                 mp_pool=None):
 
         if self._tilts is None:
-            raise ValueError("tilts not set")
+            raise ValueError("tilts is not set")
+        if self._optical_sigma is None:
+            raise ValueError("optical_sigma is not set")
 
         flag_rofl = True
         if np.any(self._tilts[:, 1] != np.deg2rad([0, 0, 90, 180, 270])
@@ -635,9 +684,6 @@ class Simpli:
             h5f['analysis/rofl/func'] = rofl_func,
             h5f['analysis/rofl/n_iter'] = rofl_n_iter
 
-        if h5f:
-            h5f['/parameter/dict'] = str(self.get_dict())
-
         if flag_rofl:
             fom = fom_hsv_black(rofl_direction, rofl_incl)
         else:
@@ -647,6 +693,7 @@ class Simpli:
 
     def run_pipeline(self, h5f=None, script=None, save=[], mp_pool=None):
 
+        # check parameters
         self._check_volume_input()
         self._check_generation_input()
         self._check_simulation_input()
@@ -655,45 +702,15 @@ class Simpli:
         if self._optical_sigma is None:
             raise ValueError("optical_sigma is not set")
 
+        # save parameters
         if h5f:
-            h5f['/parameter/version'] = __version__
-            h5f['/parameter/compiler'] = __compiler__
-            h5f['/parameter/libraries'] = __libraries__
-            h5f['/parameter/pip_freeze'] = pip_freeze()
-            if script:
-                h5f['/parameter/script'] = script
+            self.save_parameter(h5f, script)
 
         # run tissue generation
-        self._print("Generate Tissue")
-        label_field, vector_field, tissue_properties = self.generate_tissue()
+        label_field, vector_field, tissue_properties = self.run_tissue_pipeline(
+            h5f, script, save)
 
-        if h5f and save:
-
-            for s in save:
-                if s not in ["label_field", "vector_field"]:
-                    raise ValueError(
-                        "only label_field and vector_field are allowed")
-
-            if "label_field" in save:
-                self._print("Save label_field")
-                dset = h5f.create_dataset('tissue/label_field',
-                                          label_field.shape,
-                                          dtype=np.uint16,
-                                          compression='gzip',
-                                          compression_opts=1)
-                dset[:] = label_field
-
-            if "vector_field" in save:
-                self._print("Save vector_field")
-                dset = h5f.create_dataset('tissue/vector_field',
-                                          vector_field.shape,
-                                          dtype=np.float32,
-                                          compression='gzip',
-                                          compression_opts=1)
-                dset[:] = vector_field
-
-            h5f['tissue/tissue_properties'] = tissue_properties
-
+        # run simulation and analysis
         tilting_stack, (rofl_direction, rofl_incl,
                         rofl_t_rel), fom = self.run_simulation_pipeline(
                             label_field, vector_field, tissue_properties, h5f,
