@@ -1,8 +1,10 @@
 from .__solver import _Solver
 
-from ...version import __version__
+from ...version import __version__, __compiler__, __libraries__
+from ...tools.helper import pip_freeze
 
 import numpy as np
+import warnings
 import os
 
 
@@ -15,7 +17,7 @@ class Solver(_Solver):
             raise TypeError("%r is a frozen class" % self)
         object.__setattr__(self, key, value)
 
-    def _freeze(self):
+    def __freeze(self):
         self.__isfrozen = True
 
     def __init__(self):
@@ -26,21 +28,37 @@ class Solver(_Solver):
         self._obj_mean_length = 0
         self._col_voi = None
         self._omp_num_threads = 1
-        self._display = None
+        self.__display = None
 
         super()._set_omp_num_threads(self._omp_num_threads)
 
-        self._freeze()
+        self.__freeze()
 
-    def as_dict(self):
-        return {
-            'version': __version__,
-            'drag': self._drag,
-            'obj_min_radius': self._obj_min_radius,
-            'obj_mean_length': self._obj_mean_length,
-            'col_voi': self._col_voi,
-            'omp_num_threads': self._omp_num_threads
-        }
+    def get_dict(self):
+        """
+        Get all member variables which are properties
+        """
+        members = dict()
+        for key, value in self.__dict__.items():
+            if key == '_cells_populations' or key == '_fiber_bundles':
+                continue
+            if key.startswith("_") and not key.startswith(
+                    "__") and not key.startswith("_Solver"):
+                if isinstance(value, np.ndarray):
+                    members[key[1:]] = value.tolist()
+                else:
+                    members[key[1:]] = value
+        return members
+
+    def set_dict(self, input):
+        for key, value in input.items():
+            if key.startswith("_"):
+                raise ValueError("member variable cant be set directly")
+
+            if value is not None:
+                setattr(self, key, value)
+            else:
+                warnings.warn("None value in dict detected")
 
     @property
     def fiber_bundles(self):
@@ -126,15 +144,15 @@ class Solver(_Solver):
             self._omp_num_threads)
 
     def draw_scene(self):
-        if self._display is None:
+        if self.__display is None:
             try:
                 os.environ['DISPLAY']
-                self._display = True
+                self.__display = True
             except BaseException:
                 print("test_opengl: no display detected")
-                self._display = False
+                self.__display = False
 
-        if self._display:
+        if self.__display:
             super().draw_scene()
 
     def apply_boundary_conditions(self, n_max=10):
@@ -144,3 +162,12 @@ class Solver(_Solver):
         super().apply_boundary_conditions(n_max)
 
         return self.fiber_bundles
+
+    def save_parameter(self, h5f, script=None):
+        h5f['parameter/dict'] = str(self.get_dict())
+        h5f['parameter/version'] = __version__
+        h5f['parameter/compiler'] = __compiler__
+        h5f['parameter/libraries'] = __libraries__
+        h5f['parameter/pip_freeze'] = pip_freeze()
+        if script:
+            h5f['parameter/script'] = script

@@ -13,7 +13,8 @@ class MainTest(unittest.TestCase):
         self.solver.fiber_bundles = self._test_fiberbundles
 
     def test_dict(self):
-        self.solver.as_dict()
+        d = self.solver.get_dict()
+        self.assertWarns(UserWarning, self.solver.set_dict, d)
 
     def test_number_of_fibers(self):
         self.solver.drag = 0
