@@ -85,6 +85,7 @@ link-python:
 .PHONY: test
 test:
 	${VENV}/bin/python3 -m unittest discover -s tests -p '*_test.py'
+	# find tests/ -type d -name "__pycache__" -exec rm -r {} \;
 
 .PHONY: h5py-serial
 h5py-serial:

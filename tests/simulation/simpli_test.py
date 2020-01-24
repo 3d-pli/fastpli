@@ -26,11 +26,13 @@ class MainTest(unittest.TestCase):
         self.assertWarns(UserWarning, self.simpli.set_dict, d)
 
         # io
-        with h5py.File('/tmp/fastpli.test_.h5', 'w') as h5f:
+        with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
             h5f['dict'] = str(d)
             d_read = h5f['dict'][...]
             d_new = dict(eval(str(d_read)))
             self.assertWarns(UserWarning, self.simpli.set_dict, d_new)
+
+        self.addCleanup(os.remove, '/tmp/fastpli.test.h5')
 
     def test_dimension(self):
         self.simpli.fiber_bundles = [[[[1, 3, 0, 2], [1, 3, 7, 2]]]]
@@ -112,6 +114,8 @@ class MainTest(unittest.TestCase):
             h5f['vectorfield'] = vec_field
             h5f['data/0'] = image
 
+        self.addCleanup(os.remove, '/tmp/fastpli.test.h5')
+
     def test_pipelline(self):
         self.simpli.voxel_size = 1
         self.simpli.dim = [10, 10, 10]
@@ -141,6 +145,8 @@ class MainTest(unittest.TestCase):
             parameters = dict(eval(str(h5f['parameter/dict'][...])))
             self.assertTrue(self.simpli.get_dict() == parameters)
             self.assertWarns(UserWarning, self.simpli.set_dict, parameters)
+
+        self.addCleanup(os.remove, '/tmp/fastpli.test.h5')
 
     def test_rofl(self):
         with self.assertRaisesRegex(ValueError, "tilts not set"):
