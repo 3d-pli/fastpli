@@ -579,11 +579,39 @@ class Simpli:
 
         return label_field, vector_field, tissue_properties
 
+    def crop_tilt_pixel(self):
+        if not self.untilt_sensor_view:
+            raise ValueError("currently only for untilt_sensor_view=True")
+        if self._voxel_size is None:
+            raise ValueError("voxel_size is not set")
+        if self._resolution is None:
+            raise ValueError("resolution is not set")
+        if self._tilts is None:
+            raise ValueError("tilts are not set")
+
+        delta_pixel = int(
+            np.ceil(
+                np.tan(np.max(np.abs(self._tilts[:, 0]))) * self._dim[-1] / 2 *
+                self._voxel_size / self._resolution))
+        return delta_pixel
+
+    def crop_tilt_voxel(self):
+        delta_voxel = int(
+            np.round(self.crop_tilt_pixel() * self._resolution /
+                     self._voxel_size))
+        return delta_voxel
+
+    def add_crop_tilt_halo(self):
+        self.dim_origin[:2] -= self.crop_tilt_voxel() * self.voxel_size
+        self.dim[:2] += 2*self.crop_tilt_voxel()
+
+
     def run_simulation_pipeline(self,
                                 label_field,
                                 vector_field,
                                 tissue_properties,
                                 h5f=None,
+                                crop_tilt=False,
                                 mp_pool=None):
 
         if self._tilts is None:
@@ -596,8 +624,6 @@ class Simpli:
                  ) or self._tilts[0, 0] != 0 or np.any(
                      self._tilts[1:, 0] != self._tilts[1, 0]):
             warnings.warn("Tilts not suitable for ROFL. Skipping analysis")
-            print(np.rad2deg(self._tilts[:, 0]))
-            print(np.rad2deg(self._tilts))
             flag_rofl = False
 
         tilting_stack = [None] * len(self._tilts)
@@ -609,6 +635,12 @@ class Simpli:
                 t, round(np.rad2deg(theta), 2), round(np.rad2deg(phi), 2)))
             images = self.run_simulation(label_field, vector_field,
                                          tissue_properties, theta, phi)
+
+            if crop_tilt:
+                delta_voxel = self.crop_tilt_voxel()
+                print(delta_voxel)
+                images = images[delta_voxel:-1 - delta_voxel,
+                                delta_voxel:-1 - delta_voxel, :]
 
             if h5f:
                 h5f['simulation/data/' + str(t)] = images
@@ -691,7 +723,12 @@ class Simpli:
 
         return tilting_stack, (rofl_direction, rofl_incl, rofl_t_rel), fom
 
-    def run_pipeline(self, h5f=None, script=None, save=[], mp_pool=None):
+    def run_pipeline(self,
+                     h5f=None,
+                     script=None,
+                     save=[],
+                     crop_tilt=False,
+                     mp_pool=None):
 
         # check parameters
         self._check_volume_input()
@@ -713,8 +750,12 @@ class Simpli:
         # run simulation and analysis
         tilting_stack, (rofl_direction, rofl_incl,
                         rofl_t_rel), fom = self.run_simulation_pipeline(
-                            label_field, vector_field, tissue_properties, h5f,
-                            mp_pool)
+                            label_field,
+                            vector_field,
+                            tissue_properties,
+                            h5f=h5f,
+                            crop_tilt=crop_tilt,
+                            mp_pool=mp_pool)
 
         return (label_field, vector_field,
                 tissue_properties), tilting_stack, (rofl_direction, rofl_incl,

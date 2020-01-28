@@ -18,8 +18,6 @@ class MainTest(unittest.TestCase):
         self.simpli = Simpli()
         self.simpli.fiber_bundles = self.fiber_bundles
         self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
-        self.simpli.dim = [10, 10, 10]
-        self.simpli.voxel_size = 0.2
 
     def test_dict(self):
         d = self.simpli.get_dict()
@@ -53,6 +51,8 @@ class MainTest(unittest.TestCase):
                            np.array(vec_field[:, :, :, 2], dtype=int)))
 
     def test_generator(self):
+        self.simpli.dim = [10, 10, 10]
+        self.simpli.voxel_size = 0.2
         label_field_0, vec_field, tissue_properties = self.simpli.generate_tissue(
             only_label=True)
         self.assertTrue(vec_field.size == 0)
@@ -132,8 +132,8 @@ class MainTest(unittest.TestCase):
         self.simpli.sensor_gain = 3
         self.simpli.optical_sigma = 0.71
         self.simpli.resolution = 2
-        self.simpli.tilts = np.deg2rad(
-            np.array([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]))
+        self.simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
+                                        (5.5, 270)])
 
         with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
             with open(os.path.abspath(__file__), 'r') as script:
@@ -155,6 +155,19 @@ class MainTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "tilts not suitable for ROFL"):
             self.simpli.tilts = [0, 1]
             self.simpli.apply_rofl(0)
+
+    def test_crop_tilt(self):
+        self.simpli.voxel_size = 0.51
+        self.simpli.resolution = 10
+        self.simpli.set_voi([-100] * 3, [100] * 3)
+        self.simpli.tilts = np.deg2rad([(15.5, 0)])
+        dim_org = self.simpli.dim
+
+        self.simpli.add_crop_tilt_halo()
+        dim_crop = self.simpli.dim
+        dim_crop[:2] -= 2 * self.simpli.crop_tilt_voxel()
+
+        self.assertTrue(np.array_equal(dim_org, dim_crop))
 
 
 if __name__ == '__main__':

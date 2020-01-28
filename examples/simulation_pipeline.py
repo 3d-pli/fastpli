@@ -31,16 +31,19 @@ simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
 simpli.light_intensity = 26000  # a.u.
 simpli.interpolate = True
 simpli.wavelength = 525  # in nm
-simpli.resolution = 20  # in mu meter
+simpli.resolution = 5  # in mu meter
 simpli.tilts = np.deg2rad(
     np.array([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]))
 simpli.sensor_gain = 3
 simpli.optical_sigma = 0.71  # in voxel size
 simpli.verbose = 1
 
+print(simpli.crop_tilt_pixel())
+
 with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     with open(os.path.abspath(__file__), 'r') as script:
         simpli.run_pipeline(h5f=h5f,
                             script=script.read(),
                             save=["label_field"],
+                            crop_tilt=True,
                             mp_pool=pool)
