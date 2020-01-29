@@ -135,6 +135,8 @@ class MainTest(unittest.TestCase):
         self.simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
                                         (5.5, 270)])
 
+        self.simpli.run_pipeline(save=["label_field", "vector_field"])
+
         with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
             with open(os.path.abspath(__file__), 'r') as script:
                 self.simpli.run_pipeline(h5f=h5f,
