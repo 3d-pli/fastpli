@@ -603,8 +603,7 @@ class Simpli:
 
     def add_crop_tilt_halo(self):
         self.dim_origin[:2] -= self.crop_tilt_voxel() * self.voxel_size
-        self.dim[:2] += 2*self.crop_tilt_voxel()
-
+        self.dim[:2] += 2 * self.crop_tilt_voxel()
 
     def run_simulation_pipeline(self,
                                 label_field,
@@ -681,7 +680,7 @@ class Simpli:
         mask = np.sum(label_field, 2) > 0
         mask = self.apply_optic_resample(1.0 * mask, mp_pool=mp_pool) > 0.1
         if h5f:
-        h5f['simulation/optic/mask'] = np.uint8(mask)
+            h5f['simulation/optic/mask'] = np.uint8(mask)
 
         tilting_stack = np.array(tilting_stack)
         while tilting_stack.ndim < 4:
