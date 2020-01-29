@@ -638,7 +638,6 @@ class Simpli:
 
             if crop_tilt:
                 delta_voxel = self.crop_tilt_voxel()
-                print(delta_voxel)
                 images = images[delta_voxel:-1 - delta_voxel,
                                 delta_voxel:-1 - delta_voxel, :]
 
