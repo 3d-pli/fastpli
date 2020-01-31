@@ -4,6 +4,27 @@ import copy
 from . import fiber
 
 
+def Cast(fiber_bundles):
+    if not fiber_bundles:
+        return None
+
+    if not isinstance(fiber_bundles, (list, tuple)):
+        raise TypeError("fiber_bundles is not a list")
+
+    for fb_i, fb in enumerate(fiber_bundles):
+        if not isinstance(fb, (list, tuple)):
+            raise TypeError("fiber_bundle is not a list")
+
+        for f_i, f in enumerate(fb):
+            fiber_bundles[fb_i][f_i] = np.array(f, dtype=float)
+
+            if fiber_bundles[fb_i][f_i].ndim != 2 or fiber_bundles[fb_i][
+                    f_i].shape[1] != 4:
+                raise TypeError("fiber elements has to be of shape nx4")
+
+    return fiber_bundles
+
+
 def Rescale(fiber_bundles, scale, mod='all'):
     fiber_bundles = copy.deepcopy(fiber_bundles)
     for j, fb in enumerate(fiber_bundles):

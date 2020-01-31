@@ -54,6 +54,10 @@ class MainTest(unittest.TestCase):
 
     def test_h5_dat(self):
         with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
+            s = Solver()
+            fiber.save_h5(h5f, s.fiber_bundles)
+
+        with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
             fiber.save_h5(h5f, self.solver.fiber_bundles)
 
         with open('/tmp/fastpli.test.dat', 'w') as file:

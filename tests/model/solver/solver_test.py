@@ -1,5 +1,7 @@
 import unittest
 import numpy as np
+import h5py
+import os
 
 import fastpli.model.solver
 
@@ -112,6 +114,13 @@ class MainTest(unittest.TestCase):
         fbs = self.solver.fiber_bundles
         self.assertFalse(np.array_equal(fiber_0[:, :3], fbs[0][0][:, :3]))
         self.assertTrue(np.array_equal(fiber_0[:, -1], fbs[0][0][:, -1]))
+
+    def test_io(self):
+        with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
+            self.solver.save_h5(h5f)
+        with h5py.File('/tmp/fastpli.test.h5', 'r') as h5f:
+            self.assertWarns(UserWarning, self.solver.load_h5, h5f)
+        self.addCleanup(os.remove, '/tmp/fastpli.test.h5')
 
     def test_openmp(self):
         self.solver.omp_num_threads = 2

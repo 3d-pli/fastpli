@@ -1,12 +1,11 @@
 from .__generation import _Generator
 from .__simulation import _Simulator
 
-from ..version import __version__, __compiler__, __libraries__
-from ..analysis import rofl, epa, affine_transformation
-from ..analysis.images import fom_hsv_black
-from ..simulation import optic
-from ..tools import rotation
-from ..tools.helper import pip_freeze
+from . import optic
+from .. import analysis
+from .. import objects
+from .. import tools
+from .. import version
 
 import numpy as np
 import warnings
@@ -329,27 +328,7 @@ class Simpli:
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
-
-        if not fbs:
-            self._fiber_bundles = None
-            return
-
-        if not isinstance(fbs, (list, tuple)):
-            raise TypeError("fbs is not a list")
-
-        for fb_i, fb in enumerate(fbs):
-            if not isinstance(fb, (list, tuple)):
-                raise TypeError("fb is not a list")
-
-            for f_i, f in enumerate(fb):
-                fbs[fb_i][f_i] = np.array(f, dtype=float)
-
-                if fbs[fb_i][f_i].ndim != 2:
-                    raise TypeError("fiber.shape != nx4")
-
-                if fbs[fb_i][f_i].shape[1] != 4:
-                    raise TypeError("fiber.shape != nx4")
-
+        fbs = objects.fiber_bundles.Cast(fbs)
         self._fiber_bundles = fbs
 
     @property
@@ -532,17 +511,16 @@ class Simpli:
 
         return images
 
-    def save_parameter(self, h5f, script=None):
-        h5f['parameter/dict'] = str(self.get_dict())
-        h5f['parameter/version'] = __version__
-        h5f['parameter/compiler'] = __compiler__
-        h5f['parameter/libraries'] = __libraries__
-        h5f['parameter/pip_freeze'] = pip_freeze()
+    def save_parameter_h5(self, h5f, script=None):
+        h5f.attrs['fastpli/simpli'] = str(self.get_dict())
+        h5f.attrs['fastpli/version'] = version.__version__
+        h5f.attrs['fastpli/compiler'] = version.__compiler__
+        h5f.attrs['fastpli/libraries'] = version.__libraries__
+        h5f.attrs['fastpli/pip_freeze'] = tools.helper.pip_freeze()
         if script:
-            h5f['parameter/script'] = script
+            h5f.attrs['script'] = script
 
     def run_tissue_pipeline(self, h5f=None, script=None, save=[]):
-
         self._check_volume_input()
         self._check_generation_input()
 
@@ -716,7 +694,7 @@ class Simpli:
             h5f['analysis/rofl/n_iter'] = rofl_n_iter
 
         if flag_rofl:
-            fom = fom_hsv_black(rofl_direction, rofl_incl)
+            fom = analysis.images.fom_hsv_black(rofl_direction, rofl_incl)
         else:
             fom = None
 
@@ -740,7 +718,7 @@ class Simpli:
 
         # save parameters
         if h5f:
-            self.save_parameter(h5f, script)
+            self.save_parameter_h5(h5f, script)
 
         # run tissue generation
         label_field, vector_field, tissue_properties = self.run_tissue_pipeline(
@@ -940,14 +918,14 @@ class Simpli:
         p = self._dim.copy()
         p_rot = 0.5 * np.array([p[0], p[1], 0])
         p_out = np.array([[p[0], p[1], 0], [p[0], 0, 0], [0, p[1], 0]])
-        rot = rotation.theta_phi(-theta, phi)
+        rot = tools.rotation.theta_phi(-theta, phi)
 
         p_in = np.array([np.dot(rot, p - p_rot) + p_rot for p in p_out])
 
         # TODO: refraction has to be implemented
-        M = affine_transformation.calc_matrix(p_in[:, :2], p_out[:, :2])
+        M = analysis.affine_transformation.calc_matrix(p_in[:, :2], p_out[:, :2])
 
-        output = affine_transformation.image(input, M, mode)
+        output = analysis.affine_transformation.image(input, M, mode)
         if input.ndim == 3:
             output = np.atleast_3d(output)
 
@@ -958,7 +936,7 @@ class Simpli:
         input = np.array(x,y,rho)
         '''
 
-        transmittance, direction, retardation = epa.epa(input)
+        transmittance, direction, retardation = analysis.epa.epa(input)
         if mask is not None:
             transmittance[np.invert(mask)] = float('nan')
             direction[np.invert(mask)] = float('nan')
@@ -1011,7 +989,7 @@ class Simpli:
             for j in range(input.shape[2]):
                 chunk = [(input[:, i, j, :], tilt_angle, self._sensor_gain, 0,
                           grad_mode) for i in range(input.shape[1])]
-                results = mp_pool.starmap(rofl.rofl, chunk)
+                results = mp_pool.starmap(analysis.rofl.rofl, chunk)
 
                 for i, result in enumerate(results):
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
@@ -1024,7 +1002,7 @@ class Simpli:
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i,
                             j], itermap[i,
-                                        j] = rofl.rofl(input[:, i,
+                                        j] = analysis.rofl.rofl(input[:, i,
                                                              j, :], tilt_angle,
                                                        self._sensor_gain, 0,
                                                        grad_mode)

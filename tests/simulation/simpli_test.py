@@ -144,7 +144,7 @@ class MainTest(unittest.TestCase):
                                          save=["label_field", "vector_field"])
 
         with h5py.File('/tmp/fastpli.test.h5', 'r') as h5f:
-            parameters = dict(eval(str(h5f['parameter/dict'][...])))
+            parameters = dict(eval(str(h5f.attrs['fastpli/simpli'])))
             self.assertTrue(self.simpli.get_dict() == parameters)
             self.assertWarns(UserWarning, self.simpli.set_dict, parameters)
 

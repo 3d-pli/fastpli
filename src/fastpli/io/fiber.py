@@ -2,8 +2,10 @@ import os
 import numpy as np
 import h5py
 
+from .. import objects
 
-def load(file_name, group_name='fiber_bundles/'):
+
+def load(file_name, group_name=''):
     """
     Load fiberbundles configurations from a text file oder hdf5 file
 
@@ -91,7 +93,7 @@ def load_h5(h5f):
     return fiber_bundles
 
 
-def save(file_name, fiber_bundles, group_name='fiber_bundles/', mode='w-'):
+def save(file_name, fiber_bundles, group_name='', mode='w-'):
     """
     Save fiberbundles configurations to a text file oder hdf5 file
 
@@ -110,17 +112,7 @@ def save(file_name, fiber_bundles, group_name='fiber_bundles/', mode='w-'):
     if ext in ['.dat', '.txt']:
         mode = 'a' if mode == 'w-' else mode
         with open(file_name, mode) as file:
-            for fb, fiber_bundle in enumerate(fiber_bundles):
-                for fiber in fiber_bundle:
-                    if fiber.shape[1] != 4 or len(fiber.shape) != 2:
-                        raise TypeError('Wrong shape:', fiber.shape)
-                    for line in fiber:
-                        file.write(
-                            str(line[0]) + " " + str(line[1]) + " " +
-                            str(line[2]) + " " + str(line[3]) + "\n")
-                    file.write("\n")
-                if fb != len(fiber_bundles) - 1:
-                    file.write("\n")
+            save_dat(file, fiber_bundles)
     elif ext == '.h5':
         mode = 'w-' if mode == 'a' else mode
         with h5py.File(file_name, mode) as h5f:
@@ -140,6 +132,11 @@ def save_dat(file, fiber_bundles):
     fiber_bundles : list( list( (n,4)-array_like ) )
     """
 
+    fiber_bundles = objects.fiber_bundles.Cast(fiber_bundles)
+
+    if not fiber_bundles:
+        return
+
     for fb, fiber_bundle in enumerate(fiber_bundles):
         for fiber in fiber_bundle:
             if fiber.shape[1] != 4 or len(fiber.shape) != 2:
@@ -153,7 +150,7 @@ def save_dat(file, fiber_bundles):
             file.write("\n")
 
 
-def save_h5(h5f, fiber_bundles, mode='w-'):
+def save_h5(h5f, fiber_bundles):
     """
     Save fiberbundles configurations inside a hdf5 file
 
@@ -163,6 +160,10 @@ def save_h5(h5f, fiber_bundles, mode='w-'):
         h5-file or group object
     fiber_bundles : list( list( (n,4)-array_like ) )
     """
+
+    fiber_bundles = objects.fiber_bundles.Cast(fiber_bundles)
+    if not fiber_bundles:
+        return
 
     for fb_i, fb in enumerate(fiber_bundles):
         grp_fb = h5f.create_group(str(fb_i))

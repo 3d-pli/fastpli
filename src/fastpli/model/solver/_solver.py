@@ -1,7 +1,9 @@
 from .__solver import _Solver
 
-from ...version import __version__, __compiler__, __libraries__
-from ...tools.helper import pip_freeze
+from ... import io
+from ... import objects
+from ... import tools
+from ... import version
 
 import numpy as np
 import warnings
@@ -28,6 +30,7 @@ class Solver(_Solver):
         self._obj_mean_length = 0
         self._col_voi = None
         self._omp_num_threads = 1
+        self._step_num = 0
         self.__display = None
 
         super()._set_omp_num_threads(self._omp_num_threads)
@@ -66,21 +69,7 @@ class Solver(_Solver):
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
-        if not isinstance(fbs, (list, tuple)):
-            raise TypeError("fbs is not a list")
-
-        for fb_i, fb in enumerate(fbs):
-            if not isinstance(fb, (list, tuple)):
-                raise TypeError("fb is not a list")
-
-            for f_i, f in enumerate(fb):
-                f = np.array(f, dtype=np.float64, copy=False)
-
-                if len(f.shape) is not 2 or f.shape[1] is not 4:
-                    raise TypeError("fiber elements has to be of dim nx4")
-
-                fbs[fb_i][f_i] = f
-
+        fbs = objects.fiber_bundles.Cast(fbs)
         super()._set_fiber_bundles(fbs)
 
     @property
@@ -92,6 +81,18 @@ class Solver(_Solver):
         self._drag = value
         super()._set_parameters(self._drag, self._obj_min_radius,
                                 self._obj_mean_length)
+
+    @property
+    def step_num(self):
+        return self._step_num
+
+    @drag.setter
+    def step_num(self, value):
+        self._step_num = int(value)
+
+    @property
+    def reset_step_num(self):
+        self._step_num = 0
 
     @property
     def obj_min_radius(self):
@@ -143,13 +144,17 @@ class Solver(_Solver):
         self._omp_num_threads = super()._set_omp_num_threads(
             self._omp_num_threads)
 
+    def step(self):
+        super().step()
+        self._step_num += 1
+
     def draw_scene(self):
         if self.__display is None:
             try:
                 os.environ['DISPLAY']
                 self.__display = True
             except BaseException:
-                print("test_opengl: no display detected")
+                warning.warn("test_opengl: no display detected")
                 self.__display = False
 
         if self.__display:
@@ -163,11 +168,25 @@ class Solver(_Solver):
 
         return self.fiber_bundles
 
-    def save_parameter(self, h5f, script=None):
-        h5f['parameter/dict'] = str(self.get_dict())
-        h5f['parameter/version'] = __version__
-        h5f['parameter/compiler'] = __compiler__
-        h5f['parameter/libraries'] = __libraries__
-        h5f['parameter/pip_freeze'] = pip_freeze()
+    def save_parameter_h5(self, h5f, script=None):
+        h5f.attrs['fastpli/version'] = version.__version__
+        h5f.attrs['fastpli/compiler'] = version.__compiler__
+        h5f.attrs['fastpli/libraries'] = version.__libraries__
+        h5f.attrs['fastpli/pip_freeze'] = tools.helper.pip_freeze()
+        h5f.attrs['fastpli/solver'] = str(self.get_dict())
         if script:
-            h5f['parameter/script'] = script
+            h5f.attrs['script'] = script
+
+    def save_h5(self, h5f, script=None):
+        io.fiber.save_h5(h5f, self.fiber_bundles)
+        self.save_parameter_h5(h5f)
+
+    def load_h5(self, h5f):
+        self.fiber_bundles = io.fiber.load_h5(h5f)
+        self.set_dict(dict(eval(str(h5f.attrs['fastpli/solver']))))
+
+        if h5f.attrs['fastpli/version'] != version.__version__:
+            warnings.warn("__version__ changed")
+
+        if h5f.attrs['fastpli/pip_freeze'] != tools.helper.pip_freeze():
+            warnings.warn("pip_freeze changed")
