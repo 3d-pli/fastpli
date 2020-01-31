@@ -39,14 +39,15 @@ solver.draw_scene()
 for i in range(1000):
     solved = solver.step()
 
+    overlap = solver.overlap / solver.num_col_obj if solver.num_col_obj else 0
     if i % 10 == 0:
-        print("step: {}, {}, {}%".format(
-            i, solver.num_obj, solver.num_col_obj,
-            round(solver.overlap / solver.num_col_obj * 100)))
+        print(
+            f"step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%"
+        )
         solver.draw_scene()
 
     if solved:
-        print("step: {}, {}, {}%".format(i, solver.num_obj, 0))
+        print(f"solved: {i}, {solver.num_obj}/{solver.num_col_obj}")
         solver.draw_scene()
         break
 

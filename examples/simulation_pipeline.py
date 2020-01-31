@@ -23,8 +23,8 @@ simpli = fastpli.simulation.Simpli()
 simpli.omp_num_threads = 2
 simpli.voxel_size = 0.5  # in mu meter
 simpli.set_voi([-60] * 3, [60] * 3)  # in mu meter
-simpli.fiber_bundles = fastpli.io.fiber.load(os.path.join(
-    FILE_PATH, 'cube.dat'))
+simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
+    os.path.join(FILE_PATH, 'cube.dat'))
 simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                     (0.666, 0, 5, 'b'), (1.0, 0.004, 1, 'r')]]
 simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])

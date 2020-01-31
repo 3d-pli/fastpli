@@ -145,8 +145,8 @@ class Solver(_Solver):
             self._omp_num_threads)
 
     def step(self):
-        super().step()
         self._step_num += 1
+        return super().step()
 
     def draw_scene(self):
         if self.__display is None:

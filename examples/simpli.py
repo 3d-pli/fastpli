@@ -27,7 +27,7 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     simpli.omp_num_threads = 2
     simpli.voxel_size = 0.5  # in mu meter
     simpli.set_voi([-60] * 3, [60] * 3)  # in mu meter
-    simpli.fiber_bundles = fastpli.io.fiber.load(
+    simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, 'cube.dat'))
 
     # (layer_scale, dn, mu, optical-axis)
