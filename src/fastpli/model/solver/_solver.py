@@ -154,7 +154,7 @@ class Solver(_Solver):
                 os.environ['DISPLAY']
                 self.__display = True
             except BaseException:
-                warning.warn("test_opengl: no display detected")
+                warnings.warn("test_opengl: no display detected")
                 self.__display = False
 
         if self.__display:
