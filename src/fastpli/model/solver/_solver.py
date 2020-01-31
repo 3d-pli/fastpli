@@ -178,11 +178,11 @@ class Solver(_Solver):
             h5f.attrs['script'] = script
 
     def save_h5(self, h5f, script=None):
-        io.fiber.save_h5(h5f, self.fiber_bundles)
+        io.fiber_bundles.save_h5(h5f, self.fiber_bundles)
         self.save_parameter_h5(h5f)
 
     def load_h5(self, h5f):
-        self.fiber_bundles = io.fiber.load_h5(h5f)
+        self.fiber_bundles = io.fiber_bundles.load_h5(h5f)
         self.set_dict(dict(eval(str(h5f.attrs['fastpli/solver']))))
 
         if h5f.attrs['fastpli/version'] != version.__version__:
