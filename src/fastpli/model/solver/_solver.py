@@ -179,7 +179,7 @@ class Solver(_Solver):
 
     def save_h5(self, h5f, script=None):
         io.fiber_bundles.save_h5(h5f, self.fiber_bundles)
-        self.save_parameter_h5(h5f)
+        self.save_parameter_h5(h5f, script)
 
     def load_h5(self, h5f):
         self.fiber_bundles = io.fiber_bundles.load_h5(h5f)
