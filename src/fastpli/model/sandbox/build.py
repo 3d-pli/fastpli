@@ -115,14 +115,15 @@ def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
     seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 >= r_in**2, :]
     seeds = seeds[seeds[:, 0]**2 + seeds[:, 1]**2 <= r_out**2, :]
 
-    phi = np.arctan2(seeds[:, 1], seeds[:, 0])
+    if beta != alpha + 2 * np.pi:
+        alpha %= 2 * np.pi
+        beta %= 2 * np.pi
+        alpha = alpha + 2 * np.pi if alpha < 0 else alpha
+        beta = beta + 2 * np.pi if beta < 0 else beta
+        phi = np.arctan2(seeds[:, 1], seeds[:, 0])
+        phi[phi < 0] += 2 * np.pi
+        seeds = seeds[(phi > alpha) & (phi < beta), :]
 
-    # project angles -> [0, 2*np.pi)
-    phi = phi % (2.0 * np.pi)
-    phi[phi < 0] += 2.0 * np.pi
-
-    # crop seeds
-    seeds = seeds[(phi > alpha) & (phi < beta), :]
     seeds = np.dot(rot, seeds.T).T
 
     if seeds.size == 0:
