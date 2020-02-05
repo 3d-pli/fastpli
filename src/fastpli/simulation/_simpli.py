@@ -850,7 +850,7 @@ class Simpli:
         else:
             raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
 
-    def apply_optic(self, input, mp_pool=None):
+    def apply_optic(self, input, shift=(0, 0), mp_pool=None):
         '''
         input = np.array(x,y(,rho))
         '''
@@ -868,7 +868,7 @@ class Simpli:
 
         return output
 
-    def apply_optic_resample(self, input, mp_pool=None):
+    def apply_optic_resample(self, input, shift=(0, 0), mp_pool=None):
         '''
         input = np.array(x,y(,rho))
         '''
@@ -885,6 +885,13 @@ class Simpli:
         input = np.atleast_3d(np.array(input))
         if input.ndim > 3:
             raise TypeError("input can be 1d, 2d or 3d")
+
+        shift = np.array(shift, int)
+        if shift.size != 2 or shift.ndim != 1:
+            raise TypeError("shift has to be (x,y)")
+        
+        if shift[0] > 0 and shift[1] > 0:
+            input = input[shift[0]:, shift[1]:, ...]
 
         scale = self._voxel_size / self._resolution
         size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
@@ -923,7 +930,8 @@ class Simpli:
         p_in = np.array([np.dot(rot, p - p_rot) + p_rot for p in p_out])
 
         # TODO: refraction has to be implemented
-        M = analysis.affine_transformation.calc_matrix(p_in[:, :2], p_out[:, :2])
+        M = analysis.affine_transformation.calc_matrix(p_in[:, :2],
+                                                       p_out[:, :2])
 
         output = analysis.affine_transformation.image(input, M, mode)
         if input.ndim == 3:
@@ -1000,12 +1008,9 @@ class Simpli:
                 for j in range(input.shape[2]):
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
-                            i,
-                            j], itermap[i,
-                                        j] = analysis.rofl.rofl(input[:, i,
-                                                             j, :], tilt_angle,
-                                                       self._sensor_gain, 0,
-                                                       grad_mode)
+                            i, j], itermap[i, j] = analysis.rofl.rofl(
+                                input[:, i, j, :], tilt_angle,
+                                self._sensor_gain, 0, grad_mode)
 
         return directionmap, inclmap, trelmap, (dirdevmap, incldevmap,
                                                 treldevmap, funcmap, itermap)
