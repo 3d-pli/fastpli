@@ -11,7 +11,7 @@ def add_noise(image, gain, mask=None):
     Parameters
     ----------
     image : ndarray
-        image data. Noise is only added to image values > 0 
+        image data. Noise is only added to image values > 0
     gain : float
         gain value for noise level
     mask : ndarray
@@ -41,7 +41,7 @@ def filter(image, sigma):
     Parameters
     ----------
     image : ndarray
-        image data. Noise is only added to image values > 0 
+        image data. Noise is only added to image values > 0
     sigma : float
         variance of gaus kernel
 
@@ -63,7 +63,7 @@ def filter2d(image, sigma):
     Parameters
     ----------
     image : ndarray
-        image data. Noise is only added to image values > 0 
+        image data. Noise is only added to image values > 0
     sigma : float
         variance of gaus kernel
 
@@ -92,7 +92,7 @@ def resample(image, scale):
     Parameters
     ----------
     image : ndarray
-        image data. Noise is only added to image values > 0 
+        image data. Noise is only added to image values > 0
     scale : float
         scale value for image transformation
 
@@ -128,7 +128,7 @@ def resize(image, scale, order=1):
     Parameters
     ----------
     image : ndarray
-        image data. Noise is only added to image values > 0 
+        image data. Noise is only added to image values > 0
     sigma : float
         variance of gaus kernel
 

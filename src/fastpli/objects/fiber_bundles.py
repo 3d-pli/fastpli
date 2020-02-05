@@ -39,7 +39,7 @@ def Rotate(fiber_bundles, rot, offset=None):
     if offset is not None:
         offset = np.array(offset, copy=False)
     for j, fb in enumerate(fiber_bundles):
-        for i, f in enumerate(fb):
+        for i, _ in enumerate(fb):
             fiber_bundles[j][i] = fiber.Rotate(fiber_bundles[j][i], rot, offset)
     return fiber_bundles
 
@@ -47,7 +47,7 @@ def Rotate(fiber_bundles, rot, offset=None):
 def Translate(fiber_bundles, offset):
     fiber_bundles = copy.deepcopy(fiber_bundles)
     offset = np.array(offset, copy=False)
-    for i, fb in enumerate(fiber_bundle):
-        for i, f in enumerate(fb):
+    for i, fb in enumerate(fiber_bundles):
+        for i, _ in enumerate(fb):
             fiber_bundles[j][i] = fiber.Translate(fiber_bundles[j][i], offset)
     return fiber_bundles
