@@ -1,16 +1,9 @@
 # build
 src/include/version.hpp
-*env*/
+env*/
 
 # examples
-examples/*
-!examples/cube.dat
-!examples/model_solver.py
-!examples/requirements.txt
-!examples/sandbox.py
-!examples/simpli_mpi.py
-!examples/simpli.py
-!examples/simulation_pipeline.py
+dev/*
 
 # data
 *.h5
