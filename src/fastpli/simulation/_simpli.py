@@ -640,8 +640,7 @@ class Simpli:
             if h5f and 'epa' in save:
                 self._print("Save epa")
                 h5f['analysis/epa/' + str(t) + '/transmittance'] = epa[0]
-                h5f['analysis/epa/' + str(t) + '/direction'] = np.rad2deg(
-                    epa[1])
+                h5f['analysis/epa/' + str(t) + '/direction'] = epa[1]
                 h5f['analysis/epa/' + str(t) + '/retardation'] = epa[2]
 
                 h5f['analysis/epa/' + str(t) +
