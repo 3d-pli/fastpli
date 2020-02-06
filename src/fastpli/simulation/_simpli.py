@@ -192,7 +192,7 @@ class Simpli:
         if self._voxel_size is None:
             raise TypeError("voxel_size is not set yet")
 
-        self._dim = np.array((max - min) / self._voxel_size, dtype=int)
+        self._dim = np.array(np.round((max - min) / self._voxel_size), dtype=int)
         self._dim_origin = min
 
     @property
