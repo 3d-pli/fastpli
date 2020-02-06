@@ -5,7 +5,7 @@ import h5py
 from .. import objects
 
 
-def load(file_name, group_name=''):
+def load(file_name, group_name='/'):
     """
     Load fiberbundles configurations from a text file oder hdf5 file
 
@@ -93,7 +93,7 @@ def load_h5(h5f):
     return fiber_bundles
 
 
-def save(file_name, fiber_bundles, group_name='', mode='w-'):
+def save(file_name, fiber_bundles, group_name='/', mode='w-'):
     """
     Save fiberbundles configurations to a text file oder hdf5 file
 
