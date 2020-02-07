@@ -19,7 +19,7 @@ class MainTest(unittest.TestCase):
         self.solver.fiber_bundles = self.fiber_bundles
 
     def test_h5(self):
-        with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
+        with h5py.File('/tmp/fastpli.test.h5', 'w-') as h5f:
             fiber_bundles.save_h5(h5f, self.solver.fiber_bundles)
 
         with h5py.File('/tmp/fastpli.test.h5', 'r') as h5f:
@@ -53,7 +53,7 @@ class MainTest(unittest.TestCase):
         self.addCleanup(os.remove, '/tmp/fastpli.test.dat')
 
     def test_h5_dat(self):
-        with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
+        with h5py.File('/tmp/fastpli.test.h5', 'w-') as h5f:
             s = Solver()
             fiber_bundles.save_h5(h5f, s.fiber_bundles)
 

@@ -5,8 +5,9 @@ from . import fiber
 
 
 def Cast(fiber_bundles):
+
     if not fiber_bundles:
-        return None
+        return fiber_bundles
 
     if not isinstance(fiber_bundles, (list, tuple)):
         raise TypeError("fiber_bundles is not a list")

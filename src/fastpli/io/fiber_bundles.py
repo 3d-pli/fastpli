@@ -116,7 +116,10 @@ def save(file_name, fiber_bundles, group_name='/', mode='w-'):
     elif ext == '.h5':
         mode = 'w-' if mode == 'a' else mode
         with h5py.File(file_name, mode) as h5f:
-            save_h5(h5f.create_group(group_name), fiber_bundles)
+            if not group_name or group_name is '/':
+                save_h5(h5f, fiber_bundles)
+            else:
+                save_h5(h5f.create_group(group_name), fiber_bundles)
     else:
         raise TypeError(ext + ' is not implemented yet')
 
@@ -132,10 +135,10 @@ def save_dat(file, fiber_bundles):
     fiber_bundles : list( list( (n,4)-array_like ) )
     """
 
-    fiber_bundles = objects.fiber_bundles.Cast(fiber_bundles)
-
     if not fiber_bundles:
         return
+
+    fiber_bundles = objects.fiber_bundles.Cast(fiber_bundles)
 
     for fb, fiber_bundle in enumerate(fiber_bundles):
         for fiber in fiber_bundle:
@@ -161,9 +164,10 @@ def save_h5(h5f, fiber_bundles):
     fiber_bundles : list( list( (n,4)-array_like ) )
     """
 
-    fiber_bundles = objects.fiber_bundles.Cast(fiber_bundles)
     if not fiber_bundles:
         return
+
+    fiber_bundles = objects.fiber_bundles.Cast(fiber_bundles)
 
     for fb_i, fb in enumerate(fiber_bundles):
         grp_fb = h5f.create_group(str(fb_i))
