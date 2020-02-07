@@ -186,7 +186,7 @@ class Simpli:
             raise TypeError("min,max : ndim != 1")
         if min.size != 3 or max.size != 3:
             raise TypeError("min,max : size != 1")
-        if np.all(min >= max):
+        if np.any(min >= max):
             raise ValueError("min >= max")
 
         if self._voxel_size is None:
