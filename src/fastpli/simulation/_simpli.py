@@ -351,6 +351,7 @@ class Simpli:
                 raise TypeError("properties != list(list(tuples))")
 
             self._fiber_bundles_properties.append([])
+            
             for ly in prop:
                 if len(ly) != 4:
                     raise TypeError("layer != (float, float, float, char)")
@@ -382,7 +383,7 @@ class Simpli:
             for c_i, c in enumerate(cp):
                 cps[cp_i][c_i] = np.array(c, dtype=float)
 
-                if len(cps[cp_i][c_i].shape) != 2:
+                if cps[cp_i][c_i].ndim != 2:
                     raise TypeError("cell size need to be nx4")
 
                 if cps[cp_i][c_i].shape[1] != 4:
@@ -405,8 +406,8 @@ class Simpli:
             raise TypeError("properties must be a list")
 
         self._cells_populations_properties = []
-        for prop in cells_populations_properties:
 
+        for prop in cells_populations_properties:
             if not isinstance(prop, (list, tuple)):
                 raise TypeError("properties must be a list of 2 arguments")
 
@@ -806,15 +807,16 @@ class Simpli:
 
         dim_local = self.__gen.dim_local()
         dim_offset = self.__gen.dim_offset()
+        input = np.array(input, copy=False)
 
         if not isinstance(input, np.ndarray):
             raise TypeError(
                 "only numpy arrays are compatible with save_mpi_array_as_h5")
 
         dset_dim = np.copy(self._dim)
-        if len(input.shape) < len(dset_dim):
+        if input.ndim < len(dset_dim):
             dset_dim = dset_dim[:len(input.shape)]
-        if len(input.shape) > len(dset_dim):
+        if input.ndim > len(dset_dim):
             dset_dim = np.append(dset_dim, input.shape[3:])
 
         if lock_dim:
@@ -827,7 +829,7 @@ class Simpli:
 
         dset = h5f.create_dataset(data_name, dset_dim, dtype=input.dtype)
 
-        if len(input.shape) == 2:
+        if input.ndim == 2:
             if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
                 for i in range(input.shape[0]):
                     dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
@@ -836,7 +838,7 @@ class Simpli:
                 dset[dim_offset[0]:dim_offset[0] + dim_local[0],
                      dim_offset[1]:dim_offset[1] + dim_local[1]] = input
 
-        elif len(input.shape) == 3:
+        elif input.ndim == 3:
             if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
                 for i in range(input.shape[0]):
                     dset[i + dim_offset[0],
@@ -848,7 +850,7 @@ class Simpli:
                      dim_offset[1]:dim_offset[1] + dim_local[1],
                      dim_offset[2]:dim_offset[2] + dim_local[2]] = input
 
-        elif len(input.shape) > 3:
+        elif input.ndim > 3:
             if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
                 for i in range(input.shape[0]):
                     dset[i + dim_offset[0],
