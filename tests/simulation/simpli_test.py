@@ -163,13 +163,17 @@ class MainTest(unittest.TestCase):
         self.simpli.resolution = 10
         self.simpli.set_voi([-100] * 3, [100] * 3)
         self.simpli.tilts = np.deg2rad([(15.5, 0)])
-        dim_org = self.simpli.dim
+        dim_org = self.simpli.dim.copy()
 
         self.simpli.add_crop_tilt_halo()
-        dim_crop = self.simpli.dim
+        dim_crop = self.simpli.dim.copy()
         dim_crop[:2] -= 2 * self.simpli.crop_tilt_voxel()
-
         self.assertTrue(np.array_equal(dim_org, dim_crop))
+
+        image_org = np.empty(dim_org)
+        image_halo = np.empty(self.simpli.dim)
+        image_crop = self.simpli.rm_crop_tilt_halo(image_halo)
+        self.assertTrue(np.array_equal(image_org.shape, image_crop.shape))
 
 
 if __name__ == '__main__':

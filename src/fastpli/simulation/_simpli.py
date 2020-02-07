@@ -118,10 +118,8 @@ class Simpli:
         dim = np.array(dim)
         if dim.dtype != int:
             raise TypeError("dim is not np.array(int)")
-
         if dim.size != 3:
             raise TypeError("dim.size != 3")
-
         if dim.ndim != 1:
             raise TypeError("dim.ndim != 1")
 
@@ -351,7 +349,7 @@ class Simpli:
                 raise TypeError("properties != list(list(tuples))")
 
             self._fiber_bundles_properties.append([])
-            
+
             for ly in prop:
                 if len(ly) != 4:
                     raise TypeError("layer != (float, float, float, char)")
@@ -581,6 +579,11 @@ class Simpli:
         self.dim_origin[:2] -= self.crop_tilt_voxel() * self.voxel_size
         self.dim[:2] += 2 * self.crop_tilt_voxel()
 
+    def rm_crop_tilt_halo(self, input):
+        delta_voxel = self.crop_tilt_voxel()
+        return input[delta_voxel:-delta_voxel,
+                        delta_voxel:-delta_voxel, :]
+
     def run_simulation_pipeline(self,
                                 label_field,
                                 vector_field,
@@ -616,9 +619,7 @@ class Simpli:
                                          tissue_properties, theta, phi)
 
             if crop_tilt:
-                delta_voxel = self.crop_tilt_voxel()
-                images = images[delta_voxel:-1 - delta_voxel,
-                                delta_voxel:-1 - delta_voxel, :]
+                images = self.rm_crop_tilt_halo(images)
 
             if h5f and 'data' in save:
                 self._print("Save data")
