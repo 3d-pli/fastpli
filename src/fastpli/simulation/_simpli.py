@@ -190,7 +190,8 @@ class Simpli:
         if self._voxel_size is None:
             raise TypeError("voxel_size is not set yet")
 
-        self._dim = np.array(np.round((max - min) / self._voxel_size), dtype=int)
+        self._dim = np.array(np.round((max - min) / self._voxel_size),
+                             dtype=int)
         self._dim_origin = min
 
     @property
@@ -519,7 +520,10 @@ class Simpli:
         if script:
             h5f.attrs['script'] = script
 
-    def run_tissue_pipeline(self, h5f=None, script=None, save=['label_field', 'vector_field']):
+    def run_tissue_pipeline(self,
+                            h5f=None,
+                            script=None,
+                            save=['label_field', 'vector_field']):
         self._check_volume_input()
         self._check_generation_input()
 
@@ -533,19 +537,19 @@ class Simpli:
         if h5f and "label_field" in save:
             self._print("Save label_field")
             dset = h5f.create_dataset('tissue/label_field',
-                                        label_field.shape,
-                                        dtype=np.uint16,
-                                        compression='gzip',
-                                        compression_opts=1)
+                                      label_field.shape,
+                                      dtype=np.uint16,
+                                      compression='gzip',
+                                      compression_opts=1)
             dset[:] = label_field
 
         if h5f and "vector_field" in save:
             self._print("Save vector_field")
             dset = h5f.create_dataset('tissue/vector_field',
-                                        vector_field.shape,
-                                        dtype=np.float32,
-                                        compression='gzip',
-                                        compression_opts=1)
+                                      vector_field.shape,
+                                      dtype=np.float32,
+                                      compression='gzip',
+                                      compression_opts=1)
             dset[:] = vector_field
 
         if h5f and "label_field" in save:
@@ -581,8 +585,7 @@ class Simpli:
 
     def rm_crop_tilt_halo(self, input):
         delta_voxel = self.crop_tilt_voxel()
-        return input[delta_voxel:-delta_voxel,
-                        delta_voxel:-delta_voxel, :]
+        return input[delta_voxel:-delta_voxel, delta_voxel:-delta_voxel, :]
 
     def run_simulation_pipeline(self,
                                 label_field,
@@ -710,12 +713,18 @@ class Simpli:
     def run_pipeline(self,
                      h5f=None,
                      script=None,
-                     save=['label_field', 'vector_field', 'data', 'optic', 'epa', 'mask', 'rofl'],
+                     save=[
+                         'label_field', 'vector_field', 'data', 'optic', 'epa',
+                         'mask', 'rofl'
+                     ],
                      crop_tilt=False,
                      mp_pool=None):
 
         if 'all' in save:
-            save = ['label_field', 'vector_field', 'data', 'optic', 'epa', 'mask', 'rofl']
+            save = [
+                'label_field', 'vector_field', 'data', 'optic', 'epa', 'mask',
+                'rofl'
+            ]
         if 'tissue' in save:
             save = save + ['label_field', 'vector_field']
         if 'simulation' in save:
