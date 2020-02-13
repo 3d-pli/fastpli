@@ -175,6 +175,16 @@ class MainTest(unittest.TestCase):
         image_crop = self.simpli.rm_crop_tilt_halo(image_halo)
         self.assertTrue(np.array_equal(image_org.shape, image_crop.shape))
 
+        self.simpli.tilts = np.deg2rad([(0, 100)])
+        dim_org = self.simpli.dim.copy()
+        self.simpli.add_crop_tilt_halo()
+        dim_crop = self.simpli.dim.copy()
+        self.assertTrue(np.array_equal(dim_org, dim_crop))
+        image_org = np.empty(dim_org)
+        image_halo = np.empty(self.simpli.dim)
+        image_crop = self.simpli.rm_crop_tilt_halo(image_halo)
+        self.assertTrue(np.array_equal(image_org.shape, image_crop.shape))
+
 
 if __name__ == '__main__':
     unittest.main()

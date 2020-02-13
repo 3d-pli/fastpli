@@ -585,6 +585,8 @@ class Simpli:
 
     def rm_crop_tilt_halo(self, input):
         delta_voxel = self.crop_tilt_voxel()
+        if delta_voxel == 0:
+            return input
         return input[delta_voxel:-delta_voxel, delta_voxel:-delta_voxel, :]
 
     def run_simulation_pipeline(self,
