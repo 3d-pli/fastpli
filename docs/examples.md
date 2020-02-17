@@ -27,3 +27,24 @@ python3 examples/sandbox.py
 python3 examples/sandbox.py
 ```
 ![](solver.gif)
+
+
+# Simpli:
+#### 
+```sh
+python3 examples/simpli.py
+```
+
+#### simulation rotating filters
+![](simpli.gif)
+
+| transmittance                 | direction                 | retardation                 |
+| ----------------------------- | ------------------------- | --------------------------- |
+| ![](simpli_transmittance.png) | ![](simpli_direction.png) | ![](simpli_retardation.png) |
+
+| rofl direction                 | rofl inclination                 | rofl trel                 |
+| ------------------------------ | -------------------------------- | ------------------------- |
+| ![](simpli_rofl_direction.png) | ![](simpli_rofl_inclination.png) | ![](simpli_rofl_trel.png) |
+
+#### fiber orientation map
+![](simpli_fom.png)
