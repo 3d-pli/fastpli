@@ -24,8 +24,10 @@ pip3 install build/.
 pip3 install -r examples/requirements.txt
 
 # run examples
+python3 examples/sandbox.py
 python3 examples/model_solver.py
 python3 examples/simpli.py
+python3 examples/simulation_pipeline.py
 ```
 
 # Dependencies
