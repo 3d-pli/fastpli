@@ -1,4 +1,4 @@
-[readme](../README.md)
+[back](../README.md)
 
 # Folder/File Structure:
 ## PyPackage structure:

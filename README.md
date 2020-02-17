@@ -19,6 +19,7 @@ pip3 install build/.
 ```
 
 ## examples:
+
 ```sh
 # install required modules for examples
 pip3 install -r examples/requirements.txt
@@ -29,6 +30,8 @@ python3 examples/model_solver.py
 python3 examples/simpli.py
 python3 examples/simulation_pipeline.py
 ```
+
+[detailed examples](docs/examples.md)
 
 # Dependencies
 ## Requirements:

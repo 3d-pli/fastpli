@@ -27,27 +27,27 @@ def set_axes_equal(ax):
     ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
-def plot_fiber_bundle(fb):
+def plot_fiber_bundle(fb, title=""):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
+    plt.title(title)
     for fiber in fb:
         ax.plot(fiber[:, 0], fiber[:, 1], fiber[:, 2])
     set_axes_equal(ax)
-    plt.show()
 
 
 # create fiber bundle along trajectory
 seeds = sandbox.seeds.triangular_grid(a=42, b=42, spacing=4, center=True)
 circ_seeds = sandbox.seeds.crop_circle(radius=21, seeds=seeds)
 t = np.linspace(0, 2 * np.pi, 50, True)
-traj = np.array((10 * t, np.cos(t), np.zeros(t.size))).T
+traj = np.array((20 * t, np.cos(t), np.zeros(t.size))).T
 fiber_bundle = sandbox.build.bundle(traj=traj,
                                     seeds=circ_seeds,
                                     radii=np.random.uniform(
                                         0.5, 0.8, circ_seeds.shape[0]),
                                     scale=2 + 0.5 * np.sin(t))
 if PLOT:
-    plot_fiber_bundle(fiber_bundle)
+    plot_fiber_bundle(fiber_bundle, "Scale fiberbundle along trajectory")
 
 # create circular shaped triangular seeds
 seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
@@ -63,7 +63,7 @@ fiber_bundle = sandbox.build.cylinder(
     mode='r'  # 'c', 'p'
 )
 if PLOT:
-    plot_fiber_bundle(fiber_bundle)
+    plot_fiber_bundle(fiber_bundle, "cylinder - radial")
 
 # create circular shaped triangular seeds
 p = np.array([0, 80, 50])
@@ -77,4 +77,6 @@ fiber_bundle = sandbox.build.cuboid(p=p,
                                     seeds=seeds,
                                     radii=1)
 if PLOT:
-    plot_fiber_bundle(fiber_bundle)
+    plot_fiber_bundle(fiber_bundle, "cube")
+
+plt.show()
