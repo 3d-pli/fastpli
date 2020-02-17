@@ -1,11 +1,12 @@
 [back](../README.md)
 
+# Requirements:
+```sh
+pip3 install -r examples/requirements.txt
+```
+
 # Sandbox:
 ```sh
-# install required modules for examples
-pip3 install -r examples/requirements.txt
-
-# run
 python3 examples/sandbox.py
 ```
 
@@ -19,3 +20,10 @@ python3 examples/sandbox.py
 
 #### fiber bundle from trajectory and seed points
 ![](sandbox_3.png)
+
+# Solver:
+#### solving collision of fibers inside a fiber bundle
+```sh
+python3 examples/sandbox.py
+```
+![](solver.gif)

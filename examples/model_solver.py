@@ -45,6 +45,7 @@ for i in range(1000):
             f"step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%"
         )
         solver.draw_scene()
+        # solver.save_ppm(f'solver_{i}.ppm')
 
     if solved:
         print(f"solved: {i}, {solver.num_obj}/{solver.num_col_obj}")
