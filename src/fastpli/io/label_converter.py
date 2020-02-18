@@ -1,6 +1,10 @@
 import numpy as np
 import h5py
-from tqdm import tqdm
+
+try:
+    from tqdm import tqdm
+except ImportError as e:
+    tqdm = lambda x: x
 
 
 def label_to_txt(data, file_name, gray_level, replace=[]):
