@@ -9,6 +9,29 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 
 # Fiber Architecture Simulation Toolbox for PLI
 
+## Basic Information:
+`fastpli` is a python package which consists of the following modules
+
+| module                  | information                                                  |
+| ----------------------- | ------------------------------------------------------------ |
+| `fastpli.analysis  `    | analysis of 3D-PLI results                                   |
+| `fastpli.helper`        | different kind of helping function                           |
+| `fastpli.model.sandbox` | building of simple 3d nerve fiber models                     |
+| `fastpli.model.solver`  | generation of non intersection nerve fiber models            |
+| `fastpli.objects`       | manipulation fastpli objects like rotation of fiber_bundles  |
+| `fastpli.tools`         | mathematical tools and helper function                       |
+| `fastpli.simulation`    | simulation of fiber models inside a virtual 3D-PLI microscop |
+
+The aim of this package is to provide consistent system that allows the following: 
+* **model** 3d (non colliding) nerve fibers
+* **simulate** nerve fiber inside a virtual tiltable 3D-PLI microscop
+* **analyse** the resulting signals to extract the resulting fiber orientation
+
+To provide fast results, all computational expensive calculations are either optimized with **numba** on python side, or with multithreaded **c++** accessable due to **pybind11**.
+
+Since exspecially the simulation can be quite memory expensive, the **Message Passing Interface (MPI)** is supported.
+
+
 ## Installation:
 ```sh
 # Compiling the source code and generating setup.py
@@ -18,7 +41,7 @@ make build
 pip3 install build/.
 ```
 
-## examples:
+## Running examples:
 
 ```sh
 # install required modules for examples
@@ -32,6 +55,11 @@ python3 examples/simulation_pipeline.py
 ```
 
 [detailed examples](docs/examples.md)
+
+## Running tests
+```sh
+make test
+```
 
 # Dependencies
 ## Requirements:
@@ -87,6 +115,8 @@ mpiexec -n 2 python3 examples/simpli_mpi.py
 ## Authors
 * **Felix Matuschke**: INM1 - Forschungszentrum Jülich
 
+## References
+[Fiber Architecture (FA)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html)
 
 ## License
 This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file for details
