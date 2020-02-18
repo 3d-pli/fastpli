@@ -10,26 +10,23 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 # Fiber Architecture Simulation Toolbox for PLI
 
 ## Basic Information:
-`fastpli` is a python package which consists of the following modules
+`fastpli` is a Python package consisting of the following modules
 
 | module                  | information                                                  |
 | ----------------------- | ------------------------------------------------------------ |
-| `fastpli.analysis  `    | analysis of 3D-PLI results                                   |
-| `fastpli.helper`        | different kind of helping function                           |
+| `fastpli.analysis`      | analysis of 3D-PLI results                                   |
 | `fastpli.model.sandbox` | building of simple 3d nerve fiber models                     |
 | `fastpli.model.solver`  | generation of non intersection nerve fiber models            |
-| `fastpli.objects`       | manipulation fastpli objects like rotation of fiber_bundles  |
+| `fastpli.objects`       | manipulation of fastpli objects (e.g. rotation)              |
 | `fastpli.tools`         | mathematical tools and helper function                       |
 | `fastpli.simulation`    | simulation of fiber models inside a virtual 3D-PLI microscop |
 
 The aim of this package is to provide consistent system that allows the following: 
 * **model** 3d (non colliding) nerve fibers
 * **simulate** nerve fiber inside a virtual tiltable 3D-PLI microscop
-* **analyse** the resulting signals to extract the resulting fiber orientation
+* **analyse** the simulated signals to extract the resulting fiber orientation
 
-To provide fast results, all computational expensive calculations are either optimized with **numba** on python side, or with multithreaded **c++** accessable due to **pybind11**.
-
-Since exspecially the simulation can be quite memory expensive, the **Message Passing Interface (MPI)** is supported.
+All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**. Additionally the simulation module supports the **Message Passing Interface (MPI)**.
 
 
 ## Installation:
@@ -108,7 +105,7 @@ mpiexec -n 2 python3 examples/simpli_mpi.py
 [program structure](docs/structure.md)
 
 ## TODOs:
-[TODOs](docs/TODO.md)
+[TODOs](TODO.md)
 
 
 ---
