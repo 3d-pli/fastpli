@@ -1,11 +1,12 @@
 [back](../README.md)
+# Examples
 
-# Requirements:
+## Requirements:
 ```sh
 pip3 install -r examples/requirements.txt
 ```
 
-# Sandbox:
+## Sandbox:
 ```sh
 python3 examples/sandbox.py
 ```
@@ -14,6 +15,7 @@ python3 examples/sandbox.py
 ![](sandbox_1.png)
 <!-- ![](sandbox_1.png = 250x250)
 <img src="sandbox_1.png" width="500" /> -->
+
 
 #### fiber bundle from trajectory and seed points
 ![](sandbox_2_1.png) ![](sandbox_2_2.png) ![](sandbox_2_3.png)
