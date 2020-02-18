@@ -114,6 +114,11 @@ docker: docker-build
 	rm -rf /tmp/fastpli
 	docker start -i fastpli-test
 
+.PHONY: docs
+docs:
+	${VENV}/bin/pip3 -q install pdoc3
+	${VENV}/bin/python3 -m pdoc --force --html --output-dir build/docs --config show_source_code=False fastpli
+
 .PHONY: clean
 clean: uninstall clean-build clean-src
 
