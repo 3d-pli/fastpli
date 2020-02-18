@@ -102,13 +102,9 @@ mpiexec -n 2 python3 examples/simpli_mpi.py
 ```
 
 # Additional Informations:
-[program structure](docs/structure.md)
+* [TODOs](TODO.md)
+* [structure](docs/structure.md)
 
-## TODOs:
-[TODOs](TODO.md)
-
-
----
 ## Authors
 * **Felix Matuschke**: INM1 - Forschungszentrum Jülich
 
