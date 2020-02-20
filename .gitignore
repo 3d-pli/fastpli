@@ -2,8 +2,9 @@
 src/include/version.hpp
 env*/
 
-# examples
+# development
 dev/*
+wiki/
 
 # data
 *.h5
