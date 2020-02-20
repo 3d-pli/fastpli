@@ -26,10 +26,12 @@ The aim of this package is to provide consistent system that allows the followin
 * **simulate** nerve fiber inside a virtual tiltable 3D-PLI microscop
 * **analyse** the simulated signals to extract the resulting fiber orientation
 
+See **Wiki** for detailed informations
+
+## Performance
 All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**. Additionally the simulation module supports the **Message Passing Interface (MPI)**.
 
-
-## Installation:
+# Installation:
 ```sh
 # Compiling the source code and generating setup.py
 make build
@@ -50,8 +52,6 @@ python3 examples/model_solver.py
 python3 examples/simpli.py
 python3 examples/simulation_pipeline.py
 ```
-
-[detailed examples](docs/examples.md)
 
 ## Running tests
 ```sh
@@ -84,6 +84,7 @@ Each mpi process simulates the light-tissue interaction on its volume. When a li
 
 ## Parallel HDF5io:
 To be able to save the seperated data into a single hdf5 file, a paralel implementation of h5py is needed. However, a parallel installation of h5py is required. However, h5py can only be installed either serially or in parallel:
+
 ```sh
 # serial:
 make h5py-serial
@@ -92,7 +93,7 @@ make h5py-serial
 make h5py-mpi
 
 # clean:
-h5py-clean
+make h5py-clean
 ```
 
 ## example:
@@ -103,13 +104,15 @@ mpiexec -n 2 python3 examples/simpli_mpi.py
 
 # Additional Informations:
 * [TODOs](TODO.md)
-* [structure](docs/structure.md)
 
 ## Authors
-* **Felix Matuschke**: INM1 - Forschungszentrum Jülich
+* **Felix Matuschke**
 
 ## References
-[Fiber Architecture (FA)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html)
+|                                                                                                                                                                                                                |                                                                                                                                                              |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [![](https://www.fz-juelich.de/SharedDocs/Bilder/INM/INM-1/DE/PLI/PLI-GruppenLogo.png?__blob=thumbnail)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) | [Fiber Architecture - INM1 - Forschungszentrum Jülich](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) |
+|                                                 [![](https://sos-ch-dk-2.exo.io/public-website-production/img/HBP.png)](https://www.humanbrainproject.eu/en/)                                                  | [Human Brain Project](https://www.humanbrainproject.eu/en/)                                                                                                  |
 
 ## License
 This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file for details
