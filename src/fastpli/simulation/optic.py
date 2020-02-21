@@ -36,14 +36,14 @@ def add_noise(image, gain, mask=None):
 
 def filter(image, sigma):
     """
-    Filters image with a 2d gausian kernel
+    Filters image with a 2d gaussian kernel
 
     Parameters
     ----------
     image : ndarray
         image data. Noise is only added to image values > 0
     sigma : float
-        variance of gaus kernel
+        variance of gauss kernel
 
     Returns
     -------
@@ -58,14 +58,14 @@ def filter(image, sigma):
 
 def filter2d(image, sigma):
     """
-    Filters image with a 2d gausian kernel
+    Filters image with a 2d gaussian kernel
 
     Parameters
     ----------
     image : ndarray
         image data. Noise is only added to image values > 0
     sigma : float
-        variance of gaus kernel
+        variance of gauss kernel
 
     Returns
     -------
@@ -86,7 +86,7 @@ def filter2d(image, sigma):
 @njit(cache=True)
 def resample(image, scale):
     """
-    Resamples image acording to scale.
+    Resamples image according to scale.
     Resampling is done according to ccd pixels
 
     Parameters
@@ -123,14 +123,14 @@ def resample(image, scale):
 
 def resize(image, scale, order=1):
     """
-    Resizes image acording to scale
+    Resizes image according to scale
 
     Parameters
     ----------
     image : ndarray
         image data. Noise is only added to image values > 0
     sigma : float
-        variance of gaus kernel
+        variance of gauss kernel
 
     Returns
     -------
@@ -146,9 +146,43 @@ def resize(image, scale, order=1):
         return scipy.ndimage.zoom(image, scale, order=order)
 
 
-def filter_resize(image, delta_sigma, scale, order):
-    return resize(filter(image, delta_sigma / scale), scale, order)
+def filter_resize(image, sigma, scale, order=1):
+    """
+    Applies resize then filter
+
+    Parameters
+    ----------
+    image : ndarray
+        image data. Noise is only added to image values > 0
+    sigma : float
+        variance of gauss kernel
+    scale : float
+        scale value for image transformation
+
+    Returns
+    -------
+    res : ndarray
+    """
+
+    return resize(filter(image, sigma / scale), scale, order)
 
 
-def filter_resample(image, delta_sigma, scale):
-    return resample(filter(image, delta_sigma / scale), scale)
+def filter_resample(image, sigma, scale):
+    """
+    Applies resample then filter
+
+    Parameters
+    ----------
+    image : ndarray
+        image data. Noise is only added to image values > 0
+    sigma : float
+        variance of gauss kernel
+    scale : float
+        scale value for image transformation
+
+    Returns
+    -------
+    res : ndarray
+    """
+
+    return resample(filter(image, sigma / scale), scale)

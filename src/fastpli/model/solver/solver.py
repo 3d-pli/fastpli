@@ -46,9 +46,7 @@ class Solver(_Solver):
         self.__freeze()
 
     def get_dict(self):
-        """
-        Get all member variables which are properties
-        """
+        """ Get all member variables which are properties """
         members = dict()
         for key, value in self.__dict__.items():
             if key == '_cells_populations' or key == '_fiber_bundles':
@@ -62,9 +60,7 @@ class Solver(_Solver):
         return members
 
     def set_dict(self, input):
-        """
-        Set dictionary of variables to class members
-        """
+        """ Set dictionary of variables to class members """
         for key, value in input.items():
             if key.startswith("_"):
                 raise ValueError("member variable cant be set directly")
@@ -160,9 +156,7 @@ class Solver(_Solver):
         return super().step()
 
     def draw_scene(self):
-        """
-        Draws model configuration in if OpenGl window can be created.
-        """
+        """ Draws model configuration in if OpenGl window can be created. """
         if self.__display is None:
             try:
                 os.environ['DISPLAY']
@@ -175,9 +169,7 @@ class Solver(_Solver):
             super().draw_scene()
 
     def apply_boundary_conditions(self, n_max=10):
-        """
-        Applies boundary conditions for n_max steps without collision solving.
-        """
+        """ Applies boundary conditions for n_max steps without collision solving. """
         if not isinstance(n_max, int) or n_max <= 0:
             raise TypeError("only integer > 0 allowed")
 
@@ -186,9 +178,7 @@ class Solver(_Solver):
         return self.fiber_bundles
 
     def save_parameter_h5(self, h5f, script=None):
-        """
-        Saves class members without fiber_bundles in hdf5 file.
-        """
+        """ Saves class members without fiber_bundles in hdf5 file. """
         h5f.attrs['fastpli/version'] = version.__version__
         h5f.attrs['fastpli/compiler'] = version.__compiler__
         h5f.attrs['fastpli/libraries'] = version.__libraries__
@@ -198,16 +188,12 @@ class Solver(_Solver):
             h5f.attrs['script'] = script
 
     def save_h5(self, h5f, script=None):
-        """
-        Saves class members in hdf5 file.
-        """
+        """ Saves class members in hdf5 file. """
         io.fiber_bundles.save_h5(h5f, self.fiber_bundles)
         self.save_parameter_h5(h5f, script)
 
     def load_h5(self, h5f):
-        """
-        Loads class members from hdf5 file.
-        """
+        """ Loads class members from hdf5 file. """
         self.fiber_bundles = io.fiber_bundles.load_h5(h5f)
         self.set_dict(dict(eval(str(h5f.attrs['fastpli/solver']))))
 

@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Simpli Class
+"""
+
 from .__generation import _Generator
 from .__simulation import _Simulator
 
@@ -12,6 +17,10 @@ import warnings
 
 
 class Simpli:
+    """
+    Simpli Class for simulating 3D-PLI images
+    """
+
     __isfrozen = False
 
     def __setattr__(self, key, value):
@@ -73,10 +82,7 @@ class Simpli:
             print(msg)
 
     def get_dict(self):
-        '''
-        Get all member variables which are properties
-        '''
-
+        """ Get all member variables which are properties """
         members = dict()
         for key, value in self.__dict__.items():
             if key == '_cells_populations' or key == '_fiber_bundles':
@@ -92,6 +98,7 @@ class Simpli:
         return members
 
     def set_dict(self, input):
+        """ Set dictionary of variables to class members """
         for key, value in input.items():
             if key.startswith("_"):
                 raise ValueError("member variable cant be set directly")
@@ -103,6 +110,7 @@ class Simpli:
 
     @property
     def debug(self):
+        """ set debug print: bool """
         return self._debug
 
     @debug.setter
@@ -111,6 +119,7 @@ class Simpli:
 
     @property
     def dim(self):
+        """ dimension of volume in voxel: (3)-array """
         return self._dim
 
     @dim.setter
@@ -127,6 +136,7 @@ class Simpli:
 
     @property
     def dim_origin(self):
+        """ origin of volume in µm: (3)-array """
         return self._dim_origin
 
     @dim_origin.setter
@@ -135,6 +145,7 @@ class Simpli:
 
     @property
     def voxel_size(self):
+        """ size of voxel in µm: float """
         return (self._voxel_size)
 
     @voxel_size.setter
@@ -145,6 +156,7 @@ class Simpli:
 
     @property
     def resolution(self):
+        """ pixelsize of resulting optical image in µm: float """
         return (self._resolution)
 
     @resolution.setter
@@ -154,6 +166,7 @@ class Simpli:
         self._resolution = float(resolution)
 
     def get_voi(self):
+        """ get volume of interest """
         if self._voxel_size is None:
             raise ValueError("voxel_size is not set, voi can't be calculated")
 
@@ -172,10 +185,12 @@ class Simpli:
         return min, max
 
     def set_voi(self, min, max):
-        '''
+        """ 
+        set volume of interest
+
         min: [x_min, y_min, z_min]
         max: [x_max, y_max, z_max]
-        '''
+        """
 
         min = np.array(min, dtype=float)
         max = np.array(max, dtype=float)
@@ -196,6 +211,7 @@ class Simpli:
 
     @property
     def filter_rotations(self):
+        """ list of filter rotation position in radiant: [float] """
         return (self._filter_rotations)
 
     @filter_rotations.setter
@@ -209,6 +225,7 @@ class Simpli:
 
     @property
     def light_intensity(self):
+        """ initial light intensity value in a.u.: float """
         return self._light_intensity
 
     @light_intensity.setter
@@ -217,13 +234,13 @@ class Simpli:
 
     @property
     def tilts(self):
+        """ list of spherical tilting angles [[theta, phi], ...] in radiant:
+        [[float, float], ...] 
+        """
         return self._tilts
 
     @tilts.setter
     def tilts(self, tilts):
-        ''' [[theta, phi], ...]
-        '''
-
         if not isinstance(tilts, (list, tuple, np.ndarray)):
             raise TypeError("tilts is not a list or array")
 
@@ -237,6 +254,7 @@ class Simpli:
 
     @property
     def sensor_gain(self):
+        """ sensor gain value for calculating ccd camera noise in a.u.: float """
         return self._sensor_gain
 
     @sensor_gain.setter
@@ -252,6 +270,9 @@ class Simpli:
 
     @property
     def optical_sigma(self):
+        """ optical sigma for applying a gaussian convolution to the image
+        after resizing in pixel_size: float 
+        """
         return self._optical_sigma
 
     @optical_sigma.setter
@@ -267,6 +288,7 @@ class Simpli:
 
     @property
     def wavelength(self):
+        """ wavelength of light in nm: float """
         return self._wavelength
 
     @wavelength.setter
@@ -275,6 +297,7 @@ class Simpli:
 
     @property
     def tissue_refrection(self):
+        """ tissue refractive index in a.u.: float """
         return self._tissue_refrection
 
     @tissue_refrection.setter
@@ -283,6 +306,7 @@ class Simpli:
 
     @property
     def step_size(self):
+        """ step size for light in voxel: float """
         return self._step_size
 
     @step_size.setter
@@ -291,6 +315,7 @@ class Simpli:
 
     @property
     def interpolate(self):
+        """ (de)activate interpolation of vectors in simulation: bool """
         return self._interpolate
 
     @interpolate.setter
@@ -299,6 +324,7 @@ class Simpli:
 
     @property
     def verbose(self):
+        """ addiional information will be printed: bool """
         return self._verbose
 
     @verbose.setter
@@ -307,6 +333,10 @@ class Simpli:
 
     @property
     def untilt_sensor_view(self):
+        """ untilt the image by adapted initial light coordinates: bool
+        
+        otherwise the image has to be untilted with an affine transformation
+        """
         return self._untilt_sensor_view
 
     @untilt_sensor_view.setter
@@ -315,6 +345,7 @@ class Simpli:
 
     @property
     def flip_z_beam(self):
+        """ flip the direction of light along the z-axis e.g. PM: bool """
         return self._flip_z_beam
 
     @flip_z_beam.setter
@@ -323,6 +354,7 @@ class Simpli:
 
     @property
     def fiber_bundles(self):
+        """ set fiber_bundles: [[(,4)-array]] """
         return self._fiber_bundles
 
     @fiber_bundles.setter
@@ -332,6 +364,9 @@ class Simpli:
 
     @property
     def fiber_bundles_properties(self):
+        """ set physical properties of fiber_bundles per fiber_bundle [(dn, mu)]:
+        [(float, float)]
+        """
         return self._fiber_bundles_properties
 
     @fiber_bundles_properties.setter
@@ -364,6 +399,7 @@ class Simpli:
 
     @property
     def cells_populations(self):
+        """ set cells_populations: [[(,4)-array]] """
         return self._cells_populations
 
     @cells_populations.setter
@@ -392,6 +428,9 @@ class Simpli:
 
     @property
     def cells_populations_properties(self):
+        """ set physical properties of fiber_bundles per fiber_bundle [(dn, mu)]:
+        [(float, float)]
+        """
         return self._cells_populations_properties
 
     @cells_populations_properties.setter
@@ -426,6 +465,8 @@ class Simpli:
                 raise TypeError("len(cell_populations) != len(cell_properties)")
 
     def generate_tissue(self, only_label=False, progress_bar=False):
+        """ generating discret tissue for simulation
+        """
 
         self._check_volume_input()
         self._check_generation_input()
@@ -485,6 +526,11 @@ class Simpli:
 
     def run_simulation(self, label_field, vec_field, tissue_properties, theta,
                        phi):
+        """ running simulation. Input from tissue_generation
+
+        label_field and vec_field will be passed by reference
+        theta, phi: tilting angle in radiant
+        """
 
         self._check_volume_input()
         self._init_pli_setup()
@@ -512,6 +558,7 @@ class Simpli:
         return images
 
     def save_parameter_h5(self, h5f, script=None):
+        """ Saves class members without fiber_bundles in hdf5 file. """
         h5f.attrs['fastpli/simpli'] = str(self.get_dict())
         h5f.attrs['fastpli/version'] = version.__version__
         h5f.attrs['fastpli/compiler'] = version.__compiler__
@@ -524,6 +571,8 @@ class Simpli:
                             h5f=None,
                             script=None,
                             save=['label_field', 'vector_field']):
+        """ Automatic pipeline for tissue generation with save options """
+
         self._check_volume_input()
         self._check_generation_input()
 
@@ -558,6 +607,7 @@ class Simpli:
         return label_field, vector_field, tissue_properties
 
     def crop_tilt_pixel(self):
+        """ crop affected boundary pixel from tilted images """
         if not self.untilt_sensor_view:
             raise ValueError("currently only for untilt_sensor_view=True")
         if self._voxel_size is None:
@@ -574,16 +624,19 @@ class Simpli:
         return delta_pixel
 
     def crop_tilt_voxel(self):
+        """ get number of affected boundary voxel from tilted images """
         delta_voxel = int(
             np.round(self.crop_tilt_pixel() * self._resolution /
                      self._voxel_size))
         return delta_voxel
 
     def add_crop_tilt_halo(self):
+        """ add number of necessary boundary voxel from tilted images """
         self.dim_origin[:2] -= self.crop_tilt_voxel() * self.voxel_size
         self.dim[:2] += 2 * self.crop_tilt_voxel()
 
     def rm_crop_tilt_halo(self, input):
+        """ remove number of added boundary voxel from tilted images """
         delta_voxel = self.crop_tilt_voxel()
         if delta_voxel == 0:
             return input
@@ -597,6 +650,7 @@ class Simpli:
                                 save=['data', 'optic', 'epa', 'mask', 'rofl'],
                                 crop_tilt=False,
                                 mp_pool=None):
+        """ Automatic pipeline for simulation and analysis with save options """
 
         if 'all' in save or 'simulation' in save:
             save = save + ['data', 'optic', 'epa', 'mask', 'rofl']
@@ -721,6 +775,7 @@ class Simpli:
                      ],
                      crop_tilt=False,
                      mp_pool=None):
+        """ Automatic tissue generation and simulation pipeline with save options """
 
         if 'all' in save:
             save = [
@@ -766,6 +821,7 @@ class Simpli:
 
     @property
     def omp_num_threads(self):
+        """ get/set number of omp threads """
         return self._omp_num_threads
 
     @omp_num_threads.setter
@@ -790,7 +846,7 @@ class Simpli:
         self._omp_num_threads = num_threads_gen
 
     def memory_usage(self, unit='MB', item='all'):
-
+        """ print expected memory ussage """
         if unit == 'MB':
             div = 1024**2
         elif unit == 'GB':
@@ -810,11 +866,11 @@ class Simpli:
             raise ValueError("allowed is only \"label_field\" or \"all\"")
 
     def save_mpi_array_as_h5(self, h5f, input, data_name, lock_dim=None):
-        '''
+        """
         simpli can be seperated into different mpi processes.
         This function provides a parallel hdf5 io to save data
         inside the same h5-file.
-        '''
+        """
         # TODO: check functionality
 
         dim_local = self.__gen.dim_local()
@@ -878,9 +934,9 @@ class Simpli:
             raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
 
     def apply_optic(self, input, shift=(0, 0), mp_pool=None):
-        '''
-        input = np.array(x,y(,rho))
-        '''
+        """ applies optical resample, convolution and noise to image
+        input: np.array(x,y(,rho))
+        """
 
         if not self._sensor_gain:
             raise ValueError("sensor_gain not set")
@@ -896,9 +952,9 @@ class Simpli:
         return output
 
     def apply_optic_resample(self, input, shift=(0, 0), mp_pool=None):
-        '''
-        input = np.array(x,y(,rho))
-        '''
+        """ applies optical resample, convolution and noise to image
+        input: np.array(x,y(,rho))
+        """
 
         if self._optical_sigma is None:
             raise ValueError("optical_sigma is None")
@@ -941,9 +997,12 @@ class Simpli:
         return np.squeeze(output)
 
     def apply_untilt(self, input, theta, phi, mode='nearest'):
-        '''
-        input = np.array(x,y(,rho))
-        '''
+        """ applies optical untilt to image with affine transformation
+
+        only necessary if untilt_view = False
+
+        input: np.array(x,y(,rho))
+        """
 
         if theta == 0:
             return input
@@ -967,9 +1026,10 @@ class Simpli:
         return output
 
     def apply_epa(self, input, mask=None):
-        '''
+        """ applies epa analysis to images
+
         input = np.array(x,y,rho)
-        '''
+        """
 
         transmittance, direction, retardation = analysis.epa.epa(input)
         if mask is not None:
@@ -980,9 +1040,10 @@ class Simpli:
         return transmittance, direction, retardation
 
     def apply_rofl(self, input, mask=None, mp_pool=None, grad_mode=False):
-        '''
+        """ applies ROFL analysis to images
+
         input = np.array(tilt,x,y,rho)
-        '''
+        """
 
         if self._tilts is None:
             raise ValueError("tilts not set")
