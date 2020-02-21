@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+misc methods for helping
+"""
+
 import glob
 import os
 
@@ -5,6 +10,7 @@ from .. import __version__
 
 
 def pip_freeze():
+    """ turns pip freeze into a string """
     try:
         from pip._internal.operations import freeze
     except ImportError:
@@ -13,6 +19,7 @@ def pip_freeze():
 
 
 def version_file_name(file_name):
+    """ Versions file name with .v{i}. Returns new file name with latest i """
     file_path = os.path.dirname(file_name)
     file_name = os.path.basename(file_name)
     files = glob.glob(os.path.join(file_path, file_name + '*'))
@@ -31,6 +38,7 @@ def version_file_name(file_name):
 
 
 def version_path(path, name):
+    """ Versions folder name with .v{i}. Returns new path with latest i """
     folders = [
         p for p in os.listdir(path) if os.path.isdir(os.path.join(path, p))
     ]

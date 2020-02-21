@@ -1,47 +1,64 @@
+# -*- coding: utf-8 -*-
+"""
+Rotation operations
+"""
+
 import numpy as np
 
 
 def x(phi):
+    """ 3d rotation around x-axis: float -> (3,3)-array """
     return np.array(((1, 0, 0), (0, np.cos(phi), -np.sin(phi)),
                      (0, np.sin(phi), np.cos(phi))), float)
 
 
 def y(phi):
+    """ 3d rotation around y-axis: float -> (3,3)-array """
     return np.array(((np.cos(phi), 0, np.sin(phi)), (0, 1, 0),
                      (-np.sin(phi), 0, np.cos(phi))), float)
 
 
 def z(phi):
+    """ 3d rotation around z-axis: float -> (3,3)-array """
     return np.array(((np.cos(phi), -np.sin(phi), 0),
                      (np.sin(phi), np.cos(phi), 0), (0, 0, 1)), float)
 
 
-# TODO: what the ...
 def z_2d(phi):
-    return z(phi)[:-1, :-1]
+    """ 2d rotation around z-axis: float -> (2,2)-array """
+    return np.array(((np.cos(phi), -np.sin(phi)), (np.sin(phi), np.cos(phi))),
+                    float)
 
 
 def zyz(alpha, beta, gamma):
+    """ 3d rotation around z-, y-, z-axis:
+    float, float, float -> (3,3)-array
+    """
     return np.dot(z(alpha), np.dot(y(beta), z(gamma)))
 
 
 def phi(phi):
+    """ 3d rotation around z-axis: float -> (3,3)-array """
     return z(phi)
 
 
 def theta(theta):
+    """ 3d rotation around y-axis: float -> (3,3)-array """
     return y(theta)
 
 
 def theta_phi(theta_, phi_):
+    """ 3d rotation around (theta,phi)-axis: float, float -> (3,3)-array """
     return np.dot(phi(phi_), np.dot(theta(theta_), phi(-phi_)))
 
 
 def euler(psi, theta_, phi_):
+    """ 3d rotation with euler angles: float, float, float -> (3,3)-array """
     return np.dot(phi(psi), np.dot(theta(theta_), phi(phi_)))
 
 
 def a_on_b(a, b):
+    """ return rotation matrix when rotating a on b: (3)-array, (3)-array -> (3,3)-array """
     a = a / np.linalg.norm(a)
     b = b / np.linalg.norm(b)
     if np.all(a == b):
