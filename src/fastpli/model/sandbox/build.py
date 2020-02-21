@@ -1,6 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+Methods for building fiber_bundles
+
+optimized with numba
+"""
+
 import numpy as np
 from numba import njit
-from ...tools import rotation
 
 
 @njit(cache=True)
@@ -228,6 +234,21 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
 
 # @njit(cache=True)
 def add_radii(fiber_bundle, radii):
+    """
+    Adding radii to a fiber_bundle
+
+    Parameters
+    ----------
+    fiber_bundle : [(,3)-array_like]
+        (x,y,z)-points of fibers
+    radii : (n,)-array_like
+        individual radii for each fiber inside the fiber_bundle
+    
+    Returns
+    -------
+    res : list((nx4)-array)
+        list of fibers with (x,y,z,r)-coordinates
+    """
     for i, (f, r) in enumerate(zip(fiber_bundle, radii)):
         fiber_bundle[i] = np.concatenate((f, np.ones((f.shape[0], 1)) * r),
                                          axis=1)

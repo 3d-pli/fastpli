@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Deprecated OpenGL visualization
+"""
+
 import numpy as np
 
 # package PyOpenGL:
