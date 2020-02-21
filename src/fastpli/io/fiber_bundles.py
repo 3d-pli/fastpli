@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Methods for loading and saving fiber_bundles objects into .dat and .h5 files
+"""
+
 import os
 import numpy as np
 import h5py

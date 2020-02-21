@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Methods for converting the simpli label_field into different formats.
+"""
+
 import numpy as np
 import h5py
 
@@ -8,18 +13,30 @@ except ImportError as e:
 
 
 def label_to_txt(data, file_name, gray_level, replace=[]):
-    print("writing txt")
+    """
+    Converts the label_field into a txt file
+
+    Parameters
+    ----------
+    data : (x,y,z)-array
+        label_field from simpli
+    file_name : str
+        path for txt file
+    gray_level : int
+        number of gray values for header
+    replace : [(a,b), ...], optional
+        list of replacing value a with value b
+    """
+
     with open(file_name, 'w') as file:
         file.write(
             str(data.shape[0]) + " " + str(data.shape[1]) + " " +
             str(data.shape[2]) + " " + str(gray_level) + "\n")
 
         # order has to be z,y,x in txt file
-        print("transposing data")
         data = np.ascontiguousarray(
             np.transpose(data.astype(np.int8), (2, 1, 0)))
 
-        print("writing txt")
         for mat in tqdm(data):
             if replace:
                 mat_cp = mat.copy()
@@ -31,7 +48,21 @@ def label_to_txt(data, file_name, gray_level, replace=[]):
 
 
 def label_to_binary(data, file_name, gray_level, replace=[]):
-    print("writing binary header")
+    """
+    Converts the label_field into a binary file
+
+    Parameters
+    ----------
+    data : (x,y,z)-array
+        label_field from simpli
+    file_name : str
+        path for binary file
+    gray_level : int
+        number of gray values for header
+    replace : [(a,b), ...], optional
+        list of replacing value a with value b
+    """
+
     with open(file_name + '.header.txt', 'w') as file:
         file.write('{:12d}'.format(data.shape[0]) +
                    '{:12d}'.format(data.shape[1]) +
@@ -41,10 +72,8 @@ def label_to_binary(data, file_name, gray_level, replace=[]):
         file.write(file_name + ".binary , name of file in binary format\n")
 
     # order has to be z,y,x in txt file
-    print("transposing data")
     data = np.ascontiguousarray(np.transpose(data.astype(np.int8), (2, 1, 0)))
 
-    print("writing binary")
     with open(file_name + '.binary', 'wb') as file:
         for mat in tqdm(data):
             if replace:
@@ -56,16 +85,48 @@ def label_to_binary(data, file_name, gray_level, replace=[]):
 
 
 def h5_to_txt(file_in, dset_name, file_out, gray_level, replace=[]):
+    """
+    Converts label_field inside h5 file into a txt file
+
+    Parameters
+    ----------
+    file_in : str
+        path to h5-file
+    dset_name : str
+        label_field path in h5 file
+    file_out : str
+        output name
+    gray_level : int
+        number of gray values for header
+    replace : [(a,b), ...], optional
+        list of replacing value a with value b
+    """
+
     # TODO: chunking in case of mpi h5
     with h5py.File(file_in, 'r') as h5f:
-        print("loading data")
         data = h5f[dset_name][:]
         label_to_txt(data, file_out, gray_level, replace)
 
 
 def h5_to_binary(file_in, dset_name, file_out, gray_level, replace=[]):
+    """
+    Converts label_field inside h5 file into a binary file
+
+    Parameters
+    ----------
+    file_in : str
+        path to h5-file
+    dset_name : str
+        label_field path in h5 file
+    file_out : str
+        output name
+    gray_level : int
+        number of gray values for header
+    replace : [(a,b), ...], optional
+        list of replacing value a with value b
+    """
+
     # TODO: chunking in case of mpi h5
     with h5py.File(file_in, 'r') as h5f:
-        print("loading data")
         data = h5f[dset_name][:]
         label_to_binary(data, file_out, gray_level, replace)
