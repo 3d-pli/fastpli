@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Analyse Methods for PLI signals
+"""
+
 import numpy as np
 
 

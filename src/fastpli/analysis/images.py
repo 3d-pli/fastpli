@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Methods for Fiber Orientation Maps and vectors
+"""
+
+# TODO: split into fom.py and vector.py
+
 import numpy as np
 
 
@@ -46,6 +53,19 @@ def _orientation_to_hsv(directionValue, inclinationValue):
 
 
 def hsv_black_sphere(n=128):
+    """
+    Creates a hsv_black color sphere legend.
+
+    Parameters
+    ----------
+    n : int
+        length and height of resulting image
+
+    Returns
+    -------
+    res : rgb-array
+        resulting sphere
+    """
     sphere = np.zeros((n, n, 3), dtype=np.uint8)
 
     for x in range(n):
@@ -68,6 +88,19 @@ def hsv_black_sphere(n=128):
 
 
 def rgb_sphere(n=128):
+    """
+    Creates a rgb color sphere legend.
+
+    Parameters
+    ----------
+    n : int
+        length and height of resulting image
+
+    Returns
+    -------
+    res : rgb-array
+        resulting sphere
+    """
     sphere = np.zeros((n, n, 3), dtype=np.uint8)
 
     for x in range(n):
@@ -84,19 +117,54 @@ def rgb_sphere(n=128):
 
 
 def unit_vectors(direction, inclination, mask=None):
+    """
+    Calculates the unit vector from direction and inclination
+
+    Parameters
+    ----------
+    direction : 2d-array
+        direction in radian
+    inclination : 2d-array
+        inclination in radian
+    mask : 2d-array(bool), optional
+        mask
+
+    Returns
+    -------
+    res : 2d-array, 2d-array, 2d-array
+        x-, y- and z-vector component in arrays
+    """
     UnitX = np.sin(0.5 * np.pi - inclination) * np.cos(direction)
     UnitY = np.sin(0.5 * np.pi - inclination) * np.sin(direction)
     UnitZ = np.cos(0.5 * np.pi - inclination)
 
-    if mask is not None:
-        UnitX[~mask] = 0
-        UnitY[~mask] = 0
-        UnitZ[~mask] = 0
+    if mask:
+        _mask = np.logical_not(mask)
+        UnitX[_mask] = 0
+        UnitY[_mask] = 0
+        UnitZ[_mask] = 0
 
     return UnitX, UnitY, UnitZ
 
 
 def fom_hsv_black(direction, inclination, mask=None):
+    """
+    Calculates the fiber orientation map in hsv_black from direction and inclination
+
+    Parameters
+    ----------
+    direction : 2d-array
+        direction in radian
+    inclination : 2d-array
+        inclination in radian
+    mask : 2d-array(bool), optional
+        mask
+
+    Returns
+    -------
+    res : rgb-array
+        resulting hsv-black fom
+    """
     if mask is None:
         mask = np.ones_like(direction, dtype=np.bool)
 
@@ -106,12 +174,29 @@ def fom_hsv_black(direction, inclination, mask=None):
             if not mask[x, y]:
                 continue
 
-            hsv[x, y, :] = _orientation_to_hsv(direction[x, y],
-                                               inclination[x, y])
+            hsv[x, y, :] = _orientation_to_hsv(direction[x, y], inclination[x,
+                                                                            y])
     return hsv
 
 
 def fom_rgb(direction, inclination, mask=None):
+    """
+    Calculates the fiber orientation map in hsv_black from direction and inclination
+
+    Parameters
+    ----------
+    direction : 2d-array
+        direction in radian
+    inclination : 2d-array
+        inclination in radian
+    mask : 2d-array(bool), optional
+        mask
+
+    Returns
+    -------
+    res : rgb-array
+        resulting hsv-black fom
+    """
     if mask is None:
         mask = np.ones_like(direction, dtype=np.bool)
 
@@ -121,10 +206,11 @@ def fom_rgb(direction, inclination, mask=None):
             if not mask[x, y]:
                 continue
 
-            rgb[x, y, :] = _vec_to_rgb(
-                np.sin(0.5 * np.pi - inclination[x, y]) *
-                np.cos(direction[x, y]),
-                np.sin(0.5 * np.pi - inclination[x, y]) *
-                np.sin(direction[x, y]),
-                np.cos(0.5 * np.pi - inclination[x, y]))
+            rgb[x,
+                y, :] = _vec_to_rgb(
+                    np.sin(0.5 * np.pi - inclination[x, y]) *
+                    np.cos(direction[x, y]),
+                    np.sin(0.5 * np.pi - inclination[x, y]) *
+                    np.sin(direction[x, y]),
+                    np.cos(0.5 * np.pi - inclination[x, y]))
     return rgb

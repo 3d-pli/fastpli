@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Methods for calculating and applying affine transformation to coordinates and images.
+"""
+
 import numpy as np
 import scipy.interpolate
 
@@ -10,8 +15,8 @@ def _replace_mat_row(B, r, d):
 
 @njit(cache=True)
 def _nearest_neighbors(image, M):
-    ''' written for simpli images[x,y,rho]
-    '''
+    """ written for simpli images[x,y,rho]
+    """
     image = np.atleast_3d(image)
     image_nn = np.empty_like(image)
     M = np.ascontiguousarray(np.linalg.inv(M))
@@ -27,8 +32,8 @@ def _nearest_neighbors(image, M):
 
 
 def _interpolate_griddata(image, M, mode):
-    ''' written for simpli images[x,y,rho]
-    '''
+    """ written for simpli images[x,y,rho]
+    """
     image = np.atleast_3d(image)
     image_nn = np.empty_like(image)
 
@@ -51,6 +56,19 @@ def _interpolate_griddata(image, M, mode):
 
 
 def calc_matrix(p_in, p_out):
+    """
+    Calculate the affine transformation matrix.
+
+    Parameters
+    ----------
+    p_in, p_out : (3,2)-array_like
+        list of 3 x 2d points which will be transformed from p_in to p_out
+
+    Returns
+    -------
+    res : (3x3)-array
+        affine transformation matrix
+    """
     p_in = np.array(p_in)
     p_out = np.array(p_out)
 
@@ -72,13 +90,43 @@ def calc_matrix(p_in, p_out):
 
 
 def exec_matrix(M, x, y):
+    """
+    Execute the affine transformation.
+
+    Parameters
+    ----------
+    M : (3,3)-array
+        affine transformation matrix
+    x, y : float
+        2d coordinates to transform
+
+    Returns
+    -------
+    res : float, float
+        transformed coordinates
+    """
     x, y, _ = M @ np.array([x, y, 1.0])
     return x, y
 
 
 def image(image, M, mode='nearest'):
-    ''' written for simpli images[x,y,rho]
-    '''
+    """
+    Execute the affine transformation on simpli images[x,y,rho].
+
+    Parameters
+    ----------
+    image : 2d-array
+        image to transform
+    M : float
+        affine transformation matrix
+    mode : str
+        "nearest", "linear", "cubic" interpolation mode
+
+    Returns
+    -------
+    res : 2d-array
+        transformed image
+    """
     if mode == 'nearest':
         # this is faster then scipy.interpolate.griddata('nearest')
         new_image = _nearest_neighbors(image, M)

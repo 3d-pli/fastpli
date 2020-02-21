@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Author: Daniel Schmitz INM-1, Forschungszentrum Jülich:
+https://doi.org/10.3389/fnana.2018.00075
+"""
+
 import numpy as np
 import itertools
 from scipy import optimize

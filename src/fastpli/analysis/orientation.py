@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Analyse Methods fiber_bundles orientations
+"""
+
 import numpy as np
 from numba import njit
 
@@ -27,6 +32,23 @@ def _remap_orientation(phi, theta):
 def fiber_statistic(fiber_bundles,
                     plot='scatter',
                     rticks=[10, 20, 30, 40, 50, 60, 70, 80, 90]):
+    """
+    Calculates the orientation of all fiber segments and plots the result.
+
+    Parameters
+    ----------
+    fiber_bundles : [[(nx4)-array]]
+        fiber_bundle object
+    plot : str 
+        "scatter" or "histogram" plot
+    rticks : list
+        list of radial ticks
+
+    Returns
+    -------
+    res : 1d-array, 1d-array
+        arrays of spherical coordinates phi and theta for all fiber segments
+    """
 
     if plot:
         import matplotlib.pyplot as plt

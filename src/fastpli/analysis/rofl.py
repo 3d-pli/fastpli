@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Analyse Methods for tilted PLI signals with ROFL algorithm
+
+https://doi.org/10.3389/fnana.2018.00075
+"""
+
 import numpy as np
 
 from ._ROFL_with_jacobi import _execute_fit as rofl_fit
@@ -20,7 +27,7 @@ def rofl(data,
 
     Returns
     -------
-    res : diection, inclination, trel, ...
+    res : direction, inclination, trel, ...
     """
 
     data = np.array(data, copy=False)
