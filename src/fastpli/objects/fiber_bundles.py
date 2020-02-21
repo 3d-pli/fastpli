@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Methods for manipulation of fiber_bundles objects
+"""
+
 import numpy as np
 import copy
 
@@ -5,6 +10,19 @@ from . import fiber
 
 
 def Cast(fiber_bundles):
+    """
+    Cast objects into fiber_bundle object
+
+    Parameters
+    ----------
+    fiber_bundles : [[(,4)-array_like, ...]-like]-like
+        list of fiber_bundle
+
+    Returns
+    -------
+    res : [[(,4)-array, ...]]
+        fiber_bundles
+    """
 
     if not fiber_bundles:
         return fiber_bundles
@@ -27,6 +45,24 @@ def Cast(fiber_bundles):
 
 
 def Rescale(fiber_bundles, scale, mod='all'):
+    """
+    Rescales fiber_bundles
+
+    Parameters
+    ----------
+    fiber_bundles : [[(,4)-array, ...]]
+        list of fiber_bundle
+    scale : float
+        scale factor
+    mod : str, optional
+        'all', 'points' or 'radii' will be scaled
+
+    Returns
+    -------
+    res : [[(,4)-array, ...]]
+        scaled fiber_bundles
+    """
+
     fiber_bundles = copy.deepcopy(fiber_bundles)
     for j, fb in enumerate(fiber_bundles):
         for i, f in enumerate(fb):
@@ -35,6 +71,24 @@ def Rescale(fiber_bundles, scale, mod='all'):
 
 
 def Rotate(fiber_bundles, rot, offset=None):
+    """
+    Rotates fiber_bundles around offset
+
+    Parameters
+    ----------
+    fiber_bundles : [[(,4)-array, ...]]
+        list of fibers
+    rot : (3,3)-array_like
+        scale factor
+    offset : 3d-array-array_like, optional
+        offset for rotation center
+
+    Returns
+    -------
+    res : [[(,4)-array, ...]]
+        rotated fiber_bundles
+    """
+
     fiber_bundles = copy.deepcopy(fiber_bundles)
     rot = np.array(rot, copy=False)
     if offset is not None:
@@ -46,6 +100,22 @@ def Rotate(fiber_bundles, rot, offset=None):
 
 
 def Translate(fiber_bundles, offset):
+    """
+    Translates fiber_bundles
+
+    Parameters
+    ----------
+    fiber_bundles : [[(,4)-array, ...]]
+        list of fibers
+    offset : 3d-array-array_like
+        offset to translate
+
+    Returns
+    -------
+    res : [[(,4)-array, ...]]
+        translated fiber_bundles
+    """
+
     fiber_bundles = copy.deepcopy(fiber_bundles)
     offset = np.array(offset, copy=False)
     for i, fb in enumerate(fiber_bundles):
