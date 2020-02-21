@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Solver Class
+"""
+
 from .__solver import _Solver
 
 from ... import io
@@ -11,6 +16,9 @@ import os
 
 
 class Solver(_Solver):
+    """
+    Solver Class for solving collisions between fibers
+    """
 
     __isfrozen = False
 
@@ -54,6 +62,9 @@ class Solver(_Solver):
         return members
 
     def set_dict(self, input):
+        """
+        Set dictionary of variables to class members
+        """
         for key, value in input.items():
             if key.startswith("_"):
                 raise ValueError("member variable cant be set directly")
@@ -65,6 +76,7 @@ class Solver(_Solver):
 
     @property
     def fiber_bundles(self):
+        """ get/set fiber_bundles [[(,4)-array]] """
         return super()._get_fiber_bundles()
 
     @fiber_bundles.setter
@@ -74,6 +86,7 @@ class Solver(_Solver):
 
     @property
     def drag(self):
+        """ drag value applied in each step, optional """
         return super()._get_parameters()[0]
 
     @drag.setter
@@ -84,6 +97,7 @@ class Solver(_Solver):
 
     @property
     def step_num(self):
+        """ get/set number of applied steps """
         return self._step_num
 
     @drag.setter
@@ -91,11 +105,8 @@ class Solver(_Solver):
         self._step_num = int(value)
 
     @property
-    def reset_step_num(self):
-        self._step_num = 0
-
-    @property
     def obj_min_radius(self):
+        """ get/set minimal circular radius allowed for fiber """
         return super()._get_parameters()[1]
 
     @obj_min_radius.setter
@@ -106,6 +117,7 @@ class Solver(_Solver):
 
     @property
     def obj_mean_length(self):
+        """ get/set mean value allowed for fiber segment """
         return super()._get_parameters()[2]
 
     @obj_mean_length.setter
@@ -115,15 +127,8 @@ class Solver(_Solver):
                                 self._obj_mean_length)
 
     @property
-    def parameters(self):
-        parameters = super()._get_parameters()
-        self._drag = parameters[0]
-        self._obj_min_radius = parameters[1]
-        self._obj_mean_length = parameters[2]
-        return parameters
-
-    @property
     def col_voi(self):
+        """ get/set volume on witch the collision algorithm is applied """
         return self._col_voi
 
     @col_voi.setter
@@ -136,6 +141,7 @@ class Solver(_Solver):
 
     @property
     def omp_num_threads(self):
+        """ get/set number of omp threads """
         return self._omp_num_threads
 
     @omp_num_threads.setter
@@ -145,10 +151,18 @@ class Solver(_Solver):
             self._omp_num_threads)
 
     def step(self):
+        """
+        Applies collision solving algorithm for one step
+        
+        Returns True if solved
+        """
         self._step_num += 1
         return super().step()
 
     def draw_scene(self):
+        """
+        Draws model configuration in if OpenGl window can be created.
+        """
         if self.__display is None:
             try:
                 os.environ['DISPLAY']
@@ -161,6 +175,9 @@ class Solver(_Solver):
             super().draw_scene()
 
     def apply_boundary_conditions(self, n_max=10):
+        """
+        Applies boundary conditions for n_max steps without collision solving.
+        """
         if not isinstance(n_max, int) or n_max <= 0:
             raise TypeError("only integer > 0 allowed")
 
@@ -169,6 +186,9 @@ class Solver(_Solver):
         return self.fiber_bundles
 
     def save_parameter_h5(self, h5f, script=None):
+        """
+        Saves class members without fiber_bundles in hdf5 file.
+        """
         h5f.attrs['fastpli/version'] = version.__version__
         h5f.attrs['fastpli/compiler'] = version.__compiler__
         h5f.attrs['fastpli/libraries'] = version.__libraries__
@@ -178,10 +198,16 @@ class Solver(_Solver):
             h5f.attrs['script'] = script
 
     def save_h5(self, h5f, script=None):
+        """
+        Saves class members in hdf5 file.
+        """
         io.fiber_bundles.save_h5(h5f, self.fiber_bundles)
         self.save_parameter_h5(h5f, script)
 
     def load_h5(self, h5f):
+        """
+        Loads class members from hdf5 file.
+        """
         self.fiber_bundles = io.fiber_bundles.load_h5(h5f)
         self.set_dict(dict(eval(str(h5f.attrs['fastpli/solver']))))
 
