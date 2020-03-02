@@ -938,7 +938,7 @@ class Simpli:
         input: np.array(x,y(,rho))
         """
 
-        if not self._sensor_gain:
+        if self._sensor_gain is None:
             raise ValueError("sensor_gain not set")
 
         output = self.apply_optic_resample(input, mp_pool=mp_pool)
