@@ -52,10 +52,13 @@ class World {
    bool ApplyBoundaryConditions(int max_steps);
    void DrawScene(double rot_x = 0, double rot_y = 0, double rot_z = 0,
                   bool only_col = false);
+
+#if _VIS_LIBRARIES
    void SavePPM(std::string file) {
       if (scene_)
          scene_->SavePPM(file.c_str(), 0, 0);
    };
+#endif //_VIS_LIBRARIES
 
  private:
    std::vector<geometry::Fiber> fibers_;
