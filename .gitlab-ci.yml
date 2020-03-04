@@ -47,7 +47,7 @@ test:no_opengl:
    script:
       - apt-get remove -y freeglut3-dev
       - apt-get autoremove -y
-      - make BUILD=release install
+      - make BUILD=debug install
       - make test
       - make examples/requirements
       - make docs
