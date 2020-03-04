@@ -1,3 +1,4 @@
+#include <iostream>
 #include <map>
 #include <memory>
 #include <set>
@@ -57,6 +58,18 @@ class World {
    void SavePPM(std::string file) {
       if (scene_)
          scene_->SavePPM(file.c_str(), 0, 0);
+   };
+#else
+   void SavePPM(std::string file) {
+      (void)file;
+
+      static bool flag = false;
+
+      if (!flag) {
+         flag = true;
+         std::cout << "Visualization was not compiled. No Image can be saved."
+                   << std::endl;
+      }
    };
 #endif //_VIS_LIBRARIES
 
