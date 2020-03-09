@@ -60,16 +60,20 @@ fiber_bundle = sandbox.build.cylinder(
     radii=1,
     alpha=np.deg2rad(20),
     beta=np.deg2rad(160),
-    mode='r'  # 'c', 'p'
+    mode='radial'  # 'circular', 'parallel'
 )
 if PLOT:
     plot_fiber_bundle(fiber_bundle, "cylinder - radial")
 
-# create circular shaped triangular seeds
+# define a cube by two 3d points p and q
 p = np.array([0, 80, 50])
 q = np.array([40, 180, 100])
+
+# create seed points which will fill the cube
 d = np.max(np.abs(p - q)) * np.sqrt(3)
 seeds = sandbox.seeds.triangular_grid(a=d, b=d, spacing=5, center=True)
+
+# fill a cube with (theta, phi) directed fibers
 fiber_bundle = sandbox.build.cuboid(p=p,
                                     q=q,
                                     phi=np.deg2rad(45),
