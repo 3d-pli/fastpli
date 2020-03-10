@@ -26,10 +26,7 @@ test:debug:
       - make BUILD=debug install
       - make test
       - make examples/requirements
-      - env/bin/python3 examples/sandbox.py
-      - env/bin/python3 examples/solver.py
-      - env/bin/python3 examples/simpli.py
-      - env/bin/python3 examples/simulation_pipeline.py
+      - for f in examples/*.py; do echo "$f"; env/bin/python3 $f; done
 
 # TODO: test-mpi 
 # - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
@@ -52,11 +49,7 @@ test:no_opengl:
       - make test
       - make examples/requirements
       - make docs
-      - env/bin/python3 examples/sandbox.py
-      - env/bin/python3 examples/solver.py
-      - env/bin/python3 examples/simpli.py
-      - env/bin/python3 examples/simulation_pipeline.py
-
+      - for f in examples/*.py; do echo "$f"; env/bin/python3 $f; done
 
 test:release:
    stage: test
@@ -74,7 +67,4 @@ test:release:
       - make test
       - make examples/requirements
       - make docs
-      - env/bin/python3 examples/sandbox.py
-      - env/bin/python3 examples/solver.py
-      - env/bin/python3 examples/simpli.py
-      - env/bin/python3 examples/simulation_pipeline.py
+      - for f in examples/*.py; do echo "$f"; env/bin/python3 $f; done

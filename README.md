@@ -39,13 +39,7 @@ The Makefile contains the instruction to create a virtual Python environment `en
 make install
 ```
 
-**OR** if you want to compile only the code, and install the package by by your own:
-
-```sh
-# Compiling the source code and generating setup.py
-make build
-pip3 install build/.
-```
+**OR** if you want to compile only the code, and install the package by the created setp.py with `make build` and `pip3 install build/.`
 
 ## Running examples:
 
@@ -103,11 +97,11 @@ make h5py-mpi
 make h5py-clean
 ```
 
-## example:
+<!-- ## example:
 ```sh
 # simpli supports mpi 
 mpiexec -n 2 python3 examples/simpli_mpi.py
-```
+``` -->
 
 # Additional Informations:
 * [TODOs](TODO.md)

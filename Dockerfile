@@ -14,7 +14,4 @@ CMD git clean -d -f -x && \
    make test && \
    make examples/requirements && \
    make docs && \
-   env/bin/python3 examples/sandbox.py && \
-   env/bin/python3 examples/solver.py && \
-   env/bin/python3 examples/simpli.py && \
-   env/bin/python3 examples/simulation_pipeline.py
+   for f in examples/*.py; do echo "$f"; env/bin/python3 $f; done
