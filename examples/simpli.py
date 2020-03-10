@@ -15,7 +15,10 @@ FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 
-with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
+file_name = 'fastpli.example.' + FILE_BASE + '.h5'
+print("creating file: {file_name}")
+
+with h5py.File(file_name, 'w') as h5f:
     # save script
     h5f['version'] = fastpli.__version__
     with open(os.path.abspath(__file__), 'r') as f:
@@ -101,3 +104,5 @@ with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
     #     os.path.join(FILE_PATH, 'simpli.png'),
     #     data2image(
     #         fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
+
+print("Done")

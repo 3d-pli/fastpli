@@ -23,8 +23,10 @@ fiber_radii = np.random.uniform(2.0, 5.0, population.shape[0])
 fiber_bundle = fastpli.model.sandbox.build.bundle(fiber_bundle_trj, population,
                                                   fiber_radii)
 
-fastpli.io.fiber_bundles.save('/tmp/fastpli.example.' + FILE_BASE + '.dat',
-                              [fiber_bundle])
+file_name = 'fastpli.example.' + FILE_BASE + '.dat'
+print("creating file: {file_name}")
+
+fastpli.io.fiber_bundles.save(file_name, [fiber_bundle])
 
 ### setup solver ###
 solver = fastpli.model.solver.Solver()
@@ -52,5 +54,9 @@ for i in range(1000):
         solver.draw_scene()
         break
 
-fastpli.io.fiber_bundles.save(
-    '/tmp/fastpli.example.' + FILE_BASE + '.solved.dat', solver.fiber_bundles)
+file_name = 'fastpli.example.' + FILE_BASE + '.solved.dat'
+print("creating file: {file_name}")
+
+fastpli.io.fiber_bundles.save(file_name, solver.fiber_bundles)
+
+print("Done")

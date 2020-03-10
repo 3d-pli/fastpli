@@ -11,6 +11,7 @@ pool = mp.Pool(2)
 np.random.seed(42)
 
 import fastpli.simulation
+import fastpli.io
 
 # reproducability
 
@@ -38,12 +39,15 @@ simpli.sensor_gain = 3
 simpli.optical_sigma = 0.71  # in voxel size
 simpli.verbose = 1
 
-print(simpli.crop_tilt_pixel())
+file_name = 'fastpli.example.' + FILE_BASE + '.h5'
+print("creating file: {file_name}")
 
-with h5py.File('/tmp/fastpli.example.' + FILE_BASE + '.h5', 'w') as h5f:
+with h5py.File(file_name, 'w') as h5f:
     with open(os.path.abspath(__file__), 'r') as script:
         simpli.run_pipeline(h5f=h5f,
                             script=script.read(),
                             save=["label_field"],
                             crop_tilt=True,
                             mp_pool=pool)
+
+print("Done")

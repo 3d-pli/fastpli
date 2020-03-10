@@ -15,5 +15,6 @@ CMD git clean -d -f -x && \
    make examples/requirements && \
    make docs && \
    env/bin/python3 examples/sandbox.py && \
-   env/bin/python3 examples/model_solver.py && \
-   env/bin/python3 examples/simpli.py
+   env/bin/python3 examples/solver.py && \
+   env/bin/python3 examples/simpli.py && \
+   env/bin/python3 examples/simulation_pipeline.py

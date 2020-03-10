@@ -29,6 +29,7 @@ test:debug:
       - env/bin/python3 examples/sandbox.py
       - env/bin/python3 examples/model_solver.py
       - env/bin/python3 examples/simpli.py
+      - env/bin/python3 examples/simulation_pipeline.py
 
 # TODO: test-mpi 
 # - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
@@ -54,6 +55,7 @@ test:no_opengl:
       - env/bin/python3 examples/sandbox.py
       - env/bin/python3 examples/model_solver.py
       - env/bin/python3 examples/simpli.py
+      - env/bin/python3 examples/simulation_pipeline.py
 
 
 test:release:
@@ -75,3 +77,4 @@ test:release:
       - env/bin/python3 examples/sandbox.py
       - env/bin/python3 examples/solver.py
       - env/bin/python3 examples/simpli.py
+      - env/bin/python3 examples/simulation_pipeline.py
