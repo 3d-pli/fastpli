@@ -46,11 +46,11 @@ examples/requirements:
 	${VENV}/bin/pip3 install -r examples/requirements.txt -q
 
 .PHONY: install
-install: ${VENV} git-submodules build
+install: ${VENV} build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: development
-development: ${VENV} git-submodules build examples/requirements
+development: ${VENV} build examples/requirements
 	${VENV}/bin/pip3 install -e build/. -q
 	${VENV}/bin/pip3 install yapf -q
 	${VENV}/bin/pip3 install pylint -q
@@ -74,7 +74,7 @@ build/Makefile: build/
 
 .PHONY: build
 .ONESHELL:
-build: build/ build/Makefile link-python
+build: git-submodules build/ build/Makefile link-python
 	cd build
 	${MAKE}
 
