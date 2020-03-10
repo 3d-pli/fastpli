@@ -10,6 +10,9 @@ wiki/
 *.h5
 *.dat
 
+# example output
+fastpli.example.*
+
 # misc
 .nfs*
 .tmux.sh

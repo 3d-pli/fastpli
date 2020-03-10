@@ -97,12 +97,15 @@ with h5py.File(file_name, 'w') as h5f:
     h5f['analysis/rofl/inclination'] = np.rad2deg(rofl_incl)
     h5f['analysis/rofl/trel'] = rofl_t_rel
 
-    # def data2image(data):
-    #     return np.swapaxes(np.flip(data, 1), 0, 1)
+    def data2image(data):
+        return np.swapaxes(np.flip(data, 1), 0, 1)
 
-    # imageio.imwrite(
-    #     os.path.join(FILE_PATH, 'simpli.png'),
-    #     data2image(
-    #         fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
+    print(f"creating Fiber Orientation Map: {file_name + '.png'}")
+
+    imageio.imwrite(
+        file_name + '.png',
+        data2image(
+            fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
 
 print("Done")
+print("You can look at the data e.g with Fiji and the hdf5 plugin")
