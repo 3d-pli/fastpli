@@ -98,7 +98,7 @@ make h5py-clean
 ```
 
 <!-- ## example:
-```sh
+```
 # simpli supports mpi 
 mpiexec -n 2 python3 examples/simpli_mpi.py
 ``` -->

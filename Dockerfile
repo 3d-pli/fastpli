@@ -9,9 +9,4 @@ RUN apt-get install -y freeglut3-dev
 ENV HDF5_DIR /usr/lib/x86_64-linux-gnu/hdf5/openmpi
 WORKDIR /code/fastpli
 
-CMD git clean -d -f -x && \
-   make BUILD=debug install && \
-   make test && \
-   make examples/requirements && \
-   make docs && \
-   for f in examples/*.py; do echo "$f"; env/bin/python3 $f; done
+CMD ["./.docker_run.sh"]
