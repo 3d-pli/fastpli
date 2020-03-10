@@ -16,7 +16,7 @@ FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 
 file_name = 'fastpli.example.' + FILE_BASE + '.h5'
-print("creating file: {file_name}")
+print(f"creating file: {file_name}")
 
 with h5py.File(file_name, 'w') as h5f:
     # save script

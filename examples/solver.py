@@ -24,7 +24,7 @@ fiber_bundle = fastpli.model.sandbox.build.bundle(fiber_bundle_trj, population,
                                                   fiber_radii)
 
 file_name = 'fastpli.example.' + FILE_BASE + '.dat'
-print("creating file: {file_name}")
+print(f"creating file: {file_name}")
 
 fastpli.io.fiber_bundles.save(file_name, [fiber_bundle])
 
@@ -55,7 +55,7 @@ for i in range(1000):
         break
 
 file_name = 'fastpli.example.' + FILE_BASE + '.solved.dat'
-print("creating file: {file_name}")
+print(f"creating file: {file_name}")
 
 fastpli.io.fiber_bundles.save(file_name, solver.fiber_bundles)
 

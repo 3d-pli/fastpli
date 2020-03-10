@@ -40,7 +40,7 @@ simpli.optical_sigma = 0.71  # in voxel size
 simpli.verbose = 1
 
 file_name = 'fastpli.example.' + FILE_BASE + '.h5'
-print("creating file: {file_name}")
+print(f"creating file: {file_name}")
 
 with h5py.File(file_name, 'w') as h5f:
     with open(os.path.abspath(__file__), 'r') as script:
