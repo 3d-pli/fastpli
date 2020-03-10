@@ -87,12 +87,11 @@ test:
 	${VENV}/bin/python3 -m unittest discover -s tests -p '*_test.py'
 
 .PHONY: h5py-serial
-h5py-serial:
+h5py-serial: h5py-clean
 	${VENV}/bin/pip3 install h5py
 
 .PHONY: h5py-mpi
-h5py-mpi:
-	${VENV}/bin/pip3 uninstall h5py
+h5py-mpi: h5py-clean
 	HDF5_DIR=${HDF5_DIR} CC=mpicc HDF5_MPI="ON" ${VENV}/bin/pip3 install --no-binary=h5py h5py
 	# e.g. HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi
 
