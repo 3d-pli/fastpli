@@ -32,11 +32,18 @@ See **Wiki** for detailed informations
 All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**. Additionally the simulation module supports the **Message Passing Interface (MPI)**.
 
 # Installation:
+The Makefile contains the instruction to create a virtual Python environment `env`. All the following instructions and examples use this virtual environment.
+
+```sh
+# Compiling the source code, creating a venv and installing fastpli
+make install
+```
+
+**OR** if you want to compile only the code, and install the package by by your own:
+
 ```sh
 # Compiling the source code and generating setup.py
 make build
-
-# installation with pip
 pip3 install build/.
 ```
 
@@ -44,13 +51,13 @@ pip3 install build/.
 
 ```sh
 # install required modules for examples
-pip3 install -r examples/requirements.txt
+env/bin/pip3 install -r examples/requirements.txt
 
 # run examples
-python3 examples/sandbox.py
-python3 examples/model_solver.py
-python3 examples/simpli.py
-python3 examples/simulation_pipeline.py
+env/bin/python3 examples/sandbox.py
+env/bin/python3 examples/solver.py
+env/bin/python3 examples/simpli.py
+env/bin/python3 examples/simulation_pipeline.py
 ```
 
 ## Running tests
