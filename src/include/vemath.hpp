@@ -5,6 +5,7 @@
 #include <array>
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <functional>
 #include <numeric>
 #include <ostream>
 #include <vector>
