@@ -15,6 +15,7 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 | module                  | information                                                  |
 | ----------------------- | ------------------------------------------------------------ |
 | `fastpli.analysis`      | analysis of 3D-PLI results                                   |
+| `fastpli.io`            | input/output functions, e.g. to read/save fiber_bundles data |
 | `fastpli.model.sandbox` | building of simple 3d nerve fiber models                     |
 | `fastpli.model.solver`  | generation of non intersection nerve fiber models            |
 | `fastpli.objects`       | manipulation of fastpli objects (e.g. rotation)              |
@@ -66,9 +67,9 @@ make test
  - CMake
  - Python3
  - MPI
+ - OpenGL
 
 ## Optional Packages:
- - OpenGL
  - CUDA
 
 ## Submodules:
@@ -78,7 +79,7 @@ make test
 The PLI simulation library simPLI supports mpi.
 
 ## Volume generation:
-The generated volume will be splitt corresponding to the mpi processes. Each mpi process calculates the label_field and vector_field volume seperatly.
+The generated volume will be split corresponding to the mpi processes. Each mpi process calculates the label_field and vector_field volume seperatly.
 
 ## PLI simulation:
 Each mpi process simulates the light-tissue interaction on its volume. When a light beam needs to change to a neighboured volume, it is transmitted via mpi communication.

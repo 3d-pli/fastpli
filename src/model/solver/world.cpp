@@ -13,6 +13,7 @@
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
+#include "scene.hpp"
 
 object::FiberBundles World::get_fibers() const {
    object::FiberBundles fiber_bundles;
@@ -245,8 +246,6 @@ bool World::Step() {
    return solved;
 }
 
-#if _VIS_LIBRARIES
-#include "scene.hpp"
 void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
    if (scene_ == nullptr) {
       char arg0[] = "model.solver";
@@ -257,19 +256,3 @@ void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
    scene_->SetViewAngle(rot_x, rot_y, rot_z);
    scene_->DrawScene(fibers_, only_col);
 }
-#else
-void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
-   (void)rot_x;
-   (void)rot_y;
-   (void)rot_z;
-   (void)only_col;
-
-   static bool flag = false;
-
-   if (!flag) {
-      flag = true;
-      std::cout << "No OpenGl detected due build. Deactivating DrawScene()"
-                << std::endl;
-   }
-}
-#endif //_VIS_LIBRARIES
