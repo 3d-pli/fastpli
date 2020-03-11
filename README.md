@@ -40,7 +40,7 @@ The Makefile contains the instruction to create a virtual Python environment `en
 make install
 ```
 
-**OR** if you want to compile only the code, and install the package by the created setp.py with `make build` and `pip3 install build/.`
+**OR** if you want to compile only the code, and install the package by the created setup.py with `make build` and `pip3 install build/.`
 
 ## Running examples:
 
