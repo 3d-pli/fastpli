@@ -1,10 +1,10 @@
 .PHONY: help
 help:
-	echo "make install -- installation of venv with fastpli"
-	echo "make build -- compilation of fastpli and providing of build/setup.py"
-	echo "make examples/requirements"
-	echo "make test"
-	echo "make clean-all"
+	@echo make install -- installation of venv with fastpli
+	@echo make build -- compilation of fastpli and providing of build/setup.py
+	@echo make examples/requirements -- install required python packages for examples in venv
+	@echo make test -- run all tests to verify integrity
+	@echo make clean-all -- clean everything e.g. to rebuild after update
 
 BUILD := release
 VENV := env
@@ -46,7 +46,7 @@ examples/requirements:
 	${VENV}/bin/pip3 install -r examples/requirements.txt -q
 
 .PHONY: install
-install: ${VENV} build
+install: build ${VENV}
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: development
@@ -65,11 +65,10 @@ build/:
 
 .ONESHELL:
 build/Makefile: build/
-	@if [ ! -f build/Makefile ]
-	then
-		cd build
-		echo cmake
-		${CMAKE}
+	@if [ ! -f build/Makefile ]; then \
+		cd build; \
+		echo cmake; \
+		${CMAKE}; \
 	fi
 
 .PHONY: build
