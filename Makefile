@@ -46,7 +46,7 @@ examples/requirements:
 	${VENV}/bin/pip3 install -r examples/requirements.txt -q
 
 .PHONY: install
-install: build ${VENV}
+install: ${VENV} build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: development
@@ -112,13 +112,13 @@ docker: docker-build
 	rm -rf /tmp/fastpli
 	docker start -i fastpli-test
 
-.PHONY: docs
-docs:
-	${VENV}/bin/pip3 -q install pdoc3
-	${VENV}/bin/python3 -m pdoc --force --html --output-dir build/docs fastpli
-	${VENV}/bin/python3 -m pdoc --pdf fastpli | sed '1,/^...$$/d' | \
-		sed -e 's/{#\([^]]*\)}/<a name="\1"><\/a>/g' | head -n -2 | \
-		sed 's/  //g' | sed 's/> //g' | sed 's/######/#####/g' > build/docs/fastpli.md
+# .PHONY: docs
+# docs:
+# 	${VENV}/bin/pip3 -q install pdoc3
+# 	${VENV}/bin/python3 -m pdoc --force --html --output-dir build/docs fastpli
+# 	${VENV}/bin/python3 -m pdoc --pdf fastpli | sed '1,/^...$$/d' | \
+# 		sed -e 's/{#\([^]]*\)}/<a name="\1"><\/a>/g' | head -n -2 | \
+# 		sed 's/  //g' | sed 's/> //g' | sed 's/######/#####/g' > build/docs/fastpli.md
 
 .PHONY: clean
 clean: uninstall clean-build clean-src
