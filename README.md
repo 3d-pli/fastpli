@@ -27,20 +27,80 @@ The aim of this package is to provide consistent system that allows the followin
 * **simulate** nerve fiber inside a virtual tiltable 3D-PLI microscop
 * **analyse** the simulated signals to extract the resulting fiber orientation
 
-See **Wiki** for detailed informations
+See **Wiki** for detailed information
 
 ## Performance
 All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**. Additionally the simulation module supports the **Message Passing Interface (MPI)**.
 
 # Installation:
-The Makefile contains the instruction to create a virtual Python environment `env`. All the following instructions and examples use this virtual environment.
+
+## Dependencies
+### Requirements:
+ - C++17
+ - Make
+ - CMake
+ - Python3
+ - MPI
+ - OpenGL
+
+### Submodules:
+ - pybind11
+
+## Install instructions
+
+### Packages
+
+Install all necessary packages.
+
+Example using Ubuntu or Debian:
 
 ```sh
-# Compiling the source code, creating a venv and installing fastpli
+sudo apt install gcc g++ cmake make git 
+sudo apt install python3-dev python3-venv
+sudo apt install libopenmpi-dev freeglut3-dev
+```
+<!-- libhdf5-openmpi-dev -->
+
+Example using Archlinux:
+
+```
+RUN pacman --noconfirm --needed -Syu gcc make cmake git
+RUN pacman --noconfirm --needed -Syu python python-pipenv python-pip
+RUN pacman --noconfirm --needed -Syu openmpi
+RUN pacman --noconfirm --needed -Syu freeglut glu
+```
+<!--  hdf5-openmpi -->
+
+### Clone repository
+
+```sh
+git clone git@github.com:3d-pli/fastPLI.git
+cd fastpli
+```
+
+### Compilation 
+
+#### Makefile
+
+The Makefile contains the instruction to create a virtual Python environment `env`. 
+All the following instructions and examples use this virtual environment.
+
+```sh
 make install
 ```
 
-**OR** if you want to compile only the code, and install the package by the created setup.py with `make build` and `pip3 install build/.`
+#### Or Step by Step
+
+The Makefile runs the following commands (with a creation of an virtual python environment):
+
+```sh
+git submodule update --init
+mkdir build
+cd build/
+cmake ..
+make -j
+pip3 install .
+```
 
 ## Running examples:
 
@@ -54,58 +114,6 @@ env/bin/python3 examples/solver.py
 env/bin/python3 examples/simpli.py
 env/bin/python3 examples/simulation_pipeline.py
 ```
-
-## Running tests
-```sh
-make test
-```
-
-# Dependencies
-## Requirements:
- - C++
- - Make
- - CMake
- - Python3
- - MPI
- - OpenGL
-
-## Optional Packages:
- - CUDA
-
-## Submodules:
- - pybind11
-
-# MPI execution:
-The PLI simulation library simPLI supports mpi.
-
-## Volume generation:
-The generated volume will be split corresponding to the mpi processes. Each mpi process calculates the label_field and vector_field volume seperatly.
-
-## PLI simulation:
-Each mpi process simulates the light-tissue interaction on its volume. When a light beam needs to change to a neighboured volume, it is transmitted via mpi communication.
-
-## Parallel HDF5io:
-To be able to save the seperated data into a single hdf5 file, a paralel implementation of h5py is needed. However, a parallel installation of h5py is required. However, h5py can only be installed either serially or in parallel:
-
-```sh
-# serial:
-make h5py-serial
-
-# parallel:
-make h5py-mpi
-
-# clean:
-make h5py-clean
-```
-
-<!-- ## example:
-```
-# simpli supports mpi 
-mpiexec -n 2 python3 examples/simpli_mpi.py
-``` -->
-
-# Additional Informations:
-* [TODOs](TODO.md)
 
 ## Authors
 * **Felix Matuschke**

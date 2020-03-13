@@ -100,7 +100,7 @@ h5py-clean:
 
 .PHONY: docker-build
 docker-build:
-	docker build -t fastpli .
+	docker build -t fastpli -f Dockerfile .
 	docker container rm fastpli-test
 	docker create --name fastpli-test fastpli
 
