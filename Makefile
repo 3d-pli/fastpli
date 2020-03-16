@@ -106,19 +106,23 @@ docker-build:
 
 .PHONY: docker
 docker: docker-build
-	rm -rf /tmp/fastpli
-	git clone . /tmp/fastpli
-	docker container stop fastpli-cont
-	docker container rm fastpli-cont
-	docker create --name fastpli-cont fastpli-${DOCKER}
-	docker cp /tmp/fastpli fastpli-cont:/code/
-	rm -rf /tmp/fastpli
-	docker start -i fastpli-cont
+	rm -rf /tmp/fastpli-${DOCKER}
+	git clone . /tmp/fastpli-${DOCKER}
+	docker container stop fastpli-cont-${DOCKER}
+	docker container rm fastpli-cont-${DOCKER}
+	docker create --name fastpli-cont-${DOCKER} fastpli-${DOCKER}
+	docker cp /tmp/fastpli-${DOCKER}/. fastpli-cont-${DOCKER}:/code/fastpli
+	rm -rf /tmp/fastpli-${DOCKER}
+	docker start -i fastpli-cont-${DOCKER}
 
-.PHONY: docker
-docker: docker-all
-	make DOCKER=archlinux docker
-	make DOCKER=ubuntu docker
+.PHONY: docker-all
+docker-all: docker-all
+	@if [ -f /usr/bin/parallel ]; then \
+		parallel --halt now,fail=1 'make DOCKER={} docker' ::: archlinux ubuntu; \
+	else \
+		make DOCKER=archlinux docker; \
+		make DOCKER=ubuntu docker; \
+	fi
 
 # .PHONY: docs
 # docs:

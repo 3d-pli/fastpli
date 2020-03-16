@@ -64,10 +64,10 @@ sudo apt install libopenmpi-dev freeglut3-dev
 Example using Archlinux:
 
 ```
-RUN pacman --noconfirm --needed -Syu gcc make cmake git
-RUN pacman --noconfirm --needed -Syu python python-pipenv python-pip
-RUN pacman --noconfirm --needed -Syu openmpi
-RUN pacman --noconfirm --needed -Syu freeglut glu
+pacman --noconfirm --needed -Syu gcc make cmake git
+pacman --noconfirm --needed -Syu python python-pipenv python-pip
+pacman --noconfirm --needed -Syu openmpi
+pacman --noconfirm --needed -Syu freeglut glu
 ```
 <!--  hdf5-openmpi -->
 
