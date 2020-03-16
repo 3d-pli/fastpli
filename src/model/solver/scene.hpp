@@ -6,8 +6,16 @@
 #include "fiber_class.hpp"
 #include "include/vemath.hpp"
 
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <GLUT/glut.h>
+#else
+#ifdef _WIN32
+  #include <windows.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glut.h>
+#endif
 
 class Scene {
  public:

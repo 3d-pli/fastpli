@@ -7,8 +7,16 @@
 #include <string>
 #include <vector>
 
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <GLUT/glut.h>
+#else
+#ifdef _WIN32
+  #include <windows.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glut.h>
+#endif
 
 #include "include/vemath.hpp"
 
