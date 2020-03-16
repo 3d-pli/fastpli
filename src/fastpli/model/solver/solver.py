@@ -155,15 +155,22 @@ class Solver(_Solver):
         self._step_num += 1
         return super().step()
 
-    def draw_scene(self):
+    def draw_scene(self, display=True):
         """ Draws model configuration in if OpenGl window can be created. """
         if self.__display is None:
-            try:
-                super().draw_scene()
-                self.__display = True
-            except BaseException:
-                warnings.warn("test_opengl: no display detected")
-                self.__display = False
+            import platform
+            if platform.system() == "Darwin":
+                self.__display = display
+            else:
+                if "DISPLAY" in os.environ:
+                    if os.environ['DISPLAY']:
+                        self.__display = display
+                    else:
+                        warnings.warn("test_opengl: DISPLAY variable empty")
+                        self.__display = False
+                else:
+                    warnings.warn("test_opengl: no DISPLAY variable detected")
+                    self.__display = False
 
         if self.__display:
             super().draw_scene()
