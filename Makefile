@@ -24,6 +24,8 @@ INSTALL.info := install build/. -q
 INSTALL.release := install build/. -q
 INSTALL := ${INSTALL.${BUILD}}
 
+DOCKER=ubuntu
+
 ${VENV}/bin/pip3:
 	rm -rf ${VENV}
 	python3 -m venv ${VENV}
@@ -100,17 +102,23 @@ h5py-clean:
 
 .PHONY: docker-build
 docker-build:
-	docker build -t fastpli -f Dockerfile .
-	docker container rm fastpli-test
-	docker create --name fastpli-test fastpli
+	docker build -t fastpli-${DOCKER} - < docker/${DOCKER}
 
 .PHONY: docker
 docker: docker-build
 	rm -rf /tmp/fastpli
 	git clone . /tmp/fastpli
-	docker cp /tmp/fastpli fastpli-test:/code/
+	docker container stop fastpli-cont
+	docker container rm fastpli-cont
+	docker create --name fastpli-cont fastpli-${DOCKER}
+	docker cp /tmp/fastpli fastpli-cont:/code/
 	rm -rf /tmp/fastpli
-	docker start -i fastpli-test
+	docker start -i fastpli-cont
+
+.PHONY: docker
+docker: docker-all
+	make DOCKER=archlinux docker
+	make DOCKER=ubuntu docker
 
 # .PHONY: docs
 # docs:

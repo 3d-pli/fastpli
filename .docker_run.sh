@@ -28,7 +28,12 @@ echo "--------------------------------------"
 echo "***************Examples***************"
 echo "--------------------------------------"
 make examples/requirements
-for f in examples/*.py; do echo "$f"; env/bin/python3 $f; done
+for f in examples/*.py; do
+   echo "running $f"
+   echo env/bin/python3 $f
+   echo "done $f"
+   echo ""
+done
 
 echo "--------------------------------------"
 echo "*****************Done*****************"
