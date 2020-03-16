@@ -61,11 +61,9 @@ development: ${VENV} build examples/requirements
 uninstall:
 	${VENV}/bin/pip3 uninstall fastpli -yq
 
-.ONESHELL:
 build/:
 	mkdir build
 
-.ONESHELL:
 build/Makefile: build/
 	@if [ ! -f build/Makefile ]; then \
 		cd build; \
@@ -74,14 +72,14 @@ build/Makefile: build/
 	fi
 
 .PHONY: build
-.ONESHELL:
 build: build/ build/Makefile link-python
-	cd build
+	cd build; \
 	${MAKE}
 
 .PHONY: link-python
-link-python: 
-	cp -al --remove-destination src/fastpli build/
+link-python: build/
+	cd src; find fastpli -type d -exec mkdir -p {} ../build/{} \;
+	cd src; find fastpli -type f -exec ln -f {} ../build/{} \;
 
 .PHONY: test
 test:
@@ -150,4 +148,4 @@ clean-venv:
 .PHONY: clean-src
 clean-src:
 	rm -f src/include/version.hpp
-	find tests/ -type d -name "__pycache__" -exec rm -r {} \;
+	find tests/ -type d -name "__pycache__" -exec echo rm -rf {} \;
