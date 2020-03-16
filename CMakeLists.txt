@@ -39,9 +39,26 @@ LIST (APPEND FASTPLI_INFO_COMPILER "${CMAKE_CXX_COMPILER_ID}
                                     ${CMAKE_CXX_COMPILER_VERSION}" )
 
 ##########################################################################
+# Git Submodules
+##########################################################################
+FIND_PACKAGE(Git REQUIRED)
+IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+    OPTION(GIT_SUBMODULE "Check submodules during build" ON)
+    IF(GIT_SUBMODULE)
+        MESSAGE(STATUS "Submodule update")
+        EXECUTE_PROCCES(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        IF(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            MESSAGE(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        ENDIF()
+    ENDIF()
+ENDIF()
+
+##########################################################################
 # Libraries
 ##########################################################################
-# Pybind11
+# Python
 FIND_PACKAGE(PythonInterp 3 REQUIRED)
 FIND_PACKAGE(PythonLibs   3 REQUIRED)
 ADD_SUBDIRECTORY(lib/pybind11)
