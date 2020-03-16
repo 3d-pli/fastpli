@@ -159,7 +159,7 @@ class Solver(_Solver):
         """ Draws model configuration in if OpenGl window can be created. """
         if self.__display is None:
             try:
-                os.environ['DISPLAY']
+                super().draw_scene()
                 self.__display = True
             except BaseException:
                 warnings.warn("test_opengl: no display detected")
