@@ -50,5 +50,6 @@ with h5py.File(file_name, 'w') as h5f:
                             crop_tilt=True,
                             mp_pool=pool)
 
-print("Done")
-print("You can look at the data e.g with Fiji and the hdf5 plugin")
+pool.close()
+
+print("Done - You can look at the data e.g with Fiji and the hdf5 plugin")
