@@ -6,7 +6,7 @@ stages:
 before_script:
    - export DEBIAN_FRONTEND=noninteractive
    - apt-get update -qq && apt-get upgrade -y
-   - apt-get install -y gcc g++ cmake make git
+   - apt-get install -y gcc g++ clang cmake make git
    - apt-get install -y python3-dev python3-venv
    - apt-get install -y libopenmpi-dev libhdf5-openmpi-dev
    - apt-get install -y freeglut3-dev
@@ -23,11 +23,6 @@ test:debug:
       variables:
          - $CI_COMMIT_MESSAGE =~ /WIP/
    script:
-      - make BUILD=debug install
-      - make test
-      - make examples/requirements
-      - for f in examples/*.py; do echo "$f"; env/bin/python3 $f; done
-      - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
       - ./.docker_run.sh
 
 # TODO: test-mpi 
@@ -45,10 +40,4 @@ test:release:
       variables:
          - $CI_COMMIT_MESSAGE =~ /WIP/
    script:
-      - make BUILD=release install
-      - make test
-      - make examples/requirements
-      # - make docs
-      - for f in examples/*.py; do echo "$f"; env/bin/python3 $f; done
-      - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
       - ./.docker_run.sh

@@ -4,6 +4,8 @@ set -euo pipefail
 echo "--------------------------------------"
 echo "****************Build*****************"
 echo "--------------------------------------"
+make BUILD=release CC=clang CXX=clang++ install
+make clean
 make BUILD=debug install
 
 # echo "--------------------------------------"
