@@ -6,7 +6,7 @@ echo "****************Build*****************"
 echo "--------------------------------------"
 make BUILD=release CC=clang CXX=clang++ install
 make clean
-make BUILD=debug install
+make BUILD=debug CC=gcc CXX=g++ install
 
 # echo "--------------------------------------"
 # echo "****************Readme****************"

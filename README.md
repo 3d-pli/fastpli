@@ -96,11 +96,16 @@ The Makefile runs the following commands (with a creation of an virtual python e
 ```sh
 git submodule update --init
 mkdir build
+cp -al --remove-destination src/fastpli build/
 cd build/
 cmake ..
 make -j
 pip3 install .
 ```
+
+It creates a hardlink so that a pips debugging process is available.
+For the future it is planned that the compilation process will be handled by pip.
+However, the standard approach of this process has in the past significantly slowed down the compilation time.
 
 ## Running examples:
 
