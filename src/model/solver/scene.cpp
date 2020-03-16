@@ -26,7 +26,7 @@ Scene::Scene(int argc, char **argv) {
 
    glutInitWindowPosition(0, 0);
    glutInitWindowSize(800, 800);
-   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
    glutCreateWindow("fastpli.model.Solver.Visualizer");
 
    // Lighting set up
