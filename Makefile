@@ -75,7 +75,7 @@ build/Makefile: build/
 
 .PHONY: build
 .ONESHELL:
-build: git-submodules build/ build/Makefile link-python
+build: build/ build/Makefile link-python
 	cd build
 	${MAKE}
 
