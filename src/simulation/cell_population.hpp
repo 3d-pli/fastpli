@@ -29,7 +29,6 @@ class Population {
  public:
    Population(std::vector<std::vector<double>> cells, Property property);
    Population(std::vector<object::Cell> cells, Property property);
-   ~Population() = default;
 
    // getter
    const object::Cell &cell(size_t i) const { return cells_[i]; }

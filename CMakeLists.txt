@@ -27,7 +27,7 @@ SET(CMAKE_CXX_EXTENSIONS OFF)
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-   SET(warnings "-Wall -Wpedantic -Wextra -Wfatal-errors")
+   SET(warnings "-Wall -Wpedantic -Wextra -Wfatal-errors -Wdeprecated -Werror")
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warnings}")
    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
    SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")

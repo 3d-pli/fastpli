@@ -24,7 +24,6 @@ template <typename T> class NpArray {
    };
 
    NpArray() = default;
-   ~NpArray() = default;
 
    // operators
    constexpr const T &operator[](size_t i) const {
