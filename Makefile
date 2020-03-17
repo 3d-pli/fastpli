@@ -36,8 +36,8 @@ ${VENV}/bin/python3:
 	python3 -m venv ${VENV}
 	${VENV}/bin/pip3 install --upgrade pip -q
 
-.PHONY: ${VENV}
-${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
+.PHONY: .${VENV}
+.${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
 
 .PHONY: git-submodules
 git-submodules:
@@ -48,11 +48,11 @@ examples/requirements:
 	${VENV}/bin/pip3 install -r examples/requirements.txt -q
 
 .PHONY: install
-install: ${VENV} build
+install: .${VENV} .build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: development
-development: ${VENV} build examples/requirements
+development: .${VENV} .build examples/requirements
 	${VENV}/bin/pip3 install -e build/. -q
 	${VENV}/bin/pip3 install yapf -q
 	${VENV}/bin/pip3 install pylint -q
@@ -71,8 +71,8 @@ build/Makefile: build/
 		${CMAKE}; \
 	fi
 
-.PHONY: build
-build: build/ build/Makefile link-python
+.PHONY: .build
+.build: build/ build/Makefile link-python
 	cd build; \
 	${MAKE}
 
