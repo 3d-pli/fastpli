@@ -59,7 +59,6 @@ class Bundle {
           std::vector<layer::Property> properties);
    Bundle(std::vector<std::vector<double>> fibers,
           std::vector<layer::Property> properties);
-   ~Bundle() = default;
 
    // getter
    const object::Fiber &fiber(size_t i) const { return fibers_[i]; }
