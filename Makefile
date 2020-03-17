@@ -19,9 +19,9 @@ MAKE.info := make -j
 MAKE.release := make -j
 MAKE := ${MAKE.${BUILD}}
 
-INSTALL.debug := install build/.
-INSTALL.info := install build/. -q
-INSTALL.release := install build/. -q
+INSTALL.debug := install .
+INSTALL.info := install . -q
+INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
 DOCKER=ubuntu
@@ -52,10 +52,11 @@ install: .${VENV} .build
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: development
-development: .${VENV} .build examples/requirements
-	${VENV}/bin/pip3 install -e build/. -q
+development: .${VENV} .build
+	${VENV}/bin/pip3 install -e . -q
 	${VENV}/bin/pip3 install yapf -q
 	${VENV}/bin/pip3 install pylint -q
+	${VENV}/bin/pip3 install -r examples/requirements.txt -q
 
 .PHONY: uninstall
 uninstall:
@@ -72,14 +73,9 @@ build/Makefile: build/
 	fi
 
 .PHONY: .build
-.build: build/ build/Makefile link-python
+.build: build/ build/Makefile
 	cd build; \
 	${MAKE}
-
-.PHONY: link-python
-link-python: build/
-	cd src; find fastpli -type d -exec mkdir -p {} ../build/{} \;
-	cd src; find fastpli -type f -exec ln -f {} ../build/{} \;
 
 .PHONY: test
 test:
@@ -113,8 +109,8 @@ docker: docker-build
 	rm -rf /tmp/fastpli-${DOCKER}
 	docker start -i fastpli-cont-${DOCKER}
 
-.PHONY: docker-all
-docker-all: docker-all
+.PHONY: docker-parallel
+docker-parallel: docker-parallel
 	@if [ -f /usr/bin/parallel ]; then \
 		parallel --halt now,fail=1 'make DOCKER={} docker' ::: archlinux ubuntu; \
 	else \
@@ -138,8 +134,8 @@ clean-all: clean-build clean-src clean-venv
 
 .PHONY: clean-build
 clean-build:
-	rm -f setup.py
 	rm -rf build
+	rm -f setup.py
 
 .PHONY: clean-venv
 clean-venv:
@@ -147,5 +143,10 @@ clean-venv:
 
 .PHONY: clean-src
 clean-src:
+	rm -f src/version.py
 	rm -f src/include/version.hpp
-	find tests/ -type d -name "__pycache__" -exec echo rm -rf {} \;
+	find src/ -name "*.so" -type f | xargs rm -rf
+	find src/ -type f \( -name "*.pyc" -o -name "*.pyo" \) | xargs rm -rf
+	find tests/ -type f \( -name "*.pyc" -o -name "*.pyo" \) | xargs rm -rf
+	find src/ -type d \( -name "__pycache__"  -o -name "*.egg-info" \) | xargs rm -rf
+	find tests/ -type d \( -name "__pycache__" -o -name "*.egg-info" \) | xargs rm -rf

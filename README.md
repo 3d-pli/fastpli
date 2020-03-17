@@ -63,7 +63,7 @@ sudo apt install libopenmpi-dev freeglut3-dev
 
 Example using Archlinux:
 
-```
+```sh
 pacman --noconfirm --needed -Syu gcc make cmake git
 pacman --noconfirm --needed -Syu python python-pipenv python-pip
 pacman --noconfirm --needed -Syu openmpi
@@ -96,10 +96,10 @@ The Makefile runs the following commands (with a creation of an virtual python e
 ```sh
 git submodule update --init
 mkdir build
-cp -al --remove-destination src/fastpli build/
 cd build/
 cmake ..
 make -j
+cd ..
 pip3 install .
 ```
 

@@ -13,6 +13,7 @@ setuptools.setup(
     install_requires=['numpy', 'numba', 'mpi4py', 'scipy', 'h5py'],
     # test_suite='' # use make test instead
     zip_safe=False,
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages('src'),
+    package_dir={'': 'src'},
     package_data={'': ['*.so']},
 )

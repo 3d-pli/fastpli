@@ -39,9 +39,9 @@ configure_file(
 )
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/version.py
-   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}/version.py
+   ${CMAKE_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}/version.py
 )
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/setup.py
-   ${CMAKE_CURRENT_BINARY_DIR}/setup.py
+   ${CMAKE_SOURCE_DIR}/setup.py
 )

@@ -1,6 +1,8 @@
 # build
+src/fastpli/version.py
 src/include/version.hpp
 env*/
+setup.py
 
 # development
 dev/*

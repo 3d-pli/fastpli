@@ -11,6 +11,15 @@ IF( NOT CMAKE_BUILD_TYPE )
    SET(CMAKE_BUILD_TYPE "Release")
 ENDIF()
 
+# IF ( ${DEVELOPMENT_MODE} )
+#    SET(warn "DEVELOPMENT_MODE=${DEVELOPMENT_MODE}")
+#    IF(NOT WIN32)
+#       string(ASCII 27 Esc)
+#       SET(warn "${Esc}[1;33m${warn}${Esc}[m")
+#    ENDIF()
+#    MESSAGE(WARNING "${warn}")
+# ENDIF()
+
 # warning IF not release build
 IF( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
    SET(warn "BUILD TYPE: ${CMAKE_BUILD_TYPE}")
@@ -99,13 +108,13 @@ LIST(APPEND FASTPLI_INFO_LIBRARIES "GLUT-v${GLUT_VERSION}")
 # BUILD VERSION FILES
 ##########################################################################
 CONFIGURE_FILE(
-   ${CMAKE_SOURCE_DIR}/cmake/version.cmake
-   ${CMAKE_CURRENT_BINARY_DIR}/configure_version.cmake
+   ${CMAKE_SOURCE_DIR}/cmake/init.cmake
+   ${CMAKE_CURRENT_BINARY_DIR}/configure_init.cmake
 )
 
 ADD_CUSTOM_TARGET(
-   build_version ALL
-   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/configure_version.cmake
+   init_files ALL
+   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/configure_init.cmake
 )
 
 ##########################################################################
@@ -113,7 +122,7 @@ ADD_CUSTOM_TARGET(
 ##########################################################################
 INCLUDE_DIRECTORIES( AFTER src)
 
-SET(PROJECT_LIB_DIR "${PROJECT_BINARY_DIR}/${CMAKE_PROJECT_NAME}")
+SET(PROJECT_LIB_DIR "${PROJECT_SOURCE_DIR}/src/fastpli")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/model/solver")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/objects")
 ADD_SUBDIRECTORY("${PROJECT_SOURCE_DIR}/src/simulation")
