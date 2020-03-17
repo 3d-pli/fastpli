@@ -113,19 +113,19 @@ template <typename T, size_t M, size_t N> struct MatMxN {
    MatMxN<T, M, N> operator*(const T f) const {
       MatMxN<T, M, N> result;
       std::transform(data_.begin(), data_.end(), result.begin(),
-                     std::binder2nd(std::multiplies<T>(), f));
+                     [&f](const T &elm) { return elm * f; });
       return result;
    }
    MatMxN<T, M, N> operator/(const T f) const {
       MatMxN<T, M, N> result;
       std::transform(data_.begin(), data_.end(), result.begin(),
-                     std::binder2nd(std::multiplies<T>(), 1 / f));
+                     [&f](const T &elm) { return elm / f; });
       return result;
    }
    MatMxN<T, M, N> operator-() const {
       MatMxN<T, M, N> result;
       std::transform(data_.begin(), data_.end(), result.begin(),
-                     [](T elm) { return -elm; });
+                     [](const T &elm) { return -elm; });
       return result;
    }
    MatMxN<T, M, N> &operator+=(const MatMxN<T, M, N> &u) {
@@ -140,22 +140,22 @@ template <typename T, size_t M, size_t N> struct MatMxN {
    }
    MatMxN<T, M, N> &operator+=(const T f) {
       std::transform(data_.begin(), data_.end(), data_.begin(),
-                     std::binder2nd(std::plus<T>(), f));
+                     [&f](const T elm) { return elm + f; });
       return *this;
    }
    MatMxN<T, M, N> &operator-=(const T f) {
       std::transform(data_.begin(), data_.end(), data_.begin(),
-                     std::binder2nd(std::minus<T>(), f));
+                     [&f](const T elm) { return elm - f; });
       return *this;
    }
    MatMxN<T, M, N> &operator*=(const T f) {
       std::transform(data_.begin(), data_.end(), data_.begin(),
-                     std::binder2nd(std::multiplies<T>(), f));
+                     [&f](const T elm) { return elm * f; });
       return *this;
    }
    MatMxN<T, M, N> &operator/=(const T f) {
       std::transform(data_.begin(), data_.end(), data_.begin(),
-                     std::binder2nd(std::multiplies<T>(), 1 / f));
+                     [&f](const T elm) { return elm / f; });
       return *this;
    }
 
