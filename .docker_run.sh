@@ -1,6 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
+# echo "--------------------------------------"
+# echo "****************Readme****************"
+# echo "--------------------------------------"
+# if cat /etc/os-release | grep -iFq ubuntu; then
+#    DELETE="pacman"
+# elif cat /etc/os-release | grep -iFq archlinux; then
+#    DELETE="apt"
+# fi
+
+# sed -n '/^```sh/,/^```/ p' < README.md | sed '/^```/ d' | sed "/$DELETE/d" | source /dev/stdin
+# make clean
+
 echo "--------------------------------------"
 echo "****************Build*****************"
 echo "--------------------------------------"
@@ -8,14 +20,6 @@ make BUILD=release CC=clang CXX=clang++ install
 make clean
 make BUILD=debug CC=gcc CXX=g++ install
 
-# echo "--------------------------------------"
-# echo "****************Readme****************"
-# echo "--------------------------------------"
-# # readme contains installation, examples and mpi
-# sed -n '/^```sh/,/^```/ p' < README.md | sed '/^```/ d' | source /dev/stdin
-# make h5py-serial # reinstall h5py
-
-echo "Test"
 echo "--------------------------------------"
 echo "*****************Test*****************"
 echo "--------------------------------------"

@@ -54,6 +54,7 @@ Install all necessary packages.
 
 Example using Ubuntu or Debian:
 
+
 ```sh
 sudo apt install gcc g++ cmake make git 
 sudo apt install python3-dev python3-venv
@@ -70,6 +71,7 @@ pacman --noconfirm --needed -Syu openmpi
 pacman --noconfirm --needed -Syu freeglut glu
 ```
 <!--  hdf5-openmpi -->
+
 
 ### Clone repository
 
@@ -89,23 +91,12 @@ All the following instructions and examples use this virtual environment.
 make install
 ```
 
-#### Or Step by Step
-
-The Makefile runs the following commands (with a creation of an virtual python environment):
+#### Or Compilation and pip
 
 ```sh
-git submodule update --init
-mkdir build
-cd build/
-cmake ..
-make -j
-cd ..
+make build
 pip3 install .
 ```
-
-It creates a hardlink so that a pips debugging process is available.
-For the future it is planned that the compilation process will be handled by pip.
-However, the standard approach of this process has in the past significantly slowed down the compilation time.
 
 ## Running examples:
 

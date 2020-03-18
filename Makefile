@@ -1,10 +1,10 @@
 .PHONY: help
 help:
 	@echo make install -- installation of venv with fastpli
-	@echo make build -- compilation of fastpli and providing of build/setup.py
+	@echo make build -- compilation of fastpli and providing of setup.py
 	@echo make examples/requirements -- install required python packages for examples in venv
 	@echo make test -- run all tests to verify integrity
-	@echo make clean-all -- clean everything e.g. to rebuild after update
+	@echo make clean -- clean compiled files
 
 BUILD := release
 VENV := env
@@ -102,8 +102,7 @@ docker-build:
 docker: docker-build
 	rm -rf /tmp/fastpli-${DOCKER}
 	git clone . /tmp/fastpli-${DOCKER}
-	docker container stop fastpli-cont-${DOCKER}
-	docker container rm fastpli-cont-${DOCKER}
+	docker stop fastpli-cont-${DOCKER} || true && docker rm fastpli-cont-${DOCKER} || true
 	docker create --name fastpli-cont-${DOCKER} fastpli-${DOCKER}
 	docker cp /tmp/fastpli-${DOCKER}/. fastpli-cont-${DOCKER}:/code/fastpli
 	rm -rf /tmp/fastpli-${DOCKER}
