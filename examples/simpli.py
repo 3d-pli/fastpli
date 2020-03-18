@@ -33,11 +33,15 @@ with h5py.File(file_name, 'w') as h5f:
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, 'cube.dat'))
 
-    # (layer_scale, dn, mu, optical-axis)
-    # b: background, p: parallel, r: radial
+    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle fiber_bundle
     simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                         (0.666, 0, 5, 'b'),
                                         (1.0, 0.004, 1, 'r')]]
+    # (_0, _1, _2, _3)
+    # _0: layer_scale times radius
+    # _1: strength of birefringence
+    # _2: absorption coefficient I = I*exp(-mu*x)
+    # _3: model: 'p'-parallel, 'r'-radial or 'b'-background
 
     print('VOI:', simpli.get_voi())
     print('Memory:', str(round(simpli.memory_usage('MB'), 2)) + ' MB')
