@@ -57,7 +57,7 @@ with h5py.File(file_name, 'w') as h5f:
     with open(os.path.abspath(__file__), 'r') as script:
         simpli.run_pipeline(h5f=h5f,
                             script=script.read(),
-                            save=["label_field"],
+                            save=["all"],
                             crop_tilt=True,
                             mp_pool=pool)
 
