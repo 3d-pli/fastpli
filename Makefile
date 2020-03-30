@@ -1,10 +1,13 @@
 .PHONY: help
 help:
-	@echo make install -- installation of venv with fastpli
-	@echo make build -- compilation of fastpli and providing of setup.py
-	@echo make examples/requirements -- install required python packages for examples in venv
-	@echo make test -- run all tests to verify integrity
-	@echo make clean -- clean compiled files
+	@echo ----------Installation----------
+	@echo make fastpli
+	@echo pip3 install .
+	@echo -------------Tests--------------
+	@echo python3 setup.py test
+	@echo -------------Clean--------------
+	@echo make clean
+	@echo --------------------------------
 
 BUILD := release
 VENV := env
@@ -36,8 +39,8 @@ ${VENV}/bin/python3:
 	python3 -m venv ${VENV}
 	${VENV}/bin/pip3 install --upgrade pip -q
 
-.PHONY: .${VENV}
-.${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
+.PHONY: ${VENV}
+${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
 
 .PHONY: git-submodules
 git-submodules:
@@ -48,11 +51,11 @@ examples/requirements:
 	${VENV}/bin/pip3 install -r examples/requirements.txt -q
 
 .PHONY: install
-install: .${VENV} .build
+install: ${VENV} fastpli
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: development
-development: .${VENV} .build
+development: ${VENV} fastpli
 	${VENV}/bin/pip3 install -e . -q
 	${VENV}/bin/pip3 install yapf -q
 	${VENV}/bin/pip3 install pylint -q
@@ -60,7 +63,9 @@ development: .${VENV} .build
 
 .PHONY: uninstall
 uninstall:
-	${VENV}/bin/pip3 uninstall fastpli -yq
+	@if ! ${VENV}/bin/pip3 list | grep -q "fastli"; then \
+		${VENV}/bin/pip3 uninstall fastpli -y; \
+	fi
 
 build/:
 	mkdir build
@@ -72,14 +77,14 @@ build/Makefile: build/
 		${CMAKE}; \
 	fi
 
-.PHONY: .build
-.build: build/ build/Makefile
+.PHONY: fastpli
+fastpli: build/ build/Makefile
 	cd build; \
 	${MAKE}
 
 .PHONY: test
 test:
-	${VENV}/bin/python3 -m unittest discover -s tests -p '*_test.py'
+	${VENV}/bin/python3 setup.py test
 
 .PHONY: h5py-serial
 h5py-serial: h5py-clean
@@ -133,19 +138,22 @@ clean-all: clean-build clean-src clean-venv
 
 .PHONY: clean-build
 clean-build:
-	rm -rf build
-	rm -f setup.py
+	@echo cleaning build
+	@rm -rf build
+	@rm -f setup.py
 
 .PHONY: clean-venv
 clean-venv:
-	rm -rf ${VENV}
+	@echo cleaning ${VENV}
+	@rm -rf ${VENV}
 
 .PHONY: clean-src
 clean-src:
-	rm -f src/version.py
-	rm -f src/include/version.hpp
-	find src/ -name "*.so" -type f | xargs rm -rf
-	find src/ -type f \( -name "*.pyc" -o -name "*.pyo" \) | xargs rm -rf
-	find tests/ -type f \( -name "*.pyc" -o -name "*.pyo" \) | xargs rm -rf
-	find src/ -type d \( -name "__pycache__"  -o -name "*.egg-info" \) | xargs rm -rf
-	find tests/ -type d \( -name "__pycache__" -o -name "*.egg-info" \) | xargs rm -rf
+	@echo cleaning source
+	@rm -f src/version.py
+	@rm -f src/include/version.hpp
+	@find src/ -name "*.so" -type f | xargs rm -rf
+	@find src/ -type f \( -name "*.pyc" -o -name "*.pyo" \) | xargs rm -rf
+	@find tests/ -type f \( -name "*.pyc" -o -name "*.pyo" \) | xargs rm -rf
+	@find src/ -type d \( -name "__pycache__"  -o -name "*.egg-info" \) | xargs rm -rf
+	@find tests/ -type d \( -name "__pycache__" -o -name "*.egg-info" \) | xargs rm -rf

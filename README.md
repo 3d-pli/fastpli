@@ -82,33 +82,27 @@ cd fastpli
 
 ### Compilation 
 
-#### Makefile
-
-The Makefile contains the instruction to create a virtual Python environment `env`. 
-All the following instructions and examples use this virtual environment.
-
 ```sh
-make install
-```
-
-#### Or Compilation and pip
-
-```sh
-make build
+make fastpli
 pip3 install .
 ```
 
-## Running examples:
+### Tests 
+```sh
+python3 setup.py test
+```
+
+### Examples:
 
 ```sh
 # install required modules for examples
-env/bin/pip3 install -r examples/requirements.txt
+pip3 install -r examples/requirements.txt
 
 # run examples
-env/bin/python3 examples/sandbox.py
-env/bin/python3 examples/solver.py
-env/bin/python3 examples/simpli.py
-env/bin/python3 examples/simulation_pipeline.py
+python3 examples/sandbox.py
+python3 examples/solver.py
+python3 examples/simpli.py
+python3 examples/simulation_pipeline.py
 ```
 
 ## Authors
