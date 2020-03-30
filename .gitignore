@@ -1,10 +1,11 @@
 # build
+build/
+setup.py
 src/fastpli/version.py
 src/include/version.hpp
-env*/
-setup.py
 
 # development
+env*/
 dev/*
 wiki/
 

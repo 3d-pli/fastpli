@@ -54,7 +54,6 @@ Install all necessary packages.
 
 Example using Ubuntu or Debian:
 
-
 ```sh
 sudo apt install gcc g++ cmake make git 
 sudo apt install python3-dev python3-venv
@@ -62,21 +61,10 @@ sudo apt install libopenmpi-dev freeglut3-dev
 ```
 <!-- libhdf5-openmpi-dev -->
 
-Example using Archlinux:
-
-```sh
-pacman --noconfirm --needed -Syu gcc make cmake git
-pacman --noconfirm --needed -Syu python python-pipenv python-pip
-pacman --noconfirm --needed -Syu openmpi
-pacman --noconfirm --needed -Syu freeglut glu
-```
-<!--  hdf5-openmpi -->
-
-
 ### Clone repository
 
 ```sh
-git clone git@github.com:3d-pli/fastPLI.git
+git clone <fastPLI-repository>
 cd fastpli
 ```
 
