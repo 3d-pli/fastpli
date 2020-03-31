@@ -19,7 +19,7 @@ class World {
    struct WorldParameter {
       double drag{0};
       double obj_min_radius{0};
-      double obj_mean_length{1};
+      double obj_mean_length{0};
    };
 
    // defaults
