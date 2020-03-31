@@ -25,12 +25,12 @@ elif example == "crossing":
     population = fastpli.model.sandbox.seeds.triangular_circle(20, 5)
 
     fiber_radii = np.random.uniform(2.0, 10.0, population.shape[0])
-    fiber_bundle_0 = fastpli.model.sandbox.build.bundle(
-        fiber_bundle_trj_0, population, fiber_radii)
+    fiber_bundle_0 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_0,
+                                                        population, fiber_radii)
 
     fiber_radii = np.random.uniform(2.0, 10.0, population.shape[0])
-    fiber_bundle_1 = fastpli.model.sandbox.build.bundle(
-        fiber_bundle_trj_1, population, fiber_radii)
+    fiber_bundle_1 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_1,
+                                                        population, fiber_radii)
 
     solver.fiber_bundles = [fiber_bundle_0, fiber_bundle_1]
     solver.obj_min_radius = 10

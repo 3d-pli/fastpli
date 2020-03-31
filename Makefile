@@ -28,6 +28,7 @@ INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
 DOCKER=ubuntu
+CLANG-FORMAT=clang-format-9
 
 ${VENV}/bin/pip3:
 	rm -rf ${VENV}
@@ -121,6 +122,20 @@ docker-parallel: docker-parallel
 		make DOCKER=archlinux docker; \
 		make DOCKER=ubuntu docker; \
 	fi
+
+.PHONY: format
+format: format-c++ format-py
+
+.PHONY: format-c++
+format-c++:
+	find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \; 
+	find tests -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \;
+
+.PHONY: format-py
+format-py: 
+	${VENV}/bin/python3 -m yapf -i -r -p --style google src;
+	${VENV}/bin/python3 -m yapf -i -r -p --style google tests;
+	${VENV}/bin/python3 -m yapf -i -r -p --style google examples;
 
 # .PHONY: docs
 # docs:

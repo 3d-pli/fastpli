@@ -7,11 +7,11 @@
 #include "include/vemath.hpp"
 
 #ifdef __APPLE__
-#include <OpenGL/gl.h>
 #include <GLUT/glut.h>
+#include <OpenGL/gl.h>
 #else
 #ifdef _WIN32
-  #include <windows.h>
+#include <windows.h>
 #endif
 #include <GL/gl.h>
 #include <GL/glut.h>
