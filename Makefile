@@ -28,7 +28,7 @@ INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
 DOCKER=ubuntu
-CLANG-FORMAT=clang-format-9
+CLANG-FORMAT=clang-format
 
 ${VENV}/bin/pip3:
 	rm -rf ${VENV}
@@ -129,7 +129,6 @@ format: format-c++ format-py
 .PHONY: format-c++
 format-c++:
 	find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \; 
-	find tests -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \;
 
 .PHONY: format-py
 format-py: 
