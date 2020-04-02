@@ -5,7 +5,7 @@ __  /_ _  __ `/_  ___/  __/_  /_/ /_  /  __  /
 _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /   
 /_/    \__,_/ /____/ \__/ /_/     /_____/___/    
 -->
-![](logo.png)
+![](logo.svg)
 
 # Fiber Architecture Simulation Toolbox for PLI
 
