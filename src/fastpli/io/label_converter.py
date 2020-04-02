@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Methods for converting the simpli label_field into different formats.
+Methods for converting the simpli tissue into different formats.
 """
 
 import numpy as np
@@ -14,12 +14,12 @@ except ImportError as e:
 
 def label_to_txt(data, file_name, gray_level, replace=[]):
     """
-    Converts the label_field into a txt file
+    Converts the tissue into a txt file
 
     Parameters
     ----------
     data : (x,y,z)-array
-        label_field from simpli
+        tissue from simpli
     file_name : str
         path for txt file
     gray_level : int
@@ -49,12 +49,12 @@ def label_to_txt(data, file_name, gray_level, replace=[]):
 
 def label_to_binary(data, file_name, gray_level, replace=[]):
     """
-    Converts the label_field into a binary file
+    Converts the tissue into a binary file
 
     Parameters
     ----------
     data : (x,y,z)-array
-        label_field from simpli
+        tissue from simpli
     file_name : str
         path for binary file
     gray_level : int
@@ -86,14 +86,14 @@ def label_to_binary(data, file_name, gray_level, replace=[]):
 
 def h5_to_txt(file_in, dset_name, file_out, gray_level, replace=[]):
     """
-    Converts label_field inside h5 file into a txt file
+    Converts tissue inside h5 file into a txt file
 
     Parameters
     ----------
     file_in : str
         path to h5-file
     dset_name : str
-        label_field path in h5 file
+        tissue path in h5 file
     file_out : str
         output name
     gray_level : int
@@ -110,14 +110,14 @@ def h5_to_txt(file_in, dset_name, file_out, gray_level, replace=[]):
 
 def h5_to_binary(file_in, dset_name, file_out, gray_level, replace=[]):
     """
-    Converts label_field inside h5 file into a binary file
+    Converts tissue inside h5 file into a binary file
 
     Parameters
     ----------
     file_in : str
         path to h5-file
     dset_name : str
-        label_field path in h5 file
+        tissue path in h5 file
     file_out : str
         output name
     gray_level : int

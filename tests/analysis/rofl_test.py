@@ -22,9 +22,9 @@ class MainTest(unittest.TestCase):
         simpli.dim = [1, 1, 1]
 
         # single voxel
-        label_field = np.ones((1), dtype=np.int32)
-        vec_field = np.zeros((1, 3), dtype=np.float32)
-        vec_field[:] = [np.cos(np.deg2rad(45)), 0, np.sin(np.deg2rad(45))]
+        tissue = np.ones((1), dtype=np.int32)
+        optical_axis = np.zeros((1, 3), dtype=np.float32)
+        optical_axis[:] = [np.cos(np.deg2rad(45)), 0, np.sin(np.deg2rad(45))]
         tissue_properties = np.array([[0, 0], [-0.001, 0]])
 
         # Simulate PLI Measurement ###
@@ -40,7 +40,7 @@ class MainTest(unittest.TestCase):
 
         for t, (theta, phi) in enumerate(simpli.tilts):
             simpli.step_size = 1 / np.cos(theta)
-            images = simpli.run_simulation(label_field, vec_field,
+            images = simpli.run_simulation(tissue, optical_axis,
                                            tissue_properties, theta, phi)
 
             # calculate modalities

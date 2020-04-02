@@ -48,7 +48,7 @@ simpli.tilts = np.deg2rad(
     np.array([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]))  # in deg
 simpli.sensor_gain = 3
 simpli.optical_sigma = 0.71  # in voxel size
-simpli.verbose = 1
+simpli.verbose = True
 
 file_name = 'fastpli.example.' + FILE_BASE + '.h5'
 print(f"creating file: {file_name}")

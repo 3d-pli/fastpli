@@ -48,10 +48,10 @@ with h5py.File(file_name, 'w') as h5f:
 
     # Generate Tissue
     print("Run Generation:")
-    label_field, vec_field, tissue_properties = simpli.generate_tissue()
+    tissue, optical_axis, tissue_properties = simpli.generate_tissue()
 
-    h5f['tissue/label_field'] = label_field.astype(np.uint16)
-    h5f['tissue/vectorfield'] = vec_field
+    h5f['tissue/tissue'] = tissue.astype(np.uint16)
+    h5f['tissue/vectorfield'] = optical_axis
     h5f['tissue/tissue_properties'] = tissue_properties
 
     # Simulate PLI Measurement
@@ -69,8 +69,8 @@ with h5py.File(file_name, 'w') as h5f:
     print("Run Simulation:")
     for t, (theta, phi) in enumerate(simpli.tilts):
         print(round(np.rad2deg(theta), 1), round(np.rad2deg(phi), 1))
-        images = simpli.run_simulation(label_field, vec_field,
-                                       tissue_properties, theta, phi)
+        images = simpli.run_simulation(tissue, optical_axis, tissue_properties,
+                                       theta, phi)
 
         h5f['simulation/data/' + str(t)] = images
 
@@ -88,7 +88,7 @@ with h5py.File(file_name, 'w') as h5f:
         tilting_stack[t] = images
 
     # save mask for analysis
-    mask = np.sum(label_field, 2) > 0
+    mask = np.sum(tissue, 2) > 0
     mask = simpli.apply_optic_resample(1.0 * mask) > 0.1
     h5f['simulation/optic/mask'] = np.uint8(mask)
     mask = None  # keep analysing all pixels

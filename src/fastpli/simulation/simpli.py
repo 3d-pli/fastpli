@@ -478,10 +478,10 @@ class Simpli:
         if self._cells_populations:
             self.__gen.set_cell_populations(self._cells_populations,
                                             self._cells_populations_properties)
-        label_field, vec_field, tissue_properties = self.__gen.run_generation(
+        tissue, optical_axis, tissue_properties = self.__gen.run_generation(
             only_label, progress_bar)
 
-        return label_field, vec_field, tissue_properties
+        return tissue, optical_axis, tissue_properties
 
     def _init_pli_setup(self):
         self._check_simulation_input()
@@ -524,11 +524,11 @@ class Simpli:
         if self._filter_rotations is None:
             raise ValueError("filter_rotations not set")
 
-    def run_simulation(self, label_field, vec_field, tissue_properties, theta,
+    def run_simulation(self, tissue, optical_axis, tissue_properties, theta,
                        phi):
         """ running simulation. Input from tissue_generation
 
-        label_field and vec_field will be passed by reference
+        tissue and optical_axis will be passed by reference
         theta, phi: tilting angle in radiant
         """
 
@@ -542,15 +542,15 @@ class Simpli:
         if tissue_properties.shape[1] != 2:
             raise ValueError("tissue_properties.shape[1] != 2")
 
-        label_field_ = np.array(label_field, dtype=np.int32, copy=False)
-        vec_field_ = np.array(vec_field, dtype=np.float32, copy=False)
+        tissue_ = np.array(tissue, dtype=np.int32, copy=False)
+        optical_axis_ = np.array(optical_axis, dtype=np.float32, copy=False)
 
-        if label_field_ is not label_field:
-            warnings.warn("label_field is copied", UserWarning)
-        if vec_field_ is not vec_field:
-            warnings.warn("vec_field is copied", UserWarning)
+        if tissue_ is not tissue:
+            warnings.warn("tissue is copied", UserWarning)
+        if optical_axis_ is not optical_axis:
+            warnings.warn("optical_axis is copied", UserWarning)
 
-        images = self.__sim.run_simulation(self._dim, label_field_, vec_field_,
+        images = self.__sim.run_simulation(self._dim, tissue_, optical_axis_,
                                            tissue_properties, theta, phi)
         if np.min(images.flatten()) < 0:
             raise ValueError("intensity < 0 detected")
@@ -570,41 +570,41 @@ class Simpli:
     def run_tissue_pipeline(self,
                             h5f=None,
                             script=None,
-                            save=['label_field', 'vector_field']):
+                            save=['tissue', 'optical_axis']):
         """ Automatic pipeline for tissue generation with save options """
 
         self._check_volume_input()
         self._check_generation_input()
 
         if 'all' in save or 'simulation' in save:
-            save = save + ['label_field', 'vector_field']
+            save = save + ['tissue', 'optical_axis']
 
         # run tissue generation
         self._print("Generate Tissue")
-        label_field, vector_field, tissue_properties = self.generate_tissue()
+        tissue, optical_axis, tissue_properties = self.generate_tissue()
 
-        if h5f and "label_field" in save:
-            self._print("Save label_field")
-            dset = h5f.create_dataset('tissue/label_field',
-                                      label_field.shape,
+        if h5f and "tissue" in save:
+            self._print("Save tissue")
+            dset = h5f.create_dataset('tissue/tissue',
+                                      tissue.shape,
                                       dtype=np.uint16,
                                       compression='gzip',
                                       compression_opts=1)
-            dset[:] = label_field
+            dset[:] = tissue
 
-        if h5f and "vector_field" in save:
-            self._print("Save vector_field")
-            dset = h5f.create_dataset('tissue/vector_field',
-                                      vector_field.shape,
+        if h5f and "optical_axis" in save:
+            self._print("Save optical_axis")
+            dset = h5f.create_dataset('tissue/optical_axis',
+                                      optical_axis.shape,
                                       dtype=np.float32,
                                       compression='gzip',
                                       compression_opts=1)
-            dset[:] = vector_field
+            dset[:] = optical_axis
 
-        if h5f and "label_field" in save:
-            h5f['tissue/tissue_properties'] = tissue_properties
+        if h5f and "tissue" in save:
+            h5f['tissue/properties'] = tissue_properties
 
-        return label_field, vector_field, tissue_properties
+        return tissue, optical_axis, tissue_properties
 
     def crop_tilt_pixel(self):
         """ crop affected boundary pixel from tilted images """
@@ -643,8 +643,8 @@ class Simpli:
         return input[delta_voxel:-delta_voxel, delta_voxel:-delta_voxel, :]
 
     def run_simulation_pipeline(self,
-                                label_field,
-                                vector_field,
+                                tissue,
+                                optical_axis,
                                 tissue_properties,
                                 h5f=None,
                                 save=['data', 'optic', 'epa', 'mask', 'rofl'],
@@ -674,7 +674,7 @@ class Simpli:
             theta, phi = tilt[0], tilt[1]
             self._print("{}: theta: {} deg, phi: {} deg".format(
                 t, round(np.rad2deg(theta), 2), round(np.rad2deg(phi), 2)))
-            images = self.run_simulation(label_field, vector_field,
+            images = self.run_simulation(tissue, optical_axis,
                                          tissue_properties, theta, phi)
 
             if crop_tilt:
@@ -719,7 +719,7 @@ class Simpli:
             tilting_stack[t] = new_images
 
         # pseudo mask
-        mask = np.sum(label_field, 2) > 0
+        mask = np.sum(tissue, 2) > 0
         mask = self.apply_optic_resample(1.0 * mask, mp_pool=mp_pool) > 0.1
         if h5f and 'mask' in save:
             self._print("Save mask")
@@ -766,24 +766,21 @@ class Simpli:
 
         return tilting_stack, (rofl_direction, rofl_incl, rofl_t_rel), fom
 
-    def run_pipeline(self,
-                     h5f=None,
-                     script=None,
-                     save=[
-                         'label_field', 'vector_field', 'data', 'optic', 'epa',
-                         'mask', 'rofl'
-                     ],
-                     crop_tilt=False,
-                     mp_pool=None):
+    def run_pipeline(
+        self,
+        h5f=None,
+        script=None,
+        save=['tissue', 'optical_axis', 'data', 'optic', 'epa', 'mask', 'rofl'],
+        crop_tilt=False,
+        mp_pool=None):
         """ Automatic tissue generation and simulation pipeline with save options """
 
         if 'all' in save:
             save = [
-                'label_field', 'vector_field', 'data', 'optic', 'epa', 'mask',
-                'rofl'
+                'tissue', 'optical_axis', 'data', 'optic', 'epa', 'mask', 'rofl'
             ]
         if 'tissue' in save:
-            save = save + ['label_field', 'vector_field']
+            save = save + ['tissue', 'optical_axis']
         if 'simulation' in save:
             save = save + ['data', 'optic', 'epa', 'mask', 'rofl']
 
@@ -801,21 +798,21 @@ class Simpli:
             self.save_parameter_h5(h5f, script)
 
         # run tissue generation
-        label_field, vector_field, tissue_properties = self.run_tissue_pipeline(
+        tissue, optical_axis, tissue_properties = self.run_tissue_pipeline(
             h5f=h5f, script=script, save=save)
 
         # run simulation and analysis
         tilting_stack, (rofl_direction, rofl_incl,
                         rofl_t_rel), fom = self.run_simulation_pipeline(
-                            label_field,
-                            vector_field,
+                            tissue,
+                            optical_axis,
                             tissue_properties,
                             h5f=h5f,
                             save=save,
                             crop_tilt=crop_tilt,
                             mp_pool=mp_pool)
 
-        return (label_field, vector_field,
+        return (tissue, optical_axis,
                 tissue_properties), tilting_stack, (rofl_direction, rofl_incl,
                                                     rofl_t_rel), fom
 
@@ -857,13 +854,13 @@ class Simpli:
         if self._dim is None:
             raise TypeError("dimension not set yet")
 
-        if item == 'label_field':
-            # label_field + distance_array
+        if item == 'tissue':
+            # tissue + distance_array
             return np.prod(self._dim) * (32 + 32) / 8 / div
         elif item == 'all':
             return np.prod(self._dim) * (32 + 32 + 3 * 32) / 8 / div
         else:
-            raise ValueError("allowed is only \"label_field\" or \"all\"")
+            raise ValueError("allowed is only \"tissue\" or \"all\"")
 
     def save_mpi_array_as_h5(self, h5f, input, data_name, lock_dim=None):
         """
