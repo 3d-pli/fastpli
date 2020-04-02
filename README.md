@@ -5,11 +5,13 @@ __  /_ _  __ `/_  ___/  __/_  /_/ /_  /  __  /
 _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /   
 /_/    \__,_/ /____/ \__/ /_/     /_____/___/    
 -->
-![](logo.svg)
 
 # Fiber Architecture Simulation Toolbox for PLI
 
-## Basic Information:
+![fastpli-logo](logo.svg)
+
+## Basic Information
+
 `fastpli` is a Python package consisting of the following modules
 
 | module                  | information                                                  |
@@ -22,7 +24,8 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 | `fastpli.tools`         | mathematical tools and helper function                       |
 | `fastpli.simulation`    | simulation of fiber models inside a virtual 3D-PLI microscop |
 
-The aim of this package is to provide consistent system that allows the following: 
+The aim of this package is to provide consistent system that allows the following:
+
 * **model** 3d (non colliding) nerve fibers
 * **simulate** nerve fiber inside a virtual tiltable 3D-PLI microscop
 * **analyse** the simulated signals to extract the resulting fiber orientation
@@ -30,21 +33,25 @@ The aim of this package is to provide consistent system that allows the followin
 See **Wiki** for detailed information
 
 ## Performance
+
 All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**. Additionally the simulation module supports the **Message Passing Interface (MPI)**.
 
-# Installation:
+# Installation
 
 ## Dependencies
-### Requirements:
- - C++17
- - Make
- - CMake
- - Python3
- - MPI
- - OpenGL
 
-### Submodules:
- - pybind11
+### Requirements
+
+* C++17
+* Make
+* CMake
+* Python3
+* MPI
+* OpenGL
+
+### Submodules
+
+* pybind11
 
 ## Install instructions
 
@@ -55,7 +62,7 @@ Install all necessary packages.
 Example using Ubuntu or Debian:
 
 ```sh
-sudo apt install gcc g++ cmake make git 
+sudo apt install gcc g++ cmake make git
 sudo apt install python3-dev python3-venv
 sudo apt install libopenmpi-dev freeglut3-dev
 ```
@@ -68,19 +75,20 @@ git clone <fastPLI-repository>
 cd fastpli
 ```
 
-### Compilation 
+### Compilation
 
 ```sh
 make fastpli
 pip3 install .
 ```
 
-### Tests 
+### Tests
+
 ```sh
 python3 setup.py test
 ```
 
-### Examples:
+### Examples
 
 ```sh
 # install required modules for examples
@@ -94,13 +102,16 @@ python3 examples/simulation_pipeline.py
 ```
 
 ## Authors
+
 * **Felix Matuschke**
 
 ## References
-|                                                                                                                                                                                                                |                                                                                                                                                              |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [![](https://www.fz-juelich.de/SharedDocs/Bilder/INM/INM-1/DE/PLI/PLI-GruppenLogo.png?__blob=thumbnail)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) | [Fiber Architecture - INM1 - Forschungszentrum Jülich](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) |
-|                                                 [![](https://sos-ch-dk-2.exo.io/public-website-production/img/HBP.png)](https://www.humanbrainproject.eu/en/)                                                  | [Human Brain Project](https://www.humanbrainproject.eu/en/)                                                                                                  |
+
+|                                                                                                                                                                                                                        |                                                                                                                                                              |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [![FA-INM-1](https://www.fz-juelich.de/SharedDocs/Bilder/INM/INM-1/DE/PLI/PLI-GruppenLogo.png?__blob=thumbnail)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) | [Fiber Architecture - INM1 - Forschungszentrum Jülich](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) |
+|                                                    [![HBP](https://sos-ch-dk-2.exo.io/public-website-production/img/HBP.png)](https://www.humanbrainproject.eu/en/)                                                    | [Human Brain Project](https://www.humanbrainproject.eu/en/)                                                                                                  |
 
 ## License
+
 This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file for details
