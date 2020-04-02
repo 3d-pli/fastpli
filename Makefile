@@ -28,7 +28,7 @@ INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
 DOCKER=ubuntu
-CLANG-FORMAT=clang-format
+CLANG-FORMAT=clang-format-9
 
 ${VENV}/bin/pip3:
 	rm -rf ${VENV}
@@ -128,7 +128,12 @@ format: format-c++ format-py
 
 .PHONY: format-c++
 format-c++:
-	find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \; 
+	@if hash ${CLANG-FORMAT}; then \
+		echo "${CLANG-FORMAT} src/*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\) "; \
+		find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \; ; \
+	else \
+		echo "${CLANG-FORMAT} not found"; \
+	fi
 
 .PHONY: format-py
 format-py: 

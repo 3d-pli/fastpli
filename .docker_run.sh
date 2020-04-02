@@ -16,9 +16,9 @@ set -euo pipefail
 echo "--------------------------------------"
 echo "****************Build*****************"
 echo "--------------------------------------"
-make BUILD=release CC=clang CXX=clang++ install
+make BUILD=release CC=clang-9 CXX=clang++-9 install
 make clean
-make BUILD=debug CC=gcc CXX=g++ install
+make BUILD=debug CC=gcc-8 CXX=g++-8 install
 
 echo "--------------------------------------"
 echo "*****************Test*****************"
@@ -40,6 +40,16 @@ for f in examples/*.py; do
    echo "done $f"
    echo ""
 done
+
+echo "--------------------------------------"
+echo "****************Format****************"
+echo "--------------------------------------"
+make clean
+env/bin/pip3 install yapf -q
+make format
+if ! git diff --exit-code; then
+   exit 1
+fi
 
 echo "--------------------------------------"
 echo "*****************Done*****************"
