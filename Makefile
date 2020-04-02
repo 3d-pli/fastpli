@@ -114,14 +114,14 @@ docker: docker-build
 	rm -rf /tmp/fastpli-${DOCKER}
 	docker start -i fastpli-cont-${DOCKER}
 
-.PHONY: docker-parallel
-docker-parallel: docker-parallel
-	@if [ -f /usr/bin/parallel ]; then \
-		parallel --halt now,fail=1 'make DOCKER={} docker' ::: archlinux ubuntu; \
-	else \
-		make DOCKER=archlinux docker; \
-		make DOCKER=ubuntu docker; \
-	fi
+# .PHONY: docker-parallel
+# docker-parallel: docker-parallel
+# 	@if [ -f /usr/bin/parallel ]; then \
+# 		parallel --halt now,fail=1 'make DOCKER={} docker' ::: archlinux ubuntu; \
+# 	else \
+# 		make DOCKER=archlinux docker; \
+# 		make DOCKER=ubuntu docker; \
+# 	fi
 
 .PHONY: format
 format: format-c++ format-py
