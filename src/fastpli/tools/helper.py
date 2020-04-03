@@ -26,7 +26,7 @@ def version_file_name(file_name):
 
     def in_list(i, files):
         for f in files:
-            if file_name + ".v{}".format(i) in f:
+            if file_name + f".v{i}" in f:
                 return True
         return False
 
@@ -34,7 +34,7 @@ def version_file_name(file_name):
     while in_list(i, files):
         i += 1
 
-    return os.path.join(file_path, file_name + ".v{}".format(i))
+    return os.path.join(file_path, file_name + f".v{i}")
 
 
 def version_path(path, name):

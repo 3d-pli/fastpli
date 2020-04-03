@@ -25,8 +25,7 @@ class Simpli:
 
     def __setattr__(self, key, value):
         if self.__isfrozen and not hasattr(self, key):
-            raise TypeError("{} is a frozen class".format(
-                self.__class__.__name__))
+            raise TypeError(f"{self.__class__.__name__} is a frozen class")
         object.__setattr__(self, key, value)
 
     def __freeze(self):
@@ -468,6 +467,9 @@ class Simpli:
         """ generating discret tissue for simulation
         """
 
+        self._print("Generate Tissue")
+        self._print(f"Memory needed: ~{np.ceil(self.memory_usage()):.0f} MB")
+
         self._check_volume_input()
         self._check_generation_input()
 
@@ -580,7 +582,6 @@ class Simpli:
             save = save + ['tissue', 'optical_axis']
 
         # run tissue generation
-        self._print("Generate Tissue")
         tissue, optical_axis, tissue_properties = self.generate_tissue()
 
         if h5f and "tissue" in save:
@@ -672,8 +673,9 @@ class Simpli:
         self._print("Simulate tilts:")
         for t, tilt in enumerate(self._tilts):
             theta, phi = tilt[0], tilt[1]
-            self._print("{}: theta: {} deg, phi: {} deg".format(
-                t, round(np.rad2deg(theta), 2), round(np.rad2deg(phi), 2)))
+            self._print(
+                f"Tilt {t}: theta: {np.rad2deg(theta):.1f} deg, phi: {np.rad2deg(phi):.1f} deg"
+            )
             images = self.run_simulation(tissue, optical_axis,
                                          tissue_properties, theta, phi)
 
@@ -730,7 +732,6 @@ class Simpli:
             tilting_stack = np.expand_dims(tilting_stack, axis=-2)
 
         if flag_rofl:
-            self._print("Analyse tilts")
             rofl_direction, rofl_incl, rofl_t_rel, (
                 rofl_direction_conf, rofl_incl_conf, rofl_t_rel_conf, rofl_func,
                 rofl_n_iter) = self.apply_rofl(tilting_stack,
@@ -1041,6 +1042,8 @@ class Simpli:
 
         input = np.array(tilt,x,y,rho)
         """
+
+        self._print("Analyse tilts")
 
         if self._tilts is None:
             raise ValueError("tilts not set")

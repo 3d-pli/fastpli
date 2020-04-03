@@ -28,8 +28,8 @@ with h5py.File(file_name, 'w') as h5f:
     # Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli()
     simpli.omp_num_threads = 2
-    simpli.voxel_size = 0.5  # in mu meter
-    simpli.set_voi([-60] * 3, [60] * 3)  # in mu meter
+    simpli.voxel_size = 0.5  # in µm meter
+    simpli.set_voi([-60] * 3, [60] * 3)  # in µm meter
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, 'cube.dat'))
 
@@ -59,7 +59,7 @@ with h5py.File(file_name, 'w') as h5f:
     simpli.light_intensity = 26000  # a.u.
     simpli.interpolate = True
     simpli.wavelength = 525  # in nm
-    simpli.resolution = 20  # in mu meter
+    simpli.resolution = 20  # in µm meter
     simpli.sensor_gain = 3
     simpli.optical_sigma = 0.71  # in voxel size
     simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),

@@ -134,6 +134,6 @@ def image(image, M, mode='nearest'):
         new_image = _interpolate_griddata(image, M, mode)
 
     else:
-        raise ValueError("mode \"{}\" does not exist".format(mode))
+        raise ValueError(f"mode \"{mode}\" does not exist")
 
     return np.squeeze(new_image)

@@ -18,7 +18,7 @@ class MainTest(unittest.TestCase):
 
         simpli = fastpli.simulation.Simpli()
         simpli.omp_num_threads = 1
-        simpli.voxel_size = 60  # in mu meter
+        simpli.voxel_size = 60  # in µm meter
         simpli.dim = [1, 1, 1]
 
         # single voxel
