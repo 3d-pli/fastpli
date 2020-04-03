@@ -70,7 +70,6 @@ class Simpli:
 
         # OTHER
         self._omp_num_threads = 1
-        self._debug = False
         self._verbose = False
 
         # freeze class
@@ -106,15 +105,6 @@ class Simpli:
                 setattr(self, key, value)
             else:
                 warnings.warn("None value in dict detected")
-
-    @property
-    def debug(self):
-        """ set debug print: bool """
-        return self._debug
-
-    @debug.setter
-    def debug(self, debug):
-        self._debug = bool(debug)
 
     @property
     def dim(self):
