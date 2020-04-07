@@ -84,3 +84,69 @@ def Translate(fiber_bundle, offset):
     for i, _ in enumerate(fiber_bundle):
         fiber_bundle[i] = fiber.Translate(fiber_bundle[i], offset)
     return fiber_bundle
+
+
+def ApplyFun(fiber_bundle, fun):
+    """
+    Applies function to fibers
+
+    Parameters
+    ----------
+    fiber_bundle : [(,4)-array, ...]
+        list of fibers
+    fun : function
+
+    Returns
+    -------
+    res : [(,4)-array, ...]
+        translated fiber_bundle
+    """
+
+    fiber_bundle = copy.deepcopy(fiber_bundle)
+    for i, _ in enumerate(fiber_bundle):
+        fiber_bundle[i] = fun(fiber_bundle[i])
+    return fiber_bundle
+
+
+def ApplyFunToPosition(fiber_bundle, fun):
+    """
+    Applies function to fibers positions
+
+    Parameters
+    ----------
+    fiber_bundle : [(,4)-array, ...]
+        list of fibers
+    fun : function
+
+    Returns
+    -------
+    res : [(,4)-array, ...]
+        translated fiber_bundle
+    """
+
+    fiber_bundle = copy.deepcopy(fiber_bundle)
+    for i, _ in enumerate(fiber_bundle):
+        fiber_bundle[i][:, :-1] = fun(fiber_bundle[i][:, :-1])
+    return fiber_bundle
+
+
+def ApplyFunToRadii(fiber_bundle, fun):
+    """
+    Applies function to fibers radii
+
+    Parameters
+    ----------
+    fiber_bundle : [(,4)-array, ...]
+        list of fibers
+    fun : function
+
+    Returns
+    -------
+    res : [(,4)-array, ...]
+        translated fiber_bundle
+    """
+
+    fiber_bundle = copy.deepcopy(fiber_bundle)
+    for i, _ in enumerate(fiber_bundle):
+        fiber_bundle[i][:, -1] = fun(fiber_bundle[i][:, -1])
+    return fiber_bundle
