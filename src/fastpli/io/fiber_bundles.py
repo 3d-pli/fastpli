@@ -55,17 +55,22 @@ def load_dat(file):
 
     fiber = []
     fiber_bundles = [[]]
+    empty_lines = 0
     for line in file:
         if line.strip():
+            empty_lines = 0
             numbers = list(map(float, line.split()))
             fiber.append(numbers[0:4])
-        if not line.strip():
-            if fiber:
-                fiber_bundles[-1].append(np.array(fiber, float))
-                fiber = []
-            else:  # new bundle
-                fiber_bundles.append([])
-    if fiber:
+        else:  # empty line
+            empty_lines += 1
+            if empty_lines == 1:  # end of fiber
+                if fiber:
+                    fiber_bundles[-1].append(np.array(fiber, float))
+                    fiber = []
+            elif empty_lines == 2:  # end of fiber_bundle
+                if fiber_bundles[-1]:
+                    fiber_bundles.append([])
+    if fiber:  # save last fiber
         fiber_bundles[-1].append(np.array(fiber))
 
     return fiber_bundles
@@ -115,11 +120,10 @@ def save(file_name, fiber_bundles, group_name='/', mode='w-'):
     _, ext = os.path.splitext(file_name)
 
     if ext in ['.dat', '.txt']:
-        mode = 'a' if mode == 'w-' else mode
+        mode = 'x' if mode == 'w-' else mode
         with open(file_name, mode) as file:
             save_dat(file, fiber_bundles)
     elif ext == '.h5':
-        mode = 'w-' if mode == 'a' else mode
         with h5py.File(file_name, mode) as h5f:
             if not group_name or group_name is '/':
                 save_h5(h5f, fiber_bundles)
