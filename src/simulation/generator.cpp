@@ -1,6 +1,7 @@
 #include "generator.hpp"
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <tuple>
@@ -411,8 +412,19 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                const int ly_idx =
                    std::distance(layers_scale_sqr.begin(), ly_itr);
 
+               const int new_label = ly_idx + 1 + fb_idx * max_layer_;
+
+               if (!flag_overlap_) {
+                  if (label_field[ind] != 0) {
+                     if (std::abs(label_field[ind] - new_label) >= max_layer_) {
+                        flag_overlap_ = true;
+                        std::cout << "WARNING: objects overlap" << std::endl;
+                     }
+                  }
+               }
+
                array_distance[ind] = dist_squ;
-               label_field[ind] = ly_idx + 1 + fb_idx * max_layer_;
+               label_field[ind] = new_label;
 
                if (!only_label) {
                   auto ly = fiber_bundles_[fb_idx].layer_orientation(ly_idx);
@@ -502,6 +514,16 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
             if (array_distance[ind] > dist_squ ||
                 (array_distance[ind] == dist_squ &&
                  label_field[ind] < new_label)) {
+
+               if (!flag_overlap_) {
+                  if (label_field[ind] != 0) {
+                     if (std::abs(label_field[ind] - new_label) >= max_layer_) {
+                        flag_overlap_ = true;
+                        std::cout << "WARNING: objects overlap" << std::endl;
+                     }
+                  }
+               }
+
                array_distance[ind] = dist_squ;
                label_field[ind] = new_label;
             }

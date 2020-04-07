@@ -65,6 +65,8 @@ class PliGenerator {
    int max_layer_ = 0;
    size_t num_cells_ = 0;
 
+   bool flag_overlap_ = false;
+
    void FillVoxelsAroundFiberSegment(const size_t fb_idx, const size_t f_idx,
                                      const size_t s_idx,
                                      std::vector<int> &label_field,
