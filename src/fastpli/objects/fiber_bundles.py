@@ -65,7 +65,7 @@ def Rescale(fiber_bundles, scale, mod='all'):
 
     fiber_bundles = copy.deepcopy(fiber_bundles)
     for j, fb in enumerate(fiber_bundles):
-        for i, f in enumerate(fb):
+        for i, _ in enumerate(fb):
             fiber_bundles[j][i] = fiber.Rescale(fiber_bundles[j][i], scale, mod)
     return fiber_bundles
 
@@ -118,7 +118,7 @@ def Translate(fiber_bundles, offset):
 
     fiber_bundles = copy.deepcopy(fiber_bundles)
     offset = np.array(offset, copy=False)
-    for i, fb in enumerate(fiber_bundles):
+    for j, fb in enumerate(fiber_bundles):
         for i, _ in enumerate(fb):
             fiber_bundles[j][i] = fiber.Translate(fiber_bundles[j][i], offset)
     return fiber_bundles
