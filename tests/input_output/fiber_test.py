@@ -13,6 +13,7 @@ class MainTest(unittest.TestCase):
         self.fiber_bundles = [[[[0, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]],
                                [[1, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]]],
                               [[[0, 1, 2, 3], [1, 2, 3, 4], [2, 4, 5, 5]],
+                               [[1, 1, 2, 3], [1, 2, 3, 4], [2, 4, 5, 5]],
                                [[1, 1, 2, 3], [1, 2, 3, 4], [2, 4, 5, 5]]]]
 
         self.solver = Solver()
@@ -74,7 +75,7 @@ class MainTest(unittest.TestCase):
         self.addCleanup(os.remove, '/tmp/fastpli.test.h5')
         self.addCleanup(os.remove, '/tmp/fastpli.test.dat')
 
-    def test_load_save(self):
+    def test_save_load(self):
         fiber_bundles.save('/tmp/fastpli.test.dat', self.solver.fiber_bundles,
                            'fiber_bundles'
                            'w-')
@@ -83,7 +84,11 @@ class MainTest(unittest.TestCase):
 
         fbs_h5 = fiber_bundles.load('/tmp/fastpli.test.h5', 'fiber_bundles')
         fbs_dat = fiber_bundles.load('/tmp/fastpli.test.dat', 'fiber_bundles')
+
+        self.assertTrue(len(fbs_h5) == len(fbs_dat))
+
         for fb_a, fb_b in zip(fbs_h5, fbs_dat):
+            self.assertTrue(len(fb_a) == len(fb_b))
             for f_a, f_b in zip(fb_a, fb_b):
                 self.assertTrue(np.alltrue(f_a == f_b))
 
