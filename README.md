@@ -14,20 +14,20 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 
 `fastpli` is a Python package consisting of the following modules
 
-| module                  | information                                                  |
-| ----------------------- | ------------------------------------------------------------ |
-| `fastpli.analysis`      | analysis of 3D-PLI results                                   |
-| `fastpli.io`            | input/output functions, e.g. to read/save fiber_bundles data |
-| `fastpli.model.sandbox` | building of simple 3d nerve fiber models                     |
-| `fastpli.model.solver`  | generation of non intersection nerve fiber models            |
-| `fastpli.objects`       | manipulation of fastpli objects (e.g. rotation)              |
-| `fastpli.tools`         | mathematical tools and helper function                       |
-| `fastpli.simulation`    | simulation of fiber models inside a virtual 3D-PLI microscop |
+| module                  | information                                                   |
+| ----------------------- | ------------------------------------------------------------- |
+| `fastpli.analysis`      | analysis of 3D-PLI results                                    |
+| `fastpli.io`            | input/output functions, e.g. to read/save fiber_bundles data  |
+| `fastpli.model.sandbox` | building of simple 3d nerve fiber models                      |
+| `fastpli.model.solver`  | generation of non intersection nerve fiber models             |
+| `fastpli.objects`       | manipulation of fastpli objects (e.g. rotation)               |
+| `fastpli.tools`         | mathematical tools and helper function                        |
+| `fastpli.simulation`    | simulation of fiber models inside a virtual 3D-PLI microscope |
 
 The aim of this package is to provide consistent system that allows the following:
 
 * **model** 3d (non colliding) nerve fibers
-* **simulate** nerve fiber inside a virtual tiltable 3D-PLI microscop
+* **simulate** nerve fiber inside a virtual tiltable 3D-PLI microscope
 * **analyse** the simulated signals to extract the resulting fiber orientation
 
 See **Wiki** for detailed information
@@ -104,6 +104,13 @@ python3 examples/simulation_pipeline.py
 ## Authors
 
 * **Felix Matuschke**
+
+# Literature
+
+* [PLI setup](https://dx.doi.org/10.3389%2Ffninf.2011.00034)
+* [dense fiber modeling](https://arxiv.org/abs/1901.10284) an [MEDUSA](https://doi.org/10.1016/j.neuroimage.2019.02.055)
+* [simulation](https://doi.org/10.1016/j.neuroimage.2015.02.020)
+* [tilting analysis](https://doi.org/10.3389/fnana.2018.00075)
 
 ## References
 
