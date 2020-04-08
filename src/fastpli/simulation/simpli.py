@@ -967,6 +967,11 @@ class Simpli:
         scale = self._voxel_size / self._resolution
         size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
 
+        if np.amin(size) == 0:
+            raise ValueError(
+                f"voxel_size {self._voxel_size} and resolution {self._resolution} result in optical image size of {size}"
+            )
+
         output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
 
         if mp_pool and input.shape[2] > 1:
