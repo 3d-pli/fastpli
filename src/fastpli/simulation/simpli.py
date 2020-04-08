@@ -21,15 +21,15 @@ class Simpli:
     Simpli Class for simulating 3D-PLI images
     """
 
-    __isfrozen = False
+    __is_frozen = False
 
     def __setattr__(self, key, value):
-        if self.__isfrozen and not hasattr(self, key):
+        if self.__is_frozen and not hasattr(self, key):
             raise TypeError(f"{self.__class__.__name__} is a frozen class")
         object.__setattr__(self, key, value)
 
     def __freeze(self):
-        self.__isfrozen = True
+        self.__is_frozen = True
 
     def __init__(self, mpi_comm=None):
 
