@@ -313,7 +313,7 @@ class Simpli:
 
     @property
     def verbose(self):
-        """ addiional information will be printed: bool """
+        """ additional information will be printed: bool """
         return self._verbose
 
     @verbose.setter
@@ -1059,7 +1059,7 @@ class Simpli:
             raise ValueError("input need 1 + 4 measurements")
 
         if input.shape[-1] <= 3:
-            raise ValueError("input needs at least 3 equidistand rotations")
+            raise ValueError("input needs at least 3 equidistant rotations")
 
         if self._sensor_gain is None:
             raise ValueError("sensor_gain not defined")

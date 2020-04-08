@@ -159,7 +159,7 @@ bool World::Step() {
       num_obj_ += fiber.ConeSize();
 
 #pragma omp parallel for
-   // applying drag before so that velocity is an idicator for colored
+   // applying drag before so that velocity is an indicator for colored
    // visualization
    for (auto i = 0u; i < fibers_.size(); i++) {
       fibers_[i].Drag(w_parameter_.drag);
