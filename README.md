@@ -108,7 +108,7 @@ python3 examples/simulation_pipeline.py
 # Literature
 
 * [PLI setup](https://dx.doi.org/10.3389%2Ffninf.2011.00034)
-* [dense fiber modeling](https://arxiv.org/abs/1901.10284) an [MEDUSA](https://doi.org/10.1016/j.neuroimage.2019.02.055)
+* [dense fiber modeling](https://arxiv.org/abs/1901.10284) and [MEDUSA](https://doi.org/10.1016/j.neuroimage.2019.02.055)
 * [simulation](https://doi.org/10.1016/j.neuroimage.2015.02.020)
 * [tilting analysis](https://doi.org/10.3389/fnana.2018.00075)
 
