@@ -3,7 +3,7 @@
 ## Issues
 
 * multiprocessing has initial high cpu values with model.solver
-* simpli.resolution does not call property
+* simpli.pixel_size does not call property
 * nan values detected in light signal (for 90degree fibers?)
 * simpli simulation has high initial copying and allocation time
 

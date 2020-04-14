@@ -57,7 +57,7 @@ class Simpli:
         self._flip_z_beam = False
         self._interpolate = True
         self._light_intensity = None
-        self._resolution = None
+        self._pixel_size = None
         self._optical_sigma = None
         self._step_size = 1.0
         self._tilts = None
@@ -144,15 +144,15 @@ class Simpli:
         self._voxel_size = float(voxel_size)
 
     @property
-    def resolution(self):
-        """ pixelsize of resulting optical image in µm: float """
-        return (self._resolution)
+    def pixel_size(self):
+        """ pixel size of resulting optical image in µm: float """
+        return (self._pixel_size)
 
-    @resolution.setter
-    def resolution(self, resolution):
-        if resolution <= 0:
-            raise ValueError("resolution <= 0")
-        self._resolution = float(resolution)
+    @pixel_size.setter
+    def pixel_size(self, pixel_size):
+        if pixel_size <= 0:
+            raise ValueError("pixel_size <= 0")
+        self._pixel_size = float(pixel_size)
 
     def get_voi(self):
         """ get volume of interest """
@@ -603,21 +603,21 @@ class Simpli:
             raise ValueError("currently only for untilt_sensor_view=True")
         if self._voxel_size is None:
             raise ValueError("voxel_size is not set")
-        if self._resolution is None:
-            raise ValueError("resolution is not set")
+        if self._pixel_size is None:
+            raise ValueError("pixel_size is not set")
         if self._tilts is None:
             raise ValueError("tilts are not set")
 
         delta_pixel = int(
             np.ceil(
                 np.tan(np.max(np.abs(self._tilts[:, 0]))) * self._dim[-1] / 2 *
-                self._voxel_size / self._resolution))
+                self._voxel_size / self._pixel_size))
         return delta_pixel
 
     def crop_tilt_voxel(self):
         """ get number of affected boundary voxel from tilted images """
         delta_voxel = int(
-            np.round(self.crop_tilt_pixel() * self._resolution /
+            np.round(self.crop_tilt_pixel() * self._pixel_size /
                      self._voxel_size))
         return delta_voxel
 
@@ -950,8 +950,8 @@ class Simpli:
         if self._voxel_size is None:
             raise ValueError("voxel_size not set")
 
-        if self._resolution is None:
-            raise ValueError("resolution not set")
+        if self._pixel_size is None:
+            raise ValueError("pixel_size not set")
 
         input = np.atleast_3d(np.array(input))
         if input.ndim > 3:
@@ -964,12 +964,12 @@ class Simpli:
         if shift[0] > 0 and shift[1] > 0:
             input = input[shift[0]:, shift[1]:, ...]
 
-        scale = self._voxel_size / self._resolution
+        scale = self._voxel_size / self._pixel_size
         size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
 
         if np.amin(size) == 0:
             raise ValueError(
-                f"voxel_size {self._voxel_size} and resolution {self._resolution} result in optical image size of {size}"
+                f"voxel_size {self._voxel_size} and pixel_size {self._pixel_size} result in optical image size of {size}"
             )
 
         output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)

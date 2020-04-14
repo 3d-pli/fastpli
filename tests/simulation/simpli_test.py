@@ -127,7 +127,7 @@ class MainTest(unittest.TestCase):
         self.simpli.untilt_sensor_view = False
         self.simpli.sensor_gain = 3
         self.simpli.optical_sigma = 0.71
-        self.simpli.resolution = 2
+        self.simpli.pixel_size = 2
         self.simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
                                         (5.5, 270)])
 
@@ -156,7 +156,7 @@ class MainTest(unittest.TestCase):
 
     def test_crop_tilt(self):
         self.simpli.voxel_size = 0.51
-        self.simpli.resolution = 10
+        self.simpli.pixel_size = 10
         self.simpli.set_voi([-100] * 3, [100] * 3)
         self.simpli.tilts = np.deg2rad([(15.5, 0)])
         dim_org = self.simpli.dim.copy()

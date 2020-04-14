@@ -59,7 +59,7 @@ with h5py.File(file_name, 'w') as h5f:
     simpli.light_intensity = 26000  # a.u.
     simpli.interpolate = True
     simpli.wavelength = 525  # in nm
-    simpli.resolution = 20  # in µm meter
+    simpli.pixel_size = 20  # in µm meter
     simpli.sensor_gain = 3
     simpli.optical_sigma = 0.71  # in voxel size
     simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
