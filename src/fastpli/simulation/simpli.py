@@ -436,17 +436,19 @@ class Simpli:
 
         for prop in cells_populations_properties:
             if not isinstance(prop, (list, tuple)):
-                raise TypeError("properties must be a list of 2 arguments")
+                raise TypeError("cell properties must be a list of 2 arguments")
 
             if len(prop) != 2:
-                raise TypeError("properties must be a list of 2 arguments")
+                raise TypeError("cell properties must be a list of 2 arguments")
 
         self._cells_populations_properties = cells_populations_properties
 
     def _check_property_length(self):
         if self._fiber_bundles:
             if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
-                raise TypeError("len(fiber_bundles) != len(properties)")
+                raise TypeError(
+                    "len(fiber_bundles) != len(fiber_bundles_properties)\n\
+                        For each fiber_bundle there hast to be a [(prop), ...]")
 
         if self._cells_populations:
             if len(self._cells_populations) != len(
