@@ -12,7 +12,7 @@ import sys
 import os
 
 import multiprocessing as mp
-pool = mp.Pool(4)
+pool = mp.Pool(2)
 
 import imageio
 
@@ -48,7 +48,7 @@ solver = fastpli.model.solver.Solver()
 solver.fiber_bundles = [fiber_bundle_0, fiber_bundle_1]
 solver.obj_min_radius = 8 * 20
 solver.obj_mean_length = 4 * 20
-solver.omp_num_threads = 4
+solver.omp_num_threads = 2
 
 # run solver
 solver.draw_scene()
@@ -82,6 +82,7 @@ for i in range(1000):
 fastpli.io.fiber_bundles.save(f'fastpli.example.{FILE_BASE}.dat',
                               solver.fiber_bundles,
                               mode='w')
+solver.close_scene()
 
 #%% Simulation
 file_name = f'fastpli.example.{FILE_BASE}'

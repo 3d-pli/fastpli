@@ -85,5 +85,6 @@ PYBIND11_MODULE(__solver, m) {
        .def("draw_scene", &World::DrawScene, py::arg("rot_x") = 30,
             py::arg("rot_y") = 30, py::arg("rot_z") = 0,
             py::arg("only_col") = false)
+       .def("close_scene", &World::CloseScene)
        .def("save_ppm", &World::SavePPM, py::arg("file"));
 }

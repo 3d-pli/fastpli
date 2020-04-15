@@ -256,3 +256,5 @@ void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
    scene_->SetViewAngle(rot_x, rot_y, rot_z);
    scene_->DrawScene(fibers_, only_col);
 }
+
+void World::CloseScene() { scene_->Close(); }

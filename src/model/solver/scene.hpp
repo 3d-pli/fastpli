@@ -26,13 +26,16 @@ class Scene {
    void DrawScene(const std::vector<geometry::Fiber> &fibers,
                   const bool only_col = false);
    void SavePPM(const char *fname, int start_x = 0, int start_y = 0);
+   void Close();
 
  private:
+   void CreateWindow();
    void AutoVolume(const std::vector<geometry::Fiber> &fibers);
    void DrawCylinders(const std::vector<geometry::Fiber> &fibers);
    void CheckWindowSize();
 
-   GLUquadricObj *quadObj_;
+   int glut_window_ = 0;
+   GLUquadricObj *quadObj_ = nullptr;
    bool only_col_ = false;
    vm::Vec3<float> rotation_ = 0;
    vm::Vec3<float> center_ = 0;

@@ -18,16 +18,30 @@
 #include <GL/glut.h>
 #endif
 
+#include <GL/freeglut.h>
+
 #include "include/vemath.hpp"
 
 Scene::Scene(int argc, char **argv) {
-
    glutInit(&argc, argv);
-
    glutInitWindowPosition(0, 0);
    glutInitWindowSize(800, 800);
    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-   glutCreateWindow("fastpli.model.Solver.Visualizer");
+   quadObj_ = gluNewQuadric();
+}
+
+void Scene::Close() {
+   if (glut_window_) {
+      glutDestroyWindow(glut_window_);
+      glut_window_ = 0;
+   }
+   glutMainLoopEvent();
+   glutMainLoopEvent();
+}
+
+void Scene::CreateWindow() {
+
+   glut_window_ = glutCreateWindow("fastpli.model.Solver.Visualizer");
 
    // Lighting set up
    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
@@ -44,12 +58,13 @@ Scene::Scene(int argc, char **argv) {
    glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
 
    glEnable(GL_DEPTH_TEST);
-
-   quadObj_ = gluNewQuadric();
 }
 
 void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers,
                       const bool only_col) {
+
+   if (glut_window_ == 0)
+      CreateWindow();
 
    only_col_ = only_col;
    AutoVolume(fibers);
@@ -73,6 +88,8 @@ void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers,
    DrawCylinders(fibers);
 
    glutSwapBuffers();
+
+   glutMainLoopEvent();
 }
 
 void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
