@@ -358,7 +358,8 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    const auto &p = fiber.points()[s_idx];
    const auto &q = fiber.points()[s_idx + 1];
    const auto max_radius =
-       std::max(fiber.radii()[s_idx], fiber.radii()[s_idx + 1]);
+       std::max(fiber.radii()[s_idx], fiber.radii()[s_idx + 1]) *
+       std::sqrt(fb.layers_scale_sqr().back());
 
    aabb::AABB<double, 3> fiber_segment_bb(p, q);
    fiber_segment_bb.min -= max_radius;
