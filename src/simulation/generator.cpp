@@ -199,7 +199,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    for (size_t fb_idx = 0; fb_idx < fiber_bundles_.size(); fb_idx++) {
       const auto &fb = fiber_bundles_[fb_idx];
 
-      if (!aabb::Overlap(volume_bb_, fb.voi()))
+      if (!aabb::Overlap(volume_bb_, fb.aabb()))
          continue;
 
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
@@ -209,7 +209,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
             // TODO: warning
             continue;
 
-         if (!aabb::Overlap(volume_bb_, fiber.voi()))
+         if (!aabb::Overlap(volume_bb_, fiber.aabb()))
             continue;
 
          for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
@@ -257,13 +257,13 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    for (size_t cp_idx = 0; cp_idx < cell_populations_.size(); cp_idx++) {
       const auto &cp = cell_populations_[cp_idx];
 
-      if (!aabb::Overlap(volume_bb_, cp.voi()))
+      if (!aabb::Overlap(volume_bb_, cp.aabb()))
          continue;
 
       for (size_t c_idx = 0; c_idx < cp.cells().size(); c_idx++) {
          const auto &cell = cp.cells()[c_idx];
 
-         if (!aabb::Overlap(volume_bb_, cell.voi()))
+         if (!aabb::Overlap(volume_bb_, cell.aabb()))
             continue;
 
          for (auto s_idx = 0u; s_idx < cell.size(); s_idx++) {

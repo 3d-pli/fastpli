@@ -155,11 +155,11 @@ void Bundle::Translate(const vm::Vec3<double> &translation) {
 }
 
 void Bundle::CalculateVoi() {
-   voi_ = aabb::AABB<double, 3>();
+   aabb_ = aabb::AABB<double, 3>();
    if (!fibers_.empty())
-      voi_ = fibers_.front().voi();
+      aabb_ = fibers_.front().aabb();
 
    for (auto &fiber : fibers_)
-      voi_.Unite(fiber.voi());
+      aabb_.Unite(fiber.aabb());
 }
 } // namespace fiber

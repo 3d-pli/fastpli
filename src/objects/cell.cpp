@@ -9,7 +9,7 @@ Cell::Cell(const std::vector<double> &points,
 
    points_.resize(radii.size());
    points_.shrink_to_fit();
-   voi_ = aabb::AABB<double, 3>{};
+   aabb_ = aabb::AABB<double, 3>{};
    radii_ = radii;
 
    for (size_t i = 0; i < radii_.size(); i++)
@@ -20,7 +20,7 @@ Cell::Cell(const std::vector<double> &points,
    if (points_.empty())
       return;
    else if (points_.size() == 1) {
-      voi_ = aabb::AABB<double, 3>(points_[0], points_[0]);
+      aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }
    CalculateVoi();
@@ -39,7 +39,7 @@ Cell::Cell(const std::vector<vm::Vec3<double>> &points,
    if (points_.empty())
       return;
    else if (points_.size() == 1) {
-      voi_ = aabb::AABB<double, 3>(points_[0], points_[0]);
+      aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }
    CalculateVoi();

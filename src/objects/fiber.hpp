@@ -29,7 +29,7 @@ class Fiber {
    const std::vector<vm::Vec3<double>> &points() const { return points_; }
    const std::vector<double> &radii() const { return radii_; }
    std::vector<double> vector() const;
-   const aabb::AABB<double, 3> &voi() const { return voi_; }
+   const aabb::AABB<double, 3> &aabb() const { return aabb_; }
 
    size_t size() const { return points_.size(); };
    double CalcRadius(size_t idx, double t) const;
@@ -47,7 +47,7 @@ class Fiber {
  protected:
    std::vector<vm::Vec3<double>> points_;
    std::vector<double> radii_;
-   aabb::AABB<double, 3> voi_;
+   aabb::AABB<double, 3> aabb_;
 
    void CalculateVoi();
 };

@@ -18,7 +18,7 @@ Fiber::Fiber(const std::vector<double> &data) {
    points_.shrink_to_fit();
    radii_.resize(data.size() / 4);
    radii_.shrink_to_fit();
-   voi_ = aabb::AABB<double, 3>{};
+   aabb_ = aabb::AABB<double, 3>{};
 
    for (size_t i = 0; i < data.size() / 4; i++) {
       points_[i] =
@@ -30,7 +30,7 @@ Fiber::Fiber(const std::vector<double> &data) {
    if (points_.empty())
       return;
    else if (points_.size() == 1) {
-      voi_ = aabb::AABB<double, 3>(points_[0], points_[0]);
+      aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }
    CalculateVoi();
@@ -44,7 +44,7 @@ Fiber::Fiber(const std::vector<double> &points,
 
    points_.resize(radii.size());
    points_.shrink_to_fit();
-   voi_ = aabb::AABB<double, 3>{};
+   aabb_ = aabb::AABB<double, 3>{};
    radii_ = radii;
 
    for (size_t i = 0; i < radii_.size(); i++)
@@ -55,7 +55,7 @@ Fiber::Fiber(const std::vector<double> &points,
    if (points_.empty())
       return;
    else if (points_.size() == 1) {
-      voi_ = aabb::AABB<double, 3>(points_[0], points_[0]);
+      aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }
    CalculateVoi();
@@ -74,7 +74,7 @@ Fiber::Fiber(const std::vector<vm::Vec3<double>> &points,
    if (points_.empty())
       return;
    else if (points_.size() == 1) {
-      voi_ = aabb::AABB<double, 3>(points_[0], points_[0]);
+      aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }
    CalculateVoi();
@@ -83,17 +83,18 @@ Fiber::Fiber(const std::vector<vm::Vec3<double>> &points,
 void Fiber::CalculateVoi() {
 
    if (points_.empty()) {
-      voi_ = aabb::AABB<double, 3>{};
+      aabb_ = aabb::AABB<double, 3>{};
       return;
    }
 
-   voi_ = aabb::AABB<double, 3>(points_[0] - radii_[0], points_[0] + radii_[0]);
+   aabb_ =
+       aabb::AABB<double, 3>(points_[0] - radii_[0], points_[0] + radii_[0]);
    for (size_t i = 0; i < points_.size() - 1; i++) {
       auto r_max = std::max(radii_[i], radii_[i + 1]);
       auto tmp_voi = aabb::AABB<double, 3>(points_[i], points_[i + 1]);
       tmp_voi.min -= r_max;
       tmp_voi.max += r_max;
-      voi_.Unite(tmp_voi);
+      aabb_.Unite(tmp_voi);
    }
 }
 

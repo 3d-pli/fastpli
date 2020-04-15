@@ -75,11 +75,11 @@ void Population::Translate(const vm::Vec3<double> &translation) {
 }
 
 void Population::CalculateVoi() {
-   voi_ = aabb::AABB<double, 3>();
+   aabb_ = aabb::AABB<double, 3>();
    if (!cells_.empty())
-      voi_ = cells_.front().voi();
+      aabb_ = cells_.front().aabb();
 
    for (auto &cell : cells_)
-      voi_.Unite(cell.voi());
+      aabb_.Unite(cell.aabb());
 }
 } // namespace cell

@@ -33,7 +33,7 @@ class Population {
    // getter
    const object::Cell &cell(size_t i) const { return cells_[i]; }
    const std::vector<object::Cell> &cells() const { return cells_; }
-   const aabb::AABB<double, 3> &voi() const { return voi_; }
+   const aabb::AABB<double, 3> &aabb() const { return aabb_; }
    size_t size() const { return cells_.size(); }
    bool empty() const { return cells_.empty(); }
 
@@ -54,7 +54,7 @@ class Population {
  private:
    std::vector<object::Cell> cells_{};
    Property property_{};
-   aabb::AABB<double, 3> voi_{};
+   aabb::AABB<double, 3> aabb_{};
 
    void CalculateVoi();
 };
