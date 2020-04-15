@@ -40,7 +40,7 @@ with h5py.File(file_name, 'w') as h5f:
     # (_0, _1, _2, _3)
     # _0: layer_scale times radius
     # _1: strength of birefringence
-    # _2: absorption coefficient I = I*exp(-mu*x)
+    # _2: absorption coefficient µ: I = I*exp(-µ*x)
     # _3: model: 'p'-parallel, 'r'-radial or 'b'-background
 
     print('VOI:', simpli.get_voi())
@@ -51,7 +51,7 @@ with h5py.File(file_name, 'w') as h5f:
     tissue, optical_axis, tissue_properties = simpli.generate_tissue()
 
     h5f['tissue/tissue'] = tissue.astype(np.uint16)
-    h5f['tissue/vectorfield'] = optical_axis
+    h5f['tissue/optical_axis'] = optical_axis
     h5f['tissue/tissue_properties'] = tissue_properties
 
     # Simulate PLI Measurement

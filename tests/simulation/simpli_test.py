@@ -107,7 +107,7 @@ class MainTest(unittest.TestCase):
 
         with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
             h5f['tissue'] = tissue.astype(np.uint16)
-            h5f['vectorfield'] = optical_axis
+            h5f['optical_axis'] = optical_axis
             h5f['data/0'] = image
 
         self.addCleanup(os.remove, '/tmp/fastpli.test.h5')

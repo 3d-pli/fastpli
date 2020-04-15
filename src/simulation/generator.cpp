@@ -206,13 +206,11 @@ PliGenerator::RunTissueGeneration(const bool only_label,
          const auto &fiber = fb.fibers()[f_idx];
 
          if (fiber.size() <= 1)
+            // TODO: warning
             continue;
 
          if (!aabb::Overlap(volume_bb_, fiber.voi()))
             continue;
-
-         // if (!aabb::Overlap(volume_bb_, fiber.voi()))
-         //    continue;
 
          for (auto s_idx = 0u; s_idx < fiber.size() - 1; s_idx++) {
             // TODO: figure out how to incapsulate idx into fiber to only
