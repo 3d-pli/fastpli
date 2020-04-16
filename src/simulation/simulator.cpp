@@ -403,23 +403,8 @@ vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
                                       const double z,
                                       const bool interpolate) const {
 
-   if (interpolate) {
-      // only interpolate if all neighbors are the same tissue
-
-      auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z));
-
-      if (GetLabel(llfloor(x), llfloor(y), llfloor(z)) == label &&
-          GetLabel(llceil(x), llfloor(y), llfloor(z)) == label &&
-          GetLabel(llfloor(x), llceil(y), llfloor(z)) == label &&
-          GetLabel(llceil(x), llceil(y), llfloor(z)) == label &&
-          GetLabel(llfloor(x), llfloor(y), llceil(z)) == label &&
-          GetLabel(llceil(x), llfloor(y), llceil(z)) == label &&
-          GetLabel(llfloor(x), llceil(y), llceil(z)) == label &&
-          GetLabel(llceil(x), llceil(y), llceil(z)) == label)
-         return InterpolateVec(x, y, z);
-   }
-   // Nearest Neighbor
-   return GetVec(llfloor(x), llfloor(y), llfloor(z));
+   return interpolate ? InterpolateVec(x, y, z)
+                      : GetVec(llfloor(x), llfloor(y), llfloor(z));
 }
 
 vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
@@ -456,6 +441,9 @@ vm::Vec3<double> VectorOrientationAddition(vm::Vec3<double> v,
 
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               double z) const {
+
+   const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z));
+
    // Trilinear interpolate
    const auto x0 = std::max(llfloor(x), 0LL);
    const auto y0 = std::max(llfloor(y), 0LL);
@@ -479,14 +467,14 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    if (z0 == z1)
       zd = 0;
 
-   const auto c000 = GetVec(x0, y0, z0);
-   const auto c100 = GetVec(x1, y0, z0);
-   const auto c010 = GetVec(x0, y1, z0);
-   const auto c110 = GetVec(x1, y1, z0);
-   const auto c001 = GetVec(x0, y0, z1);
-   const auto c101 = GetVec(x1, y0, z1);
-   const auto c011 = GetVec(x0, y1, z1);
-   const auto c111 = GetVec(x1, y1, z1);
+   const auto c000 = GetVec(x0, y0, z0) * (label == GetLabel(x0, y0, z0));
+   const auto c100 = GetVec(x1, y0, z0) * (label == GetLabel(x1, y0, z0));
+   const auto c010 = GetVec(x0, y1, z0) * (label == GetLabel(x0, y1, z0));
+   const auto c110 = GetVec(x1, y1, z0) * (label == GetLabel(x1, y1, z0));
+   const auto c001 = GetVec(x0, y0, z1) * (label == GetLabel(x0, y0, z1));
+   const auto c101 = GetVec(x1, y0, z1) * (label == GetLabel(x1, y0, z1));
+   const auto c011 = GetVec(x0, y1, z1) * (label == GetLabel(x0, y1, z1));
+   const auto c111 = GetVec(x1, y1, z1) * (label == GetLabel(x1, y1, z1));
 
    const auto c00 = VectorOrientationAddition(c000 * (1 - xd), c100 * xd);
    const auto c01 = VectorOrientationAddition(c001 * (1 - xd), c101 * xd);
