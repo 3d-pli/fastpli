@@ -141,7 +141,17 @@ class Simpli:
     def voxel_size(self, voxel_size):
         if voxel_size <= 0:
             raise ValueError("voxel_size <= 0")
+
+        flag = False
+        if self._voxel_size is not None and self._dim is not None and self._dim_origin is not None:
+            min, max = self.get_voi()
+            flag = True
+
         self._voxel_size = float(voxel_size)
+
+        if flag and self._dim is not None and self._dim_origin is not None:
+            self.set_voi(min, max)
+            self._print("voxel_size: recalculated dimensions")
 
     @property
     def pixel_size(self):
