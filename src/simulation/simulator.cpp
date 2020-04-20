@@ -453,6 +453,13 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    const auto y1 = std::min(llceil(y), dim_.local.y() - 1);
    const auto z1 = std::min(llceil(z), dim_.local.z() - 1);
 
+   assert(x0 < dim_.local.x());
+   assert(y0 < dim_.local.y());
+   assert(z0 < dim_.local.z());
+   assert(x1 >= 0LL);
+   assert(y1 >= 0LL);
+   assert(z1 >= 0LL);
+
    if (x0 == x1 && y0 == y1 && z0 == z1)
       return GetVec(x0, y0, z0);
 
