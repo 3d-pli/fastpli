@@ -1,5 +1,6 @@
 #include "world.hpp"
 
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -258,3 +259,190 @@ void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
 }
 
 void World::CloseScene() { scene_->Close(); }
+
+/**
+ * Calc Vertices for saving stl files
+ */
+
+const int kNumTubeMesh = 6;
+
+struct Vertex {
+   vm::Vec3<float> p{};
+   vm::Vec3<float> n{};
+};
+
+typedef std::array<Vertex, 3> Triangle;
+
+struct Face {
+   Triangle data{};
+
+   constexpr const Vertex &operator[](std::size_t i) const { return data[i]; }
+   Vertex &operator[](std::size_t i) { return data[i]; }
+};
+
+using NSidePolygon = std::array<Vertex, kNumTubeMesh>;
+
+size_t NumFaces(std::vector<geometry::Fiber> fibers) {
+   size_t n = 0;
+   for (auto const &f : fibers) {
+      if (f.size() <= 1)
+         continue;
+      n += (f.size() - 1) * kNumTubeMesh * 2;
+   }
+   return n;
+}
+
+std::vector<Face> CalcTubeSkeleton(const geometry::Fiber fiber) {
+
+   std::vector<Face> tube_faces;
+   std::vector<NSidePolygon> tube_mesh;
+
+   if (fiber.size() <= 1)
+      return tube_faces;
+
+   // calc tube mesh points
+   NSidePolygon mesh_elm{};
+   vm::Vec3<float> tangent_old = {0, 0, 1};
+   vm::Vec3<float> p0{}, p1{}, pm{};
+
+   for (auto i = 0u; i < fiber.size(); i++) {
+
+      if (i == 0) {
+         p0 = vm::cast<float>(fiber.points()[i]);
+         p1 = vm::cast<float>(fiber.points()[i + 1]);
+         pm = p0;
+      } else if (i == fiber.size() - 1) {
+         p0 = vm::cast<float>(fiber.points()[i - 1]);
+         p1 = vm::cast<float>(fiber.points()[i]);
+         pm = p1;
+      } else {
+         p0 = vm::cast<float>(fiber.points()[i - 1]);
+         p1 = vm::cast<float>(fiber.points()[i + 1]);
+         pm = vm::cast<float>(fiber.points()[i]);
+      }
+
+      auto tangent = p1 - p0;
+      vm::normalize(tangent);
+
+      // generate points
+      if (i == 0) {
+         // initialize circle
+         for (uint k = 0; k < kNumTubeMesh; k++) {
+            float t = k / (float)kNumTubeMesh;
+            float theta = t * 2 * M_PI;
+            mesh_elm[k].n = {cosf(theta), sinf(theta), 0.0f};
+         }
+      }
+
+      // rotate old points onto new plane
+      auto v = vm::cross(tangent_old, tangent);
+      auto s = vm::length(v) + 1e-9;
+      auto c = vm::dot(tangent_old, tangent);
+
+      vm::Mat3x3<float> rot{0,      -v.z(), v.y(), v.z(), 0,
+                            -v.x(), -v.y(), v.x(), 0};
+
+      // vm::Vec3<float>{0, -v.z, v.y};
+      // vm::Vec3<float>{v.z, 0, -v.x};
+      // vm::Vec3<float>{-v.y, v.x, 0};
+
+      rot = (vm::IdentityMatrix<float, 3>() + rot) +
+            (vm::dot(rot, rot) * (1 - c) / (s * s));
+
+      for (uint k = 0; k < kNumTubeMesh; k++) {
+         auto p = vm::dot(rot, mesh_elm[k].n);
+         p = p / vm::length(p);
+
+         mesh_elm[k].p = pm + p * fiber.radii()[i];
+         mesh_elm[k].n = p;
+      }
+      tangent_old = tangent;
+      tube_mesh.push_back(mesh_elm);
+   }
+
+   // calc faces
+   tube_faces.reserve(fiber.size() * kNumTubeMesh * 2);
+   for (auto i = 0ULL; i < tube_mesh.size() - 1; i++) {
+
+      auto const &t0 = tube_mesh[i];
+      auto const &t1 = tube_mesh[i + 1];
+
+      Face v;
+      for (auto i = 0u; i < kNumTubeMesh; i++) {
+
+         v[0].p = t0[i % kNumTubeMesh].p;
+         v[0].n = t0[i % kNumTubeMesh].n;
+         v[1].p = t1[i % kNumTubeMesh].p;
+         v[1].n = t1[i % kNumTubeMesh].n;
+         v[2].p = t0[(i + 1) % kNumTubeMesh].p;
+         v[2].n = t0[(i + 1) % kNumTubeMesh].n;
+         tube_faces.push_back(v);
+
+         v[0].p = t1[i % kNumTubeMesh].p;
+         v[0].n = t1[i % kNumTubeMesh].n;
+         v[1].p = t0[(i + 1) % kNumTubeMesh].p;
+         v[1].n = t0[(i + 1) % kNumTubeMesh].n;
+         v[2].p = t1[(i + 1) % kNumTubeMesh].p;
+         v[2].n = t1[(i + 1) % kNumTubeMesh].n;
+         tube_faces.push_back(v);
+      }
+   }
+
+   return tube_faces;
+}
+
+void World::SaveSTL(const char *fname) {
+   std::ofstream file;
+   file.open(fname, std::ios::out | std::ios::binary);
+   char attribute[2] = "0";
+
+   // write header
+   std::string header_info = "fastpli.model.solver";
+   header_info.resize(80);
+   file.write(header_info.c_str(), 80);
+
+   // write number of faces
+   auto const n = NumFaces(fibers_);
+   file.write((char *)&n, 4);
+
+   size_t n_tmp = 0;
+   for (auto const &fiber : fibers_) {
+
+      auto fiber_faces = CalcTubeSkeleton(fiber);
+
+      for (auto const &f : fiber_faces) {
+
+         // save normal vector
+         auto normal = f[0].n + f[1].n + f[2].n;
+         normal = normal / vm::length(normal);
+
+         file.write((char *)(normal.data() + 0), 4);
+         file.write((char *)(normal.data() + 1), 4);
+         file.write((char *)(normal.data() + 2), 4);
+
+         // save coordinates
+         file.write((char *)(f[0].p.data() + 0), 4);
+         file.write((char *)(f[0].p.data() + 1), 4);
+         file.write((char *)(f[0].p.data() + 2), 4);
+
+         file.write((char *)(f[1].p.data() + 0), 4);
+         file.write((char *)(f[1].p.data() + 1), 4);
+         file.write((char *)(f[1].p.data() + 2), 4);
+
+         file.write((char *)(f[2].p.data() + 0), 4);
+         file.write((char *)(f[2].p.data() + 1), 4);
+         file.write((char *)(f[2].p.data() + 2), 4);
+
+         file.write(attribute, 2);
+         n_tmp++;
+      }
+   }
+
+   std::cout << "Number of faces: " << n_tmp << std::endl;
+   if (n != n_tmp) {
+      std::cout << "Number of pre calc faces: " << n << std::endl;
+      std::cerr << "Number of faces is wrong" << std::endl;
+   }
+
+   file.close();
+}

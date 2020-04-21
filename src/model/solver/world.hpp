@@ -55,6 +55,7 @@ class World {
       if (scene_)
          scene_->SavePPM(file.c_str(), 0, 0);
    };
+   void SaveSTL(const char *fname);
 
  private:
    std::vector<geometry::Fiber> fibers_;
