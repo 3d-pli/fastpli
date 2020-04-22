@@ -442,8 +442,6 @@ vm::Vec3<double> VectorOrientationAddition(vm::Vec3<double> v,
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               double z) const {
 
-   const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z));
-
    // Trilinear interpolate
    const auto x0 = std::max(llfloor(x), 0LL);
    const auto y0 = std::max(llfloor(y), 0LL);
@@ -474,24 +472,46 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    if (z0 == z1)
       zd = 0;
 
-   const auto c000 = GetVec(x0, y0, z0) * (label == GetLabel(x0, y0, z0));
-   const auto c100 = GetVec(x1, y0, z0) * (label == GetLabel(x1, y0, z0));
-   const auto c010 = GetVec(x0, y1, z0) * (label == GetLabel(x0, y1, z0));
-   const auto c110 = GetVec(x1, y1, z0) * (label == GetLabel(x1, y1, z0));
-   const auto c001 = GetVec(x0, y0, z1) * (label == GetLabel(x0, y0, z1));
-   const auto c101 = GetVec(x1, y0, z1) * (label == GetLabel(x1, y0, z1));
-   const auto c011 = GetVec(x0, y1, z1) * (label == GetLabel(x0, y1, z1));
-   const auto c111 = GetVec(x1, y1, z1) * (label == GetLabel(x1, y1, z1));
+   // only interpolate if same label id
+   const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z));
+   const auto l000 = GetLabel(x0, y0, z0) == label;
+   const auto l100 = GetLabel(x1, y0, z0) == label;
+   const auto l010 = GetLabel(x0, y1, z0) == label;
+   const auto l110 = GetLabel(x1, y1, z0) == label;
+   const auto l001 = GetLabel(x0, y0, z1) == label;
+   const auto l101 = GetLabel(x1, y0, z1) == label;
+   const auto l011 = GetLabel(x0, y1, z1) == label;
+   const auto l111 = GetLabel(x1, y1, z1) == label;
 
-   const auto c00 = VectorOrientationAddition(c000 * (1 - xd), c100 * xd);
-   const auto c01 = VectorOrientationAddition(c001 * (1 - xd), c101 * xd);
-   const auto c10 = VectorOrientationAddition(c010 * (1 - xd), c110 * xd);
-   const auto c11 = VectorOrientationAddition(c011 * (1 - xd), c111 * xd);
+   const auto c000 = GetVec(x0, y0, z0);
+   const auto c100 = GetVec(x1, y0, z0);
+   const auto c010 = GetVec(x0, y1, z0);
+   const auto c110 = GetVec(x1, y1, z0);
+   const auto c001 = GetVec(x0, y0, z1);
+   const auto c101 = GetVec(x1, y0, z1);
+   const auto c011 = GetVec(x0, y1, z1);
+   const auto c111 = GetVec(x1, y1, z1);
 
-   const auto c0 = VectorOrientationAddition(c00 * (1 - yd), c10 * yd);
-   const auto c1 = VectorOrientationAddition(c01 * (1 - yd), c11 * yd);
+   const auto c00 =
+       VectorOrientationAddition(c000 * (1 - xd * l100), c100 * xd * l000);
+   const auto c01 =
+       VectorOrientationAddition(c001 * (1 - xd * l101), c101 * xd * l001);
+   const auto c10 =
+       VectorOrientationAddition(c010 * (1 - xd * l110), c110 * xd * l010);
+   const auto c11 =
+       VectorOrientationAddition(c011 * (1 - xd * l111), c111 * xd * l011);
 
-   return VectorOrientationAddition(c0 * (1 - zd), c1 * zd);
+   // only interpolate if vector non zero
+   const auto comp = [](double f) { return static_cast<bool>(f); };
+   const auto c0 =
+       VectorOrientationAddition(c00 * (1 - yd * vm::any_of(c10, comp)),
+                                 c10 * yd * vm::any_of(c00, comp));
+   const auto c1 =
+       VectorOrientationAddition(c01 * (1 - yd * vm::any_of(c10, comp)),
+                                 c11 * yd * vm::any_of(c01, comp));
+
+   return VectorOrientationAddition(c0 * (1 - zd * vm::any_of(c1, comp)),
+                                    c1 * zd * vm::any_of(c0, comp));
 }
 
 // #############################################################################
