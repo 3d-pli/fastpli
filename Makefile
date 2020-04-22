@@ -64,8 +64,10 @@ development: ${VENV} fastpli
 
 .PHONY: uninstall
 uninstall:
-	@if ! ${VENV}/bin/pip3 list | grep -q "fastli"; then \
-		${VENV}/bin/pip3 uninstall fastpli -y; \
+	@if [ -f ${VENV}/bin/pip3 ]; then \
+		if ! ${VENV}/bin/pip3 list | grep -q "fastli"; then \
+			${VENV}/bin/pip3 uninstall fastpli -y; \
+		fi \
 	fi
 
 build/:
