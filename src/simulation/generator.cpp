@@ -318,9 +318,10 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       std::cout << std::endl;
    }
 
-   if (!std::any_of(label_field->begin(), label_field->end(),
-                    [](int i) { return i > 0; }))
-      std::cout << "WARNING: all labels are 0" << std::endl;
+   // moved to simply.py
+   // if (!std::any_of(label_field->begin(), label_field->end(),
+   //                  [](int i) { return i > 0; }))
+   //    std::cout << "WARNING: all labels are 0" << std::endl;
 
    return std::make_tuple(label_field, vector_field, GetPropertyList());
 }

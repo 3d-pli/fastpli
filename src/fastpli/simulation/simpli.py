@@ -485,6 +485,12 @@ class Simpli:
         tissue, optical_axis, tissue_properties = self.__gen.run_generation(
             only_label, progress_bar)
 
+        if not np.any(tissue):
+            warnings.warn(
+                "All labels are 0. Usually this means, that the VOI contains no\
+                     fiber_bundles or that the voxel_size is to large.",
+                UserWarning)
+
         return tissue, optical_axis, tissue_properties
 
     def _init_pli_setup(self):
