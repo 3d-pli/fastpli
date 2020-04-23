@@ -14,11 +14,10 @@ np.random.seed(42)
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
+FILE_OUT = os.path.join(FILE_PATH, f'fastpli.example.{FILE_BASE}')
 
-file_name = 'fastpli.example.' + FILE_BASE + '.h5'
-print(f"creating file: {file_name}")
-
-with h5py.File(file_name, 'w') as h5f:
+print(f'creating file: {FILE_OUT}.h5')
+with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     # save script
     h5f['version'] = fastpli.__version__
     with open(os.path.abspath(__file__), 'r') as f:
@@ -47,7 +46,7 @@ with h5py.File(file_name, 'w') as h5f:
     print('Memory:', str(round(simpli.memory_usage('MB'), 2)) + ' MB')
 
     # Generate Tissue
-    print("Run Generation:")
+    print('Run Generation:')
     tissue, optical_axis, tissue_properties = simpli.generate_tissue()
 
     h5f['tissue/tissue'] = tissue.astype(np.uint16)
@@ -66,7 +65,7 @@ with h5py.File(file_name, 'w') as h5f:
                                (5.5, 270)])
 
     tilting_stack = [None] * 5
-    print("Run Simulation:")
+    print('Run Simulation:')
     for t, (theta, phi) in enumerate(simpli.tilts):
         print(round(np.rad2deg(theta), 1), round(np.rad2deg(phi), 1))
         images = simpli.run_simulation(tissue, optical_axis, tissue_properties,
@@ -93,7 +92,7 @@ with h5py.File(file_name, 'w') as h5f:
     h5f['simulation/optic/mask'] = np.uint8(mask)
     mask = None  # keep analysing all pixels
 
-    print("Run ROFL analysis:")
+    print('Run ROFL analysis:')
     rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(tilting_stack,
                                                                  mask=mask)
 
@@ -104,12 +103,12 @@ with h5py.File(file_name, 'w') as h5f:
     def data2image(data):
         return np.swapaxes(np.flip(data, 1), 0, 1)
 
-    print(f"creating Fiber Orientation Map: {file_name + '.png'}")
+    print(f'creating Fiber Orientation Map: {FILE_OUT}png')
 
     imageio.imwrite(
-        file_name + '.png',
+        f'{FILE_OUT}.png',
         data2image(
             fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
 
-print("Done")
-print("You can look at the data e.g with Fiji and the hdf5 plugin")
+print('Done')
+print('You can look at the data e.g with Fiji and the hdf5 plugin')

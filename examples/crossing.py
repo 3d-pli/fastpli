@@ -8,7 +8,6 @@ import fastpli.io
 
 import numpy as np
 import h5py
-import sys
 import os
 
 import multiprocessing as mp
@@ -21,6 +20,7 @@ np.random.seed(42)
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
+FILE_OUT = os.path.join(FILE_PATH, f'fastpli.example.{FILE_BASE}')
 
 
 def data2image(data):
@@ -59,7 +59,7 @@ for i in range(1000):
     overlap = solver.overlap / solver.num_col_obj if solver.num_col_obj else 0
     if i % 10 == 0:
         print(
-            f"step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%"
+            f'step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%'
         )
         solver.draw_scene()
         # solver.save_ppm(f'solver_{i:03}.ppm')  # save a ppm image
@@ -75,20 +75,17 @@ for i in range(1000):
         solver.draw_scene()
 
     if solved:
-        print(f"solved: {i}, {solver.num_obj}/{solver.num_col_obj}")
+        print(f'solved: {i}, {solver.num_obj}/{solver.num_col_obj}')
         solver.draw_scene()
         break
 
-fastpli.io.fiber_bundles.save(f'fastpli.example.{FILE_BASE}.dat',
-                              solver.fiber_bundles,
-                              mode='w')
+fastpli.io.fiber_bundles.save(f'{FILE_OUT}.dat', solver.fiber_bundles, mode='w')
 solver.close_scene()
 
 #%% Simulation
-file_name = f'fastpli.example.{FILE_BASE}'
-print(f"creating file: {file_name}")
 
-with h5py.File(f'{file_name}.h5', 'w') as h5f:
+print(f'creating file: {FILE_OUT}')
+with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     # save script
     h5f['version'] = fastpli.__version__
     with open(os.path.abspath(__file__), 'r') as f:
@@ -100,8 +97,7 @@ with h5py.File(f'{file_name}.h5', 'w') as h5f:
     simpli.omp_num_threads = 2
     simpli.voxel_size = 2  # in µm meter
     simpli.set_voi([-2000, -2000, -30], [2000, 2000, 30])  # in µm meter
-    simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
-        os.path.join(FILE_PATH, f'fastpli.example.{FILE_BASE}.dat'))
+    simpli.fiber_bundles = fastpli.io.fiber_bundles.load(f'{FILE_OUT}.dat')
 
     # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle fiber_bundle
     simpli.fiber_bundles_properties = [[(1.0, -0.004, 10, 'p')]] * len(
@@ -116,14 +112,14 @@ with h5py.File(f'{file_name}.h5', 'w') as h5f:
     print('Memory:', str(round(simpli.memory_usage('MB'), 2)) + ' MB')
 
     # Generate Tissue
-    print("Run Generation:")
+    print('Run Generation:')
     tissue, optical_axis, tissue_properties = simpli.generate_tissue()
 
     h5f['tissue/tissue'] = tissue.astype(np.uint16)
     h5f['tissue/optical_axis'] = optical_axis
     h5f['tissue/tissue_properties'] = tissue_properties
 
-    with imageio.get_writer(f'{file_name}.tissue.gif', mode='I') as writer:
+    with imageio.get_writer(f'{FILE_OUT}.tissue.gif', mode='I') as writer:
         m = np.amax(tissue)
         for i in range(tissue.shape[2]):
             writer.append_data(
@@ -142,7 +138,7 @@ with h5py.File(f'{file_name}.h5', 'w') as h5f:
                                (5.5, 270)])
 
     tilting_stack = [None] * 5
-    print("Run Simulation:")
+    print('Run Simulation:')
     for t, (theta, phi) in enumerate(simpli.tilts):
         print(round(np.rad2deg(theta), 1), round(np.rad2deg(phi), 1))
         images = simpli.run_simulation(tissue, optical_axis, tissue_properties,
@@ -155,7 +151,7 @@ with h5py.File(f'{file_name}.h5', 'w') as h5f:
         images = simpli.apply_optic(images)
         h5f['simulation/optic/' + str(t)] = images
 
-        with imageio.get_writer(f'{file_name}.{t}.gif', mode='I') as writer:
+        with imageio.get_writer(f'{FILE_OUT}.{t}.gif', mode='I') as writer:
             for i in range(images.shape[-1]):
                 writer.append_data(
                     (data2image(images[:, :, i] - np.amin(images)) /
@@ -167,10 +163,9 @@ with h5py.File(f'{file_name}.h5', 'w') as h5f:
         h5f[f'analysis/epa/{t}/direction'] = np.rad2deg(epa[1])
         h5f[f'analysis/epa/{t}/retardation'] = epa[2]
 
-        imageio.imwrite(f'{file_name}.{t}.transmittance.png',
-                        data2image(epa[0]))
-        imageio.imwrite(f'{file_name}.{t}.direction.png', data2image(epa[1]))
-        imageio.imwrite(f'{file_name}.{t}.retardation.png', data2image(epa[2]))
+        imageio.imwrite(f'{FILE_OUT}.{t}.transmittance.png', data2image(epa[0]))
+        imageio.imwrite(f'{FILE_OUT}.{t}.direction.png', data2image(epa[1]))
+        imageio.imwrite(f'{FILE_OUT}.{t}.retardation.png', data2image(epa[2]))
 
         tilting_stack[t] = images
 
@@ -180,7 +175,7 @@ with h5py.File(f'{file_name}.h5', 'w') as h5f:
     h5f['simulation/optic/mask'] = np.uint8(mask)
     mask = None  # keep analysing all pixels
 
-    print("Run ROFL analysis:")
+    print('Run ROFL analysis:')
     rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(tilting_stack,
                                                                  mask=mask,
                                                                  mp_pool=pool)
@@ -189,16 +184,16 @@ with h5py.File(f'{file_name}.h5', 'w') as h5f:
     h5f['analysis/rofl/inclination'] = np.rad2deg(rofl_incl)
     h5f['analysis/rofl/trel'] = rofl_t_rel
 
-    imageio.imwrite(f'{file_name}.r.direction.png', data2image(rofl_direction))
-    imageio.imwrite(f'{file_name}.r.inclination.png', data2image(rofl_incl))
-    imageio.imwrite(f'{file_name}.r.trel.png', data2image(rofl_t_rel))
+    imageio.imwrite(f'{FILE_OUT}.r.direction.png', data2image(rofl_direction))
+    imageio.imwrite(f'{FILE_OUT}.r.inclination.png', data2image(rofl_incl))
+    imageio.imwrite(f'{FILE_OUT}.r.trel.png', data2image(rofl_t_rel))
 
-    print(f"creating Fiber Orientation Map: {file_name}.png")
+    print(f'creating Fiber Orientation Map: {FILE_OUT}.png')
 
     imageio.imwrite(
-        file_name + '.fom.png',
+        f'{FILE_OUT}.fom.png',
         data2image(
             fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
 
-print("Done")
-print("You can look at the data e.g with Fiji and the hdf5 plugin")
+print('Done')
+print('You can look at the data e.g with Fiji and the hdf5 plugin')

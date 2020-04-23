@@ -15,6 +15,7 @@ import fastpli.io
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
+FILE_OUT = os.path.join(FILE_PATH, f'fastpli.example.{FILE_BASE}')
 
 # Setup Simpli for Tissue Generation
 simpli = fastpli.simulation.Simpli()
@@ -46,21 +47,17 @@ simpli.sensor_gain = 3
 simpli.optical_sigma = 0.71  # in voxel size
 simpli.verbose = True
 
-file_name = 'fastpli.example.' + FILE_BASE + '.h5'
-print(f"creating file: {file_name}")
-
-with h5py.File(file_name, 'w') as h5f:
+print(f'creating file: {FILE_OUT}.h5')
+with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     with open(os.path.abspath(__file__), 'r') as script:
         _, _, _, fom = simpli.run_pipeline(h5f=h5f,
                                            script=script.read(),
-                                           save=["all"],
+                                           save=['all'],
                                            crop_tilt=True,
                                            mp_pool=pool)
 
-    imageio.imwrite(
-        os.path.join(FILE_PATH, 'fastpli.example.' + FILE_BASE + '.png'),
-        np.swapaxes(fom, 0, 1))
+    imageio.imwrite(f'{FILE_OUT}.fom.png', np.swapaxes(fom, 0, 1))
 
 pool.close()
 
-print("Done - You can look at the data e.g with Fiji and the hdf5 plugin")
+print('Done - You can look at the data e.g with Fiji and the hdf5 plugin')

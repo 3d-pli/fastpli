@@ -3,13 +3,19 @@ import fastpli.model.sandbox
 import fastpli.io
 
 import numpy as np
+import os
 
 np.random.seed(42)
 
-solver = fastpli.model.solver.Solver()
-example = "curved"
+FILE_NAME = os.path.abspath(__file__)
+FILE_PATH = os.path.dirname(FILE_NAME)
+FILE_BASE = os.path.basename(FILE_NAME)
+FILE_OUT = os.path.join(FILE_PATH, f'fastpli.example.{FILE_BASE}')
 
-if example == "curved":
+solver = fastpli.model.solver.Solver()
+example = 'curved'
+
+if example == 'curved':
     phi = np.linspace(0, 1 / 2 * np.pi, 16)
     fiber_bundle_trj = 200 * np.array([np.cos(phi), np.sin(phi), 0 * phi]).T
     population = fastpli.model.sandbox.seeds.triangular_circle(20, 5)
@@ -18,7 +24,7 @@ if example == "curved":
                                                       population, fiber_radii)
     solver.fiber_bundles = [fiber_bundle]
 
-elif example == "crossing":
+elif example == 'crossing':
     fiber_bundle_trj_0 = [[-150, 0, 0], [150, 0, 0]]
     fiber_bundle_trj_1 = [[0, -150, 0], [0, 150, 0]]
 
@@ -51,17 +57,16 @@ for i in range(1000):
     overlap = solver.overlap / solver.num_col_obj if solver.num_col_obj else 0
     if i % 5 == 0:
         print(
-            f"step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%"
+            f'step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%'
         )
         solver.draw_scene()
         # solver.save_ppm(f'solver_{i:03}.ppm')  # save a ppm image
 
     if solved:
-        print(f"solved: {i}, {solver.num_obj}/{solver.num_col_obj}")
+        print(f'solved: {i}, {solver.num_obj}/{solver.num_col_obj}')
         solver.draw_scene()
         break
 
-fastpli.io.fiber_bundles.save('fastpli.example.solver.dat',
-                              solver.fiber_bundles)
+fastpli.io.fiber_bundles.save(f'{FILE_OUT}.dat', solver.fiber_bundles)
 
-print("Done")
+print('Done')
