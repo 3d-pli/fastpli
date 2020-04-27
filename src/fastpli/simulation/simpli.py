@@ -389,9 +389,9 @@ class Simpli:
                 if len(ly) != 4:
                     raise TypeError("layer != (float, float, float, char)")
 
-                if ly[1] < 0 and ly[-1] is 'r':
+                if ly[1] < 0 and ly[-1] == 'r':
                     warnings.warn("birefringence negative and radial")
-                if ly[1] > 0 and ly[-1] is 'p':
+                if ly[1] > 0 and ly[-1] == 'p':
                     warnings.warn("birefringence positive and parallel")
 
         self._fiber_bundles_properties = bundle_layer_properties
@@ -775,13 +775,15 @@ class Simpli:
 
         return tilting_stack, (rofl_direction, rofl_incl, rofl_t_rel), fom
 
-    def run_pipeline(
-        self,
-        h5f=None,
-        script=None,
-        save=['tissue', 'optical_axis', 'data', 'optic', 'epa', 'mask', 'rofl'],
-        crop_tilt=False,
-        mp_pool=None):
+    def run_pipeline(self,
+                     h5f=None,
+                     script=None,
+                     save=[
+                         'tissue', 'optical_axis', 'data', 'optic', 'epa',
+                         'mask', 'rofl'
+                     ],
+                     crop_tilt=False,
+                     mp_pool=None):
         """ Automatic tissue generation and simulation pipeline with save options """
 
         if 'all' in save:

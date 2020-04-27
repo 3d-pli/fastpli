@@ -26,11 +26,11 @@ def Rescale(fiber, scale, mod='all'):
     """
 
     fiber = np.array(fiber, copy=True)
-    if mod is 'all':
+    if mod == 'all':
         fiber *= scale
-    elif mod is 'points':
+    elif mod == 'points':
         fiber[:, :3] *= scale
-    elif mod is 'radii':
+    elif mod == 'radii':
         fiber[:, -1] *= scale
     else:
         raise ValueError('mod = [all, points, radii]')

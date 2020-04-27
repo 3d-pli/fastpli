@@ -125,7 +125,7 @@ def save(file_name, fiber_bundles, group_name='/', mode='w-'):
             save_dat(file, fiber_bundles)
     elif ext == '.h5':
         with h5py.File(file_name, mode) as h5f:
-            if not group_name or group_name is '/':
+            if not group_name or group_name == '/':
                 save_h5(h5f, fiber_bundles)
             else:
                 save_h5(h5f.create_group(group_name), fiber_bundles)
