@@ -48,7 +48,7 @@ class PliGenerator {
    const bool debug_ = false;
 #endif
 
-   double pixel_size_{0};
+   double voxel_size_{0};
    setup::Dimensions dim_;
    aabb::AABB<double, 3> volume_bb_{};
 

@@ -39,7 +39,7 @@ int PliGenerator::set_omp_num_threads(int i) {
 
 void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
                              const vm::Vec3<double> origin,
-                             const double pixel_size) {
+                             const double voxel_size) {
 
    if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0)
       throw std::invalid_argument("dim.global[any] <= 0: [" +
@@ -62,7 +62,7 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
          std::cout << "rank " << mpi_->my_rank()
                    << ": dim.origin = " << dim_.origin << std::endl;
          std::cout << "rank " << mpi_->my_rank()
-                   << ": pixel_size = " << pixel_size_ << std::endl;
+                   << ": voxel_size = " << voxel_size_ << std::endl;
       }
 
 #ifndef NDEBUG
@@ -85,7 +85,7 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
          std::cout << "dim.local = " << dim_.local << std::endl;
          std::cout << "dim.offset = " << dim_.offset << std::endl;
          std::cout << "dim.origin = " << dim_.origin << std::endl;
-         std::cout << "pixel_size = " << pixel_size_ << std::endl;
+         std::cout << "voxel_size = " << voxel_size_ << std::endl;
       }
 #ifndef NDEBUG
       if (dim_.local.x() < 0) {
@@ -107,11 +107,11 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
 #endif
    }
 
-   if (pixel_size <= 0)
-      throw std::invalid_argument("pixel_size <= 0: " +
-                                  std::to_string(pixel_size));
+   if (voxel_size <= 0)
+      throw std::invalid_argument("voxel_size <= 0: " +
+                                  std::to_string(voxel_size));
 
-   pixel_size_ = pixel_size;
+   voxel_size_ = voxel_size;
 
    volume_bb_ =
        aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
@@ -171,7 +171,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
                                          dim_.local.z(),
                                      std::numeric_limits<float>::infinity());
 
-   // size fibers with pixel_size
+   // size fibers with voxel_size
    fiber_bundles_ = fiber_bundles_org_;
    cell_populations_ = cell_populations_org_;
    if (dim_.origin != 0) {
@@ -182,9 +182,9 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    }
 
    for (auto &fb : fiber_bundles_)
-      fb.Resize(1.0 / pixel_size_);
+      fb.Resize(1.0 / voxel_size_);
    for (auto &cp : cell_populations_)
-      cp.Resize(1.0 / pixel_size_);
+      cp.Resize(1.0 / voxel_size_);
 
    int lastProgress = 0;
 
