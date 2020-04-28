@@ -9,7 +9,8 @@
 
 ## simpli
 
-* [ ] interpolation for mu, dn, ...
+* [ ] fiber_bundles have 3 copies, 1 in python, and 2 in cpp (fbs_, fbs_org_)
+* [ ] interpolation for mu, dn
 * [ ] stokes vs jones
 * [ ] polarization value px, py
 * [ ] test cells
