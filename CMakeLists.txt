@@ -50,7 +50,8 @@ IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
                         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                         RESULT_VARIABLE GIT_SUBMOD_RESULT)
         IF(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            MESSAGE(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+            MESSAGE(FATAL_ERROR string("git submodule update --init failed with"
+                              "${GIT_SUBMOD_RESULT}, please checkout submodules"))
         ENDIF()
     ENDIF()
 ENDIF()
@@ -60,7 +61,13 @@ ENDIF()
 ##########################################################################
 # Python
 FIND_PACKAGE(PythonInterp 3.6 REQUIRED)
-FIND_PACKAGE(PythonLibs   3.6 REQUIRED)
+SET(PYTHON3_INTP_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}.${PYTHON_VERSION_PATCH}")
+FIND_PACKAGE(PythonLibs ${PYTHON3_INTP_VERSION} REQUIRED)
+
+IF (NOT "${PYTHON3_INTP_VERSION}" STREQUAL "${PYTHONLIBS_VERSION_STRING}")
+   MESSAGE( SEND_ERROR string("Python Interpretor ${PYTHON3_INTP_VERSION} "
+            "and Library ${PYTHONLIBS_VERSION_STRING} versions are not equal" ))
+ENDIF()
 
 ADD_SUBDIRECTORY(lib/pybind11)
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
