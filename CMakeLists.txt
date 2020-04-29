@@ -59,8 +59,9 @@ ENDIF()
 # Libraries
 ##########################################################################
 # Python
-FIND_PACKAGE(PythonInterp 3 REQUIRED)
-FIND_PACKAGE(PythonLibs   3 REQUIRED)
+FIND_PACKAGE(PythonInterp 3.6 REQUIRED)
+FIND_PACKAGE(PythonLibs   3.6 REQUIRED)
+
 ADD_SUBDIRECTORY(lib/pybind11)
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsized-deallocation" )
