@@ -49,6 +49,13 @@ class MainTest(unittest.TestCase):
             np.array_equal(tissue, np.array(optical_axis[:, :, :, 2],
                                             dtype=int)))
 
+    def test_set_get_voi(self):
+        with self.assertRaisesRegex(TypeError, "voxel_size is not set yet"):
+            self.simpli.set_voi([0, 0, 0], [12, 12, 12])
+
+        # TODO:
+        pass
+
     def test_generator(self):
         self.simpli.dim = [10, 10, 10]
         self.simpli.voxel_size = 0.2
@@ -61,6 +68,140 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
         self.assertTrue(np.array_equal(tissue_0, tissue_1))
         self.assertTrue(np.array_equal(tissue_1.shape, optical_axis.shape[:3]))
+
+    def test_tissue_radial(self):
+        self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
+        self.fiber_bundles_properties = [[(1.0, 0.004, 1, 'r')]]
+
+        self.simpli = Simpli()
+        self.simpli.fiber_bundles = self.fiber_bundles
+        self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
+
+        self.simpli.voxel_size = 0.1
+        self.simpli.set_voi([0, 0, 0], [1.5, 1.5, 1.5])
+
+        tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
+
+        self.assertTrue(tissue.dtype == np.int32)
+        self.assertTrue(optical_axis.dtype == np.float32)
+
+        for i in range(tissue.shape[-1]):
+            self.assertTrue(np.array_equal(tissue[:, :, 0], tissue[:, :, i]))
+            np.testing.assert_array_almost_equal(
+                optical_axis[:, :, 0, :],
+                optical_axis[:, :, i, :],
+                decimal=np.finfo(optical_axis.dtype).precision)
+
+        x = self.fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
+        y = self.fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
+        r = self.fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
+
+        for i in range(tissue.shape[0]):
+            for j in range(tissue.shape[1]):
+                t = 0 if (x - (i + 0.5))**2 + (y - (j + 0.5))**2 > r**2 else 1
+                self.assertTrue(tissue[i, j, 0] == t)
+
+                if t:
+                    phi = np.arctan2((j + 0.5) - y, (i + 0.5) - x)
+                    np.testing.assert_array_almost_equal(
+                        optical_axis[i, j, 0, :],
+                        [np.cos(phi), np.sin(phi), 0],
+                        decimal=np.finfo(optical_axis.dtype).precision,
+                        err_msg=f"x:{x}, y:{y}, i:{i},j:{j}")
+
+    def test_tissue_parallel(self):
+        self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
+        self.fiber_bundles_properties = [[(1.0, 0.004, 1, 'p')]]
+
+        self.simpli = Simpli()
+        self.simpli.fiber_bundles = self.fiber_bundles
+        self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
+
+        self.simpli.voxel_size = 0.1
+        self.simpli.set_voi([0, 0, 0], [1.5, 1.5, 1.5])
+
+        tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
+
+        self.assertTrue(tissue.dtype == np.int32)
+        self.assertTrue(optical_axis.dtype == np.float32)
+
+        for i in range(tissue.shape[-1]):
+            self.assertTrue(np.array_equal(tissue[:, :, 0], tissue[:, :, i]))
+            np.testing.assert_array_almost_equal(
+                optical_axis[:, :, 0, :],
+                optical_axis[:, :, i, :],
+                decimal=np.finfo(optical_axis.dtype).precision)
+
+        x = self.fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
+        y = self.fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
+        r = self.fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
+
+        for i in range(tissue.shape[0]):
+            for j in range(tissue.shape[1]):
+                t = 0 if (x - (i + 0.5))**2 + (y - (j + 0.5))**2 > r**2 else 1
+                self.assertTrue(tissue[i, j, 0] == t)
+
+                if t:
+                    np.testing.assert_array_almost_equal(
+                        optical_axis[i, j, 0, :], [0, 0, 1],
+                        decimal=np.finfo(optical_axis.dtype).precision,
+                        err_msg=f"x:{x}, y:{y}, i:{i},j:{j}")
+
+    def test_tissue_layered(self):
+        self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
+        self.fiber_bundles_properties = [[(0.3, 0.004, 1, 'p'),
+                                          (0.6, 0.004, 1, 'b'),
+                                          (1.0, 0.004, 1, 'r')]]
+
+        self.simpli = Simpli()
+        self.simpli.fiber_bundles = self.fiber_bundles
+        self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
+
+        self.simpli.voxel_size = 0.1
+        self.simpli.set_voi([0, 0, 0], [1.5, 1.5, 1.5])
+
+        tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
+
+        self.assertTrue(tissue.dtype == np.int32)
+        self.assertTrue(optical_axis.dtype == np.float32)
+
+        for i in range(tissue.shape[-1]):
+            self.assertTrue(np.array_equal(tissue[:, :, 0], tissue[:, :, i]))
+            np.testing.assert_array_almost_equal(
+                optical_axis[:, :, 0, :],
+                optical_axis[:, :, i, :],
+                decimal=np.finfo(optical_axis.dtype).precision)
+
+        x = self.fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
+        y = self.fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
+        r = self.fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
+
+        for i in range(tissue.shape[0]):
+            for j in range(tissue.shape[1]):
+                rr = (x - (i + 0.5))**2 + (y - (j + 0.5))**2
+                t = 0 if rr > r**2 else 1
+
+                if t:
+                    if np.sqrt(rr) < 0.3 * r:
+                        self.assertTrue(tissue[i, j, 0] == 1)
+                        np.testing.assert_array_almost_equal(
+                            optical_axis[i, j, 0, :], [0, 0, 1],
+                            decimal=np.finfo(optical_axis.dtype).precision,
+                            err_msg=f"x:{x}, y:{y}, i:{i},j:{j}")
+                    elif np.sqrt(rr) < 0.6 * r:
+                        self.assertTrue(tissue[i, j, 0] == 2)
+                        self.assertTrue(
+                            np.array_equal(optical_axis[i, j, 0, :], [0, 0, 0]))
+                    else:
+                        self.assertTrue(tissue[i, j, 0] == 3)
+                        phi = np.arctan2((j + 0.5) - y, (i + 0.5) - x)
+                        np.testing.assert_array_almost_equal(
+                            optical_axis[i, j, 0, :],
+                            [np.cos(phi), np.sin(phi), 0],
+                            decimal=np.finfo(optical_axis.dtype).precision,
+                            err_msg=f"x:{x}, y:{y}, i:{i},j:{j}")
+                else:
+                    self.assertTrue(tissue[i, j, 0] == t)
 
     def test_cell_population(self):
         self.simpli.voxel_size = 1

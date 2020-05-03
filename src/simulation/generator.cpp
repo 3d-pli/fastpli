@@ -367,23 +367,25 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    fiber_segment_bb.max += max_radius;
 
    fiber_segment_bb.Intersect(volume_bb_);
-   const auto min = fiber_segment_bb.min;
-   const auto max = fiber_segment_bb.max;
+   const auto min = vm::cast<long long>(fiber_segment_bb.min);
+   const auto max = vm::cast<long long>(fiber_segment_bb.max + 0.5);
 
    double t{};
    vm::Vec3<double> min_point{};
    const auto &layers_scale_sqr = fb.layers_scale_sqr();
 
-   for (long long x = std::floor(min.x()); x < std::floor(max.x()); x++) {
+   // FIXME: TEST!!!
+   for (long long x = std::floor(min.x()); x < max.x(); x++) {
 
       if (omp_in_parallel())
          // because of omp parallel for thread safe operations
          if (x % omp_get_max_threads() != omp_get_thread_num())
             continue;
 
-      for (long long y = std::floor(min.y()); y < std::floor(max.y()); y++) {
-         for (long long z = std::floor(min.z()); z < std::floor(max.z()); z++) {
-            vm::Vec3<double> point(x, y, z);
+      for (long long y = std::floor(min.y()); y < max.y(); y++) {
+         for (long long z = std::floor(min.z()); z < max.z(); z++) {
+            vm::Vec3<double> point(x + 0.5, y + 0.5,
+                                   z + 0.5); // point in center of voxel -> cart
 
             std::tie(min_point, t) =
                 ShortestPointToLineSegmentVecCalculation(point, p, q);
@@ -394,7 +396,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
             if (dist_squ > f_ly_sqr * ly_r * ly_r)
                continue;
 
-            const size_t ind =
+            const size_t ind = // ind in voxel space
                 (x - dim_.offset.x()) * dim_.local.y() * dim_.local.z() +
                 (y - dim_.offset.y()) * dim_.local.z() + (z - dim_.offset.z());
 #ifndef NDEBUG

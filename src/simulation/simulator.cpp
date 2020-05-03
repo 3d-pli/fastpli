@@ -443,20 +443,17 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               double z) const {
 
    // Trilinear interpolate
-   const auto x0 = std::max(llfloor(x), 0LL);
-   const auto y0 = std::max(llfloor(y), 0LL);
-   const auto z0 = std::max(llfloor(z), 0LL);
+   // FIXME: TEST!!!
+   const auto x0 =
+       std::min(std::max(llfloor(x - 0.5), 0LL), dim_.local.x() - 1);
+   const auto y0 =
+       std::min(std::max(llfloor(y - 0.5), 0LL), dim_.local.y() - 1);
+   const auto z0 =
+       std::min(std::max(llfloor(z - 0.5), 0LL), dim_.local.z() - 1);
 
-   const auto x1 = std::min(llceil(x), dim_.local.x() - 1);
-   const auto y1 = std::min(llceil(y), dim_.local.y() - 1);
-   const auto z1 = std::min(llceil(z), dim_.local.z() - 1);
-
-   assert(x0 < dim_.local.x());
-   assert(y0 < dim_.local.y());
-   assert(z0 < dim_.local.z());
-   assert(x1 >= 0LL);
-   assert(y1 >= 0LL);
-   assert(z1 >= 0LL);
+   const auto x1 = std::min(std::max(llceil(x - 0.5), 0LL), dim_.local.x() - 1);
+   const auto y1 = std::min(std::max(llceil(y - 0.5), 0LL), dim_.local.y() - 1);
+   const auto z1 = std::min(std::max(llceil(z - 0.5), 0LL), dim_.local.z() - 1);
 
    if (x0 == x1 && y0 == y1 && z0 == z1)
       return GetVec(x0, y0, z0);
@@ -473,7 +470,7 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
       zd = 0;
 
    // only interpolate if same label id
-   const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z));
+   const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z)); // NN
    const auto l000 = GetLabel(x0, y0, z0) == label;
    const auto l100 = GetLabel(x1, y0, z0) == label;
    const auto l010 = GetLabel(x0, y1, z0) == label;
