@@ -30,10 +30,10 @@ template <typename T> class NpArray {
       assert(i < size_);
       return data_[i];
    }
-   // T &operator[](size_t i) {
-   //    assert(i < size_);
-   //    return data_[i];
-   // }
+   T &operator[](size_t i) {
+      assert(i < size_);
+      return data_[i];
+   }
 
    // getter
    size_t size() const { return size_; }
@@ -41,7 +41,7 @@ template <typename T> class NpArray {
    const std::vector<size_t> &shape() const { return shape_; }
 
  private:
-   T const *data_ = nullptr;
+   T *const data_;
    size_t size_ = 0;
    std::vector<size_t> shape_{};
 };
