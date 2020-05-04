@@ -442,6 +442,11 @@ vm::Vec3<double> VectorOrientationAddition(vm::Vec3<double> v,
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               double z) const {
 
+   const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z)); // NN
+   if (label == 0) { // TEST sollte gleich sein, da unten == label
+      return vm::Vec3<double>(0, 0, 0);
+   }
+
    // Trilinear interpolate
    // FIXME: TEST!!!
    const auto x0 =
@@ -470,7 +475,7 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
       zd = 0;
 
    // only interpolate if same label id
-   const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z)); // NN
+   // const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z)); // NN
    const auto l000 = GetLabel(x0, y0, z0) == label;
    const auto l100 = GetLabel(x1, y0, z0) == label;
    const auto l010 = GetLabel(x0, y1, z0) == label;
@@ -756,4 +761,77 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    }
 
    return false;
+}
+
+// #############################################################################
+// only for testing
+// #############################################################################
+
+void PliSimulator::RunInterpolation(
+    const vm::Vec3<long long> &dim, const vm::Vec3<long long> &dim_int,
+    object::container::NpArray<int> label_field,
+    object::container::NpArray<float> vector_field,
+    object::container::NpArray<int> label_field_int,
+    object::container::NpArray<float> vector_field_int,
+    const bool interpolate) {
+
+   dim_.local = dim;
+
+   auto const scale = dim_int.x() / static_cast<double>(dim.x());
+
+   if (dim.x() * dim.y() * dim.z() !=
+       static_cast<long long>(label_field.size())) {
+      std::cerr << "label_field.size(): " << label_field.size() << std::endl;
+      Abort(30000 + __LINE__);
+   }
+   if (dim.x() * dim.y() * dim.z() * 3 !=
+       static_cast<long long>(vector_field.size())) {
+      std::cerr << "vector_field.size(): " << vector_field.size() << std::endl;
+      Abort(30000 + __LINE__);
+   }
+   if (dim_int.x() * dim_int.y() * dim_int.z() !=
+       static_cast<long long>(label_field_int.size())) {
+      std::cerr << "label_field_int.size(): " << label_field_int.size()
+                << std::endl;
+      Abort(30000 + __LINE__);
+   }
+   if (dim_int.x() * dim_int.y() * dim_int.z() * 3 !=
+       static_cast<long long>(vector_field_int.size())) {
+      std::cerr << "vector_field_int.size(): " << vector_field_int.size()
+                << std::endl;
+      Abort(30000 + __LINE__);
+   }
+   // transfer data to class
+   label_field_ =
+       std::make_unique<object::container::NpArray<int>>(label_field);
+   vector_field_ =
+       std::make_unique<object::container::NpArray<float>>(vector_field);
+   auto label_int =
+       std::make_unique<object::container::NpArray<int>>(label_field_int);
+   auto vector_int =
+       std::make_unique<object::container::NpArray<float>>(vector_field_int);
+
+   if (!setup_)
+      setup_ = std::make_unique<setup::Setup>();
+
+#pragma omp parallel for
+   for (auto x = 0LL; x < dim_int.x(); x++) {
+      for (auto y = 0LL; y < dim_int.y(); y++) {
+         for (auto z = 0LL; z < dim_int.z(); z++) {
+            auto const xs = (0.5 + x) / scale;
+            auto const ys = (0.5 + y) / scale;
+            auto const zs = (0.5 + z) / scale;
+
+            const size_t idx =
+                x * dim_int.y() * dim_int.z() + y * dim_int.z() + z;
+
+            (*label_int)[idx] = GetLabel(llfloor(xs), llfloor(ys), llfloor(zs));
+
+            auto const vec = GetVec(xs, ys, zs, interpolate);
+            (*vector_int)[idx * 3 + 0] = vec[0];
+            (*vector_int)[idx * 3 + 1] = vec[1];
+            (*vector_int)[idx * 3 + 2] = vec[2];
+         }
+      }
+   }
 }

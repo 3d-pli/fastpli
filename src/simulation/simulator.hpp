@@ -35,6 +35,15 @@ class PliSimulator {
 
    int set_omp_num_threads(int num);
 
+   // only testing
+   void RunInterpolation(const vm::Vec3<long long> &dim,
+                         const vm::Vec3<long long> &dim_int,
+                         object::container::NpArray<int> label_field,
+                         object::container::NpArray<float> vector_field,
+                         object::container::NpArray<int> label_field_int,
+                         object::container::NpArray<float> vector_field_int,
+                         const bool interpolate);
+
  private:
 #ifndef NDEBUG
    const bool debug_ = true;

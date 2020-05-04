@@ -76,5 +76,28 @@ PYBIND11_MODULE(__simulation, m) {
            },
            py::arg("dim"), py::arg("label_field"), py::arg("vector_field"),
            py::arg("properties"), py::arg("theta") = 0, py::arg("phi") = 0)
-       .def("set_omp_num_threads", &PliSimulator::set_omp_num_threads);
+       .def("set_omp_num_threads", &PliSimulator::set_omp_num_threads)
+       .def(
+           "__field_interpolation",
+           [](PliSimulator &self, std::array<long long, 3> dim,
+              std::array<long long, 3> dim_int,
+              py::array_t<int, py::array::c_style> label_array,
+              py::array_t<float, py::array::c_style> vector_array,
+              py::array_t<int, py::array::c_style> label_int_array,
+              py::array_t<float, py::array::c_style> vector_int_array,
+              bool interpolate) {
+              auto label_container = object::NpArray2Container(label_array);
+              auto vector_container = object::NpArray2Container(vector_array);
+              auto label_int_container =
+                  object::NpArray2Container(label_int_array);
+              auto vector_int_container =
+                  object::NpArray2Container(vector_int_array);
+
+              self.RunInterpolation(dim, dim_int, label_container,
+                                    vector_container, label_int_container,
+                                    vector_int_container, interpolate);
+           },
+           py::arg("dim"), py::arg("dim_int"), py::arg("label_field"),
+           py::arg("vector_field"), py::arg("label_field_int"),
+           py::arg("vector_field_int"), py::arg("interpolate"));
 }
