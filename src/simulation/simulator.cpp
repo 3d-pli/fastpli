@@ -442,13 +442,13 @@ vm::Vec3<double> VectorOrientationAddition(vm::Vec3<double> v,
 vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
                                               double z) const {
 
-   const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z)); // NN
-   if (label == 0) { // TEST sollte gleich sein, da unten == label
+   const auto label =
+       GetLabel(llfloor(x), llfloor(y), llfloor(z)); // nearest neighbor
+   if (label == 0) {
       return vm::Vec3<double>(0, 0, 0);
    }
 
    // Trilinear interpolate
-   // FIXME: TEST!!!
    const auto x0 =
        std::min(std::max(llfloor(x - 0.5), 0LL), dim_.local.x() - 1);
    const auto y0 =
@@ -475,7 +475,6 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
       zd = 0;
 
    // only interpolate if same label id
-   // const auto label = GetLabel(llfloor(x), llfloor(y), llfloor(z)); // NN
    const auto l000 = GetLabel(x0, y0, z0) == label;
    const auto l100 = GetLabel(x1, y0, z0) == label;
    const auto l010 = GetLabel(x0, y1, z0) == label;
