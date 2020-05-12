@@ -14,6 +14,7 @@ from .. import version
 
 import numpy as np
 import warnings
+import sys
 
 
 class Simpli:
@@ -574,6 +575,7 @@ class Simpli:
         h5f.attrs['fastpli/compiler'] = version.__compiler__
         h5f.attrs['fastpli/libraries'] = version.__libraries__
         h5f.attrs['fastpli/pip_freeze'] = tools.helper.pip_freeze()
+        h5f.attrs['fastpli/system'] = sys.version
         if script:
             h5f.attrs['script'] = script
 
