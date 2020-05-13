@@ -14,6 +14,7 @@ import multiprocessing as mp
 pool = mp.Pool(2)
 
 import imageio
+import matplotlib.pyplot as plt
 
 np.random.seed(42)
 
@@ -51,6 +52,7 @@ solver.obj_mean_length = 4 * 20
 solver.omp_num_threads = 2
 
 # run solver
+print(f'Begin solving process:')
 solver.draw_scene()
 for i in range(1000):
     solved = solver.step()
@@ -84,7 +86,7 @@ solver.close_scene()
 
 #%% Simulation
 
-print(f'creating file: {FILE_OUT}')
+print(f'creating file: {FILE_OUT}.h5')
 with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     # save script
     h5f['version'] = fastpli.__version__
@@ -126,8 +128,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
                 data2image(tissue[:, :, i] / m * 255).astype(np.uint8))
 
     # Simulate PLI Measurement
-    simpli.filter_rotations = np.deg2rad(np.linspace(0, 180, 18,
-                                                     endpoint=False))
+    simpli.filter_rotations = np.deg2rad(np.linspace(0, 180, 9, endpoint=False))
     simpli.light_intensity = 26000  # a.u.
     simpli.interpolate = True
     simpli.wavelength = 525  # in nm
@@ -147,7 +148,6 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         h5f['simulation/data/' + str(t)] = images
 
         # apply optic to simulation
-        print(images.shape)
         images = simpli.apply_optic(images)
         h5f['simulation/optic/' + str(t)] = images
 
@@ -195,5 +195,31 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         data2image(
             fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
 
-print('Done')
-print('You can look at the data e.g with Fiji and the hdf5 plugin')
+print('simulation Done')
+print('You can look at the data e.g. with Fiji and the hdf5 plugin')
+
+#%%
+print('Plotting input and output orientations')
+fig, axs = plt.subplots(1, 2, subplot_kw=dict(projection="polar"))
+fbs_phi, fbs_theta = fastpli.analysis.orientation.fiber_bundles(
+    solver.fiber_bundles)
+
+pc = fastpli.analysis.orientation.histogram(fbs_phi,
+                                            fbs_theta,
+                                            axs[0],
+                                            fun=lambda x: np.log(x + 1))
+plt.colorbar(pc, ax=axs[0])
+
+pc = fastpli.analysis.orientation.histogram(rofl_direction,
+                                            np.pi / 2 - rofl_incl,
+                                            axs[1],
+                                            fun=lambda x: np.log(x + 1))
+plt.colorbar(pc, ax=axs[1])
+
+for ax in axs:
+    ax.set_rmax(90)
+    ax.set_rticks(range(0, 90, 10))
+    ax.set_rlabel_position(22.5)
+    ax.set_yticklabels([])
+    ax.grid(True)
+plt.show()
