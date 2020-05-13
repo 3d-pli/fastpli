@@ -2,6 +2,7 @@
 
 ## Issues
 
+* mpi results and non mpi results can differ around eps
 * multiprocessing has initial high cpu values with model.solver
 * simpli.pixel_size does not call property
 * nan values detected in light signal (for 90degree fibers?)

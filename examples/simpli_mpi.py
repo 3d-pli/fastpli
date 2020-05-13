@@ -17,14 +17,21 @@ FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 FILE_OUT = os.path.join(FILE_PATH, f'fastpli.example.{FILE_BASE}')
 
-print(f'creating file: {FILE_OUT}.h5')
-with h5py.File(f'{FILE_OUT}.h5', 'w', driver='mpio',
-               comm=MPI.COMM_WORLD) as h5f:
+print(f'creating file: {FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5')
 
-    # Setup Simpli for Tissue Generation
+# Setup Simpli for Tissue Generation
+
+# with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
+#                'w',
+#                driver='mpio',
+#                comm=MPI.COMM_WORLD) as h5f:
+with h5py.File(
+        f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}_{MPI.COMM_WORLD.Get_rank()}.h5',
+        'w') as h5f:
     simpli = fastpli.simulation.Simpli(MPI.COMM_WORLD)
     simpli.omp_num_threads = 1
     simpli.voxel_size = 0.5  # in µm meter
+    # simpli.set_voi([-20, -5, -10], [20, 5, 10])  # in µm meter
     simpli.set_voi([-60] * 3, [60] * 3)  # in µm meter
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, 'cube.dat'))
@@ -46,13 +53,14 @@ with h5py.File(f'{FILE_OUT}.h5', 'w', driver='mpio',
     print('Run Generation:')
     tissue, optical_axis, tissue_properties = simpli.generate_tissue()
 
-    simpli.save_mpi_array_as_h5(h5f, tissue.astype(np.uint16), 'tissue/tissue')
-    simpli.save_mpi_array_as_h5(h5f, optical_axis, 'tissue/optical_axis')
+    h5f['tissue/tissue'] = tissue.astype(np.uint16)
+    h5f['tissue/optical_axis'] = optical_axis
 
     # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000  # a.u.
     simpli.interpolate = True
+    # simpli.untilt_sensor_view = True
     simpli.wavelength = 525  # in nm
     simpli.pixel_size = 20  # in µm meter
     simpli.sensor_gain = 3
@@ -63,72 +71,71 @@ with h5py.File(f'{FILE_OUT}.h5', 'w', driver='mpio',
     tilting_stack = [None] * 5
     print('Run Simulation:')
     for t, (theta, phi) in enumerate(simpli.tilts):
-        print(round(np.rad2deg(theta), 1), round(np.rad2deg(phi), 1))
+        print(f'theta: {np.rad2deg(theta):.1f}, phi: {np.rad2deg(phi):.1f}')
         images = simpli.run_simulation(tissue, optical_axis, tissue_properties,
                                        theta, phi)
 
-        simpli.save_mpi_array_as_h5(h5f,
-                                    images,
-                                    'simulation/data/' + str(t),
-                                    lock_dim=2)
+        h5f['simulation/data/' + str(t)] = images
 
 # to apply optical resolution, the hole dataset has to be known
 MPI.COMM_WORLD.barrier()
-del label_field, vec_field  # free memory
+del optical_axis  # free memory
 
-if MPI.COMM_WORLD.Get_rank() == 0:
-    with h5py.File(f'{FILE_OUT}.h5', 'a') as h5f:
+# TRANSMITE IMAGES to every rank?
 
-        # save script
-        h5f['version'] = fastpli.__version__
-        with open(os.path.abspath(__file__), 'r') as f:
-            h5f['parameter/script'] = f.read()
-            h5f['parameter/pip_freeze'] = fastpli.tools.helper.pip_freeze()
-        h5f['tissue/tissue_properties'] = tissue_properties
+# if MPI.COMM_WORLD.Get_rank() == 0:
+#     with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5', 'a') as h5f:
 
-        print("Run Optic:")
-        for t, (theta, phi) in enumerate(simpli.tilts):
+#         # save script
+#         h5f['version'] = fastpli.__version__
+#         h5f['parameter/pip_freeze'] = fastpli.tools.helper.pip_freeze()
+#         h5f['tissue/tissue_properties'] = tissue_properties
+#         with open(os.path.abspath(__file__), 'r') as f:
+#             h5f['parameter/script'] = f.read()
 
-            # load data
-            image = h5f['data/' + str(t)][:]
+#         print("Run Optic:")
+#         for t, (theta, phi) in enumerate(simpli.tilts):
 
-            # apply optic to simulation
-            images = simpli.apply_optic(images)
-            h5f['simulation/optic/' + str(t)] = images
+#             # load data
+#             images = h5f['simulation/data/' + str(t)][:]
 
-            # calculate modalities
-            epa = simpli.apply_epa(images)
-            h5f['analysis/epa/' + str(t) + '/transmittance'] = epa[0]
-            h5f['analysis/epa/' + str(t) + '/direction'] = np.rad2deg(epa[1])
-            h5f['analysis/epa/' + str(t) + '/retardation'] = epa[2]
+#             # apply optic to simulation
+#             images = simpli.apply_optic(images)
+#             h5f['simulation/optic/' + str(t)] = images
 
-            tilting_stack[t] = images
+#             # calculate modalities
+#             epa = simpli.apply_epa(images)
+#             h5f['analysis/epa/' + str(t) + '/transmittance'] = epa[0]
+#             h5f['analysis/epa/' + str(t) + '/direction'] = np.rad2deg(epa[1])
+#             h5f['analysis/epa/' + str(t) + '/retardation'] = epa[2]
 
-        # save mask for analysis
-        mask = np.sum(tissue, 2) > 0
-        mask = simpli.apply_optic_resample(1.0 * mask) > 0.1
-        h5f['simulation/optic/mask'] = np.uint8(mask)
-        mask = None  # keep analysing all pixels
+#             tilting_stack[t] = images
 
-        # TODO: This can be parallel again
-        print('Run ROFL analysis:')
-        rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
-            tilting_stack, mask=mask)
+#         # save mask for analysis
+#         mask = np.sum(tissue, 2) > 0
+#         mask = simpli.apply_optic_resample(1.0 * mask) > 0.1
+#         h5f['simulation/optic/mask'] = np.uint8(mask)
+#         mask = None  # keep analysing all pixels
 
-        h5f['analysis/rofl/direction'] = np.rad2deg(rofl_direction)
-        h5f['analysis/rofl/inclination'] = np.rad2deg(rofl_incl)
-        h5f['analysis/rofl/trel'] = rofl_t_rel
+#         # TODO: This can be parallel again
+#         print('Run ROFL analysis:')
+#         rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
+#             tilting_stack, mask=mask)
 
-        def data2image(data):
-            return np.swapaxes(np.flip(data, 1), 0, 1)
+#         h5f['analysis/rofl/direction'] = np.rad2deg(rofl_direction)
+#         h5f['analysis/rofl/inclination'] = np.rad2deg(rofl_incl)
+#         h5f['analysis/rofl/trel'] = rofl_t_rel
 
-        print(f'creating Fiber Orientation Map: {FILE_OUT}.png')
+#         def data2image(data):
+#             return np.swapaxes(np.flip(data, 1), 0, 1)
 
-        imageio.imwrite(
-            f'{FILE_OUT}.png',
-            data2image(
-                fastpli.analysis.images.fom_hsv_black(rofl_direction,
-                                                      rofl_incl)))
+#         print(f'creating Fiber Orientation Map: {FILE_OUT}.png')
 
-    print('Done')
-    print('You can look at the data e.g with Fiji and the hdf5 plugin')
+#         imageio.imwrite(
+#             f'{FILE_OUT}.png',
+#             data2image(
+#                 fastpli.analysis.images.fom_hsv_black(rofl_direction,
+#                                                       rofl_incl)))
+
+#     print('Done')
+#     print('You can look at the data e.g with Fiji and the hdf5 plugin')

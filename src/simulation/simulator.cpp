@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <numeric>
 #include <vector>
 
 #include "include/omp.hpp"
@@ -69,12 +70,16 @@ int PliSimulator::set_omp_num_threads(int i) {
       else
          omp_set_num_threads(i);
    }
-
    return omp_get_max_threads();
 }
 
 void PliSimulator::SetMPIComm(const MPI_Comm comm) {
-   mpi_ = std::make_unique<MyMPI>(comm);
+   auto mpi = std::make_unique<MyMPI>(comm);
+   if (mpi->size() > 1)
+      mpi_ = std::move(mpi);
+   else
+      std::cout << "WARNING: PliSimulator: only one processor found."
+                << std::endl;
 }
 
 void PliSimulator::SetSetup(const setup::Setup setup) {
@@ -211,14 +216,16 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    const vm::Vec3<double> light_step = light_dir_vec * setup_->step_size;
 
    std::vector<double> intensity_signal(
-       dim_.local.x() * dim_.local.y() * n_rho,
-       std::numeric_limits<double>::quiet_NaN());
+       dim_.global.x() * dim_.global.y() * n_rho,
+       -std::numeric_limits<double>::infinity());
 
    auto light_positions = CalcStartingLightPositions(tilt);
    // add half step so that the coordinate is in the center of its current light
    // path
    for (auto &lp : light_positions)
       lp.tissue += light_step * 0.5;
+
+   int num_total_mpi_comm = 0;
 
    while (!light_positions.empty()) {
 #pragma omp parallel for schedule(guided)
@@ -233,10 +240,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
          if (!stored_mpi_s_vec_.empty()) {
 #ifndef NDEBUG
-            if ((s + 1) * n_rho > stored_mpi_s_vec_.size()) {
-               std::cerr << "stored_mpi_s_vec_" << std::endl;
+            if ((s + 1) * n_rho > stored_mpi_s_vec_.size())
                Abort(30000 + __LINE__);
-            }
 #endif
             std::copy(stored_mpi_s_vec_.begin() + s * n_rho,
                       stored_mpi_s_vec_.begin() + (s + 1) * n_rho,
@@ -258,10 +263,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
             const auto label = GetLabel(local_pos);
 #ifndef NDEBUG
-            if (label >= static_cast<long long>(properties_->size())) {
-               std::cerr << "label ind >= properties.size()" << std::endl;
+            if (label >= static_cast<long long>(properties_->size()))
                Abort(30000 + __LINE__);
-            }
 #endif
 
             // calculate physical parameters
@@ -283,10 +286,8 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             const auto d_rel = dn * 4.0 * thickness / lambda;
 
 #ifndef NDEBUG
-            if (vec.x() == 0 && vec.y() == 0 && vec.z() == 0) {
-               std::cerr << "vec == 0" << std::endl;
+            if (vec.x() == 0 && vec.y() == 0 && vec.z() == 0)
                Abort(30000 + __LINE__);
-            }
 #endif
 
             if (tilt.theta != 0)
@@ -317,29 +318,26 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
 #ifndef NDEBUG
                if (std::isnan(s_vec[rho][0]) || std::isnan(s_vec[rho][1]) ||
-                   std::isnan(s_vec[rho][2]) || std::isnan(s_vec[rho][3])) {
-                  std::cerr << "nan: " << ccd_pos << "::" << local_pos
-                            << std::endl;
+                   std::isnan(s_vec[rho][2]) || std::isnan(s_vec[rho][3]))
                   Abort(30000 + __LINE__);
-               }
 #endif
             }
          }
 
          if (flag_save_ray) {
             // save only, if light ray has reached the end of the volume
-            size_t ccd_idx = (ccd_pos.x() - dim_.offset.x()) * dim_.local.y() +
-                             (ccd_pos.y() - dim_.offset.y());
+            size_t ccd_idx = ccd_pos.x() * dim_.global.y() + ccd_pos.y();
 
 #ifndef NDEBUG
-            if (ccd_idx * n_rho >= intensity_signal.size()) {
-               std::cerr << "int signal: " << ccd_pos << std::endl;
+            if (ccd_idx * n_rho >= intensity_signal.size())
                Abort(30000 + __LINE__);
-            }
 #endif
             for (auto rho = 0u; rho < n_rho; rho++) {
                s_vec[rho] = vm::dot(polarizer_y, s_vec[rho]);
-               assert(!std::isnan(s_vec[rho][0]));
+#ifndef NDEBUG
+               if (std::isnan(s_vec[rho][0]))
+                  Abort(30000 + __LINE__);
+#endif
                intensity_signal[ccd_idx * n_rho + rho] = s_vec[rho][0];
             }
          }
@@ -350,20 +348,46 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
       if (mpi_) {
          // stay in communication loop until all processes do not have to
          // communicate anymore.
-         int num_communications = 0;
-         while (light_positions.empty() &&
-                mpi_->Allreduce(light_positions.size()) != 0) {
+         int num_remaining_light_elm = -1;
+         while (num_remaining_light_elm != 0 && light_positions.empty()) {
             std::tie(light_positions, stored_mpi_s_vec_) =
                 mpi_->CommunicateData();
-            num_communications = mpi_->Allreduce(light_positions.size());
+            num_remaining_light_elm =
+                mpi_->AllreduceSum(light_positions.size());
             if (debug_) {
-               std::cout << "rank " << mpi_->my_rank()
-                         << ": num_communications: " << num_communications
-                         << std::endl;
+               std::cout << "rank " << mpi_->rank()
+                         << ": num_remaining_light_elm: "
+                         << num_remaining_light_elm << std::endl;
+            }
+            num_total_mpi_comm++;
+            if (num_total_mpi_comm > knum_max_mpi_comm_) {
+               std::cerr << "mpi: num_total_mpi_comm > "
+                            "num_max_total_communications."
+                         << ": light_positions.size(): "
+                         << light_positions.size() << std::endl;
+               Abort(30000 + __LINE__);
             }
          }
       }
    }
+#ifndef NDEBUG
+   if (mpi_) {
+      std::vector<int> mask(intensity_signal.size() / n_rho);
+      for (size_t i = 0; i < mask.size(); i++)
+         mask[i] = std::isnormal(intensity_signal[i * n_rho]);
+      mask = mpi_->AllreduceSum(mask);
+
+      for (size_t i = 0; i < mask.size(); i++) {
+         if (mask[i] != 1) {
+            Abort(30000 + __LINE__);
+         }
+      }
+   }
+#endif
+
+   if (mpi_)
+      intensity_signal = mpi_->AllreduceMax(intensity_signal);
+
    return intensity_signal;
 }
 
@@ -393,10 +417,8 @@ int PliSimulator::GetLabel(const long long x, const long long y,
        x * dim_.local.y() * dim_.local.z() + y * dim_.local.z() + z;
 
 #ifndef NDEBUG
-   if (idx >= label_field_->size()) {
-      std::cerr << "idx >= label_field_->size()" << std::endl;
+   if (idx >= label_field_->size())
       Abort(30000 + __LINE__);
-   }
 #endif
 
    return (*label_field_)[idx];
@@ -522,6 +544,8 @@ PliSimulator::LightDirectionComponent(const vm::Vec3<double> &dir_vec) const {
 
 std::vector<setup::Coordinates>
 PliSimulator::CalcStartingLightPositions(const setup::Tilting &tilt) {
+   // TODO: combine CalcStartingLightPositionsTilted and
+   // CalcStartingLightPositionsUntilted
    if (setup_->untilt_sensor_view)
       return CalcStartingLightPositionsUntilted(tilt);
    else
@@ -598,18 +622,18 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
          const double tis_x = tissue.x() - shift.x();
          const double tis_y = tissue.y() - shift.y();
 
-         // check if procesed by another mpi rank
+         // check if processed by another mpi rank
          if (mpi_) {
-            const auto my_coords = mpi_->my_coords();
-            const auto glob_coords = mpi_->global_coords();
-            if (my_coords.x() != 0 && std::floor(tis_x) < dim_.offset.x())
+            const auto coordinate = mpi_->coordinate();
+            const auto global_coordinate = mpi_->global_coordinate();
+            if (coordinate.x() != 0 && std::floor(tis_x) < dim_.offset.x())
                continue;
-            if (my_coords.x() != glob_coords.x() - 1 &&
+            if (coordinate.x() != global_coordinate.x() - 1 &&
                 std::floor(tis_x) > (dim_.offset.x() + dim_.local.x() - 1))
                continue;
-            if (my_coords.y() != 0 && std::floor(tis_y) < dim_.offset.y())
+            if (coordinate.y() != 0 && std::floor(tis_y) < dim_.offset.y())
                continue;
-            if (my_coords.y() != glob_coords.y() - 1 &&
+            if (coordinate.y() != global_coordinate.y() - 1 &&
                 std::floor(tis_y) > (dim_.offset.y() + dim_.local.y() - 1))
                continue;
          }
@@ -623,10 +647,10 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
 
    if (light_positions.size() == 0) {
       if (mpi_)
-         std::cout << mpi_->my_rank() << ": Warning, light_positions is empty"
-                   << std::endl;
+         std::cout << "rank " << mpi_->rank()
+                   << ": Warning, light_positions is empty" << std::endl;
       else
-         std::cout << 0 << ": Warning, light_positions is empty" << std::endl;
+         std::cout << "Warning, light_positions is empty" << std::endl;
    }
 
    return light_positions;
@@ -649,18 +673,18 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
          const double tis_x = (ccd_x + 0.5) - 0.5 * shift.x();
          const double tis_y = (ccd_y + 0.5) - 0.5 * shift.y();
 
-         // check if procesed by another process
+         // check if processed by another process
          if (mpi_) {
-            auto my_coords = mpi_->my_coords();
-            auto glob_coords = mpi_->global_coords();
-            if (my_coords.x() != 0 && std::floor(tis_x) < dim_.offset.x())
+            auto coordinate = mpi_->coordinate();
+            auto global_coordinate = mpi_->global_coordinate();
+            if (coordinate.x() != 0 && std::floor(tis_x) <= dim_.offset.x())
                continue;
-            if (my_coords.x() != glob_coords.x() - 1 &&
+            if (coordinate.x() != global_coordinate.x() - 1 &&
                 std::floor(tis_x) > (dim_.offset.x() + dim_.local.x() - 1))
                continue;
-            if (my_coords.y() != 0 && std::floor(tis_y) < dim_.offset.y())
+            if (coordinate.y() != 0 && std::floor(tis_y) <= dim_.offset.y())
                continue;
-            if (my_coords.y() != glob_coords.y() - 1 &&
+            if (coordinate.y() != global_coordinate.y() - 1 &&
                 std::floor(tis_y) > (dim_.offset.y() + dim_.local.y() - 1))
                continue;
          }
@@ -674,10 +698,10 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
 
    if (light_positions.size() == 0) {
       if (mpi_)
-         std::cout << mpi_->my_rank() << ": Warning, light_positions is empty"
-                   << std::endl;
+         std::cout << "rank " << mpi_->rank()
+                   << ": Warning, light_positions is empty" << std::endl;
       else
-         std::cout << 0 << ": Warning, light_positions is empty" << std::endl;
+         std::cout << "Warning, light_positions is empty" << std::endl;
    }
 
    return light_positions;
@@ -698,47 +722,25 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    const auto low = dim_.offset;
    const auto up = dim_.offset + dim_.local;
 
-   // x - halo communication:
-   if ((local_pos.x() < 0 && shift_direct.x() == -1 && low.x() != 0) ||
-       (local_pos.x() > dim_.local.x() - 0.5 && shift_direct.x() == 1 &&
-        up.x() != dim_.global.x() - 0.5)) {
+   const auto coordinate = mpi_->coordinate();
+   const auto global_coordinate = mpi_->global_coordinate();
 
-      // ignore light in halo position at the beginning
-      if (local_pos.z() == 0)
-         return true; // dont save, but do not process either
+   for (int i = 0; i < 3; i++) { // check x, y and z communication
+      if ((local_pos[i] < 0.5 && shift_direct[i] == -1 && coordinate[i] > 0) ||
+          (local_pos[i] > dim_.local[i] - 0.5 && shift_direct[i] == 1 &&
+           coordinate[i] < global_coordinate[i] - 1)) {
 
-#pragma omp critical
-      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), ccd_pos, s_vec,
-                              shift_direct.x() * 1);
-      return true;
-
-      // y-halo communication:
-   } else if ((local_pos.y() < 0 && shift_direct.y() == -1 && low.y() != 0) ||
-              (local_pos.y() > dim_.local.y() - 0.5 && shift_direct.y() == 1 &&
-               up.y() != dim_.global.y() - 0.5)) {
-
-      // ignore light in halo position at the beginning
-      if (local_pos.z() == 0)
-         return true; // dont save, but do not process either
+         // ignore light in halo position at the beginning
+         if (local_pos.z() == 0) {
+            Abort(30000 + __LINE__); // should never happen
+            // return true; // dont save, but do not process either
+         }
 
 #pragma omp critical
-      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), ccd_pos, s_vec,
-                              shift_direct.y() * 2);
-      return true;
-
-      // z-halo communication:
-   } else if ((local_pos.z() < 0 && shift_direct.z() == -1 && low.z() != 0) ||
-              (local_pos.z() > dim_.local.z() - 0.5 && shift_direct.z() == 1 &&
-               up.z() != dim_.global.z() - 0.5)) {
-
-      // ignore light in halo position at the beginning
-      if (local_pos.z() == 0)
-         return true; // dont save, but do not process either
-
-#pragma omp critical
-      mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), ccd_pos, s_vec,
-                              shift_direct.z() * 3);
-      return true;
+         mpi_->PushLightToBuffer(local_pos + vm::cast<double>(low), ccd_pos,
+                                 s_vec, shift_direct[i] * (i + 1));
+         return true;
+      }
    }
 
    return false;

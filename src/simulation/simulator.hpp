@@ -22,7 +22,7 @@ class PliSimulator {
 
    vm::Vec3<long long> GetImageDim() {
       return vm::Vec3<long long>(
-          dim_.local.x(), dim_.local.y(),
+          dim_.global.x(), dim_.global.y(),
           static_cast<long long>(setup_->filter_rotations.size()));
    };
 
@@ -50,6 +50,7 @@ class PliSimulator {
 #else
    const bool debug_ = false;
 #endif
+   const int knum_max_mpi_comm_{1000};
 
    setup::Dimensions dim_{};
    std::unique_ptr<const setup::Setup> setup_;

@@ -26,14 +26,16 @@ class MyMPI {
    std::tuple<std::vector<setup::Coordinates>, std::vector<vm::Vec4<double>>>
    CommunicateData();
 
-   int Allreduce(int value);
+   int AllreduceSum(int value);
+   std::vector<int> AllreduceSum(std::vector<int> v);
+   std::vector<double> AllreduceMax(std::vector<double> v);
 
    // getter
    MPI_Comm comm() const { return my_comm_; };
-   int my_rank() const { return my_rank_; };
-   int num_of_proz() const { return numP_; };
-   vm::Vec3<int> my_coords() const { return my_coords_; };
-   vm::Vec3<int> global_coords() const { return global_coords_; };
+   int rank() const { return rank_; };
+   int size() const { return numP_; };
+   vm::Vec3<int> coordinate() const { return coordinate_; };
+   vm::Vec3<int> global_coordinate() const { return global_coordinate_; };
 
    setup::Dimensions dim_vol() const { return dim_vol_; };
 
@@ -50,13 +52,13 @@ class MyMPI {
 #endif
 
    MPI_Comm my_comm_;
-   int my_rank_ = 0;
+   int rank_ = 0;
    int numP_ = 1;
 
    setup::Dimensions dim_vol_{};
 
-   vm::Vec3<int> my_coords_ = {-1, -1, -1};
-   vm::Vec3<int> global_coords_ = {-1, -1, -1};
+   vm::Vec3<int> coordinate_ = {-1, -1, -1};
+   vm::Vec3<int> global_coordinate_ = {-1, -1, -1};
    MPI_Comm COMM_CART_;
 
    int num_rho_ = 0;

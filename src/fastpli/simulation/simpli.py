@@ -994,8 +994,9 @@ class Simpli:
 
         if np.amin(size) == 0:
             raise ValueError(
-                f"voxel_size {self._voxel_size} and pixel_size {self._pixel_size} result in optical image size of {size}"
-            )
+                f"voxel_size {self._voxel_size}, pixel_size {self._pixel_size} \
+                    and input shape {input.shape[0:2]} result in optical image \
+                    size of {size}")
 
         output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
 

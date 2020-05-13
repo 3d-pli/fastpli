@@ -53,15 +53,15 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
       dim_ = mpi_->dim_vol();
       dim_.origin = origin;
       if (debug_) {
-         std::cout << "rank " << mpi_->my_rank()
+         std::cout << "rank " << mpi_->rank()
                    << ": dim.global = " << dim_.global << std::endl;
-         std::cout << "rank " << mpi_->my_rank()
-                   << ": dim.local = " << dim_.local << std::endl;
-         std::cout << "rank " << mpi_->my_rank()
+         std::cout << "rank " << mpi_->rank() << ": dim.local = " << dim_.local
+                   << std::endl;
+         std::cout << "rank " << mpi_->rank()
                    << ": dim.offset = " << dim_.offset << std::endl;
-         std::cout << "rank " << mpi_->my_rank()
+         std::cout << "rank " << mpi_->rank()
                    << ": dim.origin = " << dim_.origin << std::endl;
-         std::cout << "rank " << mpi_->my_rank()
+         std::cout << "rank " << mpi_->rank()
                    << ": voxel_size = " << voxel_size_ << std::endl;
       }
 
@@ -142,7 +142,12 @@ void PliGenerator::SetCellPopulations(
 }
 
 void PliGenerator::SetMPIComm(const MPI_Comm comm) {
-   mpi_ = std::make_unique<MyMPI>(comm);
+   auto mpi = std::make_unique<MyMPI>(comm);
+   if (mpi->size() > 1)
+      mpi_ = std::move(mpi);
+   else
+      std::cout << "WARNING: PliGenerator: only one processor found."
+                << std::endl;
 }
 
 // #############################################################################

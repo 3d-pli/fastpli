@@ -12,11 +12,11 @@
 
 MyMPI::MyMPI(const MPI_Comm comm) {
    my_comm_ = comm;
-   MPI_Comm_rank(my_comm_, &my_rank_);
+   MPI_Comm_rank(my_comm_, &rank_);
    MPI_Comm_size(my_comm_, &numP_);
 
    if (debug_)
-      std::cout << "rank: " << my_rank_ << ", numP: " << numP_
+      std::cout << "rank: " << rank_ << ", numP: " << numP_
                 << ", comm: " << comm << std::endl;
 }
 
@@ -47,17 +47,17 @@ void MyMPI::CreateCartGrid(const vm::Vec3<long long> global_dim) {
             auto area = dim.x() + dim.y();
 
             if (area < min_area) {
-               global_coords_ = {x, y, z};
+               global_coordinate_ = {x, y, z};
                min_area = area;
             }
          }
       }
    }
 
-   MPI_Cart_create(my_comm_, max_dims, global_coords_.data(), period.data(),
+   MPI_Cart_create(my_comm_, max_dims, global_coordinate_.data(), period.data(),
                    reorder, &COMM_CART_);
-   MPI_Comm_rank(my_comm_, &my_rank_);
-   MPI_Cart_coords(COMM_CART_, my_rank_, 3, my_coords_.data());
+   MPI_Comm_rank(my_comm_, &rank_);
+   MPI_Cart_coords(COMM_CART_, rank_, 3, coordinate_.data());
 
    CalcDimensions(global_dim);
 }
@@ -67,26 +67,26 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
    dim_vol_.global = global_dim;
 
    dim_vol_.local.x() =
-       ceil(dim_vol_.global.x() / static_cast<double>(global_coords_[0]));
+       ceil(dim_vol_.global.x() / static_cast<double>(global_coordinate_[0]));
    dim_vol_.local.y() =
-       ceil(dim_vol_.global.y() / static_cast<double>(global_coords_[1]));
+       ceil(dim_vol_.global.y() / static_cast<double>(global_coordinate_[1]));
    dim_vol_.local.z() =
-       ceil(dim_vol_.global.z() / static_cast<double>(global_coords_[2]));
+       ceil(dim_vol_.global.z() / static_cast<double>(global_coordinate_[2]));
 
    vm::Vec3<long long> low{};
    vm::Vec3<long long> up{};
 
-   low.x() = my_coords_.x() * dim_vol_.local.x();
-   low.y() = my_coords_.y() * dim_vol_.local.y();
-   low.z() = my_coords_.z() * dim_vol_.local.z();
+   low.x() = coordinate_.x() * dim_vol_.local.x();
+   low.y() = coordinate_.y() * dim_vol_.local.y();
+   low.z() = coordinate_.z() * dim_vol_.local.z();
 
    // +1 for halo
-   up.x() = (my_coords_.x() + 1) * dim_vol_.local.x() - 1 + 1;
-   up.y() = (my_coords_.y() + 1) * dim_vol_.local.y() - 1 + 1;
-   up.z() = (my_coords_.z() + 1) * dim_vol_.local.z() - 1 + 1;
+   up.x() = (coordinate_.x() + 1) * dim_vol_.local.x() - 1 + 1;
+   up.y() = (coordinate_.y() + 1) * dim_vol_.local.y() - 1 + 1;
+   up.z() = (coordinate_.z() + 1) * dim_vol_.local.z() - 1 + 1;
 
    if (vm::any_of(low, [&](long long i) { return i < 0; })) {
-      MPI_Abort(my_comm_, 1111);
+      MPI_Abort(my_comm_, 10000 + __LINE__);
    }
 
    dim_vol_.offset = low;
@@ -109,14 +109,14 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
       dim_vol_.local.z() = 0;
 
    if (debug_) {
-      std::cout << "rank " << my_rank_ << ": my_coords: " << my_coords_
+      std::cout << "rank " << rank_ << ": coordinate: " << coordinate_
                 << std::endl;
-      std::cout << "rank " << my_rank_ << ": low: " << low << std::endl;
-      std::cout << "rank " << my_rank_ << ": up: " << up << std::endl;
+      std::cout << "rank " << rank_ << ": low: " << low << std::endl;
+      std::cout << "rank " << rank_ << ": up: " << up << std::endl;
    }
 
    if (vm::any_of(dim_vol_.local, [&](long long i) { return i < 0; })) {
-      MPI_Abort(my_comm_, 1112);
+      MPI_Abort(my_comm_, 10000 + __LINE__);
    }
 }
 
@@ -141,7 +141,7 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
 
 #ifndef NDEBUG
    if (direction == 0 || std::abs(direction) > 3)
-      MPI_Abort(my_comm_, 1113);
+      MPI_Abort(my_comm_, 10000 + __LINE__);
 #endif
 
    // index of sending direction
@@ -151,7 +151,7 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
 
 #ifndef NDEBUG
    if (ind < 0 || ind >= 6)
-      MPI_Abort(my_comm_, 1114);
+      MPI_Abort(my_comm_, 10000 + __LINE__);
 #endif
 
    // save all data in buffer. Order is important!
@@ -167,7 +167,7 @@ void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
 
 #ifndef NDEBUG
    if (num_rho_ != static_cast<int>(light.size()))
-      MPI_Abort(my_comm_, 1115);
+      MPI_Abort(my_comm_, 10000 + __LINE__);
 #endif
 }
 
@@ -196,9 +196,9 @@ void MyMPI::SndRcv() {
          continue;
 
       if (debug_)
-         std::cout << "rank " << my_rank_ << " to " << receiver
-                   << " in direction " << direction
-                   << ": size: " << snd_buffer_[ind].size() << std::endl;
+         std::cout << "rank " << rank_ << " to " << receiver << " in direction "
+                   << direction << ": size: " << snd_buffer_[ind].size()
+                   << std::endl;
 
       MPI_Issend(snd_buffer_[ind].data(), snd_buffer_[ind].size(), MPI_DOUBLE,
                  receiver, tag_ + ind, COMM_CART_, &snd_rq_[ind]);
@@ -221,12 +221,11 @@ void MyMPI::SndRcv() {
       MPI_Probe(sender, tag_ + ind, COMM_CART_, &status);
       MPI_Get_count(&status, MPI_DOUBLE, &count);
       if (count == MPI_UNDEFINED)
-         MPI_Abort(my_comm_, 1116);
+         MPI_Abort(my_comm_, 10000 + __LINE__);
 
       if (debug_)
-         std::cout << "rank " << my_rank_ << " from " << sender
-                   << " in direction " << direction << ": size: " << count
-                   << std::endl;
+         std::cout << "rank " << rank_ << " from " << sender << " in direction "
+                   << direction << ": size: " << count << std::endl;
 
       rcv_buffer_[ind].resize(count);
       MPI_Recv(rcv_buffer_[ind].data(), count, MPI_DOUBLE, MPI_ANY_SOURCE,
@@ -234,10 +233,22 @@ void MyMPI::SndRcv() {
    }
 }
 
-int MyMPI::Allreduce(int value) {
+int MyMPI::AllreduceSum(int value) {
    int sum = 0;
    MPI_Allreduce(&value, &sum, 1, MPI_INT, MPI_SUM, COMM_CART_);
    return sum;
+}
+
+std::vector<int> MyMPI::AllreduceSum(std::vector<int> v) {
+   std::vector<int> a(v.size());
+   MPI_Allreduce(v.data(), a.data(), v.size(), MPI_INT, MPI_SUM, COMM_CART_);
+   return a;
+}
+
+std::vector<double> MyMPI::AllreduceMax(std::vector<double> v) {
+   std::vector<double> a(v.size());
+   MPI_Allreduce(v.data(), a.data(), v.size(), MPI_DOUBLE, MPI_MAX, COMM_CART_);
+   return a;
 }
 
 std::tuple<std::vector<setup::Coordinates>, std::vector<vm::Vec4<double>>>
@@ -247,7 +258,7 @@ MyMPI::InternalBufferToVariable() {
 
 #ifndef NDEBUG
    if (num_rho_ <= 0)
-      MPI_Abort(my_comm_, 1117);
+      MPI_Abort(my_comm_, 10000 + __LINE__);
 #endif
 
    setup::Coordinates pos_ccd;
@@ -278,7 +289,7 @@ MyMPI::InternalBufferToVariable() {
       }
 #ifndef NDEBUG
       if (light_positions.size() * num_rho_ != light_signals.size())
-         MPI_Abort(my_comm_, 1118);
+         MPI_Abort(my_comm_, 10000 + __LINE__);
 #endif
    }
 
