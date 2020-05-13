@@ -74,7 +74,6 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         h5f['simulation/data/' + str(t)] = images
 
         # apply optic to simulation
-        print(images.shape)
         images = simpli.apply_optic(images)
         h5f['simulation/optic/' + str(t)] = images
 
@@ -103,7 +102,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     def data2image(data):
         return np.swapaxes(np.flip(data, 1), 0, 1)
 
-    print(f'creating Fiber Orientation Map: {FILE_OUT}png')
+    print(f'creating Fiber Orientation Map: {FILE_OUT}.png')
 
     imageio.imwrite(
         f'{FILE_OUT}.png',

@@ -35,6 +35,21 @@ echo "***************Examples***************"
 echo "--------------------------------------"
 make examples/requirements
 for f in examples/*.py; do
+   if [[ $f == *"_mpi.py" ]]; then
+      continue
+   fi
+   echo "running $f"
+   echo env/bin/python3 $f
+   echo "done $f"
+   echo ""
+done
+
+echo "--------------------------------------"
+echo "*************MPI Examples*************"
+echo "--------------------------------------"
+make HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi h5py-mpi
+make examples/requirements
+for f in examples/*_mpi.py; do
    echo "running $f"
    echo env/bin/python3 $f
    echo "done $f"

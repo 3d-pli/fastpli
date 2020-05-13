@@ -95,7 +95,7 @@ h5py-serial: h5py-clean
 
 .PHONY: h5py-mpi
 h5py-mpi: h5py-clean
-	HDF5_DIR=${HDF5_DIR} CC=mpicc HDF5_MPI="ON" ${VENV}/bin/pip3 install --no-binary=h5py h5py
+	HDF5_DIR=${HDF5_DIR} CC=mpicc HDF5_MPI="ON" ${VENV}/bin/pip3 install --no-binary=h5py h5py -vvv
 	# e.g. HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi
 
 .PHONY: h5py-clean
