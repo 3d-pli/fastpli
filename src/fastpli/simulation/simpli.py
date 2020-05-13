@@ -394,6 +394,9 @@ class Simpli:
                     warnings.warn("birefringence negative and radial")
                 if ly[1] > 0 and ly[-1] == 'p':
                     warnings.warn("birefringence positive and parallel")
+                if ly[1] != 0 and ly[-1] == 'b':
+                    warnings.warn(
+                        "birefringence != 0 for background. Will be set to 0")
 
         self._fiber_bundles_properties = bundle_layer_properties
 
