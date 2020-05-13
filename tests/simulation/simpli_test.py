@@ -12,7 +12,7 @@ class MainTest(unittest.TestCase):
     def setUp(self):
         self.fiber_bundles = [[[[0, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]]]]
         self.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                          (0.666, -0.004, 5, 'b'),
+                                          (0.666, 0, 5, 'b'),
                                           (1.0, 0.004, 1, 'r')]]
 
         self.simpli = Simpli()
@@ -149,8 +149,8 @@ class MainTest(unittest.TestCase):
 
     def test_tissue_layered(self):
         self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
-        self.fiber_bundles_properties = [[(0.3, 0.004, 1, 'p'),
-                                          (0.6, 0.004, 1, 'b'),
+        self.fiber_bundles_properties = [[(0.3, -0.004, 1, 'p'),
+                                          (0.6, 0, 1, 'b'),
                                           (1.0, 0.004, 1, 'r')]]
 
         self.simpli = Simpli()
@@ -203,6 +203,28 @@ class MainTest(unittest.TestCase):
                 else:
                     self.assertTrue(tissue[i, j, 0] == t)
 
+        self.simpli.voxel_size = 1
+        self.simpli.set_voi([-10] * 3, [10] * 3)
+        self.simpli.fiber_bundles = [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]]
+        self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
+                                                 (0.666, 0, 5, 'b'),
+                                                 (1.0, 0.004, 1, 'r')]]
+
+        tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
+
+        self.assertTrue(np.any(tissue != 0))
+        for x in range(tissue.shape[0]):
+            for y in range(tissue.shape[0]):
+                for z in range(tissue.shape[0]):
+                    if tissue[x, y, z] == 2:
+                        self.assertTrue(np.all(optical_axis[x, y, z, :] == 0))
+                    elif tissue[x, y, z]:
+                        self.assertTrue(np.any(optical_axis[x, y, z, :] != 0))
+                    else:
+                        self.assertTrue(np.all(optical_axis[x, y, z, :] == 0))
+
+        self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
+
     def test_cell_population(self):
         self.simpli.voxel_size = 1
         self.simpli.dim = [10, 10, 10]
@@ -221,30 +243,47 @@ class MainTest(unittest.TestCase):
 
     def test_simulator(self):
         self.simpli.voxel_size = 1
-        self.simpli.dim = [10, 10, 10]
-        self.simpli.dim_origin = self.simpli.dim / 2
-        self.simpli.fiber_bundles = [[[[0, 0, 30, 100], [640, 640, 30, 100]]]]
+        self.simpli.set_voi([-10] * 3, [10] * 3)
+        self.simpli.fiber_bundles = [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]]
         self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                                 (0.666, -0.004, 5, 'b'),
+                                                 (0.666, 0, 5, 'b'),
                                                  (1.0, 0.004, 1, 'r')]]
 
         tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
-
-        self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
 
         # PliSimulation ###
         self.simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
         self.simpli.light_intensity = 26000
         self.simpli.voxel_size = 1
         self.simpli.wavelength = 525
-        self.simpli.untilt_sensor_view = False
 
+        # normal view
+        self.simpli.untilt_sensor_view = False
         image = self.simpli.run_simulation(tissue, optical_axis,
                                            tissue_properties, 0, 0)
+        self.assertFalse(np.any(np.isnan(image)))
+        self.assertTrue(np.any(image != self.simpli.light_intensity / 4))
 
+        image = self.simpli.run_simulation(tissue, optical_axis,
+                                           tissue_properties, np.deg2rad(8),
+                                           np.deg2rad(42))
+        self.assertFalse(np.any(np.isnan(image)))
+        self.assertTrue(np.any(image != self.simpli.light_intensity / 4))
+
+        # untilt view
         self.simpli.untilt_sensor_view = True
         image = self.simpli.run_simulation(tissue, optical_axis,
                                            tissue_properties, 0, 0)
+        self.assertFalse(np.any(np.isnan(image)))
+        self.assertTrue(np.any(image != self.simpli.light_intensity / 4))
+
+        image = self.simpli.run_simulation(tissue, optical_axis,
+                                           tissue_properties, np.deg2rad(8),
+                                           np.deg2rad(42))
+        self.assertFalse(np.any(np.isnan(image)))
+        self.assertTrue(np.any(image != self.simpli.light_intensity / 4))
+
+        print(image)
 
         with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
             h5f['tissue'] = tissue.astype(np.uint16)
@@ -259,7 +298,7 @@ class MainTest(unittest.TestCase):
         self.simpli.dim_origin = self.simpli.dim / 2
         self.simpli.fiber_bundles = [[[[0, 0, 30, 100], [640, 640, 30, 100]]]]
         self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                                 (0.666, -0.004, 5, 'b'),
+                                                 (0.666, 0, 5, 'b'),
                                                  (1.0, 0.004, 1, 'r')]]
         self.simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
         self.simpli.light_intensity = 26000
