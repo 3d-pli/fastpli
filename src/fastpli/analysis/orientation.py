@@ -11,26 +11,30 @@ import matplotlib.cm as cm
 
 @njit(cache=True)
 def _remap_orientation(phi, theta):
-
-    print(phi.shape)
-    print(theta.shape)
-
     phi = phi % (2 * np.pi)
-    theta = theta % np.pi
+    theta = theta % (2 * np.pi)
 
     phi[phi < 0] += 2 * np.pi
-
     phi[theta < 0] += np.pi
     theta = np.abs(theta)
 
-    mask = theta > .5 * np.pi
+    mask = theta != theta % np.pi
+    phi[mask] += np.pi
+    theta = theta % np.pi
+
+    mask = theta > 0.5 * np.pi
     phi[mask] += np.pi
     theta[mask] = np.pi - theta[mask]
 
     phi = phi % (2 * np.pi)
 
+    # debug
     # if np.any(phi < 0) or np.any(phi >= 2 * np.pi) or np.any(
     #         theta < 0) or np.any(theta > 0.5 * np.pi):
+    #     print(phi[phi < 0])
+    #     print(phi[phi >= 2 * np.pi])
+    #     print(theta[theta < 0])
+    #     print(theta[theta > 0.5 * np.pi])
     #     raise ValueError
 
     return phi, theta
@@ -44,7 +48,7 @@ def remap_orientation(phi, theta):
     phi.shape = (-1)
     theta.shape = (-1)
 
-    _remap_orientation(phi, theta)
+    phi, theta = _remap_orientation(phi, theta)
 
     phi.shape = shape
     theta.shape = shape
@@ -86,7 +90,13 @@ def fiber_bundles(fiber_bundles):
     return gphi, gtheta
 
 
-def histogram(phi, theta, ax, n_angle=100, n_radius=50, cmap="viridis"):
+def histogram(phi,
+              theta,
+              ax,
+              n_angle=100,
+              n_radius=50,
+              fun=lambda x: x,
+              cmap="viridis"):
     """
     Plot the Orientation angles in a histogram
 
@@ -96,7 +106,16 @@ def histogram(phi, theta, ax, n_angle=100, n_radius=50, cmap="viridis"):
         list of azimuthal angles
     theta : array_like
         list of polar angles
-    ax : Axes object
+    ax : axes object
+        for matplotlib
+    n_angle : int
+        number of angular segments
+    n_radius : int
+        number of radii segments
+    fun : function 
+        function apply to histogram height
+    cmap : str
+        colormap name
 
     Returns
     -------
@@ -107,10 +126,15 @@ def histogram(phi, theta, ax, n_angle=100, n_radius=50, cmap="viridis"):
     ::
 
         _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
-        phi = np.random(0,2*np.pi,100)
-        theta = np.random(0,np.pi,100)
+        phi = np.random.uniform(0,2*np.pi,100)
+        theta = np.random.uniform(0,np.pi,100)
         pc = histogram(phi, theta, ax)
         plt.colorbar(pc, ax=ax)
+        ax.set_rmax(90)
+        ax.set_rticks(range(0, 90, 10))
+        ax.set_rlabel_position(22.5)
+        ax.set_yticklabels([])
+        ax.grid(True)
         plt.show()
     """
 
@@ -123,12 +147,6 @@ def histogram(phi, theta, ax, n_angle=100, n_radius=50, cmap="viridis"):
     hist, _, _ = np.histogram2d(phi, np.rad2deg(theta), bins=(abins, rbins))
     A, R = np.meshgrid(abins, rbins)
 
-    pc = ax.pcolormesh(A, R, hist.T, cmap="viridis")
+    pc = ax.pcolormesh(A, R, fun(hist.T), cmap="viridis")
 
     return pc
-
-    # ax.set_rmax(90)
-    # ax.set_rticks(range(0, 90, 10))
-    # ax.set_rlabel_position(22.5)
-    # ax.set_yticklabels([])
-    # ax.grid(True)
