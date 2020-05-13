@@ -283,8 +283,6 @@ class MainTest(unittest.TestCase):
         self.assertFalse(np.any(np.isnan(image)))
         self.assertTrue(np.any(image != self.simpli.light_intensity / 4))
 
-        print(image)
-
         with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
             h5f['tissue'] = tissue.astype(np.uint16)
             h5f['optical_axis'] = optical_axis
