@@ -47,17 +47,17 @@ for f in examples/*.py; do
    echo ""
 done
 
-echo "--------------------------------------"
-echo "*************MPI Examples*************"
-echo "--------------------------------------"
-make HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi h5py-mpi
-make examples/requirements
-for f in examples/*_mpi.py; do
-   echo "running $f"
-   mpirun -n 2 env/bin/python3 -m mpi4py $f
-   echo "done $f"
-   echo ""
-done
+# echo "--------------------------------------"
+# echo "*************MPI Examples*************"
+# echo "--------------------------------------"
+# make HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi h5py-mpi
+# make examples/requirements
+# for f in examples/*_mpi.py; do
+#    echo "running $f"
+#    mpirun -n 2 env/bin/python3 -m mpi4py $f
+#    echo "done $f"
+#    echo ""
+# done
 
 echo "--------------------------------------"
 echo "****************Format****************"
