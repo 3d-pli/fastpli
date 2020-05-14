@@ -720,8 +720,6 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
       return false;
 
    const auto low = dim_.offset;
-   const auto up = dim_.offset + dim_.local;
-
    const auto coordinate = mpi_->coordinate();
    const auto global_coordinate = mpi_->global_coordinate();
 

@@ -39,7 +39,7 @@ for f in examples/*.py; do
       continue
    fi
    echo "running $f"
-   echo env/bin/python3 $f
+   env/bin/python3 $f
    echo "done $f"
    echo ""
 done
@@ -51,7 +51,7 @@ make HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi h5py-mpi
 make examples/requirements
 for f in examples/*_mpi.py; do
    echo "running $f"
-   echo env/bin/python3 $f
+   mpirun -n 2 env/bin/python3 -m mpi4py $f
    echo "done $f"
    echo ""
 done

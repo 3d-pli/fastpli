@@ -7,6 +7,7 @@ from .__generation import _Generator
 from .__simulation import _Simulator
 
 from . import optic
+from . import _mpi
 from .. import analysis
 from .. import objects
 from .. import tools
@@ -37,10 +38,12 @@ class Simpli:
         # LIBRARIES
         self.__gen = _Generator()
         self.__sim = _Simulator()
+        self.mpi = None
         if mpi_comm:
             from mpi4py import MPI
             self.__gen.set_mpi_comm(MPI._addressof(mpi_comm))
             self.__sim.set_mpi_comm(MPI._addressof(mpi_comm))
+            self.mpi = _mpi._MPI(mpi_comm)
 
         # DIMENSIONS
         self._dim = None
@@ -495,6 +498,10 @@ class Simpli:
                      fiber_bundles or that the voxel_size is to large.",
                 UserWarning)
 
+        if self.mpi:
+            self.mpi._set_gen_dim(self.__gen.dim_local(), self._dim,
+                                  self.__gen.dim_offset())
+
         return tissue, optical_axis, tissue_properties
 
     def _init_pli_setup(self):
@@ -877,74 +884,6 @@ class Simpli:
             return np.prod(self._dim) * (32 + 32 + 3 * 32) / 8 / div
         else:
             raise ValueError("allowed is only \"tissue\" or \"all\"")
-
-    def save_mpi_array_as_h5(self, h5f, input, data_name, lock_dim=None):
-        """
-        simpli can be seperated into different mpi processes.
-        This function provides a parallel hdf5 io to save data
-        inside the same h5-file.
-        """
-        # TODO: check functionality
-
-        dim_local = self.__gen.dim_local()
-        dim_offset = self.__gen.dim_offset()
-        input = np.array(input, copy=False)
-
-        if not isinstance(input, np.ndarray):
-            raise TypeError(
-                "only numpy arrays are compatible with save_mpi_array_as_h5")
-
-        dset_dim = np.copy(self._dim)
-        if input.ndim < len(dset_dim):
-            dset_dim = dset_dim[:len(input.shape)]
-        if input.ndim > len(dset_dim):
-            dset_dim = np.append(dset_dim, input.shape[3:])
-
-        if lock_dim:
-            if isinstance(lock_dim, int):
-                lock_dim = [lock_dim]
-
-            lock_dim = list(lock_dim)
-            for l in lock_dim:
-                dset_dim[l] = input.shape[l]
-
-        dset = h5f.create_dataset(data_name, dset_dim, dtype=input.dtype)
-
-        if input.ndim == 2:
-            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(input.shape[0]):
-                    dset[i + dim_offset[0], dim_offset[1]:dim_offset[1] +
-                         dim_local[1]] = input[i, :]
-            else:
-                dset[dim_offset[0]:dim_offset[0] + dim_local[0],
-                     dim_offset[1]:dim_offset[1] + dim_local[1]] = input
-
-        elif input.ndim == 3:
-            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(input.shape[0]):
-                    dset[i + dim_offset[0],
-                         dim_offset[1]:dim_offset[1] + dim_local[1],
-                         dim_offset[2]:dim_offset[2] +
-                         dim_local[2]] = input[i, :]
-            else:
-                dset[dim_offset[0]:dim_offset[0] + dim_local[0],
-                     dim_offset[1]:dim_offset[1] + dim_local[1],
-                     dim_offset[2]:dim_offset[2] + dim_local[2]] = input
-
-        elif input.ndim > 3:
-            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(input.shape[0]):
-                    dset[i + dim_offset[0],
-                         dim_offset[1]:dim_offset[1] + dim_local[1],
-                         dim_offset[2]:dim_offset[2] +
-                         dim_local[2], :] = input[i, :]
-            else:
-                dset[dim_offset[0]:dim_offset[0] + dim_local[0],
-                     dim_offset[1]:dim_offset[1] + dim_local[1],
-                     dim_offset[2]:dim_offset[2] + dim_local[2], :] = input
-
-        else:
-            raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
 
     def apply_optic(self, input, shift=(0, 0), mp_pool=None):
         """ applies optical resample, convolution and noise to image
