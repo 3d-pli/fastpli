@@ -38,6 +38,9 @@ for f in examples/*.py; do
    if [[ $f == *"_mpi.py" ]]; then
       continue
    fi
+   if [[ $f == "examples/crossing.py" ]]; then
+      continue
+   fi
    echo "running $f"
    env/bin/python3 $f
    echo "done $f"
