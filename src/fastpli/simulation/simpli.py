@@ -129,7 +129,7 @@ class Simpli:
 
     @property
     def dim_origin(self):
-        """ origin of volume in µm: (3)-array """
+        """ origin of volume in micro: (3)-array """
         return self._dim_origin
 
     @dim_origin.setter
@@ -138,7 +138,7 @@ class Simpli:
 
     @property
     def voxel_size(self):
-        """ size of voxel in µm: float """
+        """ size of voxel in micro: float """
         return (self._voxel_size)
 
     @voxel_size.setter
@@ -159,7 +159,7 @@ class Simpli:
 
     @property
     def pixel_size(self):
-        """ pixel size of resulting optical image in µm: float """
+        """ pixel size of resulting optical image in micro: float """
         return (self._pixel_size)
 
     @pixel_size.setter
@@ -587,7 +587,7 @@ class Simpli:
         h5f.attrs['fastpli/pip_freeze'] = tools.helper.pip_freeze()
         h5f.attrs['fastpli/system'] = sys.version
         if script:
-            h5f.attrs['script'] = script
+            h5f.attrs['script'] = script.encode().decode('ascii', 'ignore')
 
     def run_tissue_pipeline(self,
                             h5f=None,
@@ -597,6 +597,9 @@ class Simpli:
 
         self._check_volume_input()
         self._check_generation_input()
+
+        if script:
+            self.save_parameter_h5(h5f, script)
 
         if 'all' in save or 'simulation' in save:
             save = save + ['tissue', 'optical_axis']

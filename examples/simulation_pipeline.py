@@ -22,8 +22,8 @@ simpli = fastpli.simulation.Simpli()
 simpli.omp_num_threads = 2
 
 # define model
-simpli.voxel_size = 2.0  # in µm meter
-simpli.set_voi([-100, -100, -25], [2350, 550, 25])  # in µm meter
+simpli.voxel_size = 2.0  # in micro meter
+simpli.set_voi([-100, -100, -25], [2350, 550, 25])  # in micro meter
 simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
     os.path.join(FILE_PATH, 'fastpli.dat'))
 
@@ -40,7 +40,7 @@ simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])  # in deg
 simpli.light_intensity = 26000  # a.u.
 simpli.interpolate = True
 simpli.wavelength = 525  # in nm
-simpli.pixel_size = 10  # in µm meter
+simpli.pixel_size = 10  # in micro meter
 simpli.tilts = np.deg2rad(
     np.array([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]))  # in deg
 simpli.sensor_gain = 3
