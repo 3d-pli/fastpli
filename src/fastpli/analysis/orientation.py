@@ -92,9 +92,10 @@ def fiber_bundles(fiber_bundles):
 
 def histogram(phi,
               theta,
-              ax,
+              ax=None,
               n_angle=100,
               n_radius=50,
+              normed=None,
               fun=lambda x: x,
               cmap="viridis"):
     """
@@ -128,7 +129,7 @@ def histogram(phi,
         _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
         phi = np.random.uniform(0,2*np.pi,100)
         theta = np.random.uniform(0,np.pi,100)
-        pc = histogram(phi, theta, ax)
+        pc = histogram(phi, theta, ax)[-1]
         plt.colorbar(pc, ax=ax)
         ax.set_rmax(90)
         ax.set_rticks(range(0, 90, 10))
@@ -144,9 +145,15 @@ def histogram(phi,
     rbins = np.linspace(0, 90, n_radius)
 
     #calculate histogram
-    hist, _, _ = np.histogram2d(phi, np.rad2deg(theta), bins=(abins, rbins))
-    A, R = np.meshgrid(abins, rbins)
+    hist, _, _ = np.histogram2d(phi,
+                                np.rad2deg(theta),
+                                bins=(abins, rbins),
+                                normed=normed)
 
-    pc = ax.pcolormesh(A, R, fun(hist.T), cmap="viridis")
+    if ax:
+        A, R = np.meshgrid(abins, rbins)
+        pc = ax.pcolormesh(A, R, fun(hist.T), cmap="viridis")
+    else:
+        pc = None
 
-    return pc
+    return hist, np.deg2rad(rbins), abins, pc
