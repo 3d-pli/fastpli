@@ -28,15 +28,6 @@ def _remap_orientation(phi, theta):
 
     phi = phi % (2 * np.pi)
 
-    # debug
-    # if np.any(phi < 0) or np.any(phi >= 2 * np.pi) or np.any(
-    #         theta < 0) or np.any(theta > 0.5 * np.pi):
-    #     print(phi[phi < 0])
-    #     print(phi[phi >= 2 * np.pi])
-    #     print(theta[theta < 0])
-    #     print(theta[theta > 0.5 * np.pi])
-    #     raise ValueError
-
     return phi, theta
 
 
@@ -127,8 +118,8 @@ def histogram(phi,
     ::
 
         _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
-        phi = np.random.uniform(0,2*np.pi,100)
-        theta = np.random.uniform(0,np.pi,100)
+        phi = np.random.normal(np.pi / 3, 0.25, 100)
+        theta = np.random.normal(np.pi / 4, 0.25, 100)
         pc = histogram(phi, theta, ax)[-1]
         plt.colorbar(pc, ax=ax)
         ax.set_rmax(90)
@@ -141,19 +132,16 @@ def histogram(phi,
 
     phi, theta = remap_orientation(phi.ravel(), theta.ravel())
 
-    abins = np.linspace(0, 2 * np.pi, n_angle)
-    rbins = np.linspace(0, 90, n_radius)
+    x = np.linspace(0, 2 * np.pi, n_angle)
+    y = np.linspace(0, np.pi / 2, n_radius)
 
     #calculate histogram
-    hist, _, _ = np.histogram2d(phi,
-                                np.rad2deg(theta),
-                                bins=(abins, rbins),
-                                normed=normed)
+    hist, x, y = np.histogram2d(phi, theta, bins=(x, y), normed=normed)
 
     if ax:
-        A, R = np.meshgrid(abins, rbins)
-        pc = ax.pcolormesh(A, R, fun(hist.T), cmap="viridis")
+        X, Y = np.meshgrid(x, np.rad2deg(y))
+        pc = ax.pcolormesh(X, Y, fun(hist.T), cmap="viridis")
     else:
         pc = None
 
-    return hist, np.deg2rad(rbins), abins, pc
+    return hist, x, y, pc
