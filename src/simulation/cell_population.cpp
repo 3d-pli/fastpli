@@ -13,7 +13,7 @@ namespace cell {
 Population::Population(std::vector<std::vector<double>> cells,
                        Property property) {
 
-   for (auto const c : cells) {
+   for (auto const &c : cells) {
       std::vector<vm::Vec3<double>> points;
       std::vector<double> radii;
 

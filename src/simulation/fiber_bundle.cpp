@@ -86,7 +86,7 @@ void Properties::push_back(Property p) {
 Bundle::Bundle(std::vector<std::vector<double>> fibers,
                std::vector<layer::Property> properties) {
 
-   for (auto const f : fibers)
+   for (auto const &f : fibers)
       fibers_.emplace_back(object::Fiber(f));
 
    // sort for layer size
