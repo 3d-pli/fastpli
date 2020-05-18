@@ -132,8 +132,8 @@ def histogram(phi,
 
     phi, theta = remap_orientation(phi.ravel(), theta.ravel())
 
-    x = np.linspace(0, 2 * np.pi, n_angle)
-    y = np.linspace(0, np.pi / 2, n_radius)
+    x = np.linspace(0, 2 * np.pi, n_angle + 1)
+    y = np.linspace(0, np.pi / 2, n_radius + 1)
 
     #calculate histogram
     hist, x, y = np.histogram2d(phi, theta, bins=(x, y), normed=normed)
