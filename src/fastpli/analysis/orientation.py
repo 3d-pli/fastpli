@@ -140,7 +140,7 @@ def histogram(phi,
 
     if ax:
         X, Y = np.meshgrid(x, np.rad2deg(y))
-        pc = ax.pcolormesh(X, Y, fun(hist.T), cmap="viridis")
+        pc = ax.pcolormesh(X, Y, fun(hist.T), cmap=cmap)
     else:
         pc = None
 
