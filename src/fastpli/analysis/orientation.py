@@ -84,9 +84,9 @@ def fiber_bundles(fiber_bundles):
 def histogram(phi,
               theta,
               ax=None,
-              n_angle=100,
-              n_radius=50,
-              normed=None,
+              n_phi=100,
+              n_theta=50,
+              density=None,
               fun=lambda x: x,
               cmap="viridis"):
     """
@@ -98,15 +98,17 @@ def histogram(phi,
         list of azimuthal angles
     theta : array_like
         list of polar angles
-    ax : axes object
+    ax : axes object, optional
         for matplotlib
-    n_angle : int
+    n_phi : int, optional
         number of angular segments
-    n_radius : int
+    n_theta : int, optional
         number of radii segments
-    fun : function 
+    density : bool, optional
+        density argument for numpy histogram
+    fun : function , optional
         function apply to histogram height
-    cmap : str
+    cmap : str, optional
         colormap name
 
     Returns
@@ -132,11 +134,11 @@ def histogram(phi,
 
     phi, theta = remap_orientation(phi.ravel(), theta.ravel())
 
-    x = np.linspace(0, 2 * np.pi, n_angle + 1)
-    y = np.linspace(0, np.pi / 2, n_radius + 1)
+    x = np.linspace(0, 2 * np.pi, n_phi + 1)
+    y = np.linspace(0, np.pi / 2, n_theta + 1)
 
     #calculate histogram
-    hist, x, y = np.histogram2d(phi, theta, bins=(x, y), normed=normed)
+    hist, x, y = np.histogram2d(phi, theta, bins=(x, y), density=density)
 
     if ax:
         X, Y = np.meshgrid(x, np.rad2deg(y))
