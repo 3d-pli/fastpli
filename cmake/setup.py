@@ -11,7 +11,7 @@ setuptools.setup(
         Fibre%20Architecture/Fibre%20Architecture_node.html',
     python_requires='>3.6.0',
     install_requires=[
-        'numpy', 'numba', 'mpi4py', 'scipy', 'h5py', 'matplotlib'
+        'numpy', 'numba', 'mpi4py', 'scipy', 'h5py', 'matplotlib', 'wheel'
     ],
     test_suite='tests',
     zip_safe=False,
