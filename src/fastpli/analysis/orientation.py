@@ -86,7 +86,7 @@ def histogram(phi,
               ax=None,
               n_phi=100,
               n_theta=50,
-              density=None,
+              weight_area=False,
               fun=lambda x: x,
               cmap="viridis"):
     """
@@ -106,6 +106,8 @@ def histogram(phi,
         number of radii segments
     density : bool, optional
         density argument for numpy histogram
+    weight_area : bool, optional
+        weighting the density by the histogram bin on a sphere
     fun : function , optional
         function apply to histogram height
     cmap : str, optional
@@ -118,17 +120,43 @@ def histogram(phi,
     Examples
     --------
     ::
-
+        # counts
         _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
-        phi = np.random.normal(np.pi / 3, 0.25, 100)
-        theta = np.random.normal(np.pi / 4, 0.25, 100)
-        pc = histogram(phi, theta, ax)[-1]
-        plt.colorbar(pc, ax=ax)
+        _, _, _, pc = histogram(phi,
+                                theta,
+                                ax=ax,
+                                n_phi=60,
+                                n_theta=30,
+                                weight_area=False)
+        cbar = plt.colorbar(pc, ax=ax)
+        cbar.ax.set_title('#')
         ax.set_rmax(90)
         ax.set_rticks(range(0, 90, 10))
         ax.set_rlabel_position(22.5)
         ax.set_yticklabels([])
         ax.grid(True)
+
+        # density
+        _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
+        phi = np.random.normal(np.pi / 3, 0.5, 1000)
+        theta = np.random.normal(np.deg2rad(45), 0.5, 1000)
+
+        _, _, _, pc = histogram(phi,
+                                theta,
+                                ax=ax,
+                                n_phi=60,
+                                n_theta=30,
+                                weight_area=True)
+        cbar = plt.colorbar(pc, ax=ax)
+        cbar.ax.set_title('$P(\\vartheta, \\varphi)$')
+
+        ax.set_rmax(90)
+        ax.set_rticks(range(0, 90, 10))
+        ax.set_rlabel_position(22.5)
+        ax.set_yticklabels([])
+        ax.set_yticklabels([])
+        ax.grid(True)
+
         plt.show()
     """
 
@@ -138,7 +166,13 @@ def histogram(phi,
     y = np.linspace(0, np.pi / 2, n_theta + 1)
 
     #calculate histogram
-    hist, x, y = np.histogram2d(phi, theta, bins=(x, y), density=density)
+    hist, _, _ = np.histogram2d(phi, theta, bins=(x, y))
+
+    if weight_area:
+        weights = (np.cos(y[:-1]) - np.cos(y[1:])) * (x[1] - x[0])
+        hist /= hist.sum()
+        for h in hist:
+            h[:] = np.multiply(h[:], 1 / weights)
 
     if ax:
         X, Y = np.meshgrid(x, np.rad2deg(y))
