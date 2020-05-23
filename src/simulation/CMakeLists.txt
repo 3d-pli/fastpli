@@ -11,7 +11,7 @@ ADD_LIBRARY(${CoreModules} OBJECT cell_population.cpp
                                     fiber_bundle.cpp
                                     my_mpi.cpp)
 SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
-TARGET_INCLUDE_DIRECTORIES(${CoreModules} PRIVATE ${MPI_CXX_INCLUDE_DIRS})
+TARGET_INCLUDE_DIRECTORIES(${CoreModules} SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
 # building python modules
 pybind11_add_module(__generation
@@ -21,7 +21,7 @@ pybind11_add_module(__generation
       $<TARGET_OBJECTS:objectsCoreModules>
       )
 TARGET_LINK_LIBRARIES(__generation PRIVATE ${MPI_LIBRARIES})
-TARGET_INCLUDE_DIRECTORIES(__generation PRIVATE ${MPI_CXX_INCLUDE_DIRS})
+TARGET_INCLUDE_DIRECTORIES(__generation SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
 pybind11_add_module(__simulation
       bindings/simulator_module.cpp
@@ -30,7 +30,7 @@ pybind11_add_module(__simulation
       $<TARGET_OBJECTS:objectsCoreModules>
       )
 TARGET_LINK_LIBRARIES(__simulation PRIVATE ${MPI_LIBRARIES})
-TARGET_INCLUDE_DIRECTORIES(__simulation PRIVATE ${MPI_CXX_INCLUDE_DIRS})
+TARGET_INCLUDE_DIRECTORIES(__simulation SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
 # copy to fastpli build python path
 SET_TARGET_PROPERTIES(__generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY 
