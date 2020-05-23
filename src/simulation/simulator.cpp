@@ -8,6 +8,9 @@
 #include <numeric>
 #include <vector>
 
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
 #include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "my_mpi.hpp"
@@ -78,8 +81,7 @@ void PliSimulator::SetMPIComm(const MPI_Comm comm) {
    if (mpi->size() > 1)
       mpi_ = std::move(mpi);
    else
-      std::cout << "WARNING: PliSimulator: only one processor found."
-                << std::endl;
+      PyErr_WarnEx(PyExc_UserWarning, "only one processor found", 0);
 }
 
 void PliSimulator::SetSetup(const setup::Setup setup) {
@@ -647,10 +649,13 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
 
    if (light_positions.size() == 0) {
       if (mpi_)
-         std::cout << "rank " << mpi_->rank()
-                   << ": Warning, light_positions is empty" << std::endl;
+         PyErr_WarnEx(PyExc_UserWarning,
+                      ("rank " + std::to_string(mpi_->rank()) +
+                       ": light_positions is empty")
+                          .c_str(),
+                      0);
       else
-         std::cout << "Warning, light_positions is empty" << std::endl;
+         PyErr_WarnEx(PyExc_UserWarning, "light_positions is empty", 0);
    }
 
    return light_positions;
@@ -698,10 +703,13 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
 
    if (light_positions.size() == 0) {
       if (mpi_)
-         std::cout << "rank " << mpi_->rank()
-                   << ": Warning, light_positions is empty" << std::endl;
+         PyErr_WarnEx(PyExc_UserWarning,
+                      ("rank " + std::to_string(mpi_->rank()) +
+                       ": light_positions is empty")
+                          .c_str(),
+                      0);
       else
-         std::cout << "Warning, light_positions is empty" << std::endl;
+         PyErr_WarnEx(PyExc_UserWarning, "light_positions is empty", 0);
    }
 
    return light_positions;

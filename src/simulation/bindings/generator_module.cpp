@@ -97,7 +97,7 @@ PYBIND11_MODULE(__generation, m) {
             })
        .def(
            "run_generation",
-           [](PliGenerator &self, bool only_label, bool progress_bar) {
+           [](PliGenerator &self, bool only_label) {
               py::scoped_ostream_redirect stream(
                   std::cout,                               // std::ostream&
                   py::module::import("sys").attr("stdout") // Python output
@@ -108,7 +108,7 @@ PYBIND11_MODULE(__generation, m) {
               std::vector<setup::PhyProps> properties;
 
               std::tie(label_field, vector_field, properties) =
-                  self.RunTissueGeneration(only_label, progress_bar);
+                  self.RunTissueGeneration(only_label);
 
               std::vector<size_t> dim_label_field =
                   vm::cast<size_t>(self.dim_local());
@@ -131,7 +131,7 @@ PYBIND11_MODULE(__generation, m) {
                   object::Vec2NpArray(new std::vector<double>(prop_vec),
                                       dim_prop));
            },
-           py::arg("only_label") = false, py::arg("progress_bar") = false)
+           py::arg("only_label") = false)
        .def("dim_local",
             [](PliGenerator &self) { return self.dim_local().data_; })
        .def("dim_offset",

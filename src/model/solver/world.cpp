@@ -438,10 +438,10 @@ void World::SaveSTL(const char *fname) {
       }
    }
 
-   std::cout << "Number of faces: " << n_tmp << std::endl;
    if (n != n_tmp) {
-      std::cout << "Number of pre calc faces: " << n << std::endl;
+      std::cerr << "Number of pre calc faces: " << n << std::endl;
       std::cerr << "Number of faces is wrong" << std::endl;
+      exit(1);
    }
 
    file.close();

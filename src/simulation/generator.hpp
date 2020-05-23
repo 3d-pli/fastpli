@@ -30,8 +30,7 @@ class PliGenerator {
 
    std::tuple<std::vector<int> *, std::vector<float> *,
               std::vector<setup::PhyProps>>
-   RunTissueGeneration(const bool only_label = false,
-                       const bool progress_bar = false);
+   RunTissueGeneration(const bool only_label = false);
    int set_omp_num_threads(int num);
 
    // getter

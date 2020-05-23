@@ -8,7 +8,7 @@
 #include <vector>
 
 #define PY_SSIZE_T_CLEAN
-#include "Python.h"
+#include <Python.h>
 
 #include "fiber_bundle.hpp"
 #include "include/aabb.hpp"
@@ -158,8 +158,7 @@ void PliGenerator::SetMPIComm(const MPI_Comm comm) {
 
 std::tuple<std::vector<int> *, std::vector<float> *,
            std::vector<setup::PhyProps>>
-PliGenerator::RunTissueGeneration(const bool only_label,
-                                  const bool progress_bar) {
+PliGenerator::RunTissueGeneration(const bool only_label) {
 
    volume_bb_ =
        aabb::AABB<double, 3>(vm::cast<double>(dim_.offset),
@@ -193,12 +192,8 @@ PliGenerator::RunTissueGeneration(const bool only_label,
    for (auto &cp : cell_populations_)
       cp.Resize(1.0 / voxel_size_);
 
-   int lastProgress = 0;
-
    if (debug_)
       std::cout << "generating fibers: " << num_fibers_ << std::endl;
-
-   size_t progress_counter = 0;
 
 #pragma omp parallel
    // every thread runs all elements, writing splits x_range
@@ -229,32 +224,6 @@ PliGenerator::RunTissueGeneration(const bool only_label,
                                          *vector_field, array_distance,
                                          only_label);
          }
-
-         if (progress_bar && omp_get_thread_num() == 0) {
-            progress_counter++;
-
-            const int barWidth = 60;
-            const int progress =
-                progress_counter * 100 / (num_fibers_ + num_cells_);
-
-            if (progress - lastProgress > 1 ||
-                progress_counter == (num_fibers_ + num_cells_) ||
-                progress_counter == 1) {
-               std::cout << ": [";
-               const int pos = (barWidth * progress) / 100;
-               for (int pb = 0; pb < barWidth; ++pb) {
-                  if (pb < pos)
-                     std::cout << "=";
-                  else if (pb == pos)
-                     std::cout << ">";
-                  else
-                     std::cout << " ";
-               }
-               std::cout << "] " << progress << " %\r";
-               std::cout.flush();
-               lastProgress = progress;
-            }
-         }
       }
    }
 
@@ -281,50 +250,7 @@ PliGenerator::RunTissueGeneration(const bool only_label,
             FillVoxelsAroundSphere(cp_idx, c_idx, s_idx, *label_field,
                                    array_distance);
          }
-
-         if (progress_bar && omp_get_thread_num() == 0) {
-            progress_counter++;
-            int barWidth = 60;
-            int progress = progress_counter * 100 / (num_fibers_ + num_cells_);
-
-            if (progress - lastProgress > 1 ||
-                progress_counter == (num_fibers_ + num_cells_) ||
-                progress_counter == 1) {
-               std::cout << ": [";
-               int pos = (barWidth * progress) / 100;
-               for (int pb = 0; pb < barWidth; ++pb) {
-                  if (pb < pos)
-                     std::cout << "=";
-                  else if (pb == pos)
-                     std::cout << ">";
-                  else
-                     std::cout << " ";
-               }
-               std::cout << "] " << progress << " %\r";
-               std::cout.flush();
-               lastProgress = progress;
-            }
-         }
       }
-   }
-
-   if (progress_bar) {
-      const int barWidth = 60;
-      const int progress = 100;
-
-      std::cout << ": [";
-      const int pos = (barWidth * progress) / 100;
-      for (int pb = 0; pb < barWidth; ++pb) {
-         if (pb < pos)
-            std::cout << "=";
-         else if (pb == pos)
-            std::cout << ">";
-         else
-            std::cout << " ";
-      }
-      std::cout << "] " << progress << " %\r";
-      std::cout.flush();
-      std::cout << std::endl;
    }
 
    return std::make_tuple(label_field, vector_field, GetPropertyList());

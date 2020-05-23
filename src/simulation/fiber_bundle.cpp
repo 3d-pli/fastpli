@@ -4,6 +4,9 @@
 #include <iostream>
 #include <vector>
 
+// #define PY_SSIZE_T_CLEAN
+// #include <Python.h>
+
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
@@ -22,21 +25,12 @@ Property::Property(double s, double n, double m, char o)
       orientation = Orientation::radial;
    else
       throw std::invalid_argument("Orientation must be \"b\", \"p\", or \"r\"");
-
-   if (s <= 0)
-      std::cout << "Warning: scale <= 0 detected\n";
-
-   if (mu < 0)
-      std::cout << "Warning: absorption mu < 0 detected\n";
+   assert(s > 0);
 }
 
 Property::Property(double s, double n, double m, Orientation o)
     : scale(s), dn(n), mu(m), orientation(o) {
-   if (s <= 0)
-      std::cout << "Warning: scale <= 0 detected\n";
-
-   if (m < 0)
-      std::cout << "Warning: absorption mu < 0 detected\n";
+   assert(s > 0);
 }
 
 size_t Properties::size() const {
