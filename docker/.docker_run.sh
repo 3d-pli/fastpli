@@ -16,9 +16,9 @@ set -euo pipefail
 echo "--------------------------------------"
 echo "****************Build*****************"
 echo "--------------------------------------"
-make BUILD=release CC=clang-9 CXX=clang++-9 install
+make BUILD=release CC=clang-10 CXX=clang++-10 install
 make clean
-make BUILD=debug CC=gcc-8 CXX=g++-8 install
+make BUILD=debug CC=gcc-9 CXX=g++-9 install
 
 echo "--------------------------------------"
 echo "*****************Test*****************"

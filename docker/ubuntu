@@ -1,13 +1,14 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
-RUN apt-get update && apt-get upgrade
-RUN apt-get install -y gcc-8 g++-8 clang-9 clang-format-9 make cmake git
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y gcc-9 g++-9 clang-10 clang-format-10 make cmake git
 RUN apt-get install -y python3-dev python3-venv
 RUN apt-get install -y libopenmpi-dev libhdf5-openmpi-dev
 RUN apt-get install -y freeglut3-dev
 
 ENV HDF5_DIR /usr/lib/x86_64-linux-gnu/hdf5/openmpi
-ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /code/fastpli
 
