@@ -1,4 +1,5 @@
 #include <pybind11/functional.h>
+#include <pybind11/iostream.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
@@ -55,6 +56,11 @@ PYBIND11_MODULE(__simulation, m) {
               py::array_t<float, py::array::c_style> vector_array,
               py::array_t<double, py::array::c_style> prop_array, double theta,
               double phi) {
+              py::scoped_ostream_redirect stream(
+                  std::cout,                               // std::ostream&
+                  py::module::import("sys").attr("stdout") // Python output
+              );
+
               auto label_container = object::NpArray2Container(label_array);
               auto vector_container = object::NpArray2Container(vector_array);
 

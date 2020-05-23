@@ -7,6 +7,9 @@
 #include <tuple>
 #include <vector>
 
+#define PY_SSIZE_T_CLEAN
+#include "Python.h"
+
 #include "fiber_bundle.hpp"
 #include "include/aabb.hpp"
 #include "include/omp.hpp"
@@ -146,8 +149,7 @@ void PliGenerator::SetMPIComm(const MPI_Comm comm) {
    if (mpi->size() > 1)
       mpi_ = std::move(mpi);
    else
-      std::cout << "WARNING: PliGenerator: only one processor found."
-                << std::endl;
+      PyErr_WarnEx(PyExc_UserWarning, "only one processor found", 0);
 }
 
 // #############################################################################
@@ -210,9 +212,11 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       for (size_t f_idx = 0; f_idx < fb.fibers().size(); f_idx++) {
          const auto &fiber = fb.fibers()[f_idx];
 
-         if (fiber.size() <= 1)
-            // TODO: warning
+         if (fiber.size() <= 1) {
+            PyErr_WarnEx(PyExc_UserWarning,
+                         "fiber object with only single point", 0);
             continue;
+         }
 
          if (!aabb::Overlap(volume_bb_, fiber.aabb()))
             continue;
@@ -323,11 +327,6 @@ PliGenerator::RunTissueGeneration(const bool only_label,
       std::cout << std::endl;
    }
 
-   // moved to simply.py
-   // if (!std::any_of(label_field->begin(), label_field->end(),
-   //                  [](int i) { return i > 0; }))
-   //    std::cout << "WARNING: all labels are 0" << std::endl;
-
    return std::make_tuple(label_field, vector_field, GetPropertyList());
 }
 
@@ -425,7 +424,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                   if (label_field[ind] != 0) {
                      if (std::abs(label_field[ind] - new_label) >= max_layer_) {
                         flag_overlap_ = true;
-                        std::cout << "WARNING: objects overlap" << std::endl;
+                        PyErr_WarnEx(PyExc_UserWarning, "objects overlap", 0);
                      }
                   }
                }
@@ -526,7 +525,7 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
                   if (label_field[ind] != 0) {
                      if (std::abs(label_field[ind] - new_label) >= max_layer_) {
                         flag_overlap_ = true;
-                        std::cout << "WARNING: objects overlap" << std::endl;
+                        PyErr_WarnEx(PyExc_UserWarning, "objects overlap", 0);
                      }
                   }
                }

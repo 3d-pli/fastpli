@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <pybind11/functional.h>
+#include <pybind11/iostream.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
@@ -97,6 +98,11 @@ PYBIND11_MODULE(__generation, m) {
        .def(
            "run_generation",
            [](PliGenerator &self, bool only_label, bool progress_bar) {
+              py::scoped_ostream_redirect stream(
+                  std::cout,                               // std::ostream&
+                  py::module::import("sys").attr("stdout") // Python output
+              );
+
               std::vector<int> *label_field;
               std::vector<float> *vector_field;
               std::vector<setup::PhyProps> properties;
