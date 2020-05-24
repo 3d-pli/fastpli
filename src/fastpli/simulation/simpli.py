@@ -553,6 +553,7 @@ class Simpli:
         theta, phi: tilting angle in radiant
         """
 
+        self._print("Run simulation")
         self._check_volume_input()
         self._init_pli_setup()
 
@@ -580,6 +581,7 @@ class Simpli:
 
     def save_parameter_h5(self, h5f, script=None):
         """ Saves class members without fiber_bundles in hdf5 file. """
+        self._print("Save fastpli parameter")
         h5f.attrs['fastpli/simpli'] = str(self.get_dict())
         h5f.attrs['fastpli/version'] = version.__version__
         h5f.attrs['fastpli/compiler'] = version.__compiler__
@@ -595,6 +597,7 @@ class Simpli:
                             save=['tissue', 'optical_axis']):
         """ Automatic pipeline for tissue generation with save options """
 
+        self._print("Run tissue pipeline")
         self._check_volume_input()
         self._check_generation_input()
 
@@ -632,6 +635,7 @@ class Simpli:
 
     def crop_tilt_pixel(self):
         """ crop affected boundary pixel from tilted images """
+        self._print("calc crop-tilt-halo pixel")
         if not self.untilt_sensor_view:
             raise ValueError("currently only for untilt_sensor_view=True")
         if self._voxel_size is None:
@@ -649,6 +653,7 @@ class Simpli:
 
     def crop_tilt_voxel(self):
         """ get number of affected boundary voxel from tilted images """
+        self._print("calc crop-tilt-halo voxel")
         delta_voxel = int(
             np.round(self.crop_tilt_pixel() * self._pixel_size /
                      self._voxel_size))
@@ -656,11 +661,13 @@ class Simpli:
 
     def add_crop_tilt_halo(self):
         """ add number of necessary boundary voxel from tilted images """
+        self._print("add crop-tilt-halo")
         self.dim_origin[:2] -= self.crop_tilt_voxel() * self.voxel_size
         self.dim[:2] += 2 * self.crop_tilt_voxel()
 
     def rm_crop_tilt_halo(self, input):
         """ remove number of added boundary voxel from tilted images """
+        self._print("rm crop-tilt-halo")
         delta_voxel = self.crop_tilt_voxel()
         if delta_voxel == 0:
             return input
@@ -676,6 +683,7 @@ class Simpli:
                                 mp_pool=None):
         """ Automatic pipeline for simulation and analysis with save options """
 
+        self._print("Run simulation pipeline")
         if 'all' in save or 'simulation' in save:
             save = save + ['data', 'optic', 'epa', 'mask', 'rofl']
 
@@ -720,10 +728,10 @@ class Simpli:
                 h5f['simulation/optic/' + str(t)].attrs['theta'] = theta
                 h5f['simulation/optic/' + str(t)].attrs['phi'] = phi
 
-            # calculate modalities
-            epa = self.apply_epa(new_images)
-
             if h5f and 'epa' in save:
+                # calculate modalities
+                epa = self.apply_epa(new_images)
+
                 self._print("Save epa")
                 h5f['analysis/epa/' + str(t) + '/transmittance'] = epa[0]
                 h5f['analysis/epa/' + str(t) + '/direction'] = epa[1]
@@ -744,9 +752,10 @@ class Simpli:
             tilting_stack[t] = new_images
 
         # pseudo mask
-        mask = np.sum(tissue, 2) > 0
-        mask = self.apply_optic_resample(1.0 * mask, mp_pool=mp_pool) > 0.1
         if h5f and 'mask' in save:
+            self._print("Calc mask")
+            mask = np.sum(tissue, 2) > 0
+            mask = self.apply_optic_resample(1.0 * mask, mp_pool=mp_pool) > 0.1
             self._print("Save mask")
             h5f['simulation/optic/mask'] = np.uint8(mask)
 
@@ -801,6 +810,7 @@ class Simpli:
                      mp_pool=None):
         """ Automatic tissue generation and simulation pipeline with save options """
 
+        self._print("Run pipeline")
         if 'all' in save:
             save = [
                 'tissue', 'optical_axis', 'data', 'optic', 'epa', 'mask', 'rofl'
@@ -893,6 +903,7 @@ class Simpli:
         input: np.array(x,y(,rho))
         """
 
+        self._print("Apply optic")
         if self._sensor_gain is None:
             raise ValueError("sensor_gain not set")
 
@@ -911,6 +922,7 @@ class Simpli:
         input: np.array(x,y(,rho))
         """
 
+        self._print("Apply optic resample")
         if self._optical_sigma is None:
             raise ValueError("optical_sigma is None")
 
@@ -968,6 +980,7 @@ class Simpli:
         if theta == 0:
             return input
 
+        self._print("Apply untilt")
         # calculate transformation matrix
         p = self._dim.copy()
         p_rot = 0.5 * np.array([p[0], p[1], 0])
@@ -992,6 +1005,7 @@ class Simpli:
         input = np.array(x,y,rho)
         """
 
+        self._print("Apply epa")
         transmittance, direction, retardation = analysis.epa.epa(input)
         if mask is not None:
             transmittance[np.invert(mask)] = float('nan')
@@ -1006,8 +1020,7 @@ class Simpli:
         input = np.array(tilt,x,y,rho)
         """
 
-        self._print("Analyse tilts")
-
+        self._print("Apply rofl")
         if self._tilts is None:
             raise ValueError("tilts not set")
 
