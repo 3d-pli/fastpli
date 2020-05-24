@@ -10,9 +10,7 @@ setuptools.setup(
     url='http://www.fz-juelich.de/inm/inm-1/EN/Forschung/\
         Fibre%20Architecture/Fibre%20Architecture_node.html',
     python_requires='>3.6.0',
-    install_requires=[
-        'numpy', 'numba', 'scipy', 'h5py', 'matplotlib'
-    ],
+    install_requires=['numpy', 'numba', 'scipy', 'h5py'],
     test_suite='tests',
     zip_safe=False,
     packages=setuptools.find_packages('src'),

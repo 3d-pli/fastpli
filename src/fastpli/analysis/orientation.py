@@ -5,8 +5,6 @@ Analyse Methods fiber_bundles orientations
 
 import numpy as np
 from numba import njit
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 
 
 @njit(cache=True)
