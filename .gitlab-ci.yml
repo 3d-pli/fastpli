@@ -11,20 +11,6 @@ before_script:
    - apt-get install -y libopenmpi-dev libhdf5-openmpi-dev
    - apt-get install -y freeglut3-dev
 
-test:debug:
-   stage: test
-   only:
-      - development
-      - master
-      - TestCI
-   tags:
-      - docker
-   except:
-      variables:
-         - $CI_COMMIT_MESSAGE =~ /WIP/
-   script:
-      - docker/.docker_run.sh
-
 # TODO: test-mpi 
 # - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
 
