@@ -1,7 +1,7 @@
 # build
 build/
 setup.py
-src/fastpli/version.py
+src/fastpli/__version.py
 src/include/version.hpp
 
 # development

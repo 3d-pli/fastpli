@@ -28,7 +28,7 @@ INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
 DOCKER=ubuntu
-CLANG-FORMAT=clang-format-9
+CLANG-FORMAT=clang-format-10
 
 ${VENV}/bin/pip3:
 	rm -rf ${VENV}
@@ -87,7 +87,7 @@ fastpli: build/ build/Makefile
 
 .PHONY: test
 test:
-	${VENV}/bin/python3 setup.py test
+	${VENV}/bin/python3 tests/test.py
 
 .PHONY: h5py-serial
 h5py-serial: h5py-clean
@@ -117,26 +117,13 @@ docker: docker-build
 	rm -rf /tmp/fastpli-${DOCKER}
 	docker start -i fastpli-cont-${DOCKER}
 
-# .PHONY: docker-parallel
-# docker-parallel: docker-parallel
-# 	@if [ -f /usr/bin/parallel ]; then \
-# 		parallel --halt now,fail=1 'make DOCKER={} docker' ::: archlinux ubuntu; \
-# 	else \
-# 		make DOCKER=archlinux docker; \
-# 		make DOCKER=ubuntu docker; \
-# 	fi
-
 .PHONY: format
 format: format-c++ format-py
 
 .PHONY: format-c++
 format-c++:
-	@if hash ${CLANG-FORMAT}; then \
-		echo "${CLANG-FORMAT} src/*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\) "; \
-		find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \; ; \
-	else \
-		echo "${CLANG-FORMAT} not found"; \
-	fi
+	@echo "${CLANG-FORMAT} src/*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\) "
+	@find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \;
 
 .PHONY: format-py
 format-py: 
@@ -153,7 +140,6 @@ docs:
 		sed 's/  //g' | sed 's/> //g' | sed 's/######/#####/g' > build/docs/fastpli_.md; \
 	uniq build/docs/fastpli_.md build/docs/fastpli.md; \
 	rm build/docs/fastpli_.md
-
 
 .PHONY: clean
 clean: uninstall clean-build clean-src
@@ -175,7 +161,7 @@ clean-venv:
 .PHONY: clean-src
 clean-src:
 	@echo cleaning source
-	@rm -f src/version.py
+	@rm -f src/fastpli/__version.py
 	@rm -f src/include/version.hpp
 	@find src/ -name "*.so" -type f | xargs rm -rf
 	@find src/ -type f \( -name "*.pyc" -o -name "*.pyo" \) | xargs rm -rf

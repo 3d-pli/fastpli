@@ -8,7 +8,9 @@ from .__solver import _Solver
 from ... import io
 from ... import objects
 from ... import tools
-from ... import version
+from ... import __version__
+from ... import __compiler__
+from ... import __libraries__
 
 import numpy as np
 import warnings
@@ -186,9 +188,9 @@ class Solver(_Solver):
 
     def save_parameter_h5(self, h5f, script=None):
         """ Saves class members without fiber_bundles in hdf5 file. """
-        h5f.attrs['fastpli/version'] = version.__version__
-        h5f.attrs['fastpli/compiler'] = version.__compiler__
-        h5f.attrs['fastpli/libraries'] = version.__libraries__
+        h5f.attrs['fastpli/version'] = __version__
+        h5f.attrs['fastpli/compiler'] = __compiler__
+        h5f.attrs['fastpli/libraries'] = __libraries__
         h5f.attrs['fastpli/pip_freeze'] = tools.helper.pip_freeze()
         h5f.attrs['fastpli/solver'] = str(self.get_dict())
         if script:
@@ -204,7 +206,7 @@ class Solver(_Solver):
         self.fiber_bundles = io.fiber_bundles.load_h5(h5f)
         self.set_dict(dict(eval(str(h5f.attrs['fastpli/solver']))))
 
-        if h5f.attrs['fastpli/version'] != version.__version__:
+        if h5f.attrs['fastpli/version'] != __version__:
             warnings.warn("__version__ changed")
 
         if h5f.attrs['fastpli/pip_freeze'] != tools.helper.pip_freeze():

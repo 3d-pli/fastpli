@@ -11,7 +11,9 @@ from . import _mpi
 from .. import analysis
 from .. import objects
 from .. import tools
-from .. import version
+from .. import __version__
+from .. import __compiler__
+from .. import __libraries__
 
 import numpy as np
 import warnings
@@ -583,9 +585,9 @@ class Simpli:
         """ Saves class members without fiber_bundles in hdf5 file. """
         self._print("Save fastpli parameter")
         h5f.attrs['fastpli/simpli'] = str(self.get_dict())
-        h5f.attrs['fastpli/version'] = version.__version__
-        h5f.attrs['fastpli/compiler'] = version.__compiler__
-        h5f.attrs['fastpli/libraries'] = version.__libraries__
+        h5f.attrs['fastpli/version'] = __version__
+        h5f.attrs['fastpli/compiler'] = __compiler__
+        h5f.attrs['fastpli/libraries'] = __libraries__
         h5f.attrs['fastpli/pip_freeze'] = tools.helper.pip_freeze()
         h5f.attrs['fastpli/system'] = sys.version
         if script:

@@ -38,8 +38,8 @@ configure_file(
    ${CMAKE_SOURCE_DIR}/src/include/version.hpp
 )
 configure_file(
-   ${CMAKE_SOURCE_DIR}/cmake/version.py
-   ${CMAKE_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}/version.py
+   ${CMAKE_SOURCE_DIR}/cmake/__version.py
+   ${CMAKE_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}/__version.py
 )
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/setup.py
