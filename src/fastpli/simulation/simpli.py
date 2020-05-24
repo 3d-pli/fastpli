@@ -788,6 +788,7 @@ class Simpli:
             h5f['analysis/rofl/inclination'] = rofl_incl
             h5f['analysis/rofl/t_rel'] = rofl_t_rel
 
+        if h5f and flag_rofl and 'rofl_conf' in save:
             h5f['analysis/rofl/direction_conf'] = rofl_direction_conf,
             h5f['analysis/rofl/inclination_conf'] = rofl_incl_conf,
             h5f['analysis/rofl/t_rel_conf'] = rofl_t_rel_conf,
