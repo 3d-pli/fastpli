@@ -8,6 +8,22 @@ from numba import njit
 
 
 @njit(cache=True)
+def _remap_direction(phi):
+    phi = phi % np.pi
+    phi[phi < 0] += np.pi
+    return phi
+
+
+def remap_direction(phi):
+    phi = np.array(phi, copy=False)
+    shape = phi.shape
+    phi.shape = (-1)
+    phi = _remap_direction(phi)
+    phi.shape = shape
+    return phi
+
+
+@njit(cache=True)
 def _remap_orientation(phi, theta):
     phi = phi % (2 * np.pi)
     theta = theta % (2 * np.pi)
