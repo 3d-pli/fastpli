@@ -90,13 +90,22 @@ def Translate(fiber, offset):
     return fiber
 
 
-# @numba.njit(cache=True)
-def _cone_aabb_in_aabb(c0, c1, min, max):
-    c_min = np.min(np.array([c0[:3] - c0[-1], c1[:3] - c1[-1]]), axis=0)
-    c_max = np.max(np.array([c0[:3] + c0[-1], c1[:3] + c1[-1]]), axis=0)
+@numba.njit(cache=True)
+def _cone_aabb_in_aabb(c0, c1, vmin, vmax):
+    c_min = np.array([
+        min(c0[0] - c0[-1], c1[0] - c1[-1]),
+        min(c0[1] - c0[-1], c1[1] - c1[-1]),
+        min(c0[2] - c0[-1], c1[2] - c1[-1])
+    ])
+
+    c_max = np.array([
+        min(c0[0] + c0[-1], c1[0] + c1[-1]),
+        min(c0[1] + c0[-1], c1[1] + c1[-1]),
+        min(c0[2] + c0[-1], c1[2] + c1[-1])
+    ])
 
     for i in range(3):
-        if c_min[i] > max[i] or c_max[i] < min[i]:
+        if c_min[i] > vmax[i] or c_max[i] < vmin[i]:
             return False
     return True
 
