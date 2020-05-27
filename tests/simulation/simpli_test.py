@@ -111,7 +111,7 @@ class MainTest(unittest.TestCase):
 
     def test_tissue_parallel(self):
         self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
-        self.fiber_bundles_properties = [[(1.0, 0.004, 1, 'p')]]
+        self.fiber_bundles_properties = [[(1.0, -0.004, 1, 'p')]]
 
         self.simpli = Simpli()
         self.simpli.fiber_bundles = self.fiber_bundles
