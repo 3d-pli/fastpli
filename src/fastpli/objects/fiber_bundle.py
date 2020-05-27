@@ -150,3 +150,29 @@ def ApplyFunToRadii(fiber_bundle, fun):
     for i, _ in enumerate(fiber_bundle):
         fiber_bundle[i][:, -1] = fun(fiber_bundle[i][:, -1])
     return fiber_bundle
+
+
+def Cut(fiber_bundle, voi):
+    """
+    Cut fiber into voi. The cutting process can create multiple fibers.
+    It checks every cone_aabb if it overlapps with the voi.
+
+    Parameters
+    ----------
+    fiber_bundle : [(,4)-array, ...]
+        list of fibers
+    voi : [xmin, ymin, zmin],[xmax,ymax,zmax]
+        Volume of interest of which fibers to include. E.g. same as in
+        Simulation
+
+    Returns
+    -------
+    res : [(,4)-array, ...]
+        cutted fiber_bundle
+    """
+
+    new_fiber_bundle = []
+    for f in fiber_bundle:
+        new_fiber_bundle.extend(fiber.Cut(f, voi))
+
+    return new_fiber_bundle

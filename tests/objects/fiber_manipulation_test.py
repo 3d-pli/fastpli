@@ -84,6 +84,55 @@ class MainTest(unittest.TestCase):
                                    self.fiber[:, :3] + np.array([1, 1, 1])))
                 self.assertTrue(np.array_equal(f[:, -1], self.fiber[:, -1]))
 
+    def test_cut(self):
+        fiber = np.array([[0, 0, 0, 1], [1, 1, 1, 2]], dtype=float)
+        fibers = fastpli.objects.fiber.Cut(fiber, [[-10] * 3, [10] * 3])
+        self.assertTrue(len(fibers) == 1)
+        self.assertTrue(np.array_equal(fibers[0], fiber))
+
+        fiber = np.array([[0, 0, 0, 1], [10, 10, 10, 2]], dtype=float)
+        fibers = fastpli.objects.fiber.Cut(fiber, [[-5] * 3, [5] * 3])
+        self.assertTrue(len(fibers) == 1)
+        self.assertTrue(np.array_equal(fibers[0], fiber))
+
+        fiber = np.array([[0, 0, 0, 1], [10, 10, 10, 2], [100, 100, 100, 2]],
+                         dtype=float)
+        fibers = fastpli.objects.fiber.Cut(fiber, [[-5] * 3, [5] * 3])
+        self.assertTrue(len(fibers) == 1)
+        self.assertTrue(fibers[0].shape[0] == 2)
+        self.assertTrue(not np.array_equal(fibers[0], fiber))
+
+        fiber = np.array([[0, 0, 0, 1], [10, 10, 10, 2], [100, 100, 100, 2],
+                          [10, 10, 10, 2], [0, 0, 0, 1]],
+                         dtype=float)
+        fibers = fastpli.objects.fiber.Cut(fiber, [[-5] * 3, [5] * 3])
+        self.assertTrue(len(fibers) == 2)
+        self.assertTrue(fibers[0].shape[0] == 2)
+        self.assertTrue(fibers[1].shape[0] == 2)
+        self.assertTrue(not np.array_equal(fibers[0], fiber))
+        self.assertTrue(not np.array_equal(fibers[1], fiber))
+
+        fiber_bundle = [fiber]
+        cut_fb = fastpli.objects.fiber_bundle.Cut(fiber_bundle,
+                                                  [[-5] * 3, [5] * 3])
+        fibers = cut_fb
+        self.assertTrue(len(fibers) == 2)
+        self.assertTrue(fibers[0].shape[0] == 2)
+        self.assertTrue(fibers[1].shape[0] == 2)
+        self.assertTrue(not np.array_equal(fibers[0], fiber))
+        self.assertTrue(not np.array_equal(fibers[1], fiber))
+
+        fiber_bundles = [[fiber]]
+        cut_fbs = fastpli.objects.fiber_bundles.Cut(fiber_bundles,
+                                                    [[-5] * 3, [5] * 3])
+        fibers = cut_fbs[0]
+        self.assertTrue(len(cut_fbs) == 1)
+        self.assertTrue(len(fibers) == 2)
+        self.assertTrue(fibers[0].shape[0] == 2)
+        self.assertTrue(fibers[1].shape[0] == 2)
+        self.assertTrue(not np.array_equal(fibers[0], fiber))
+        self.assertTrue(not np.array_equal(fibers[1], fiber))
+
 
 if __name__ == '__main__':
     unittest.main()

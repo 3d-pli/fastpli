@@ -4,6 +4,7 @@ Methods for manipulation of fiber objects
 """
 
 import numpy as np
+import numba
 
 
 def Rescale(fiber, scale, mod='all'):
@@ -87,3 +88,52 @@ def Translate(fiber, offset):
     offset = np.array(offset, copy=False)
     fiber[:, :3] += offset
     return fiber
+
+
+# @numba.njit(cache=True)
+def _cone_aabb_in_aabb(c0, c1, min, max):
+    c_min = np.min(np.array([c0[:3] - c0[-1], c1[:3] - c1[-1]]), axis=0)
+    c_max = np.max(np.array([c0[:3] + c0[-1], c1[:3] + c1[-1]]), axis=0)
+
+    for i in range(3):
+        if c_min[i] > max[i] or c_max[i] < min[i]:
+            return False
+    return True
+
+
+def Cut(fiber, voi):
+    """
+    Cut fiber into voi. The cutting process can create multiple fibers.
+    It checks every cone_aabb if it overlapps with the voi.
+
+    Parameters
+    ----------
+    fiber : (,4)-array
+        fiber
+    voi : [xmin, ymin, zmin],[xmax,ymax,zmax]
+        Volume of interest of which fibers to include. E.g. same as in
+        Simulation
+
+    Returns
+    -------
+    res : [(,4)-array]
+        cut fiber(s)
+    """
+
+    fibers = []
+    fiber = np.array(fiber, copy=False)
+    if fiber.ndim != 2:
+        raise (TypeError, "False fiber shape")
+
+    start = 0
+    voi = np.array(voi)
+    for i in range(fiber.shape[0] - 1):
+        if not _cone_aabb_in_aabb(fiber[i, :], fiber[i + 1, :], voi[0], voi[1]):
+            if start != i:
+                fibers.append(fiber[start:i + 1])
+            start = i + 1
+
+    if start != i + 1:
+        fibers.append(fiber[start:])
+
+    return fibers
