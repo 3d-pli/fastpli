@@ -4,10 +4,10 @@ Analyse Methods fiber_bundles orientations
 """
 
 import numpy as np
-from numba import njit
+import numba
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _remap_direction(phi):
     phi = phi % np.pi
     phi[phi < 0] += np.pi
@@ -23,7 +23,7 @@ def remap_direction(phi):
     return phi
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _remap_orientation(phi, theta):
     phi = phi % (2 * np.pi)
     theta = theta % (2 * np.pi)

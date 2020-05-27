@@ -6,10 +6,10 @@ optimized with numba
 """
 
 import numpy as np
-from numba import njit
+import numba
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _rot_a_on_b(a, b):
     a = a / np.linalg.norm(a)
     b = b / np.linalg.norm(b)
@@ -24,13 +24,13 @@ def _rot_a_on_b(a, b):
     return R
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _rot_z(phi):
     return np.array(((np.cos(phi), -np.sin(phi), 0),
                      (np.sin(phi), np.cos(phi), 0), (0, 0, 1)), np.float64)
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _bundle(traj, seeds, radii, scale):
     fiber_bundle = [np.empty((traj.shape[0], 4)) for i in range(seeds.shape[0])]
     tangent_old = np.array([0, 0, 1.0])
@@ -112,7 +112,7 @@ def bundle(traj, seeds, radii, scale=1):
     return _bundle(traj, seeds, radii, scale)
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
     dp = q - p
     rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
@@ -145,7 +145,7 @@ def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
     return fiber_bundle
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
     # create cylinder which is afterwards rotated
     dp = q - p
@@ -192,7 +192,7 @@ def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
     return fiber_bundle
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     dp = q - p
     width = r_in * (beta - alpha)
@@ -232,7 +232,7 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     return fiber_bundle
 
 
-# @njit(cache=True)
+# @numba.njit(cache=True)
 def add_radii(fiber_bundle, radii):
     """
     Adding radii to a fiber_bundle
@@ -334,7 +334,7 @@ def cylinder(p,
     return fiber_bundle
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _ray_box_intersection(p, dir, b_min, b_max):
 
     tmin = np.divide(b_min - p, dir)
@@ -345,7 +345,7 @@ def _ray_box_intersection(p, dir, b_min, b_max):
     return np.max(tmin), np.min(tmax)
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _cuboid(p, q, dir, seeds, radii):
     fiber_bundle = []
 

@@ -6,14 +6,14 @@ Methods for calculating and applying affine transformation to coordinates and im
 import numpy as np
 import scipy.interpolate
 
-from numba import njit
+import numba
 
 
 def _replace_mat_row(B, r, d):
     return np.linalg.det(np.delete(np.vstack([r, B]), (d + 1), axis=0))
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _nearest_neighbors(image, M):
     """ written for simpli images[x,y,rho]
     """

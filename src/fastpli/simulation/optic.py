@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 import scipy.ndimage
-from numba import njit
+import numba
 
 
 def add_noise(image, gain, mask=None):
@@ -83,7 +83,7 @@ def filter2d(image, sigma):
         scipy.ndimage.fourier_gaussian(np.fft.fft2(image), sigma=sigma)).real
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def resample(image, scale):
     """
     Resamples image according to scale.

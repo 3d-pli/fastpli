@@ -8,10 +8,10 @@ import numpy as np
 import itertools
 from scipy import optimize
 
-from numba import njit
+import numba
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _invertmatrix(m):
     '''Calculates the inverse of a 3x3 matrix analytically'''
 
@@ -64,7 +64,7 @@ def _calc_centered_vals(stack_2d, gain):
     return centered_stack, 1 / sigma_stack
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _symmetrize_angles(direction, inclination):
     '''
     Warps angles back into PLI coordinate system in case they are out of bonds
@@ -91,7 +91,7 @@ def _create_rotation_matrix(psi_t, tau):
     return R
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _create_orientation_vector(phi, alpha):
     '''
     returns orientation vector out of direction angle phi and inclination angle alpha
@@ -123,7 +123,7 @@ def _list_all_tilt_matrices(number_of_tilts, tau):
     return array_of_matrices
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _get_direction_inclination(vector):
     '''returns direction nand inclination angle from orientation vector
     Params:
@@ -134,7 +134,7 @@ def _get_direction_inclination(vector):
     return phi, alpha
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _calculate_rotated_fiber_params(phi, alpha, t_rel, array_matrices, tau):
     '''
     Params:
@@ -163,7 +163,7 @@ def _calculate_rotated_fiber_params(phi, alpha, t_rel, array_matrices, tau):
     return tilted_params.T[0, :], tilted_params.T[1, :], t_rel_array
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations, dir_offset):
     '''
     Calculates intensity curves in all tilting directions
@@ -187,7 +187,7 @@ def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations, dir_offset):
     return I.flatten()
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _calc_Jacobi(phi, alpha, t_rel, num_rotations, dir_offset):
     '''
     Calculates Jacobi matrix of the intensity function in all tilting directions
@@ -240,7 +240,7 @@ def _calc_Jacobi(phi, alpha, t_rel, num_rotations, dir_offset):
     return Jacobi
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _calc_Jacobi_for_opt(phi, alpha, t_rel, num_rotations):
     '''
     Calculates Jacobi matrix of the intensity function in all tilting directions
@@ -420,7 +420,7 @@ def _brute_force_grid(phi,
     return (phi, gridlist[min_arg][0], gridlist[min_arg][1])
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _model(p, array_of_matrices, tau, number_rotations, dir_offset):
     dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
         p[0], p[1], p[2], array_of_matrices, tau)
@@ -430,7 +430,7 @@ def _model(p, array_of_matrices, tau, number_rotations, dir_offset):
     return Intensities.flatten()
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _weighted_jacobi(p, array_of_matrices, tau, number_rotations, dir_offset,
                      data, weights):
     dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
@@ -448,14 +448,14 @@ def _weighted_jacobi(p, array_of_matrices, tau, number_rotations, dir_offset,
     return Jacobi
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _residuum(p, array_of_matrices, tau, number_rotations, dir_offset, measures,
               weights):
     return weights * (_model(p, array_of_matrices, tau, number_rotations,
                              dir_offset) - measures)
 
 
-@njit(cache=True)
+@numba.njit(cache=True)
 def _chisq(p, array_of_matrices, tau, number_rotations, dir_offset, measures,
            weights):
 
