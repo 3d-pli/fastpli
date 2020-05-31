@@ -26,6 +26,7 @@ class Scene {
    void DrawScene(const std::vector<geometry::Fiber> &fibers,
                   const bool only_col = false);
    void ToggleAxis() { axes_ = !axes_; };
+   void SetAxis(bool flag) { axes_ = flag; };
    void SavePPM(const char *fname, int start_x = 0, int start_y = 0);
    void Close();
 

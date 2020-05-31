@@ -50,10 +50,7 @@ class World {
    bool ApplyBoundaryConditions(int max_steps);
    void DrawScene(double rot_x = 0, double rot_y = 0, double rot_z = 0,
                   bool only_col = false);
-   void ToggleAxis() {
-      if (scene_)
-         scene_->ToggleAxis();
-   };
+   void ToggleAxis() { draw_axis_ = !draw_axis_; };
    void CloseScene();
    void SavePPM(std::string file) {
       if (scene_)
@@ -74,7 +71,8 @@ class World {
    size_t num_obj_{0};
    size_t num_col_obj_{0};
 
-   std::unique_ptr<Scene> scene_ = nullptr;
+   std::unique_ptr<Scene> scene_{nullptr};
+   bool draw_axis_{false};
 
    // world functions
    bool ApplyCurvatureConstrain();

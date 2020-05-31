@@ -255,6 +255,7 @@ void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
       scene_ = std::make_unique<Scene>(argc, argv);
    }
    scene_->SetViewAngle(rot_x, rot_y, rot_z);
+   scene_->SetAxis(draw_axis_);
    scene_->DrawScene(fibers_, only_col);
 }
 
