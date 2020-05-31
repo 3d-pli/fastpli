@@ -50,6 +50,10 @@ class World {
    bool ApplyBoundaryConditions(int max_steps);
    void DrawScene(double rot_x = 0, double rot_y = 0, double rot_z = 0,
                   bool only_col = false);
+   void ToggleAxis() {
+      if (scene_)
+         scene_->ToggleAxis();
+   };
    void CloseScene();
    void SavePPM(std::string file) {
       if (scene_)

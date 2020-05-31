@@ -86,6 +86,8 @@ void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers,
    glRotated(rotation_.z(), 0, 0, 1);
 
    DrawCylinders(fibers);
+   if (axes_)
+      DrawAxis();
 
    glutSwapBuffers();
 
@@ -124,6 +126,41 @@ void Scene::DrawCylinders(const std::vector<geometry::Fiber> &fibers) {
          glPopMatrix();
       }
    }
+}
+
+void Scene::DrawAxis() {
+   glDisable(GL_DEPTH_TEST);
+
+   glLoadIdentity();
+   glTranslatef(-center_.x(), -center_.y(), -center_.z() - 2.5 * distance_);
+   glRotated(rotation_.x(), 1, 0, 0);
+   glRotated(rotation_.y(), 0, 1, 0);
+   glRotated(rotation_.z(), 0, 0, 1);
+
+   auto size = distance_ / 5;
+
+   glPushMatrix();
+   // x
+   glBegin(GL_LINES);
+   glColor3f(1.0, 0.0, 0.0);
+   glVertex3f(0.0, 0.0f, 0.0f);
+   glVertex3f(size, 0.0f, 0.0f);
+   glEnd();
+   // y
+   glBegin(GL_LINES);
+   glColor3f(0.0, 1.0, 0.0);
+   glVertex3f(0.0, 0.0f, 0.0f);
+   glVertex3f(0.0, size, 0.0f);
+   glEnd();
+   // z
+   glBegin(GL_LINES);
+   glColor3f(0.0, 0.0, 1.0);
+   glVertex3f(0.0, 0.0f, 0.0f);
+   glVertex3f(0.0, 0.0f, size);
+   glEnd();
+   glPopMatrix();
+
+   glEnable(GL_DEPTH_TEST);
 }
 
 void Scene::AutoVolume(const std::vector<geometry::Fiber> &fibers) {

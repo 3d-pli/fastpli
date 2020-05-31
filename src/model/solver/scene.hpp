@@ -25,6 +25,7 @@ class Scene {
    void SetViewAngle(const float x, const float y, const float z);
    void DrawScene(const std::vector<geometry::Fiber> &fibers,
                   const bool only_col = false);
+   void ToggleAxis() { axes_ = !axes_; };
    void SavePPM(const char *fname, int start_x = 0, int start_y = 0);
    void Close();
 
@@ -32,6 +33,7 @@ class Scene {
    void CreateWindow();
    void AutoVolume(const std::vector<geometry::Fiber> &fibers);
    void DrawCylinders(const std::vector<geometry::Fiber> &fibers);
+   void DrawAxis();
    void CheckWindowSize();
 
    int glut_window_ = 0;
@@ -43,6 +45,7 @@ class Scene {
    float distance_ = 0;
    float distance_new_ = 0;
    const float repos_threshold_ = 0.25;
+   bool axes_{false};
 };
 
 #endif // SCENECLASS_HPP_
