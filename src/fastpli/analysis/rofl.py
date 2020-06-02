@@ -39,7 +39,7 @@ def rofl(data,
         raise ValueError("data need 1 + 4 measurements")
 
     if data.shape[1] <= 3:
-        raise ValueError("data needs at least 3 equidistand rotations")
+        raise ValueError("data needs at least 3 equidistant rotations")
 
     if gain <= 0:
         raise ValueError("rofl gain <= 0")
