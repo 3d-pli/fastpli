@@ -94,12 +94,12 @@ class Solver(_Solver):
                                 self._obj_mean_length)
 
     @property
-    def step_num(self):
+    def num_steps(self):
         """ get/set number of applied steps """
         return self._num_steps
 
     @drag.setter
-    def step_num(self, value):
+    def num_steps(self, value):
         self._num_steps = int(value)
 
     @property
