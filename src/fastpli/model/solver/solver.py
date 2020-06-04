@@ -40,7 +40,7 @@ class Solver(_Solver):
         self._obj_mean_length = 0
         self._col_voi = None
         self._omp_num_threads = 1
-        self._step_num = 0
+        self._num_steps = 0
         self.__display = None
 
         super()._set_omp_num_threads(self._omp_num_threads)
@@ -96,11 +96,11 @@ class Solver(_Solver):
     @property
     def step_num(self):
         """ get/set number of applied steps """
-        return self._step_num
+        return self._num_steps
 
     @drag.setter
     def step_num(self, value):
-        self._step_num = int(value)
+        self._num_steps = int(value)
 
     @property
     def obj_min_radius(self):
@@ -154,7 +154,7 @@ class Solver(_Solver):
         
         Returns True if solved
         """
-        self._step_num += 1
+        self._num_steps += 1
         return super().step()
 
     def draw_scene(self, display=True):
