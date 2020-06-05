@@ -60,11 +60,11 @@ class MainTest(unittest.TestCase):
         self.simpli.dim = [10, 10, 10]
         self.simpli.voxel_size = 0.2
         tissue_0, optical_axis, tissue_properties = self.simpli.generate_tissue(
-            only_label=True)
+            only_tissue=True)
         self.assertTrue(optical_axis.size == 0)
 
         tissue_1, optical_axis, tissue_properties = self.simpli.generate_tissue(
-            only_label=False)
+            only_tissue=False)
         self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
         self.assertTrue(np.array_equal(tissue_0, tissue_1))
         self.assertTrue(np.array_equal(tissue_1.shape, optical_axis.shape[:3]))

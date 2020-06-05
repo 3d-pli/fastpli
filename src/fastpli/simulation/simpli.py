@@ -474,7 +474,7 @@ class Simpli:
                     self._cells_populations_properties):
                 raise TypeError("len(cell_populations) != len(cell_properties)")
 
-    def generate_tissue(self, only_label=False):
+    def generate_tissue(self, only_tissue=False):
         """ generating discret tissue for simulation
         """
 
@@ -492,7 +492,7 @@ class Simpli:
             self.__gen.set_cell_populations(self._cells_populations,
                                             self._cells_populations_properties)
         tissue, optical_axis, tissue_properties = self.__gen.run_generation(
-            only_label)
+            only_tissue)
 
         if not np.any(tissue):
             warnings.warn(
