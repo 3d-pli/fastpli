@@ -98,7 +98,7 @@ class Solver(_Solver):
         """ get/set number of applied steps """
         return self._num_steps
 
-    @drag.setter
+    @num_steps.setter
     def num_steps(self, value):
         self._num_steps = int(value)
 
@@ -155,6 +155,7 @@ class Solver(_Solver):
         Returns True if solved
         """
         self._num_steps += 1
+
         return super().step()
 
     def draw_scene(self, display=True):
