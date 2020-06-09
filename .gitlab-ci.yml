@@ -14,22 +14,6 @@ before_script:
 # TODO: test-mpi 
 # - export HDF5_DIR="/usr/lib/x86_64-linux-gnu/hdf5/openmpi"
 
-test:no_opengl:
-   stage: test
-   only: 
-      - development
-      - master
-      - TestCI
-   tags:
-      - docker
-   except:
-      variables:
-         - $CI_COMMIT_MESSAGE =~ /WIP/
-   script:
-      - apt-get remove -y freeglut3-dev
-      - apt-get autoremove -y
-      - docker/.docker_run.sh
-
 test:release:
    stage: test
    only: 
@@ -43,3 +27,8 @@ test:release:
          - $CI_COMMIT_MESSAGE =~ /WIP/
    script:
       - docker/.docker_run.sh
+      - apt-get remove -y freeglut3-dev
+      - apt-get autoremove -y
+      - make clean
+      - make BUILD=debug CC=gcc-9 CXX=g++-9 install
+      - make test
