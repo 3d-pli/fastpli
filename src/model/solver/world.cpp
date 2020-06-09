@@ -8,13 +8,18 @@
 #include <memory>
 #include <utility>
 
+#include <Python.h>
+
 #include "fiber_class.hpp"
 #include "include/aabb.hpp"
 #include "include/omp.hpp"
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
+
+#if _VIS_LIBRARIES
 #include "scene.hpp"
+#endif //_VIS_LIBRARIES
 
 object::FiberBundles World::get_fibers() const {
    object::FiberBundles fiber_bundles;
@@ -247,6 +252,7 @@ bool World::Step() {
    return solved;
 }
 
+#if _VIS_LIBRARIES
 void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
    if (scene_ == nullptr) {
       char arg0[] = "model.solver";
@@ -260,6 +266,24 @@ void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
 }
 
 void World::CloseScene() { scene_->Close(); }
+#else
+void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
+   (void)rot_x;
+   (void)rot_y;
+   (void)rot_z;
+   (void)only_col;
+
+   static bool flag = false;
+
+   if (!flag) {
+      flag = true;
+      PyErr_WarnEx(PyExc_UserWarning,
+                   "No OpenGl detected due build. Deactivating DrawScene()", 0);
+   }
+}
+
+void World::CloseScene() {}
+#endif //_VIS_LIBRARIES
 
 /**
  * Calc Vertices for saving stl files

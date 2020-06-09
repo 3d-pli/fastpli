@@ -12,7 +12,10 @@
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 #include "oct_tree.hpp"
+
+#if _VIS_LIBRARIES
 #include "scene.hpp"
+#endif //_VIS_LIBRARIES
 
 class World {
  public:
@@ -52,10 +55,16 @@ class World {
                   bool only_col = false);
    void ToggleAxis() { draw_axis_ = !draw_axis_; };
    void CloseScene();
+
+#if _VIS_LIBRARIES
    void SavePPM(std::string file) {
       if (scene_)
          scene_->SavePPM(file.c_str(), 0, 0);
    };
+#else
+   void SavePPM(std::string file) { (void)file; };
+#endif //_VIS_LIBRARIES
+
    void SaveSTL(const char *fname);
 
  private:
@@ -71,8 +80,10 @@ class World {
    size_t num_obj_{0};
    size_t num_col_obj_{0};
 
-   std::unique_ptr<Scene> scene_{nullptr};
    bool draw_axis_{false};
+#if _VIS_LIBRARIES
+   std::unique_ptr<Scene> scene_ = nullptr;
+#endif //_VIS_LIBRARIES
 
    // world functions
    bool ApplyCurvatureConstrain();

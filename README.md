@@ -47,7 +47,7 @@ All computationally intensive calculations are optimized either with **numba** o
 * CMake
 * Python3
 * MPI
-* OpenGL
+* OpenGL (optional)
 
 ### Submodules
 
