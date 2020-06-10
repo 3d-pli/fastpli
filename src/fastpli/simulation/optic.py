@@ -24,6 +24,12 @@ def add_noise(image, gain, mask=None):
 
     image = np.array(image)
 
+    if gain < 0:
+        raise ValueError("sigma is < 0")
+
+    if gain == 0:
+        return image
+
     if not mask:
         mask = image > 0
     else:

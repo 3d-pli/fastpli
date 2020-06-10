@@ -268,8 +268,8 @@ class Simpli:
         if not isinstance(sensor_gain, (int, float)):
             raise TypeError("sensor_gain is not a number")
 
-        if sensor_gain <= 0:
-            raise ValueError("sensor_gain is <= 0")
+        if sensor_gain < 0:
+            raise ValueError("sensor_gain is < 0")
 
         self._sensor_gain = sensor_gain
 
@@ -286,8 +286,8 @@ class Simpli:
         if not isinstance(optical_sigma, (int, float)):
             raise TypeError("optical_sigma is not a number")
 
-        if optical_sigma <= 0:
-            raise ValueError("optical_sigma is <= 0")
+        if optical_sigma < 0:
+            raise ValueError("optical_sigma is < 0")
 
         self._optical_sigma = optical_sigma
 
