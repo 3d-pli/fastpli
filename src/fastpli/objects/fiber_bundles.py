@@ -41,6 +41,9 @@ def Cast(fiber_bundles):
                     f_i].shape[1] != 4:
                 raise TypeError("fiber elements has to be of shape nx4")
 
+            if not np.all(np.isfinite(fiber_bundles[fb_i][f_i])):
+                raise ValueError("fiber element is not finite")
+
     return fiber_bundles
 
 
