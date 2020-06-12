@@ -337,9 +337,8 @@ def cylinder(p,
 @numba.njit(cache=True)
 def _ray_box_intersection(p, dir, b_min, b_max):
 
-    tmin = np.divide(b_min - p, dir)
-    tmax = np.divide(b_max - p, dir)
-
+    tmin, tmax = np.divide(b_min - p, dir), np.divide(b_max - p, dir)
+    tmin, tmax = tmin[np.isfinite(tmin)], tmax[np.isfinite(tmax)]
     tmin, tmax = np.minimum(tmin, tmax), np.maximum(tmin, tmax)
 
     return np.max(tmin), np.min(tmax)
