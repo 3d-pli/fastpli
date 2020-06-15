@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 
 import fastpli.model.sandbox as sb
+import fastpli.objects as obj
 
 
 class MainTest(unittest.TestCase):
@@ -90,6 +91,17 @@ class MainTest(unittest.TestCase):
                         seeds=seeds,
                         radii=1)
         self.assertTrue(True)
+
+        seeds = sb.seeds.triangular_grid(300, 300, 2, center=True)
+        fb = sb.build.cuboid(p=[-5] * 3,
+                             q=[5] * 3,
+                             phi=0,
+                             theta=np.deg2rad(0),
+                             seeds=seeds,
+                             radii=1)
+        cut_fb = obj.fiber_bundle.Cut(fb, [[-5] * 3, [5] * 3])
+        for f0, f1 in zip(fb, cut_fb):
+            self.assertTrue(np.array_equal(f0, f1))
 
     def test_build_bundle(self):
         traj = np.array([[0, 0, 0], [0, 0, 100]])

@@ -345,20 +345,26 @@ def _ray_box_intersection(p, dir, b_min, b_max):
 
 
 @numba.njit(cache=True)
-def _cuboid(p, q, dir, seeds, radii):
+def _cuboid(min, max, dir, seeds, radii):
     fiber_bundle = []
 
     for i in range(seeds.shape[0]):
         s = seeds[i, :]
 
         # find ray box intersection
-        t_min, t_max = _ray_box_intersection(s, dir, p, q)
+        t_min, t_max = _ray_box_intersection(s, dir, min, max)
 
         if t_min >= t_max:  # outside of volume
             continue
 
         p_min = s + t_min * dir
         p_max = s + t_max * dir
+
+        # in case of dir is parallel to axis
+        if np.any(p_max < min):
+            continue
+        if np.any(p_min > max):
+            continue
 
         fiber_bundle.append(
             np.array([[p_min[0], p_min[1], p_min[2], radii[i]],
@@ -409,6 +415,9 @@ def cuboid(p, q, phi, theta, seeds, radii):
 
     if seeds.shape[0] != radii.shape[0]:
         raise ValueError("seeds.shape[1] != radii.shape[0]")
+
+    p = np.min(np.vstack((p, q)), axis=0)
+    q = np.max(np.vstack((p, q)), axis=0)
 
     # rotate fibers
     dir = np.array([
