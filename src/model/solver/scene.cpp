@@ -34,9 +34,9 @@ void Scene::Close() {
    if (glut_window_) {
       glutDestroyWindow(glut_window_);
       glut_window_ = 0;
+      glutMainLoopEvent();
+      glutMainLoopEvent();
    }
-   glutMainLoopEvent();
-   glutMainLoopEvent();
 }
 
 void Scene::CreateWindow() {

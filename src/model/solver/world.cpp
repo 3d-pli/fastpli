@@ -265,7 +265,10 @@ void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
    scene_->DrawScene(fibers_, only_col);
 }
 
-void World::CloseScene() { scene_->Close(); }
+void World::CloseScene() {
+   if (scene_ != nullptr)
+      scene_->Close();
+}
 #else
 void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
    (void)rot_x;
