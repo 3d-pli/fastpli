@@ -129,6 +129,8 @@ class MainTest(unittest.TestCase):
     def test_opengl(self):
         self.solver.draw_scene()
         self.solver.draw_scene()
+        self.solver.close_scene()
+        self.solver.draw_scene()
         self.assertTrue(True)
 
 
