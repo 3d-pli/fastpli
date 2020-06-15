@@ -574,6 +574,18 @@ class Simpli:
         if optical_axis_ is not optical_axis:
             warnings.warn("optical_axis is copied", UserWarning)
 
+        if tissue.ndim != 3:
+            raise ValueError("tissue.ndim != 3")
+        if optical_axis.ndim != 4:
+            raise ValueError("optical_axis.ndim != 4")
+        if optical_axis.shape[3] != 3:
+            raise ValueError("optical_axis.shape[3] != 3")
+        if not np.all(tissue.shape == optical_axis.shape[:-1]):
+            raise ValueError(
+                "not np.equal(tissue.shape, optical_axis.shape[:-1])")
+        if np.any(tissue.shape != self._dim):
+            raise ValueError("np.any(tissue.shape != self._dim)")
+
         images = self.__sim.run_simulation(self._dim, tissue_, optical_axis_,
                                            tissue_properties, theta, phi)
         if np.min(images.flatten()) < 0:

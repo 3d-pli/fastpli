@@ -22,8 +22,8 @@ class MainTest(unittest.TestCase):
         simpli.dim = [1, 1, 1]
 
         # single voxel
-        tissue = np.ones((1), dtype=np.int32)
-        optical_axis = np.zeros((1, 3), dtype=np.float32)
+        tissue = np.ones((1, 1, 1), dtype=np.int32)
+        optical_axis = np.zeros((1, 1, 1, 3), dtype=np.float32)
         optical_axis[:] = [np.cos(np.deg2rad(45)), 0, np.sin(np.deg2rad(45))]
         tissue_properties = np.array([[0, 0], [-0.001, 0]])
 
