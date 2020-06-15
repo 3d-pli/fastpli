@@ -23,10 +23,10 @@
 #include "include/vemath.hpp"
 
 Scene::Scene(int argc, char **argv) {
-   glutInit(&argc, argv);
    glutInitWindowPosition(0, 0);
    glutInitWindowSize(800, 800);
    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+   glutInit(&argc, argv);
    quadObj_ = gluNewQuadric();
 }
 
