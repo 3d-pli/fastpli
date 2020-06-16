@@ -222,3 +222,34 @@ def Cut(fiber_bundles, voi):
             new_fiber_bundles[i].extend(fiber.Cut(f, voi))
 
     return new_fiber_bundles
+
+
+def CutSphere(fiber_bundles, radius, center=[0, 0, 0]):
+    """
+    Cut fiber into voi. The cutting process can create multiple fibers.
+    It checks every cone_aabb if it overlapps with the voi.
+
+    Parameters
+    ----------
+    fiber_bundles : [[(,4)-array, ...]]
+        list of fibers
+    radius : float
+        radius of cutting sphere
+    center : 3d-array
+        center of cutting sphere
+
+    Returns
+    -------
+    res : [[(,4)-array, ...]]
+        cutted fiber_bundles
+    """
+
+    center = np.array(center, copy=False)
+
+    new_fiber_bundles = []
+    for i, fb in enumerate(fiber_bundles):
+        new_fiber_bundles.append([])
+        for j, f in enumerate(fb):
+            new_fiber_bundles[i].extend(fiber.CutSphere(f, radius, center))
+
+    return new_fiber_bundles

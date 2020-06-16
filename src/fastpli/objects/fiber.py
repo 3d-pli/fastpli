@@ -110,6 +110,29 @@ def _cone_aabb_in_aabb(c0, c1, vmin, vmax):
     return True
 
 
+@numba.njit(cache=True)
+def _cone_aabb_in_sphere(c0, c1, r, center):
+    c_min = np.array([
+        min(c0[0] - c0[-1], c1[0] - c1[-1]),
+        min(c0[1] - c0[-1], c1[1] - c1[-1]),
+        min(c0[2] - c0[-1], c1[2] - c1[-1])
+    ])
+
+    c_max = np.array([
+        min(c0[0] + c0[-1], c1[0] + c1[-1]),
+        min(c0[1] + c0[-1], c1[1] + c1[-1]),
+        min(c0[2] + c0[-1], c1[2] + c1[-1])
+    ])
+
+    dmin = 0
+    for i in range(3):
+        if center[i] < c_min[i]:
+            dmin += (center[i] - c_min[i])**2
+        elif center[i] > c_max[i]:
+            dmin += (center[i] - c_max[i])**2
+    return dmin <= r**2
+
+
 def Cut(fiber, voi):
     """
     Cut fiber into voi. The cutting process can create multiple fibers.
@@ -138,6 +161,47 @@ def Cut(fiber, voi):
     voi = np.array(voi)
     for i in range(fiber.shape[0] - 1):
         if not _cone_aabb_in_aabb(fiber[i, :], fiber[i + 1, :], voi[0], voi[1]):
+            if start != i:
+                fibers.append(fiber[start:i + 1])
+            start = i + 1
+
+    if start != i + 1:
+        fibers.append(fiber[start:])
+
+    return fibers
+
+
+def CutSphere(fiber, radius, center=[0, 0, 0]):
+    """
+    Cut fiber into sphere. The cutting process can create multiple fibers.
+    It checks every cone_aabb if it overlapps with the sphere.
+
+    Parameters
+    ----------
+    fiber : (,4)-array
+        fiber
+    radius : float
+        radius of cutting sphere
+    center : 3d-array
+        center of cutting sphere
+
+    Returns
+    -------
+    res : [[(,4)-array, ...]]
+        cutted fiber_bundles
+    """
+
+    center = np.array(center, copy=False)
+
+    fibers = []
+    fiber = np.array(fiber, copy=False)
+    if fiber.ndim != 2:
+        raise (TypeError, "False fiber shape")
+
+    start = 0
+    for i in range(fiber.shape[0] - 1):
+        if not _cone_aabb_in_sphere(fiber[i, :], fiber[i + 1, :], radius,
+                                    center):
             if start != i:
                 fibers.append(fiber[start:i + 1])
             start = i + 1
