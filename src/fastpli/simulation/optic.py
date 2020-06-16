@@ -154,7 +154,7 @@ def resize(image, scale, order=1):
 
 def filter_resize(image, sigma, scale, order=1):
     """
-    Applies resize then filter
+    Applies filter then resize
 
     Parameters
     ----------
@@ -175,7 +175,7 @@ def filter_resize(image, sigma, scale, order=1):
 
 def filter_resample(image, sigma, scale):
     """
-    Applies resample then filter
+    Applies filter then resample
 
     Parameters
     ----------
