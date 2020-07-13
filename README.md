@@ -101,14 +101,23 @@ python3 examples/simpli.py
 python3 examples/simulation_pipeline.py
 ```
 
+# About this Project
+
+## Contributions and Bug Reports
+
+Please submit [issues](https://github.com/3d-pli/fastpli/issues) on GitHub to report
+problems or suggest features. [Pull requests](https://github.com/3d-pli/fastpli/pulls)
+are also welcome to add features or correct problems.
+
 ## Authors
 
 * **Felix Matuschke**
 
-# Literature
+## Literature
 
-* [PLI setup](https://dx.doi.org/10.3389%2Ffninf.2011.00034)
-* [dense fiber modeling](https://arxiv.org/abs/1901.10284) and [MEDUSA](https://doi.org/10.1016/j.neuroimage.2019.02.055)
+* [3D-PLI](https://dx.doi.org/10.3389%2Ffninf.2011.00034)
+* [dense fiber modeling](https://arxiv.org/abs/1901.10284)
+* [MEDUSA](https://doi.org/10.1016/j.neuroimage.2019.02.055)
 * [simulation](https://doi.org/10.1016/j.neuroimage.2015.02.020)
 * [tilting analysis](https://doi.org/10.3389/fnana.2018.00075)
 
