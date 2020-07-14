@@ -11,7 +11,7 @@
 namespace fiber {
 
 namespace layer {
-enum class Orientation { background, parallel, radial };
+enum class Orientation { none, parallel, radial };
 
 struct Property {
    Property(double s, double n, double m, char o);
@@ -25,8 +25,7 @@ struct Property {
 
 class Properties {
  public:
-   const std::vector<double> &scale() const { return scale_; };
-   const std::vector<double> &scale_sqr() const { return scale_sqr_; };
+   const std::vector<double> &scale_squ() const { return scale_squ_; };
    const std::vector<double> &dn() const { return dn_; };
    const std::vector<double> &mu() const { return mu_; };
    const std::vector<Orientation> &orientation() const { return orientation_; };
@@ -44,8 +43,7 @@ class Properties {
    };
 
  private:
-   std::vector<double> scale_;
-   std::vector<double> scale_sqr_;
+   std::vector<double> scale_squ_;
    std::vector<double> dn_;
    std::vector<double> mu_;
    std::vector<Orientation> orientation_;
@@ -70,20 +68,18 @@ class Bundle {
 
    // layer informations
    size_t layer_size() const { return layers_.size(); }
-   double layer_scale(size_t i) const { return layers_.scale()[i]; }
    double layer_dn(size_t i) const { return layers_.dn()[i]; }
    double layer_mu(size_t i) const { return layers_.mu()[i]; }
    layer::Orientation layer_orientation(size_t i) const {
       return layers_.orientation()[i];
    }
-   const std::vector<double> &layers_scale() const { return layers_.scale(); }
    const std::vector<double> &layers_dn() const { return layers_.dn(); }
    const std::vector<double> &layers_mu() const { return layers_.mu(); }
    const std::vector<layer::Orientation> &layers_orientation() const {
       return layers_.orientation();
    }
-   const std::vector<double> &layers_scale_sqr() const {
-      return layers_.scale_sqr();
+   const std::vector<double> &layers_scale_squ() const {
+      return layers_.scale_squ();
    }
 
    // manipulator

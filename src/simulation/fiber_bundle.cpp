@@ -18,7 +18,7 @@ namespace layer {
 Property::Property(double s, double n, double m, char o)
     : scale(s), dn(n), mu(m) {
    if (o == 'b')
-      orientation = Orientation::background;
+      orientation = Orientation::none;
    else if (o == 'p')
       orientation = Orientation::parallel;
    else if (o == 'r')
@@ -34,40 +34,35 @@ Property::Property(double s, double n, double m, Orientation o)
 }
 
 size_t Properties::size() const {
-   assert(scale_.size() == scale_sqr_.size());
-   assert(scale_.size() == dn_.size());
-   assert(scale_.size() == mu_.size());
-   assert(scale_.size() == orientation_.size());
-   return scale_.size();
+   assert(scale_squ_.size() == dn_.size());
+   assert(scale_squ_.size() == mu_.size());
+   assert(scale_squ_.size() == orientation_.size());
+   return scale_squ_.size();
 }
 
 void Properties::clear() {
-   scale_.clear();
-   scale_sqr_.clear();
+   scale_squ_.clear();
    dn_.clear();
    mu_.clear();
    orientation_.clear();
 }
 
 void Properties::reserve(size_t i) {
-   scale_.reserve(i);
-   scale_sqr_.reserve(i);
+   scale_squ_.reserve(i);
    dn_.reserve(i);
    mu_.reserve(i);
    orientation_.reserve(i);
 }
 
 void Properties::resize(size_t i) {
-   scale_.resize(i);
-   scale_sqr_.resize(i);
+   scale_squ_.resize(i);
    dn_.resize(i);
    mu_.resize(i);
    orientation_.resize(i);
 }
 
 void Properties::push_back(Property p) {
-   scale_.push_back(p.scale);
-   scale_sqr_.push_back(p.scale * p.scale);
+   scale_squ_.push_back(p.scale * p.scale);
    dn_.push_back(p.dn);
    mu_.push_back(p.mu);
    orientation_.push_back(p.orientation);

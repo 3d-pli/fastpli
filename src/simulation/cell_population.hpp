@@ -13,15 +13,15 @@ namespace cell {
 class Property {
  public:
    Property() = default;
-   Property(double s, double m) : scale_(s), mu_(m) { scale_sqr_ = s * s; }
+   Property(double s, double m) : scale_(s), mu_(m) { scale_squ_ = s * s; }
 
    double scale() const { return scale_; }
-   double scale_sqr() const { return scale_sqr_; }
+   double scale_squ() const { return scale_squ_; }
    double mu() const { return mu_; }
 
  private:
    double scale_{0};
-   double scale_sqr_{0};
+   double scale_squ_{0};
    double mu_{0};
 };
 
@@ -39,7 +39,7 @@ class Population {
 
    // properties
    double scale() const { return property_.scale(); }
-   double scale_sqr() const { return property_.scale_sqr(); }
+   double scale_squ() const { return property_.scale_squ(); }
    double mu() const { return property_.mu(); }
 
    // manipulator

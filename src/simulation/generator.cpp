@@ -290,7 +290,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    const auto &q = fiber.points()[s_idx + 1];
    const auto max_radius =
        std::max(fiber.radii()[s_idx], fiber.radii()[s_idx + 1]) *
-       std::sqrt(fb.layers_scale_sqr().back());
+       std::sqrt(fb.layers_scale_squ().back());
 
    aabb::AABB<double, 3> fiber_segment_bb(p, q);
    fiber_segment_bb.min -= max_radius;
@@ -302,7 +302,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
 
    double t{};
    vm::Vec3<double> min_point{};
-   const auto &layers_scale_sqr = fb.layers_scale_sqr();
+   const auto &layers_scale_squ = fb.layers_scale_squ();
 
    // FIXME: TEST!!!
    for (long long x = std::floor(min.x()); x < max.x(); x++) {
@@ -321,9 +321,9 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                 ShortestPointToLineSegmentVecCalculation(point, p, q);
 
             const float dist_squ = vm::length2(min_point - point);
-            const float ly_r = fiber.CalcRadius(s_idx, t);
-            const float &f_ly_sqr = layers_scale_sqr.back();
-            if (dist_squ > f_ly_sqr * ly_r * ly_r)
+            const float r_sqr = std::pow(fiber.CalcRadius(s_idx, t), 2);
+            const float &f_ly_squ = layers_scale_squ.back();
+            if (dist_squ > f_ly_squ * r_sqr)
                continue;
 
             const size_t ind = // ind in voxel space
@@ -338,11 +338,11 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
 
             if (array_distance[ind] >= dist_squ) {
                // find corresponding layer
-               const auto ly_itr = std::lower_bound(layers_scale_sqr.begin(),
-                                                    layers_scale_sqr.end(),
-                                                    dist_squ / (ly_r * ly_r));
+               const auto ly_itr =
+                   std::lower_bound(layers_scale_squ.begin(),
+                                    layers_scale_squ.end(), dist_squ / r_sqr);
                const int ly_idx =
-                   std::distance(layers_scale_sqr.begin(), ly_itr);
+                   std::distance(layers_scale_squ.begin(), ly_itr);
 
                const int new_label = ly_idx + 1 + fb_idx * max_layer_;
 
@@ -362,7 +362,7 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
                   auto ly = fiber_bundles_[fb_idx].layer_orientation(ly_idx);
                   vm::Vec3<double> new_vec(0);
 
-                  if (ly != fiber::layer::Orientation::background) {
+                  if (ly != fiber::layer::Orientation::none) {
                      if (ly == fiber::layer::Orientation::radial)
                         new_vec = vm::unit(point - min_point);
                      else if (ly == fiber::layer::Orientation::parallel)
@@ -413,7 +413,7 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
    const auto min = cell_sphere_bb.min;
    const auto max = cell_sphere_bb.max;
 
-   const auto scale_sqr = cp.scale_sqr();
+   const auto scale_squ = cp.scale_squ();
    for (long long x = std::floor(min.x()); x < std::floor(max.x()); x++) {
       // because of omp parallel
       if (omp_in_parallel())
@@ -427,7 +427,7 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
             const auto dist_squ = vm::length2(p - point);
             const auto r = cell.radii()[s_idx];
 
-            if (dist_squ > scale_sqr * r * r)
+            if (dist_squ > scale_squ * r * r)
                continue;
 
             const size_t ind =
@@ -508,7 +508,7 @@ std::vector<setup::PhyProps> PliGenerator::GetPropertyList() const {
          properties[id].mu = fiber_bundles_org_[f].layer_mu(l);
 
          if (fiber_bundles_org_[f].layer_orientation(l) ==
-             fiber::layer::Orientation::background)
+             fiber::layer::Orientation::none)
             properties[id].dn = 0;
          else
             properties[id].dn = fiber_bundles_org_[f].layer_dn(l);
