@@ -1,8 +1,10 @@
 import unittest
 import numpy as np
-import h5py
-import os
+import subprocess
 import warnings
+import h5py
+import sys
+import os
 
 from fastpli.simulation import Simpli
 
@@ -358,6 +360,21 @@ class MainTest(unittest.TestCase):
         image_halo = np.empty(self.simpli.dim)
         image_crop = self.simpli.rm_crop_tilt_halo(image_halo)
         self.assertTrue(np.array_equal(image_org.shape, image_crop.shape))
+
+    def test_prev_result(self):
+        FILE_NAME = os.path.abspath(__file__)
+        FILE_PATH = os.path.dirname(FILE_NAME)
+        subprocess.run([sys.executable, f"{FILE_PATH}/simpli_rep.py"],
+                       stdout=subprocess.DEVNULL,
+                       check=True)
+        self.assertTrue(
+            subprocess.run([
+                "h5diff",
+                "--relative=0.0000001",  # "-r",
+                os.path.join(FILE_PATH, "simpli_rep.h5"),
+                os.path.join(FILE_PATH, "simpli_rep_.h5")
+            ]).returncode == 0)
+        self.addCleanup(os.remove, f"{FILE_PATH}/simpli_rep_.h5")
 
 
 if __name__ == '__main__':

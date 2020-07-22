@@ -22,7 +22,7 @@ class PliGenerator {
 
    // setter
    void SetVolume(const vm::Vec3<long long> global_dim,
-                  const vm::Vec3<double> origin, const double pixel_size);
+                  const vm::Vec3<double> origin, const double voxel_size);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
    void
    SetCellPopulations(const std::vector<cell::Population> &cell_populations);
