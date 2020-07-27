@@ -354,20 +354,59 @@ class MainTest(unittest.TestCase):
         image_crop = self.simpli.rm_crop_tilt_halo(image_halo)
         self.assertTrue(np.array_equal(image_org.shape, image_crop.shape))
 
+    def test_length_vec(self):
+
+        self.simpli.voxel_size = 1
+        self.simpli.set_voi([-10] * 3, [10] * 3)
+        self.simpli.fiber_bundles = [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]]
+        self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
+                                                 (0.666, 0, 5, 'b'),
+                                                 (1.0, 0.004, 1, 'r')]]
+
+        tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
+
+        # PliSimulation ###
+        self.simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
+        self.simpli.light_intensity = 26000
+        self.simpli.voxel_size = 1
+        self.simpli.wavelength = 525
+
+        # normal view
+        self.simpli.untilt_sensor_view = False
+
+        with warnings.catch_warnings(record=True) as w:
+            self.simpli.run_simulation(tissue, optical_axis, tissue_properties,
+                                       0, 0)
+            self.assertTrue(len(w) == 0)
+
+        optical_axis[tissue > 0, :] *= 1.0001
+        self.assertWarns(UserWarning, self.simpli.run_simulation, tissue,
+                         optical_axis, tissue_properties, 0, 0)
+
+        optical_axis[:] = 0
+        self.assertWarns(UserWarning, self.simpli.run_simulation, tissue,
+                         optical_axis, tissue_properties, 0, 0)
+
     def test_prev_result(self):
         FILE_NAME = os.path.abspath(__file__)
         FILE_PATH = os.path.dirname(FILE_NAME)
         subprocess.run([sys.executable, f"{FILE_PATH}/simpli_rep.py"],
                        stdout=subprocess.DEVNULL,
                        check=True)
-        self.assertTrue(
+        result = subprocess.run([
+            "h5diff",
+            "--relative=0.00001",  # some have 32bit
+            os.path.join(FILE_PATH, "simpli_rep.h5"),
+            os.path.join(FILE_PATH, "simpli_rep_.h5")
+        ]).returncode == 0
+        if not result:
             subprocess.run([
-                "h5diff",
-                "--relative=0.00001",
-                "-r",  # some have 32bit
+                "h5diff", "--relative=0.00001", "-r",
                 os.path.join(FILE_PATH, "simpli_rep.h5"),
                 os.path.join(FILE_PATH, "simpli_rep_.h5")
-            ]).returncode == 0)
+            ])
+        self.assertTrue(result)
+
         self.addCleanup(os.remove, f"{FILE_PATH}/simpli_rep_.h5")
 
 

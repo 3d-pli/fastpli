@@ -287,9 +287,15 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             auto vec = GetVec(local_pos, setup_->interpolate);
 
             if (vec == 0) {
+#pragma omp critical
                PyErr_WarnEx(PyExc_UserWarning,
                             "optical_axis is 0 for tissue > 0", 0);
                continue;
+            }
+            if (vm::length2(vec) - 1 > 1e-5) {
+#pragma omp critical
+               PyErr_WarnEx(PyExc_UserWarning, "optical_axis not normalized",
+                            0);
             }
 #ifndef NDEBUG
             if (std::isnan(vec.x()) || std::isnan(vec.y()) ||
