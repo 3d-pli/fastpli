@@ -363,7 +363,7 @@ class MainTest(unittest.TestCase):
         self.assertTrue(
             subprocess.run([
                 "h5diff",
-                "--relative=0.0000001",  # "-r",
+                "--relative=0.0000001",  "-r",
                 os.path.join(FILE_PATH, "simpli_rep.h5"),
                 os.path.join(FILE_PATH, "simpli_rep_.h5")
             ]).returncode == 0)
