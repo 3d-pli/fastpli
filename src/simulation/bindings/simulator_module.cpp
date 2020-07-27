@@ -24,7 +24,7 @@ PYBIND11_MODULE(__simulation, m) {
            "set_pli_setup",
            [](PliSimulator &self, double step_size, double light_intensity,
               double voxel_size, double wavelength, double tissue_refrection,
-              bool interpolate, bool untilt_sensor_view, bool flip_z,
+              std::string interpolate, bool untilt_sensor_view, bool flip_z,
               std::vector<double> filter_rotations) {
               setup::Setup setup;
               setup.step_size = step_size;
@@ -32,7 +32,16 @@ PYBIND11_MODULE(__simulation, m) {
               setup.voxel_size = voxel_size;
               setup.wavelength = wavelength;
               setup.tissue_refrection = tissue_refrection;
-              setup.interpolate = interpolate;
+              if (interpolate == "NN") {
+                 setup.interpolate = setup::InterpMode::nn;
+              } else if (interpolate == "Lerp") {
+                 setup.interpolate = setup::InterpMode::lerp;
+              } else if (interpolate == "Slerp") {
+                 setup.interpolate = setup::InterpMode::slerp;
+              } else {
+                 throw std::invalid_argument(
+                     "Only NN, Lerp or Slerp are supported");
+              }
               setup.untilt_sensor_view = untilt_sensor_view;
               setup.flip_z = flip_z;
               setup.filter_rotations = filter_rotations;
@@ -91,7 +100,7 @@ PYBIND11_MODULE(__simulation, m) {
               py::array_t<float, py::array::c_style> vector_array,
               py::array_t<int, py::array::c_style> label_int_array,
               py::array_t<float, py::array::c_style> vector_int_array,
-              bool interpolate) {
+              std::string interpolate) {
               auto label_container = object::NpArray2Container(label_array);
               auto vector_container = object::NpArray2Container(vector_array);
               auto label_int_container =
@@ -99,9 +108,21 @@ PYBIND11_MODULE(__simulation, m) {
               auto vector_int_container =
                   object::NpArray2Container(vector_int_array);
 
+              setup::InterpMode interp;
+              if (interpolate == "NN") {
+                 interp = setup::InterpMode::nn;
+              } else if (interpolate == "Lerp") {
+                 interp = setup::InterpMode::lerp;
+              } else if (interpolate == "Slerp") {
+                 interp = setup::InterpMode::slerp;
+              } else {
+                 throw std::invalid_argument(
+                     "Only NN, Lerp or Slerp are supported");
+              }
+
               self.RunInterpolation(dim, dim_int, label_container,
                                     vector_container, label_int_container,
-                                    vector_int_container, interpolate);
+                                    vector_int_container, interp);
            },
            py::arg("dim"), py::arg("dim_int"), py::arg("label_field"),
            py::arg("vector_field"), py::arg("label_field_int"),

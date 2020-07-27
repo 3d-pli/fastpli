@@ -12,6 +12,7 @@
 #include "setup.hpp"
 
 class PliSimulator {
+
  public:
    // PliSimulator() = default;
    PliSimulator() { set_omp_num_threads(1); }
@@ -42,7 +43,7 @@ class PliSimulator {
                          object::container::NpArray<float> vector_field,
                          object::container::NpArray<int> label_field_int,
                          object::container::NpArray<float> vector_field_int,
-                         const bool interpolate);
+                         const setup::InterpMode interpolate);
 
  private:
 #ifndef NDEBUG
@@ -80,13 +81,15 @@ class PliSimulator {
       return GetVec(p.x(), p.y(), p.z());
    };
    vm::Vec3<double> GetVec(const double x, const double y, const double z,
-                           const bool interpolate) const;
+                           const setup::InterpMode interpolate) const;
    vm::Vec3<double> GetVec(const vm::Vec3<double> p,
-                           const bool interpolate) const {
+                           const setup::InterpMode interpolate) const {
       return GetVec(p.x(), p.y(), p.z(), interpolate);
    };
-   vm::Vec3<double> InterpolateVec(const double x, const double y,
-                                   double z) const;
+   vm::Vec3<double> LerpVec(const double x, const double y,
+                            const double z) const;
+   vm::Vec3<double> SlerpVec(const double x, const double y,
+                             const double z) const;
 
    vm::Vec3<double> LightDirectionUnitVector(const setup::Tilting tilt) const;
    vm::Vec3<int>

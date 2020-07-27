@@ -56,7 +56,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000  # a.u.
-    simpli.interpolate = True
+    simpli.interpolate = "Slerp"
     simpli.wavelength = 525  # in nm
     simpli.pixel_size = 20  # in micro meter
     simpli.sensor_gain = 3

@@ -9,6 +9,8 @@
 
 namespace setup {
 
+enum class InterpMode { nn, lerp, slerp };
+
 struct Dimensions {
    vm::Vec3<long long> global{0};
    vm::Vec3<long long> local{0};
@@ -73,7 +75,7 @@ struct Setup {
    double voxel_size{1};
    double wavelength{0};
    double tissue_refrection{0};
-   bool interpolate{false};
+   InterpMode interpolate{InterpMode::nn};
    bool untilt_sensor_view{false};
    bool flip_z{false};
    std::vector<double> filter_rotations;

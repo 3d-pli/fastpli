@@ -30,7 +30,7 @@ class MainTest(unittest.TestCase):
         # Simulate PLI Measurement ###
         simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
         simpli.light_intensity = 26000  # a.u.
-        simpli.interpolate = True
+        simpli.interpolate = "Slerp"
         simpli.untilt_sensor_view = False
         simpli.wavelength = 525  # in nm
         simpli.step_size = 1  # in voxel_size

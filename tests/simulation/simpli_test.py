@@ -285,13 +285,6 @@ class MainTest(unittest.TestCase):
         self.assertFalse(np.any(np.isnan(image)))
         self.assertTrue(np.any(image != self.simpli.light_intensity / 4))
 
-        with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
-            h5f['tissue'] = tissue.astype(np.uint16)
-            h5f['optical_axis'] = optical_axis
-            h5f['data/0'] = image
-
-        self.addCleanup(os.remove, '/tmp/fastpli.test.h5')
-
     def test_pipelline(self):
         self.simpli.voxel_size = 1
         self.simpli.dim = [10, 10, 10]

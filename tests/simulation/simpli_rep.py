@@ -18,9 +18,9 @@ print(f'creating file: {FILE_OUT}.h5')
 with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     # save script
     # h5f['version'] = fastpli.__version__
-    with open(os.path.abspath(__file__), 'r') as f:
-        h5f['parameter/script'] = f.read()
-        # h5f['parameter/pip_freeze'] = fastpli.tools.helper.pip_freeze()
+    # with open(os.path.abspath(__file__), 'r') as f:
+    #     h5f['parameter/script'] = f.read()
+    # h5f['parameter/pip_freeze'] = fastpli.tools.helper.pip_freeze()
 
     # Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli()
@@ -54,7 +54,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000  # a.u.
-    simpli.interpolate = True
+    simpli.interpolate = "Slerp"
     simpli.wavelength = 525  # in nm
     simpli.pixel_size = 20  # in micro meter
     simpli.sensor_gain = 3

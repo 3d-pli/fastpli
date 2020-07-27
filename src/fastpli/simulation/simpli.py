@@ -61,7 +61,7 @@ class Simpli:
         # SIMULATION
         self._filter_rotations = None
         self._flip_z_beam = False
-        self._interpolate = True
+        self._interpolate = "Slerp"
         self._light_intensity = None
         self._pixel_size = None
         self._optical_sigma = None
@@ -325,7 +325,9 @@ class Simpli:
 
     @interpolate.setter
     def interpolate(self, interpolate):
-        self._interpolate = bool(interpolate)
+        if interpolate != "NN" and interpolate != "Lerp" and interpolate != "Slerp":
+            raise ValueError("Only \"NN\", \"Lerp\" or \"Slerp\" are supported")
+        self._interpolate = interpolate
 
     @property
     def verbose(self):

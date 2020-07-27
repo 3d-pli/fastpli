@@ -10,7 +10,7 @@ help:
 	@echo --------------------------------
 
 BUILD := release
-VENV := env
+VENV := ${if ${venv},${venv},env}
 
 CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug
 CMAKE.info := cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo

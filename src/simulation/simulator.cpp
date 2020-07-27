@@ -285,12 +285,19 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             }
 
             auto vec = GetVec(local_pos, setup_->interpolate);
-            const auto d_rel = dn * 4.0 * thickness / lambda;
 
+            if (vec == 0) {
+               PyErr_WarnEx(PyExc_UserWarning,
+                            "optical_axis is 0 for tissue > 0", 0);
+               continue;
+            }
 #ifndef NDEBUG
-            if (vec.x() == 0 && vec.y() == 0 && vec.z() == 0)
+            if (std::isnan(vec.x()) || std::isnan(vec.y()) ||
+                std::isnan(vec.z()))
                Abort(30000 + __LINE__);
 #endif
+
+            const auto d_rel = dn * 4.0 * thickness / lambda * vm::length(vec);
 
             if (tilt.theta != 0)
                vec = vm::dot(rotation, vec);
@@ -430,34 +437,8 @@ int PliSimulator::GetLabel(const long long x, const long long y,
 // Get Vector
 // #############################################################################
 
-vm::Vec3<double> PliSimulator::GetVec(const double x, const double y,
-                                      const double z,
-                                      const bool interpolate) const {
-
-   return interpolate ? InterpolateVec(x, y, z)
-                      : GetVec(llfloor(x), llfloor(y), llfloor(z));
-}
-
-vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
-                                      long long z) const {
-   if (setup_->flip_z)
-      z = dim_.local.z() - 1 - z;
-
-   const size_t idx =
-       x * dim_.local.y() * dim_.local.z() * 3 + y * dim_.local.z() * 3 + z * 3;
-
-#ifndef NDEBUG
-   if (idx >= vector_field_->size()) {
-      std::cerr << "idx >= vector_field_->size()" << std::endl;
-      Abort(30000 + __LINE__);
-   }
-#endif
-   return vm::Vec3<double>((*vector_field_)[idx], (*vector_field_)[idx + 1],
-                           (*vector_field_)[idx + 2]);
-}
-
-vm::Vec3<double> VectorOrientationAddition(vm::Vec3<double> v,
-                                           vm::Vec3<double> u) {
+vm::Vec3<double> VectorOrientationAddition(const vm::Vec3<double> v,
+                                           const vm::Vec3<double> u) {
 
    if (vm::dot(v, u) >= 0)
       return v + u;
@@ -465,8 +446,51 @@ vm::Vec3<double> VectorOrientationAddition(vm::Vec3<double> v,
       return v - u;
 }
 
-vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
-                                              double z) const {
+vm::Vec3<double> LinearOrientationInterpolation(const vm::Vec3<double> v,
+                                                const vm::Vec3<double> u,
+                                                const double t) {
+   assert(t >= 0 && t <= 1);
+   assert(t >= 0 && t <= 1);
+   assert(t >= 0 && t <= 1);
+
+   if (v == 0)
+      return u;
+   if (u == 0)
+      return v;
+
+   return VectorOrientationAddition(v * (1 - t), u * t);
+}
+
+vm::Vec3<double> SphericalInterpolation(vm::Vec3<double> v, vm::Vec3<double> u,
+                                        const double t) {
+
+   assert(t >= 0 && t <= 1);
+
+   if (v == 0)
+      return u;
+   if (u == 0)
+      return v;
+   // vm::normalize(v);
+   // vm::normalize(u);
+   if (vm::dot(v, u) < 0)
+      u = -u;
+   if (vm::length2(v - u) < 1e-12)
+      return v;
+
+   const auto theta = acos(vm::dot(v, u) / (vm::length(v) * vm::length(u)));
+   assert(std::isfinite(theta));
+
+   return v * sin((1 - t) * theta) / sin(theta) +
+          u * sin(t * theta) / sin(theta);
+}
+
+vm::Vec3<double>
+PliSimulator::GetVec(const double x, const double y, const double z,
+                     const setup::InterpMode interpolate) const {
+   // Vec[i,j,k] is at position [i+0.5, j+0.5, k+0.5]
+
+   if (interpolate == setup::InterpMode::nn)
+      return GetVec(llfloor(x), llfloor(y), llfloor(z));
 
    const auto label =
        GetLabel(llfloor(x), llfloor(y), llfloor(z)); // nearest neighbor
@@ -474,7 +498,6 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
       return vm::Vec3<double>(0, 0, 0);
    }
 
-   // Trilinear interpolate
    const auto x0 =
        std::min(std::max(llfloor(x - 0.5), 0LL), dim_.local.x() - 1);
    const auto y0 =
@@ -489,9 +512,9 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    if (x0 == x1 && y0 == y1 && z0 == z1)
       return GetVec(x0, y0, z0);
 
-   auto xd = (x - x0) / (x1 - x0);
-   auto yd = (y - y0) / (y1 - y0);
-   auto zd = (z - z0) / (z1 - z0);
+   auto xd = (x - x0 - 0.5) / (x1 - x0); // TODO: dont need x1-x0
+   auto yd = (y - y0 - 0.5) / (y1 - y0);
+   auto zd = (z - z0 - 0.5) / (z1 - z0);
 
    if (x0 == x1)
       xd = 0;
@@ -510,15 +533,43 @@ vm::Vec3<double> PliSimulator::InterpolateVec(const double x, const double y,
    const auto c011 = GetVec(x0, y1, z1) * (GetLabel(x0, y1, z1) == label);
    const auto c111 = GetVec(x1, y1, z1) * (GetLabel(x1, y1, z1) == label);
 
-   const auto c00 = VectorOrientationAddition(c000 * (1 - xd), c100 * xd);
-   const auto c01 = VectorOrientationAddition(c001 * (1 - xd), c101 * xd);
-   const auto c10 = VectorOrientationAddition(c010 * (1 - xd), c110 * xd);
-   const auto c11 = VectorOrientationAddition(c011 * (1 - xd), c111 * xd);
+   auto interp = &LinearOrientationInterpolation;
+   if (interpolate == setup::InterpMode::slerp)
+      interp = &SphericalInterpolation;
 
-   const auto c0 = VectorOrientationAddition(c00 * (1 - yd), c10 * yd);
-   const auto c1 = VectorOrientationAddition(c01 * (1 - yd), c11 * yd);
+   const auto c00 = interp(c000, c100, xd);
+   const auto c01 = interp(c001, c101, xd);
+   const auto c10 = interp(c010, c110, xd);
+   const auto c11 = interp(c011, c111, xd);
 
-   return VectorOrientationAddition(c0 * (1 - zd), c1 * zd);
+   const auto c0 = interp(c00, c10, yd);
+   const auto c1 = interp(c01, c11, yd);
+
+   return interp(c0, c1, zd);
+}
+
+vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
+                                      long long z) const {
+   if (setup_->flip_z)
+      z = dim_.local.z() - 1 - z;
+
+   const size_t idx =
+       x * dim_.local.y() * dim_.local.z() * 3 + y * dim_.local.z() * 3 + z * 3;
+
+#ifndef NDEBUG
+   assert(x >= 0);
+   assert(y >= 0);
+   assert(z >= 0);
+   assert(x < dim_.local.x());
+   assert(y < dim_.local.y());
+   assert(z < dim_.local.z());
+   if (idx >= vector_field_->size()) {
+      std::cerr << "idx >= vector_field_->size()" << std::endl;
+      Abort(30000 + __LINE__);
+   }
+#endif
+   return vm::Vec3<double>((*vector_field_)[idx], (*vector_field_)[idx + 1],
+                           (*vector_field_)[idx + 2]);
 }
 
 // #############################################################################
@@ -762,7 +813,7 @@ void PliSimulator::RunInterpolation(
     object::container::NpArray<float> vector_field,
     object::container::NpArray<int> label_field_int,
     object::container::NpArray<float> vector_field_int,
-    const bool interpolate) {
+    const setup::InterpMode interpolate) {
 
    dim_.local = dim;
 
@@ -817,6 +868,7 @@ void PliSimulator::RunInterpolation(
             (*label_int)[idx] = GetLabel(llfloor(xs), llfloor(ys), llfloor(zs));
 
             auto const vec = GetVec(xs, ys, zs, interpolate);
+
             (*vector_int)[idx * 3 + 0] = vec[0];
             (*vector_int)[idx * 3 + 1] = vec[1];
             (*vector_int)[idx * 3 + 2] = vec[2];
