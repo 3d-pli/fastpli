@@ -120,11 +120,34 @@ PYBIND11_MODULE(__simulation, m) {
                      "Only NN, Lerp or Slerp are supported");
               }
 
+              py::scoped_ostream_redirect stream(
+                  std::cout,                               // std::ostream&
+                  py::module::import("sys").attr("stdout") // Python output
+              );
+
               self.RunInterpolation(dim, dim_int, label_container,
                                     vector_container, label_int_container,
                                     vector_int_container, interp);
            },
            py::arg("dim"), py::arg("dim_int"), py::arg("label_field"),
            py::arg("vector_field"), py::arg("label_field_int"),
-           py::arg("vector_field_int"), py::arg("interpolate"));
+           py::arg("vector_field_int"), py::arg("interpolate"))
+       .def(
+           "__diff_angle",
+           [](PliSimulator &self, py::array_t<float, py::array::c_style> v,
+              py::array_t<float, py::array::c_style> u,
+              py::array_t<float, py::array::c_style> r) {
+              (void)self;
+              auto v_container = object::NpArray2Container(v);
+              auto u_container = object::NpArray2Container(u);
+              auto r_container = object::NpArray2Container(r);
+
+              py::scoped_ostream_redirect stream(
+                  std::cout,                               // std::ostream&
+                  py::module::import("sys").attr("stdout") // Python output
+              );
+
+              self.DiffAngle(v_container, u_container, r_container);
+           },
+           py::arg("v"), py::arg("u"), py::arg("r"));
 }

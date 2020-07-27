@@ -44,6 +44,9 @@ class PliSimulator {
                          object::container::NpArray<int> label_field_int,
                          object::container::NpArray<float> vector_field_int,
                          const setup::InterpMode interpolate);
+   void DiffAngle(object::container::NpArray<float> v,
+                  object::container::NpArray<float> u,
+                  object::container::NpArray<float> r);
 
  private:
 #ifndef NDEBUG

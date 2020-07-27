@@ -810,7 +810,7 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
 }
 
 // #############################################################################
-// only for testing
+// only for testing, will be removed in future
 // #############################################################################
 
 void PliSimulator::RunInterpolation(
@@ -880,5 +880,46 @@ void PliSimulator::RunInterpolation(
             (*vector_int)[idx * 3 + 2] = vec[2];
          }
       }
+   }
+}
+
+void PliSimulator::DiffAngle(object::container::NpArray<float> v,
+                             object::container::NpArray<float> u,
+                             object::container::NpArray<float> r) {
+
+   auto size = v.size() / 3;
+
+#pragma omp parallel for
+   for (size_t i = 0; i < size; i++) {
+
+      auto x = vm::Vec3<float>{v[i * 3 + 0], v[i * 3 + 1], v[i * 3 + 2]};
+      auto y = vm::Vec3<float>{u[i * 3 + 0], u[i * 3 + 1], u[i * 3 + 2]};
+
+      if (x == y) {
+         r[i] = 0;
+         continue;
+      }
+      if (x == 0) {
+         r[i] = M_PI_2;
+         continue;
+      }
+      if (y == 0) {
+         r[i] = M_PI_2;
+         continue;
+      }
+
+      if (vm::dot(x, y) < 0)
+         y = -y;
+
+      auto t = vm::dot(x, y) / (vm::length(x) * vm::length(y));
+
+      if (t > 1.000001)
+         std::cout << "FOOOOO" << std::endl;
+      if (t > 1) {
+         r[i] = 0;
+         continue;
+      }
+
+      r[i] = std::acos(t);
    }
 }
