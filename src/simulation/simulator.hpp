@@ -36,6 +36,7 @@ class PliSimulator {
 
    int set_omp_num_threads(int num);
 
+#if _THESIS
    // only testing
    void RunInterpolation(const vm::Vec3<long long> &dim,
                          const vm::Vec3<long long> &dim_int,
@@ -47,6 +48,7 @@ class PliSimulator {
    void DiffAngle(object::container::NpArray<float> v,
                   object::container::NpArray<float> u,
                   object::container::NpArray<float> r);
+#endif
 
  private:
 #ifndef NDEBUG

@@ -809,6 +809,7 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
    return false;
 }
 
+#if _THESIS
 // #############################################################################
 // only for testing, will be removed in future
 // #############################################################################
@@ -923,3 +924,4 @@ void PliSimulator::DiffAngle(object::container::NpArray<float> v,
       r[i] = std::acos(t);
    }
 }
+#endif

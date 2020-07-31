@@ -15,16 +15,19 @@ VENV := ${if ${venv},${venv},env}
 CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug
 CMAKE.info := cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release
+CMAKE.thesis := cmake .. -DCMAKE_BUILD_TYPE=Release -DTHESIS=True
 CMAKE := ${CMAKE.${BUILD}}
 
 MAKE.debug := make
 MAKE.info := make -j
 MAKE.release := make -j
+MAKE.thesis := make -j
 MAKE := ${MAKE.${BUILD}}
 
 INSTALL.debug := install .
 INSTALL.info := install . -q
 INSTALL.release := install . -q
+INSTALL.thesis := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
 DOCKER=ubuntu

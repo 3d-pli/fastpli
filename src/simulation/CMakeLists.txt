@@ -13,6 +13,10 @@ ADD_LIBRARY(${CoreModules} OBJECT cell_population.cpp
 SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 TARGET_INCLUDE_DIRECTORIES(${CoreModules} SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
+IF ( THESIS )
+   TARGET_COMPILE_DEFINITIONS(${CoreModules} PRIVATE _THESIS)
+ENDIF ( )
+
 # building python modules
 pybind11_add_module(__generation
       bindings/generator_module.cpp
@@ -37,3 +41,7 @@ SET_TARGET_PROPERTIES(__generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY
                         "${PROJECT_LIB_DIR}/${subdir}")
 SET_TARGET_PROPERTIES(__simulation PROPERTIES LIBRARY_OUTPUT_DIRECTORY 
                         "${PROJECT_LIB_DIR}/${subdir}")
+
+IF ( THESIS )
+      TARGET_COMPILE_DEFINITIONS(__simulation PRIVATE _THESIS)
+ENDIF ( )

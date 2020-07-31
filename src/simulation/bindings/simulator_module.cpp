@@ -92,6 +92,8 @@ PYBIND11_MODULE(__simulation, m) {
            py::arg("dim"), py::arg("label_field"), py::arg("vector_field"),
            py::arg("properties"), py::arg("theta") = 0, py::arg("phi") = 0)
        .def("set_omp_num_threads", &PliSimulator::set_omp_num_threads)
+
+#if _THESIS
        .def(
            "__field_interpolation",
            [](PliSimulator &self, std::array<long long, 3> dim,
@@ -149,5 +151,7 @@ PYBIND11_MODULE(__simulation, m) {
 
               self.DiffAngle(v_container, u_container, r_container);
            },
-           py::arg("v"), py::arg("u"), py::arg("r"));
+           py::arg("v"), py::arg("u"), py::arg("r"))
+#endif
+       ;
 }
