@@ -6,8 +6,10 @@ Methods for Fiber Orientation Maps and vectors
 # TODO: split into fom.py and vector.py
 
 import numpy as np
+import numba
 
 
+@numba.njit()
 def _vec_to_rgb(x, y, z):
     l = np.sqrt(x**2 + y**2 + z**2)
     x = int(x / l * 255)
@@ -16,6 +18,7 @@ def _vec_to_rgb(x, y, z):
     return np.array([np.abs(x), np.abs(y), np.abs(z)])
 
 
+@numba.njit()
 def _hsv_black_to_rgb_space(h, s, v):
     # images have to be saved in rgb space
 
@@ -24,26 +27,28 @@ def _hsv_black_to_rgb_space(h, s, v):
     hi = np.floor(h / 60)
     f = h / 60.0 - hi
 
-    p = v * (1 - s)
-    q = v * (1 - s * f)
-    t = v * (1 - s * (1 - f))
+    p = v * (1 - s) * 255
+    q = v * (1 - s * f) * 255
+    t = v * (1 - s * (1 - f)) * 255
 
+    rgb = np.empty(3, np.int64)
     if hi == 1:
-        rgb = np.array((q, v, p))
+        rgb = (q, v, p)
     elif hi == 2:
-        rgb = np.array((p, v, t))
+        rgb = (p, v, t)
     elif hi == 3:
-        rgb = np.array((p, q, v))
+        rgb = (p, q, v)
     elif hi == 4:
-        rgb = np.array((t, p, v))
+        rgb = (t, p, v)
     elif hi == 5:
-        rgb = np.array((v, p, q))
+        rgb = (v, p, q)
     else:
-        rgb = np.array((v, t, p))
+        rgb = (v, t, p)
 
-    return np.array(rgb * 255, int)
+    return rgb
 
 
+@numba.njit()
 def _orientation_to_hsv(directionValue, inclinationValue):
     h = 360.0 * np.abs(directionValue) / np.pi
     s = 1.0
@@ -52,6 +57,7 @@ def _orientation_to_hsv(directionValue, inclinationValue):
     return _hsv_black_to_rgb_space(h, s, v)
 
 
+@numba.njit()
 def hsv_black_sphere(n=128):
     """
     Creates a hsv_black color sphere legend.
@@ -87,6 +93,7 @@ def hsv_black_sphere(n=128):
     return sphere
 
 
+@numba.njit()
 def rgb_sphere(n=128):
     """
     Creates a rgb color sphere legend.
