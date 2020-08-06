@@ -29,7 +29,7 @@ class OctTree {
    std::vector<object::Cone> cones_;
    int max_level_ = 0;
    double min_cube_size_ = 0;
-   aabb::AABB<double, 3> main_cube_;
+   aabb::AABB<double, 3> voi_cube_{0};
    const size_t kMaxParticle_ = 10;
    const int kMaxThreadLevel_ = 1;
 };

@@ -89,23 +89,8 @@ OctTree::OctTree(const std::vector<geometry::Fiber> &fibers,
    }
 
    // calculate bounding box
-   if (col_voi.min == col_voi.max) {
-      // check the whole volume
-      for (auto const &fiber : fibers) {
-         if (!fiber.points().empty()) {
-            main_cube_ = aabb::AABB<double, 3>(fiber.points()[0]);
-            break;
-         }
-      }
-
-      for (auto const &fiber : fibers) {
-         for (auto const &p : fiber.points()) {
-            main_cube_.Unite(p);
-         }
-      }
-   } else {
-      main_cube_ = col_voi;
-   }
+   if (col_voi.min != col_voi.max)
+      voi_cube_ = col_voi;
 }
 
 std::set<std::array<size_t, 4>> OctTree::Run() {
@@ -114,14 +99,28 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
    ids.reserve(std::sqrt(cones_.size()));
    max_level_ = 0;
 
-   for (size_t id = 0; id < cones_.size(); id++) {
-      // TODO: test impact of aabb::Overlap
-      if (aabb::Overlap(main_cube_, cones_[id].aabb()))
-         ids.push_back(id);
+   if (voi_cube_.min == voi_cube_.max) {
+      ids.resize(cones_.size());
+      std::iota(ids.begin(), ids.end(), 0);
+   } else {
+      for (size_t id = 0; id < cones_.size(); id++) {
+         if (aabb::Overlap(voi_cube_, cones_[id].aabb()))
+            ids.push_back(id);
+      }
    }
 
+   auto cube = aabb::AABB<double, 3>(cones_[ids.front()].aabb());
+   for (auto id : ids)
+      cube.Unite(cones_[id].aabb());
+
+   const double length = std::max(
+       cube.max.x() - cube.min.x(),
+       std::max(cube.max.y() - cube.min.y(), cube.max.z() - cube.min.z()));
+
+   cube.max = cube.min + length;
+
    std::vector<std::vector<size_t>> leafs;
-   std::tie(leafs, max_level_) = GenerateLeafs(ids, main_cube_, 0);
+   std::tie(leafs, max_level_) = GenerateLeafs(ids, cube, 0);
 
 #pragma omp parallel for
    for (size_t i = 0; i < leafs.size(); i++) {

@@ -127,22 +127,22 @@ bool Overlap(const AABB<T, N> &a, const AABB<T, M> &b) {
 }
 
 template <typename T, int N>
-AABB<T, N> Union(const AABB<T, N> &a, const AABB<T, N> &b) {
+AABB<T, N> Union(AABB<T, N> a, const AABB<T, N> &b) {
    return a.Unite(b);
 }
 
 template <typename T, int N>
-AABB<T, N> Union(const AABB<T, N> &a, const vm::Vec<T, N> &v) {
+AABB<T, N> Union(AABB<T, N> a, const vm::Vec<T, N> &v) {
    return a.Unite(v);
 }
 
 template <typename T, int N>
-AABB<T, N> Intersection(const AABB<T, N> &a, const AABB<T, N> &b) {
+AABB<T, N> Intersection(AABB<T, N> a, const AABB<T, N> &b) {
    return a.Intersect(b);
 }
 
 template <typename T, int N>
-AABB<T, N> Intersection(const AABB<T, N> &a, const vm::Vec<T, N> &v) {
+AABB<T, N> Intersection(AABB<T, N> a, const vm::Vec<T, N> &v) {
    return a.Intersect(v);
 }
 
