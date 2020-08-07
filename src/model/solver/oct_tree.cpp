@@ -89,25 +89,28 @@ OctTree::OctTree(const std::vector<geometry::Fiber> &fibers,
    }
 
    // calculate bounding box
-   if (col_voi.min != col_voi.max)
+   if (col_voi.IsFinite())
       voi_cube_ = col_voi;
 }
 
 std::set<std::array<size_t, 4>> OctTree::Run() {
    std::set<std::array<size_t, 4>> results;
    std::vector<size_t> ids;
-   ids.reserve(std::sqrt(cones_.size()));
    max_level_ = 0;
 
-   if (voi_cube_.min == voi_cube_.max) {
+   if (!voi_cube_.IsFinite()) {
       ids.resize(cones_.size());
       std::iota(ids.begin(), ids.end(), 0);
    } else {
+      ids.reserve(std::sqrt(cones_.size()));
       for (size_t id = 0; id < cones_.size(); id++) {
          if (aabb::Overlap(voi_cube_, cones_[id].aabb()))
             ids.push_back(id);
       }
    }
+
+   if (ids.empty())
+      return results;
 
    auto cube = aabb::AABB<double, 3>(cones_[ids.front()].aabb());
    for (auto id : ids)

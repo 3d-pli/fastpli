@@ -70,7 +70,7 @@ class World {
  private:
    std::vector<geometry::Fiber> fibers_;
    std::map<size_t, std::pair<size_t, size_t>> map_fb_idx_;
-   aabb::AABB<double, 3> col_voi_ = aabb::AABB<double, 3>(vm::Vec3<double>(0));
+   aabb::AABB<double, 3> col_voi_{};
    World::WorldParameter w_parameter_;
 
    double fiber_overlap_{0};

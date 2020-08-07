@@ -73,6 +73,7 @@ PYBIND11_MODULE(__solver, m) {
        .def("_set_col_voi",
             [](World &self, std::array<double, 3> min,
                std::array<double, 3> max) {
+               auto test = aabb::AABB<double, 3>(min, max);
                self.set_colliding_voi(aabb::AABB<double, 3>(min, max));
             })
        .def("step", (bool (World::*)(void)) & World::Step)

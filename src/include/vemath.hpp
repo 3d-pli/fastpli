@@ -29,8 +29,8 @@ template <typename T, size_t M, size_t N> struct MatMxN {
    MatMxN(const std::array<T, M * N> &a) {
       std::copy(a.begin(), a.end(), data_.begin());
    }
-   MatMxN(std::initializer_list<T> il) {
-      std::copy(il.begin(), il.end(), data_.begin());
+   MatMxN(const T (&list)[N * M]) {
+      std::copy(list, list + (N * M), data_.begin());
    }
 
    // x, y, z, w functionality

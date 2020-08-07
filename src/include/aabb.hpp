@@ -25,12 +25,13 @@ template <typename T, int N> struct AABB {
    ~AABB() = default;
 
    // data
-   vm::Vec<T, N> min{std::numeric_limits<T>::max()};
-   vm::Vec<T, N> max{-std::numeric_limits<T>::max()};
+   vm::Vec<T, N> min{std::numeric_limits<T>::infinity()};
+   vm::Vec<T, N> max{-std::numeric_limits<T>::infinity()};
 
    // function
    // TODO: IsEmpty should be checked everytime?
-   bool IsEmpty() const; // if min > max
+   bool IsValid() const; // if min > max
+   bool IsFinite() const;
    void Unite(const AABB<T, N> &a);
    void Unite(const vm::Vec<T, N> &v);
    void Intersect(const AABB<T, N> &a);
@@ -68,11 +69,19 @@ AABB<T, N>::AABB(const vm::Vec<T, N> &p, const vm::Vec<T, N> &q,
    }
 }
 
-template <typename T, int N> bool AABB<T, N>::IsEmpty() const {
-   // e.g. intersection of two non colliding aabbs
+template <typename T, int N> bool AABB<T, N>::IsValid() const {
    for (int i = 0; i < N; i++) {
       if (min[i] > max[i])
          return true;
+   }
+   return false;
+}
+
+template <typename T, int N> bool AABB<T, N>::IsFinite() const {
+   for (int i = 0; i < N; i++) {
+      if (std::isfinite(min[i]) || std::isfinite(max[i])) {
+         return true;
+      }
    }
    return false;
 }

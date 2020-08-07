@@ -367,8 +367,8 @@ std::vector<Face> CalcTubeSkeleton(const geometry::Fiber fiber) {
       auto s = vm::length(v) + 1e-9;
       auto c = vm::dot(tangent_old, tangent);
 
-      vm::Mat3x3<float> rot{0,      -v.z(), v.y(), v.z(), 0,
-                            -v.x(), -v.y(), v.x(), 0};
+      vm::Mat3x3<float> rot(
+          {0, -v.z(), v.y(), v.z(), 0, -v.x(), -v.y(), v.x(), 0});
 
       // vm::Vec3<float>{0, -v.z, v.y};
       // vm::Vec3<float>{v.z, 0, -v.x};
