@@ -27,6 +27,7 @@ SET(CMAKE_CXX_EXTENSIONS OFF)
 
 # check architecture
 INCLUDE(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH)
 IF(COMPILER_SUPPORTS_MARCH)
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 ELSE()
