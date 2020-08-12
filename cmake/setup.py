@@ -1,8 +1,13 @@
 import setuptools
 
+version = '@GIT_DESCRIBE_LOG@'
+i = version.find('-')
+if i > 0:
+    version = version[:i] + '.dev' + version[i + 1:] + '-${CMAKE_BUILD_TYPE}'
+
 setuptools.setup(
     name='fastpli',
-    version='@GIT_DESCRIBE_LOG@-${CMAKE_BUILD_TYPE}',
+    version=version,
     description='Fiber Architecture Simulation Toolbox for PLI',
     long_description='',
     author='Felix Matuschke',
