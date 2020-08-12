@@ -348,11 +348,18 @@ def _ray_box_intersection(p, dir, b_min, b_max):
 def _cuboid(min, max, dir, seeds, radii):
     fiber_bundle = []
 
+    if np.all(dir == 0):
+        raise ValueError("direction is 0-vector")
+
+    # convert 0 to nan for division in _ray_box_intersection
+    dir_ = dir.copy()
+    dir_[dir_ == 0] = np.nan
+
     for i in range(seeds.shape[0]):
         s = seeds[i, :]
 
         # find ray box intersection
-        t_min, t_max = _ray_box_intersection(s, dir, min, max)
+        t_min, t_max = _ray_box_intersection(s, dir_, min, max)
 
         if t_min >= t_max:  # outside of volume
             continue
