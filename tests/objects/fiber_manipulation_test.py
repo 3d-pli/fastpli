@@ -133,6 +133,10 @@ class MainTest(unittest.TestCase):
         self.assertTrue(not np.array_equal(fibers[0], fiber))
         self.assertTrue(not np.array_equal(fibers[1], fiber))
 
+        fiber = np.array([[0, 0, 0, 1], [10, 10, 10, 2]], dtype=float)
+        fibers = fastpli.objects.fiber.Cut(fiber, [[5] * 3, [6] * 3])
+        self.assertTrue(np.array_equal(fibers[0], fiber))
+
 
 if __name__ == '__main__':
     unittest.main()
