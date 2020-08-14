@@ -99,9 +99,9 @@ def _cone_aabb_in_aabb(c0, c1, vmin, vmax):
     ])
 
     c_max = np.array([
-        min(c0[0] + c0[-1], c1[0] + c1[-1]),
-        min(c0[1] + c0[-1], c1[1] + c1[-1]),
-        min(c0[2] + c0[-1], c1[2] + c1[-1])
+        max(c0[0] + c0[-1], c1[0] + c1[-1]),
+        max(c0[1] + c0[-1], c1[1] + c1[-1]),
+        max(c0[2] + c0[-1], c1[2] + c1[-1])
     ])
 
     for i in range(3):
@@ -119,9 +119,9 @@ def _cone_aabb_in_sphere(c0, c1, r, center):
     ])
 
     c_max = np.array([
-        min(c0[0] + c0[-1], c1[0] + c1[-1]),
-        min(c0[1] + c0[-1], c1[1] + c1[-1]),
-        min(c0[2] + c0[-1], c1[2] + c1[-1])
+        max(c0[0] + c0[-1], c1[0] + c1[-1]),
+        max(c0[1] + c0[-1], c1[1] + c1[-1]),
+        max(c0[2] + c0[-1], c1[2] + c1[-1])
     ])
 
     dmin = 0
