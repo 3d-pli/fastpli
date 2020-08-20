@@ -27,25 +27,24 @@ def _hsv_black_to_rgb_space(h, s, v):
     hi = np.floor(h / 60)
     f = h / 60.0 - hi
 
-    p = v * (1 - s) * 255
-    q = v * (1 - s * f) * 255
-    t = v * (1 - s * (1 - f)) * 255
+    p = v * (1 - s)
+    q = v * (1 - s * f)
+    t = v * (1 - s * (1 - f))
 
-    rgb = np.empty(3, np.int64)
     if hi == 1:
-        rgb = (q, v, p)
+        r, g, b = q, v, p
     elif hi == 2:
-        rgb = (p, v, t)
+        r, g, b = p, v, t
     elif hi == 3:
-        rgb = (p, q, v)
+        r, g, b = p, q, v
     elif hi == 4:
-        rgb = (t, p, v)
+        r, g, b = t, p, v
     elif hi == 5:
-        rgb = (v, p, q)
+        r, g, b = v, p, q
     else:
-        rgb = (v, t, p)
+        r, g, b = v, t, p
 
-    return rgb
+    return np.array((r * 255, g * 255, b * 255), np.int64)
 
 
 @numba.njit()
