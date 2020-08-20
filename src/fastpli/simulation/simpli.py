@@ -1081,12 +1081,16 @@ class Simpli:
                 results = mp_pool.starmap(analysis.rofl.rofl, chunk)
 
                 for i, result in enumerate(results):
+                    if not mask[i, j]:
+                        continue
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = result
         else:
             for i in range(input.shape[1]):
                 for j in range(input.shape[2]):
+                    if not mask[i, j]:
+                        continue
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = analysis.rofl.rofl(
