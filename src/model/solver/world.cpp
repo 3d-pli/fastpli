@@ -113,10 +113,10 @@ void World::set_fibers_vector(
 }
 
 void World::ResetObjCounter() {
-   fiber_overlap_ = 0;
-   max_level_ = 0;
+   fiber_overlap_ = -1;
+   num_col_obj_ = -1;
    num_obj_ = 0;
-   num_col_obj_ = 0;
+   max_level_ = -1;
    for (auto &f : fibers_) {
       f.set_max_speed(max_speed_);
       num_obj_ += f.ConeSize();

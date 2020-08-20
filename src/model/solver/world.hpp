@@ -32,8 +32,8 @@ class World {
    ~World() = default;
 
    // getter
-   size_t num_obj() const { return num_obj_; };
-   size_t num_col_obj() const { return num_col_obj_; };
+   long long num_obj() const { return num_obj_; };
+   long long num_col_obj() const { return num_col_obj_; };
    double overlap() const { return fiber_overlap_; };
    double max_speed() const { return max_speed_; };
    object::FiberBundles get_fibers() const;
@@ -73,12 +73,12 @@ class World {
    aabb::AABB<double, 3> col_voi_{};
    World::WorldParameter w_parameter_;
 
-   double fiber_overlap_{0};
    double max_speed_{0};
+   double fiber_overlap_{-1};
 
-   size_t max_level_{0};
-   size_t num_obj_{0};
-   size_t num_col_obj_{0};
+   long long max_level_{0};
+   long long num_obj_{0};
+   long long num_col_obj_{0};
 
    bool draw_axis_{false};
 #if _VIS_LIBRARIES
