@@ -159,6 +159,7 @@ bool World::ApplyBoundaryConditions(int max_steps) {
 bool World::Step() {
 
    bool solved = true;
+   fiber_overlap_ = 0;
 
    num_obj_ = 0;
    for (auto const &fiber : fibers_)
@@ -201,7 +202,6 @@ bool World::Step() {
                                                        colliding_list.end());
 
       // set speed of colliding objects
-      fiber_overlap_ = 0;
 #pragma omp parallel for reduction(+ : fiber_overlap_)
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
