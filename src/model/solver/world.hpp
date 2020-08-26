@@ -51,6 +51,9 @@ class World {
    // world
    bool Step();
    bool ApplyBoundaryConditions(int max_steps);
+
+   // scene
+   void InitScene();
    void DrawScene();
    void ResetView() {
 #if _VIS_LIBRARIES

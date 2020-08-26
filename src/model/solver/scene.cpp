@@ -87,7 +87,6 @@ void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers) {
       DrawAxis();
 
    glutSwapBuffers();
-
    glutMainLoopEvent();
 }
 
