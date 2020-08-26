@@ -54,7 +54,7 @@ class Scene {
 
    GLUquadricObj *quadObj_ = nullptr;
 
-   vm::Vec3<float> rotation_ = 0;
+   vm::Vec3<float> rotation_ = {30, 30, 0};
    vm::Vec3<float> center_ = 0;
    vm::Vec3<float> center_user_value_ = 0;
 
