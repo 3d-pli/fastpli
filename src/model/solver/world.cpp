@@ -262,18 +262,8 @@ void World::DrawScene() {
    }
    scene_->DrawScene(fibers_);
 }
-
-void World::CloseScene() {
-   if (scene_ != nullptr)
-      scene_->Close();
-}
 #else
-void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
-   (void)rot_x;
-   (void)rot_y;
-   (void)rot_z;
-   (void)only_col;
-
+void World::DrawScene() {
    static bool flag = false;
 
    if (!flag) {
@@ -282,8 +272,6 @@ void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
                    "No OpenGl detected due build. Deactivating DrawScene()", 0);
    }
 }
-
-void World::CloseScene() {}
 #endif //_VIS_LIBRARIES
 
 /**

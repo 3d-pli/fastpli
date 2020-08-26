@@ -49,7 +49,7 @@ elif example == 'crossing':
 # solver.omp_num_threads = 1
 
 # run solver
-solver.toggle_axis()
+solver.toggle_axis(True)
 solver.draw_scene()
 for i in range(1000):
     solved = solver.step()

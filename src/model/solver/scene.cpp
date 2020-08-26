@@ -10,10 +10,9 @@
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #include <OpenGL/gl.h>
-#else
-#ifdef _WIN32
+#elif _WIN32
 #include <windows.h>
-#endif
+#else
 #include <GL/gl.h>
 #include <GL/glut.h>
 #endif
