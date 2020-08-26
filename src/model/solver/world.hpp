@@ -93,7 +93,7 @@ class World {
 #if _VIS_LIBRARIES
       InitScene();
       if (scene_)
-         scene_->SetViewCenter(x, y, z);
+         scene_->SetViewAngles(x, y, z);
 #endif
       (void)x;
       (void)y;
