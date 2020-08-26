@@ -22,10 +22,24 @@ class Scene {
    Scene(int argc, char **argv);
    ~Scene() = default;
 
-   void SetViewAngle(const float x, const float y, const float z);
-   void DrawScene(const std::vector<geometry::Fiber> &fibers,
-                  const bool only_col = false);
-   void ToggleAxis() { axes_ = !axes_; };
+   void ResetView() {
+      center_user_ = false;
+      distance_user_ = 0;
+      rotation_ = {30, 30, 0};
+      axes_ = false;
+      only_col_ = false;
+   };
+   void SetViewAngles(const float x, const float y, const float z) {
+      rotation_ = {x, y, z};
+   };
+   void SetViewCenter(const float x, const float y, const float z) {
+      center_user_ = true;
+      center_user_value_ = {x, y, z};
+   };
+   void SetViewDistance(const float d) { distance_user_ = d; };
+   void DrawScene(const std::vector<geometry::Fiber> &fibers);
+   void ToggleAxis(bool flag) { axes_ = flag; };
+   void ToggleCollisionView(bool flag) { only_col_ = flag; };
    void SetAxis(bool flag) { axes_ = flag; };
    void SavePPM(const char *fname, int start_x = 0, int start_y = 0);
    void Close();
@@ -38,15 +52,20 @@ class Scene {
    void CheckWindowSize();
 
    int glut_window_ = 0;
+
    GLUquadricObj *quadObj_ = nullptr;
-   bool only_col_ = false;
+
    vm::Vec3<float> rotation_ = 0;
    vm::Vec3<float> center_ = 0;
-   vm::Vec3<float> center_new_ = center_;
+   vm::Vec3<float> center_user_value_ = 0;
+
    float distance_ = 0;
-   float distance_new_ = 0;
+   float distance_user_ = 0;
    const float repos_threshold_ = 0.25;
-   bool axes_{false};
+
+   bool only_col_ = false;
+   bool center_user_ = false;
+   bool axes_ = false;
 };
 
 #endif // SCENECLASS_HPP_

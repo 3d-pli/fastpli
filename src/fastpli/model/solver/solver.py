@@ -159,7 +159,9 @@ class Solver(_Solver):
         return super().step()
 
     def draw_scene(self, display=True):
-        """ Draws model configuration in if OpenGl window can be created. """
+        """ Draws model configuration in if OpenGl window can be created.
+            rot = [x,y,z] view Angle
+        """
         if self.__display is None:
             import platform
             if platform.system() == "Darwin":

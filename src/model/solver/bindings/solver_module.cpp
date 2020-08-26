@@ -83,10 +83,13 @@ PYBIND11_MODULE(__solver, m) {
        .def_property_readonly("num_col_obj", &World::num_col_obj)
        .def_property_readonly("overlap", &World::overlap)
        .def_property_readonly("max_speed", &World::max_speed)
-       .def("draw_scene", &World::DrawScene, py::arg("rot_x") = 30,
-            py::arg("rot_y") = 30, py::arg("rot_z") = 0,
-            py::arg("only_col") = false)
+       .def("draw_scene", &World::DrawScene)
        .def("toggle_axis", &World::ToggleAxis)
+       .def("toggle_collision_view", &World::ToggleCollisionView)
+       .def("set_view_center", &World::SetViewCenter)
+       .def("set_view_angles", &World::SetViewAngles)
+       .def("set_view_distance", &World::SetViewDistance)
+       .def("reset_view", &World::ResetView)
        .def("close_scene", &World::CloseScene)
        .def("save_ppm", &World::SavePPM, py::arg("file"))
        .def("save_stl", &World::SaveSTL, py::arg("file"));

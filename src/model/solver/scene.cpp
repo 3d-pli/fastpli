@@ -60,13 +60,11 @@ void Scene::CreateWindow() {
    glEnable(GL_DEPTH_TEST);
 }
 
-void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers,
-                      const bool only_col) {
+void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers) {
 
    if (glut_window_ == 0)
       CreateWindow();
 
-   only_col_ = only_col;
    AutoVolume(fibers);
    CheckWindowSize();
 
@@ -177,18 +175,18 @@ void Scene::AutoVolume(const std::vector<geometry::Fiber> &fibers) {
       }
    }
 
-   center_new_ = vm::cast<float>(v_max + v_min) / 2;
-   distance_new_ = vm::max(v_max - v_min);
-
+   auto center_new_ = vm::cast<float>(v_max + v_min) / 2;
+   auto distance_new_ = vm::max(v_max - v_min);
    if ((vm::length(center_ - center_new_) / vm::length(center_)) >
        repos_threshold_)
       center_ = center_new_;
    if (std::abs((distance_ - distance_new_) / distance_) > repos_threshold_)
       distance_ = distance_new_;
-}
 
-void Scene::SetViewAngle(const float x, const float y, const float z) {
-   rotation_ = vm::Vec3<float>(x, y, z);
+   if (distance_user_ > 0)
+      distance_ = distance_user_;
+   if (center_user_)
+      center_ = center_user_value_;
 }
 
 void Scene::CheckWindowSize() {

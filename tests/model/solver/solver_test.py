@@ -129,8 +129,15 @@ class MainTest(unittest.TestCase):
     def test_opengl(self):
         self.solver.draw_scene()
         self.solver.draw_scene()
-        self.solver.close_scene()
+        self.solver.set_view_center(42, 42, 42)
+        self.solver.set_view_angles(42, 42, 42)
+        self.solver.set_view_distance(42)
+        self.solver.toggle_axis(True)
+        self.solver.toggle_collision_view(True)
         self.solver.draw_scene()
+        self.solver.reset_view()
+        self.solver.draw_scene()
+        self.solver.close_scene()
         self.assertTrue(True)
 
 

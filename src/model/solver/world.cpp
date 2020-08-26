@@ -253,16 +253,14 @@ bool World::Step() {
 }
 
 #if _VIS_LIBRARIES
-void World::DrawScene(double rot_x, double rot_y, double rot_z, bool only_col) {
+void World::DrawScene() {
    if (scene_ == nullptr) {
       char arg0[] = "model.solver";
       char *argv[] = {arg0, nullptr};
       int argc = 1;
       scene_ = std::make_unique<Scene>(argc, argv);
    }
-   scene_->SetViewAngle(rot_x, rot_y, rot_z);
-   scene_->SetAxis(draw_axis_);
-   scene_->DrawScene(fibers_, only_col);
+   scene_->DrawScene(fibers_);
 }
 
 void World::CloseScene() {

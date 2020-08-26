@@ -51,9 +51,47 @@ class World {
    // world
    bool Step();
    bool ApplyBoundaryConditions(int max_steps);
-   void DrawScene(double rot_x = 0, double rot_y = 0, double rot_z = 0,
-                  bool only_col = false);
-   void ToggleAxis() { draw_axis_ = !draw_axis_; };
+   void DrawScene();
+   void ResetView() {
+#if _VIS_LIBRARIES
+      scene_->ResetView();
+#endif
+   };
+   void ToggleAxis(bool flag) {
+#if _VIS_LIBRARIES
+      scene_->ToggleAxis(flag);
+#endif
+      (void)flag;
+   };
+
+   void ToggleCollisionView(bool flag) {
+#if _VIS_LIBRARIES
+      scene_->ToggleCollisionView(flag);
+#endif
+      (void)flag;
+   };
+   void SetViewCenter(const float x, const float y, const float z) {
+#if _VIS_LIBRARIES
+      scene_->SetViewCenter(x, y, z);
+#endif
+      (void)x;
+      (void)y;
+      (void)z;
+   };
+   void SetViewAngles(const float x, const float y, const float z) {
+#if _VIS_LIBRARIES
+      scene_->SetViewCenter(x, y, z);
+#endif
+      (void)x;
+      (void)y;
+      (void)z;
+   };
+   void SetViewDistance(const float d) {
+#if _VIS_LIBRARIES
+      scene_->SetViewDistance(d);
+#endif
+      (void)d;
+   };
    void CloseScene();
 
 #if _VIS_LIBRARIES
