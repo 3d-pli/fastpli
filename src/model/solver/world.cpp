@@ -206,6 +206,11 @@ bool World::Step() {
       for (auto i = 0u; i < colliding_vec.size(); i++) {
          auto elm = colliding_vec[i];
 
+         if (fibers_[elm[0]].closed_loop())
+            if (fibers_[elm[0]].fiber_idx() == fibers_[elm[2]].fiber_idx() &&
+                elm[1] == 0 && elm[3] == fibers_[elm[0]].size() - 1)
+               continue;
+
          auto const [f0, f1, f2, f3, dist] =
              fibers_[elm[0]].Cone(elm[1]).PushConesApart(
                  fibers_[elm[2]].Cone(elm[3]));
@@ -226,23 +231,19 @@ bool World::Step() {
 
    // check fiber boundary conditions
 #pragma omp parallel for reduction(&& : solved)
-   for (auto i = 0u; i < fibers_.size(); i++) {
-      bool flag_radius =
-          fibers_[i].ApplyCurvatureConstrain(w_parameter_.obj_min_radius);
-      solved = solved && flag_radius;
-   }
+   for (auto i = 0u; i < fibers_.size(); i++)
+      solved = solved &&
+               fibers_[i].ApplyCurvatureConstrain(w_parameter_.obj_min_radius);
 
 #pragma omp parallel for
    for (auto i = 0u; i < fibers_.size(); i++)
       fibers_[i].ApplyConeLengthConstrain(w_parameter_.obj_mean_length);
 
    // move colliding objects
-   if (!solved) {
+   if (!solved)
 #pragma omp parallel for
-      for (auto i = 0u; i < fibers_.size(); i++) {
+      for (auto i = 0u; i < fibers_.size(); i++)
          fibers_[i].Move();
-      }
-   }
 
    return solved;
 }

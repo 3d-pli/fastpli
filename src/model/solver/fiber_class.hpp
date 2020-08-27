@@ -23,6 +23,7 @@ class Fiber : public object::Fiber {
    // getter
    const size_t &fiber_idx() const { return fiber_idx_; }
    const std::vector<vm::Vec3<double>> &speed() const { return speed_; }
+   bool closed_loop() const { return closed_loop_; };
 
    // cones
    size_t ConeSize() const;
@@ -46,6 +47,7 @@ class Fiber : public object::Fiber {
  protected:
    size_t fiber_idx_;
    double max_speed_ = 0;
+   bool closed_loop_ = false;
    std::vector<vm::Vec3<double>> speed_;
 };
 } // namespace geometry

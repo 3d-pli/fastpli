@@ -14,6 +14,8 @@ Fiber::Fiber(const object::Fiber &fiber, const size_t f_idx)
 
    fiber_idx_ = f_idx;
    speed_.assign(points_.size(), vm::Vec3<double>(0));
+   if (points_.front() == points_.back())
+      closed_loop_ = true;
 
    max_speed_ = std::numeric_limits<double>::max();
    for (auto &r : radii_)
@@ -47,6 +49,11 @@ void Fiber::Move() {
          speed_[i] *= max_speed_ / norm;
 
       points_[i] += speed_[i];
+   }
+
+   if (closed_loop_) {
+      points_.back() = points_.front();
+      speed_.back() = speed_.front();
    }
 }
 
