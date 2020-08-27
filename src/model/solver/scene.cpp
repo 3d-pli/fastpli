@@ -220,6 +220,11 @@ void Scene::CheckWindowSize() {
 
 void Scene::SavePPM(const char *fname, int start_x, int start_y) {
 
+   if (glut_window_ == 0) {
+      PyErr_WarnEx(PyExc_UserWarning, "No draw_scene() yet", 0);
+      return;
+   }
+
    auto w = glutGet(GLUT_WINDOW_WIDTH);
    auto h = glutGet(GLUT_WINDOW_HEIGHT);
 
