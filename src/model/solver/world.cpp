@@ -232,14 +232,9 @@ bool World::Step() {
       solved = solved && flag_radius;
    }
 
-   if (!solved) {
-#pragma omp parallel for reduction(&& : solved)
-      for (auto i = 0u; i < fibers_.size(); i++) {
-         bool flag_length =
-             fibers_[i].ApplyConeLengthConstrain(w_parameter_.obj_mean_length);
-         solved = solved && flag_length;
-      }
-   }
+#pragma omp parallel for
+   for (auto i = 0u; i < fibers_.size(); i++)
+      fibers_[i].ApplyConeLengthConstrain(w_parameter_.obj_mean_length);
 
    // move colliding objects
    if (!solved) {
