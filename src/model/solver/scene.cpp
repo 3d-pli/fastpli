@@ -67,27 +67,28 @@ void Scene::DrawScene(const std::vector<geometry::Fiber> &fibers) {
    AutoVolume(fibers);
    CheckWindowSize();
 
-   // set backgound
+   // set background
    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLoadIdentity();
 
-   // set lighning position
+   // set lightning position
    GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};
    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
    // set axis position
-   glTranslatef(-center_.x(), -center_.y(), -center_.z() - 2.5 * distance_);
+   glTranslatef(0, 0, -2.5 * distance_);
    glRotated(rotation_.x(), 1, 0, 0);
    glRotated(rotation_.y(), 0, 1, 0);
    glRotated(rotation_.z(), 0, 0, 1);
+   glTranslatef(-center_.x(), -center_.y(), -center_.z());
 
    DrawCylinders(fibers);
+
    if (axes_)
       DrawAxis();
 
    glutSwapBuffers();
-
    glutMainLoopEvent();
 }
 
@@ -162,6 +163,8 @@ void Scene::DrawAxis() {
 
 void Scene::AutoVolume(const std::vector<geometry::Fiber> &fibers) {
 
+   static bool first_time = true;
+
    vm::Vec3<double> v_min(std::numeric_limits<float>::max());
    vm::Vec3<double> v_max(-std::numeric_limits<float>::max());
 
@@ -181,6 +184,12 @@ void Scene::AutoVolume(const std::vector<geometry::Fiber> &fibers) {
       center_ = center_new_;
    if (std::abs((distance_ - distance_new_) / distance_) > repos_threshold_)
       distance_ = distance_new_;
+
+   if (first_time) {
+      first_time = false;
+      center_ = center_new_;
+      distance_ = distance_new_;
+   }
 
    if (distance_user_ > 0)
       distance_ = distance_user_;

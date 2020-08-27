@@ -51,15 +51,20 @@ class World {
    // world
    bool Step();
    bool ApplyBoundaryConditions(int max_steps);
+
+   // scene
+   void InitScene();
    void DrawScene();
    void ResetView() {
 #if _VIS_LIBRARIES
+      InitScene();
       if (scene_)
          scene_->ResetView();
 #endif
    };
    void ToggleAxis(bool flag) {
 #if _VIS_LIBRARIES
+      InitScene();
       if (scene_)
          scene_->ToggleAxis(flag);
 #endif
@@ -68,6 +73,7 @@ class World {
 
    void ToggleCollisionView(bool flag) {
 #if _VIS_LIBRARIES
+      InitScene();
       if (scene_)
          scene_->ToggleCollisionView(flag);
 #endif
@@ -75,6 +81,7 @@ class World {
    };
    void SetViewCenter(const float x, const float y, const float z) {
 #if _VIS_LIBRARIES
+      InitScene();
       if (scene_)
          scene_->SetViewCenter(x, y, z);
 #endif
@@ -84,8 +91,9 @@ class World {
    };
    void SetViewAngles(const float x, const float y, const float z) {
 #if _VIS_LIBRARIES
+      InitScene();
       if (scene_)
-         scene_->SetViewCenter(x, y, z);
+         scene_->SetViewAngles(x, y, z);
 #endif
       (void)x;
       (void)y;
@@ -93,6 +101,7 @@ class World {
    };
    void SetViewDistance(const float d) {
 #if _VIS_LIBRARIES
+      InitScene();
       if (scene_)
          scene_->SetViewDistance(d);
 #endif
@@ -100,12 +109,14 @@ class World {
    };
    void CloseScene() {
 #if _VIS_LIBRARIES
+      InitScene();
       if (scene_ != nullptr)
          scene_->Close();
 #endif
    };
    void SavePPM(std::string file) {
 #if _VIS_LIBRARIES
+      InitScene();
       if (scene_)
          scene_->SavePPM(file.c_str(), 0, 0);
 #else

@@ -248,16 +248,22 @@ bool World::Step() {
 }
 
 #if _VIS_LIBRARIES
-void World::DrawScene() {
+void World::InitScene() {
    if (scene_ == nullptr) {
       char arg0[] = "model.solver";
       char *argv[] = {arg0, nullptr};
       int argc = 1;
       scene_ = std::make_unique<Scene>(argc, argv);
    }
+}
+
+void World::DrawScene() {
+   InitScene();
    scene_->DrawScene(fibers_);
 }
 #else
+void World::InitScene() {}
+
 void World::DrawScene() {
    static bool flag = false;
 
