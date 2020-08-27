@@ -19,7 +19,7 @@
 class Scene {
  public:
    Scene(int argc, char **argv);
-   ~Scene() = default;
+   ~Scene() { delete[] argv_; };
 
    void ResetView() {
       center_user_ = false;
@@ -51,6 +51,9 @@ class Scene {
    void CheckWindowSize();
 
    int glut_window_ = 0;
+
+   int argc_ = 0;
+   char **argv_;
 
    GLUquadricObj *quadObj_ = nullptr;
 
