@@ -18,15 +18,15 @@
 #endif
 
 #include <GL/freeglut.h>
+#include <Python.h>
 
 #include "include/vemath.hpp"
 
 Scene::Scene(int argc, char **argv) {
-   glutInitWindowPosition(0, 0);
-   glutInitWindowSize(800, 800);
-   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-   glutInit(&argc, argv);
-   quadObj_ = gluNewQuadric();
+   argc_ = argc;
+   argv_ = new char *[argc + 1];
+   for (int i = 0; i <= argc; i++)
+      argv_[i] = argv[i];
 }
 
 void Scene::Close() {
@@ -39,6 +39,12 @@ void Scene::Close() {
 }
 
 void Scene::CreateWindow() {
+
+   glutInitWindowPosition(0, 0);
+   glutInitWindowSize(800, 800);
+   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+   glutInit(&argc_, argv_);
+   quadObj_ = gluNewQuadric();
 
    glut_window_ = glutCreateWindow("fastpli.model.Solver.Visualizer");
 
@@ -213,6 +219,11 @@ void Scene::CheckWindowSize() {
 }
 
 void Scene::SavePPM(const char *fname, int start_x, int start_y) {
+
+   if (glut_window_ == 0) {
+      PyErr_WarnEx(PyExc_UserWarning, "No draw_scene() yet", 0);
+      return;
+   }
 
    auto w = glutGet(GLUT_WINDOW_WIDTH);
    auto h = glutGet(GLUT_WINDOW_HEIGHT);
