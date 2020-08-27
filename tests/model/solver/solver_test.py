@@ -37,8 +37,8 @@ class MainTest(unittest.TestCase):
         self.solver.obj_mean_length = 0.5
         self.solver.step()
         fbs = self.solver.fiber_bundles
-        self.assertTrue(fbs[0][0].shape[0] == 2)
-        self.assertTrue(fbs[0][0][1, -1] == 2)
+        self.assertTrue(fbs[0][0].shape[0] == 3)
+        self.assertTrue(fbs[0][0][1, -1] == 1.5)
 
         fbs = self.solver.apply_boundary_conditions(n_max=1)
         self.assertTrue(fbs[0][0].shape[0] == 3)
