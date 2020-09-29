@@ -199,7 +199,7 @@ def ApplyFunToRadii(fiber_bundles, fun):
 def Cut(fiber_bundles, voi):
     """
     Cut fiber into voi. The cutting process can create multiple fibers.
-    It checks every cone_aabb if it overlapps with the voi.
+    It checks every fiber_segment_aabb if it overlapps with the voi.
 
     Parameters
     ----------
@@ -227,7 +227,7 @@ def Cut(fiber_bundles, voi):
 def CutSphere(fiber_bundles, radius, center=[0, 0, 0]):
     """
     Cut fiber into voi. The cutting process can create multiple fibers.
-    It checks every cone_aabb if it overlapps with the voi.
+    It checks every fiber_segment_aabb if it overlapps with the voi.
 
     Parameters
     ----------
