@@ -5,7 +5,7 @@
 #include <tuple>
 #include <vector>
 
-#include "cone_class.hpp"
+#include "fiber_segment.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
@@ -81,11 +81,12 @@ OctTree::OctTree(const std::vector<geometry::Fiber> &fibers,
 
    min_cube_size_ = min_cube_size;
 
-   // create vector of cones
+   // create vector of fiber_segments
    for (auto const &fiber : fibers) {
-      auto const fiber_cones = fiber.Cones();
-      cones_.insert(cones_.end(), std::make_move_iterator(fiber_cones.begin()),
-                    std::make_move_iterator(fiber_cones.end()));
+      auto const fiber_segments = fiber.FiberSegments();
+      fiber_segments_.insert(fiber_segments_.end(),
+                             std::make_move_iterator(fiber_segments.begin()),
+                             std::make_move_iterator(fiber_segments.end()));
    }
 
    // calculate bounding box
@@ -99,12 +100,12 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
    max_level_ = 0;
 
    if (!voi_cube_.IsFinite()) {
-      ids.resize(cones_.size());
+      ids.resize(fiber_segments_.size());
       std::iota(ids.begin(), ids.end(), 0);
    } else {
-      ids.reserve(std::sqrt(cones_.size()));
-      for (size_t id = 0; id < cones_.size(); id++) {
-         if (aabb::Overlap(voi_cube_, cones_[id].aabb()))
+      ids.reserve(std::sqrt(fiber_segments_.size()));
+      for (size_t id = 0; id < fiber_segments_.size(); id++) {
+         if (aabb::Overlap(voi_cube_, fiber_segments_[id].aabb()))
             ids.push_back(id);
       }
    }
@@ -112,9 +113,9 @@ std::set<std::array<size_t, 4>> OctTree::Run() {
    if (ids.empty())
       return results;
 
-   auto cube = aabb::AABB<double, 3>(cones_[ids.front()].aabb());
+   auto cube = aabb::AABB<double, 3>(fiber_segments_[ids.front()].aabb());
    for (auto id : ids)
-      cube.Unite(cones_[id].aabb());
+      cube.Unite(fiber_segments_[id].aabb());
 
    const double length = std::max(
        cube.max.x() - cube.min.x(),
@@ -155,7 +156,7 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
          for (auto i = 0; i < 8; i++) {
             std::vector<size_t> sub_ids;
             for (auto id : ids) {
-               if (aabb::Overlap(sub_cubes[i], cones_[id].aabb()))
+               if (aabb::Overlap(sub_cubes[i], fiber_segments_[id].aabb()))
                   sub_ids.push_back(id);
             }
 
@@ -179,7 +180,7 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
          for (auto i = 0; i < 8; i++) {
             std::vector<size_t> sub_ids;
             for (auto id : ids) {
-               if (aabb::Overlap(sub_cubes[i], cones_[id].aabb()))
+               if (aabb::Overlap(sub_cubes[i], fiber_segments_[id].aabb()))
                   sub_ids.push_back(id);
             }
 
@@ -197,51 +198,50 @@ OctTree::GenerateLeafs(const std::vector<size_t> &ids,
 }
 
 std::vector<std::array<size_t, 4>>
-OctTree::TestCollision(const std::vector<size_t> &cone_ids) {
+OctTree::TestCollision(const std::vector<size_t> &fs_ids) {
    std::vector<std::array<size_t, 4>> result;
 
-   if (cone_ids.size() <= 1)
+   if (fs_ids.size() <= 1)
       return result;
 
-   std::vector<object::Cone> cones(cone_ids.size());
-   for (auto i = 0u; i < cone_ids.size(); i++)
-      cones[i] = cones_[cone_ids[i]];
+   std::vector<geometry::FiberSegment> fiber_segments(fs_ids.size());
+   for (auto i = 0u; i < fs_ids.size(); i++)
+      fiber_segments[i] = fiber_segments_[fs_ids[i]];
 
-   std::vector<aabb::AABB<double, 3>> aabbs(cone_ids.size());
-   for (auto i = 0u; i < cone_ids.size(); i++)
-      aabbs[i] = cones[i].aabb();
+   std::vector<aabb::AABB<double, 3>> aabbs(fs_ids.size());
+   for (auto i = 0u; i < fs_ids.size(); i++)
+      aabbs[i] = fiber_segments[i].aabb();
 
-   for (auto i = 0u; i < cone_ids.size() - 1; i++) {
-      auto const &cone1 = cones[i];
-      for (auto j = i + 1; j < cone_ids.size(); j++) {
-         auto const &cone2 = cones[j];
+   for (auto i = 0u; i < fs_ids.size() - 1; i++) {
+      auto const &obj1 = fiber_segments[i];
+      for (auto j = i + 1; j < fs_ids.size(); j++) {
+         auto const &obj2 = fiber_segments[j];
 
          if (aabb::Overlap(aabbs[i], aabbs[j])) {
-            if (cone1.fiber_idx == cone2.fiber_idx) {
+            if (obj1.fiber_idx == obj2.fiber_idx) {
                // TODO: optimize(static_cast<ll>, all var ll, ...)
-               auto const delta = cone1.cone_idx >= cone2.cone_idx
-                                      ? cone1.cone_idx - cone2.cone_idx
-                                      : cone2.cone_idx - cone1.cone_idx;
+               auto const delta = obj1.fiber_elm >= obj2.fiber_elm
+                                      ? obj1.fiber_elm - obj2.fiber_elm
+                                      : obj2.fiber_elm - obj1.fiber_elm;
 
                // direct neighbor
                if (delta <= 1)
                   continue;
 
                auto const mean_seg_length =
-                   vm::length((cone1.p1 - cone1.p0) + (cone2.p1 - cone2.p0)) *
-                   0.5;
+                   vm::length((obj1.p1 - obj1.p0) + (obj2.p1 - obj2.p0)) * 0.5;
 
                // check for linked chain intersection
-               auto const sum_r = cone1.r + cone2.r;
+               auto const sum_r = obj1.r + obj2.r;
 
                // TODO: assumption radii did not change much
                if (2.0 / 3.0 * mean_seg_length * delta <
                    sum_r * 2) // 2 for safety
                   continue;
             }
-            if (cone1.CollideWith(cone2)) {
-               result.push_back({cone1.fiber_idx, cone1.cone_idx,
-                                 cone2.fiber_idx, cone2.cone_idx});
+            if (obj1.CollideWith(obj2)) {
+               result.push_back({obj1.fiber_idx, obj1.fiber_elm, obj2.fiber_idx,
+                                 obj2.fiber_elm});
             }
          }
       }

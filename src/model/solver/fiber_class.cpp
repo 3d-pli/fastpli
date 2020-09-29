@@ -8,7 +8,6 @@
 #include "objects/fiber.hpp"
 
 namespace geometry {
-
 Fiber::Fiber(const object::Fiber &fiber, const size_t f_idx)
     : object::Fiber(fiber) {
 
@@ -20,21 +19,21 @@ Fiber::Fiber(const object::Fiber &fiber, const size_t f_idx)
       max_speed_ = std::min(max_speed_, std::abs(r) * 0.2);
 }
 
-size_t Fiber::ConeSize() const {
+size_t Fiber::FiberSegmentSize() const {
    return points_.size() < 2 ? 0 : points_.size() - 1;
 }
 
-object::Cone Fiber::Cone(size_t i) const {
-   assert(i < ConeSize());
-   return object::Cone(this->points_[i], points_[i + 1], radii_[i],
-                       radii_[i + 1], fiber_idx_, i);
+geometry::FiberSegment Fiber::FiberSegment(size_t i) const {
+   assert(i < FiberSegmentSize());
+   return geometry::FiberSegment(this->points_[i], points_[i + 1], radii_[i],
+                                 radii_[i + 1], fiber_idx_, i);
 }
 
-std::vector<object::Cone> Fiber::Cones() const {
-   std::vector<object::Cone> data;
-   data.reserve(ConeSize());
-   for (size_t i = 0; i < ConeSize(); i++) {
-      data.push_back(Cone(i));
+std::vector<geometry::FiberSegment> Fiber::FiberSegments() const {
+   std::vector<geometry::FiberSegment> data;
+   data.reserve(FiberSegmentSize());
+   for (size_t i = 0; i < FiberSegmentSize(); i++) {
+      data.push_back(FiberSegment(i));
    }
    return data;
 }
@@ -103,7 +102,7 @@ bool Fiber::ApplyCurvatureConstrain(const double obj_min_radius) {
    return solved;
 }
 
-bool Fiber::ApplyConeLengthConstrain(const double obj_mean_length) {
+bool Fiber::ApplyFiberSegmentLengthConstrain(const double obj_mean_length) {
    auto solved = true;
 
    if (obj_mean_length == 0)
@@ -144,7 +143,7 @@ void Fiber::Split(size_t idx) {
 void Fiber::Combine(size_t idx) {
    // TODO: FIXME: not merging, thats deleting, but close enough
 
-   if (ConeSize() <= 1)
+   if (FiberSegmentSize() <= 1)
       return;
 
    if (idx == 0) {

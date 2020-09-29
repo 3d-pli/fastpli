@@ -6,8 +6,8 @@
 #include <tuple>
 #include <vector>
 
-#include "cone_class.hpp"
 #include "fiber_class.hpp"
+#include "fiber_segment.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
@@ -24,9 +24,9 @@ class OctTree {
    GenerateLeafs(const std::vector<size_t> &ids,
                  const aabb::AABB<double, 3> &cube, int level);
    std::vector<std::array<size_t, 4>>
-   TestCollision(const std::vector<size_t> &cone_ids);
+   TestCollision(const std::vector<size_t> &fs_ids);
 
-   std::vector<object::Cone> cones_;
+   std::vector<geometry::FiberSegment> fiber_segments_;
    int max_level_ = 0;
    double min_cube_size_ = 0;
    aabb::AABB<double, 3> voi_cube_{};

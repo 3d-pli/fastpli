@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "cone_class.hpp"
+#include "fiber_segment.hpp"
 #include "include/vemath.hpp"
 #include "objects/fiber.hpp"
 
@@ -24,10 +24,10 @@ class Fiber : public object::Fiber {
    const size_t &fiber_idx() const { return fiber_idx_; }
    const std::vector<vm::Vec3<double>> &speed() const { return speed_; }
 
-   // cones
-   size_t ConeSize() const;
-   object::Cone Cone(size_t i) const;
-   std::vector<object::Cone> Cones() const;
+   // fiber segments
+   size_t FiberSegmentSize() const;
+   geometry::FiberSegment FiberSegment(size_t i) const;
+   std::vector<geometry::FiberSegment> FiberSegments() const;
 
    // manipulators
    const double &max_speed() const { return max_speed_; };
@@ -36,7 +36,7 @@ class Fiber : public object::Fiber {
    void Move();
    void Drag(const double drag = 1);
    bool ApplyCurvatureConstrain(const double obj_min_radius);
-   bool ApplyConeLengthConstrain(const double obj_mean_length);
+   bool ApplyFiberSegmentLengthConstrain(const double obj_mean_length);
 
    void Split(size_t idx);
    void Combine(size_t idx);

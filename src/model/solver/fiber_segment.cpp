@@ -1,4 +1,4 @@
-#include "cone_class.hpp"
+#include "fiber_segment.hpp"
 
 #include <random>
 #include <tuple>
@@ -7,33 +7,33 @@
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
-namespace object {
-aabb::AABB<double, 3> Cone::aabb() const {
+namespace geometry {
+aabb::AABB<double, 3> FiberSegment::aabb() const {
    auto aabb = aabb::AABB<double, 3>(p0, p1, false);
    aabb.min -= r;
    aabb.max += r;
    return aabb;
 }
 
-bool Cone::CollideWith(const Cone cone) const {
+bool FiberSegment::CollideWith(const FiberSegment obj) const {
    // TODO: radius varies along the length
    vm::Vec3<double> P, Q;
    // TODO: check if aabb help speed up
-   std::tie(P, Q) = MinDistanceVectorCones(cone);
+   std::tie(P, Q) = MinDistanceVector(obj);
    double min_dist = vm::length(P - Q);
-   if (min_dist < (r + cone.r))
+   if (min_dist < (r + obj.r))
       return true;
 
    return false;
 }
 
 std::tuple<vm::Vec3<double>, vm::Vec3<double>>
-Cone::MinDistanceVectorCones(const Cone cone) const {
+FiberSegment::MinDistanceVector(const FiberSegment obj) const {
    // https://www.john.geek.nz/2009/03/code-shortest-distance-between-any-two-line-segments/
    auto const &P0 = p0;
    auto const &P1 = p1;
-   auto const &Q0 = cone.p0;
-   auto const &Q1 = cone.p1;
+   auto const &Q0 = obj.p0;
+   auto const &Q1 = obj.p1;
 
    auto const u = P1 - P0;
    auto const v = Q1 - Q0;
@@ -110,12 +110,12 @@ Cone::MinDistanceVectorCones(const Cone cone) const {
 
 std::tuple<vm::Vec3<double>, vm::Vec3<double>, vm::Vec3<double>,
            vm::Vec3<double>, double>
-Cone::PushConesApart(const Cone cone) const {
+FiberSegment::PushApart(const FiberSegment obj) const {
 
    // TODO: clean up
 
    vm::Vec3<double> P, Q;
-   std::tie(P, Q) = MinDistanceVectorCones(cone);
+   std::tie(P, Q) = MinDistanceVector(obj);
 
    auto delta = P - Q;
    double norm = vm::length(P - Q);
@@ -135,7 +135,7 @@ Cone::PushConesApart(const Cone cone) const {
    }
 
    auto delta_speed =
-       0.05 * std::min(r0, std::min(r1, std::min(cone.r0, cone.r1)));
+       0.05 * std::min(r0, std::min(r1, std::min(obj.r0, obj.r1)));
 
    // auto f = (P - Q) / vm::length(P - Q) * delta_speed;
 
@@ -144,12 +144,12 @@ Cone::PushConesApart(const Cone cone) const {
    auto f1 =
        delta / norm * delta_speed * vm::length(P - p0) / vm::length(p1 - p0);
 
-   auto f2 = -delta / norm * delta_speed * vm::length(Q - cone.p1) /
-             vm::length(cone.p1 - cone.p0);
-   auto f3 = -delta / norm * delta_speed * vm::length(Q - cone.p0) /
-             vm::length(cone.p1 - cone.p0);
+   auto f2 = -delta / norm * delta_speed * vm::length(Q - obj.p1) /
+             vm::length(obj.p1 - obj.p0);
+   auto f3 = -delta / norm * delta_speed * vm::length(Q - obj.p0) /
+             vm::length(obj.p1 - obj.p0);
 
    return std::make_tuple(f0, f1, f2, f3, norm);
 }
 
-} // namespace object
+} // namespace geometry

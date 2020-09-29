@@ -146,6 +146,6 @@ class World {
 
    // world functions
    bool ApplyCurvatureConstrain();
-   bool ApplyConeLengthConstrain();
+   bool ApplyFiberSegmentLengthConstrain();
    void ResetObjCounter();
 };

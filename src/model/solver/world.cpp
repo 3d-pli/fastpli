@@ -119,7 +119,7 @@ void World::ResetObjCounter() {
    max_level_ = -1;
    for (auto &f : fibers_) {
       f.set_max_speed(max_speed_);
-      num_obj_ += f.ConeSize();
+      num_obj_ += f.FiberSegmentSize();
    }
 }
 
@@ -141,8 +141,8 @@ bool World::ApplyBoundaryConditions(int max_steps) {
 
 #pragma omp parallel for reduction(&& : solved)
       for (auto i = 0u; i < fibers_.size(); i++) {
-         bool flag_length =
-             fibers_[i].ApplyConeLengthConstrain(w_parameter_.obj_mean_length);
+         bool flag_length = fibers_[i].ApplyFiberSegmentLengthConstrain(
+             w_parameter_.obj_mean_length);
          bool flag_radius =
              fibers_[i].ApplyCurvatureConstrain(w_parameter_.obj_min_radius);
          solved = flag_length && flag_radius;
@@ -151,7 +151,7 @@ bool World::ApplyBoundaryConditions(int max_steps) {
 
    num_obj_ = 0;
    for (auto const &fiber : fibers_)
-      num_obj_ += fiber.ConeSize();
+      num_obj_ += fiber.FiberSegmentSize();
 
    return solved;
 }
@@ -163,7 +163,7 @@ bool World::Step() {
 
    num_obj_ = 0;
    for (auto const &fiber : fibers_)
-      num_obj_ += fiber.ConeSize();
+      num_obj_ += fiber.FiberSegmentSize();
 
 #pragma omp parallel for
    // applying drag before so that velocity is an indicator for colored
@@ -207,8 +207,8 @@ bool World::Step() {
          auto elm = colliding_vec[i];
 
          auto const [f0, f1, f2, f3, dist] =
-             fibers_[elm[0]].Cone(elm[1]).PushConesApart(
-                 fibers_[elm[2]].Cone(elm[3]));
+             fibers_[elm[0]].FiberSegment(elm[1]).PushApart(
+                 fibers_[elm[2]].FiberSegment(elm[3]));
 
          // WARNING: not thread safe
          fibers_[elm[0]].AddSpeed(elm[1], f0);
@@ -234,7 +234,7 @@ bool World::Step() {
 
 #pragma omp parallel for
    for (auto i = 0u; i < fibers_.size(); i++)
-      fibers_[i].ApplyConeLengthConstrain(w_parameter_.obj_mean_length);
+      fibers_[i].ApplyFiberSegmentLengthConstrain(w_parameter_.obj_mean_length);
 
    // move colliding objects
    if (!solved) {
