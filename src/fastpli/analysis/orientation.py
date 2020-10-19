@@ -46,8 +46,8 @@ def _remap_orientation(phi, theta):
 
 
 def remap_orientation(phi, theta):
-    phi = np.array(phi, copy=False)
-    theta = np.array(theta, copy=False)
+    phi = np.array(phi)
+    theta = np.array(theta)
     shape = phi.shape
 
     phi.shape = (-1)
