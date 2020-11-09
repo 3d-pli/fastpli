@@ -5,6 +5,7 @@ import warnings
 import h5py
 import sys
 import os
+import tempfile
 
 from fastpli.simulation import Simpli
 
@@ -307,7 +308,8 @@ class MainTest(unittest.TestCase):
 
         self.simpli.run_pipeline(save=["tissue", "optical_axis"])
 
-        with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
+        with h5py.File(os.path.join(tempfile.gettempdir(), 'fastpli.test.h5'),
+                       'w') as h5f:
             with open(os.path.abspath(__file__), 'r') as script:
                 self.simpli.run_pipeline(h5f=h5f,
                                          script=script.read(),
@@ -318,7 +320,8 @@ class MainTest(unittest.TestCase):
         #     self.assertTrue(self.simpli.get_dict() == parameters)
         #     self.assertWarns(UserWarning, self.simpli.set_dict, parameters)
 
-        self.addCleanup(os.remove, '/tmp/fastpli.test.h5')
+        self.addCleanup(os.remove,
+                        os.path.join(tempfile.gettempdir(), 'fastpli.test.h5'))
 
     def test_rofl(self):
         with self.assertRaisesRegex(ValueError, "tilts not set"):
@@ -391,24 +394,28 @@ class MainTest(unittest.TestCase):
     def test_prev_result(self):
         FILE_NAME = os.path.abspath(__file__)
         FILE_PATH = os.path.dirname(FILE_NAME)
-        subprocess.run([sys.executable, f"/tmp/simpli_rep.py"],
-                       stdout=subprocess.DEVNULL,
-                       check=True)
+        subprocess.run(
+            [sys.executable,
+             os.path.join(FILE_PATH, "simpli_rep.py")],
+            stdout=subprocess.DEVNULL,
+            check=True)
         result = subprocess.run([
             "h5diff",
             "--relative=0.00001",  # some have 32bit
             os.path.join(FILE_PATH, "simpli_rep.h5"),
-            os.path.join("tmp", "simpli_rep.h5")
+            os.path.join(tempfile.gettempdir(), 'simpli_rep.h5')
         ]).returncode == 0
         if not result:
             subprocess.run([
                 "h5diff", "--relative=0.00001", "-r",
                 os.path.join(FILE_PATH, "simpli_rep.h5"),
-                os.path.join("tmp", "simpli_rep.h5")
+                os.path.join(tempfile.gettempdir(), 'simpli_rep.h5')
             ])
         self.assertTrue(result)
 
-        self.addCleanup(os.remove, f"/tmp/simpli_rep.h5")
+        self.addCleanup(
+            os.remove,
+            os.path.join(os.path.join(tempfile.gettempdir(), "simpli_rep.h5")))
 
 
 if __name__ == '__main__':

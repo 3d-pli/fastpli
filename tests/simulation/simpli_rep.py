@@ -4,6 +4,7 @@ import fastpli.tools
 import fastpli.io
 
 import numpy as np
+import tempfile
 import h5py
 import os
 
@@ -12,10 +13,11 @@ np.random.seed(42)
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
-FILE_OUT = os.path.join(FILE_PATH, os.path.splitext(FILE_BASE)[0]) + "_"
 
-print(f'creating file: {FILE_OUT}.h5')
-with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
+print(f"creating file: {os.path.join(tempfile.gettempdir(), 'simpli_rep.h5')}")
+
+with h5py.File(os.path.join(tempfile.gettempdir(), 'simpli_rep.h5'),
+               'w-') as h5f:
     # save script
     # h5f['version'] = fastpli.__version__
     # with open(os.path.abspath(__file__), 'r') as f:
