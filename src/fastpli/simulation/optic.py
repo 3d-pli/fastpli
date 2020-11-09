@@ -6,7 +6,7 @@ import numba
 
 def add_noise(image, model, mask=None):
     """
-    Adds noise to a simulated ccd image according to the gain value
+    Adds noise to a simulated ccd image according to the noise model
 
     Parameters
     ----------

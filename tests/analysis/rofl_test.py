@@ -46,7 +46,8 @@ class MainTest(unittest.TestCase):
             # calculate modalities
             tilting_stack[t] = images
 
-        simpli.sensor_gain = 3
+        simpli.noise_model = lambda x: np.random.negative_binomial(
+            x / (3 - 1), 1 / 3)
         rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(
             tilting_stack, grad_mode=False)
 
