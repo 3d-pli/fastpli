@@ -58,7 +58,7 @@ class __Simpli:
         self._wavelength = None
 
         # ANALYSIS
-        self._sensor_gain = None
+        self._noise_model = None
 
         # OTHER
         self._omp_num_threads = 1
@@ -241,20 +241,17 @@ class __Simpli:
         self._tilts = tilts
 
     @property
-    def sensor_gain(self):
-        """ sensor gain value for calculating ccd camera noise in a.u.: float """
-        return self._sensor_gain
+    def noise_model(self):
+        """ applying noise model: function """
+        return self._noise_model
 
-    @sensor_gain.setter
-    def sensor_gain(self, sensor_gain):
+    @noise_model.setter
+    def noise_model(self, noise_model):
 
-        if not isinstance(sensor_gain, (int, float)):
-            raise TypeError("sensor_gain is not a number")
+        if not callable(noise_model):
+            raise TypeError("noise model is not callable")
 
-        if sensor_gain < 0:
-            raise ValueError("sensor_gain is < 0")
-
-        self._sensor_gain = sensor_gain
+        self._noise_model = noise_model
 
     @property
     def optical_sigma(self):
@@ -499,16 +496,15 @@ class __Simpli:
         """
 
         self._print("Apply optic")
-        if self._sensor_gain is None:
-            raise ValueError("sensor_gain not set")
+        if self._noise_model is None:
+            raise ValueError("noise_model not set")
 
         output = self.apply_optic_resample(input, mp_pool=mp_pool)
 
         if np.amin(output) < 0:
             raise AssertionError("intensity < 0 detected")
 
-        if self._sensor_gain > 0:
-            output = optic.add_noise(output, self._sensor_gain)
+        output = optic.add_noise(output, self._noise_model)
 
         return output
 
@@ -637,9 +633,6 @@ class __Simpli:
         if input.shape[-1] <= 3:
             raise ValueError("input needs at least 3 equidistant rotations")
 
-        if self._sensor_gain is None:
-            raise ValueError("sensor_gain not defined")
-
         if mask is None:
             mask = np.ones((input.shape[1], input.shape[2]), bool)
 
@@ -654,8 +647,8 @@ class __Simpli:
 
         if mp_pool:
             for j in range(input.shape[2]):
-                chunk = [(input[:, i, j, :], tilt_angle, self._sensor_gain, 0,
-                          grad_mode) for i in range(input.shape[1])]
+                chunk = [(input[:, i, j, :], tilt_angle, 3, 0, grad_mode)
+                         for i in range(input.shape[1])]
                 results = mp_pool.starmap(analysis.rofl.rofl, chunk)
 
                 for i, result in enumerate(results):
@@ -672,8 +665,7 @@ class __Simpli:
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = analysis.rofl.rofl(
-                                input[:, i, j, :], tilt_angle,
-                                self._sensor_gain, 0, grad_mode)
+                                input[:, i, j, :], tilt_angle, 3, 0, grad_mode)
 
         return directionmap, inclmap, trelmap, (dirdevmap, incldevmap,
                                                 treldevmap, funcmap, itermap)

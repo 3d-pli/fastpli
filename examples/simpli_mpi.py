@@ -69,8 +69,9 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
     # simpli.untilt_sensor_view = True
     simpli.wavelength = 525  # in nm
     simpli.pixel_size = 20  # in micro meter
-    simpli.sensor_gain = 3
     simpli.optical_sigma = 0.71  # in voxel size
+    simpli.noise_model = lambda x: np.random.negative_binomial(
+        x / (3 - 1), 1 / 3)
     simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
                                (5.5, 270)])
 

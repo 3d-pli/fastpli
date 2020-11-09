@@ -43,8 +43,8 @@ simpli.wavelength = 525  # in nm
 simpli.pixel_size = 10  # in micro meter
 simpli.tilts = np.deg2rad(
     np.array([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)]))  # in deg
-simpli.sensor_gain = 3
 simpli.optical_sigma = 0.71  # in voxel size
+simpli.noise_model = lambda x: np.random.negative_binomial(x / (3 - 1), 1 / 3)
 simpli.verbose = True
 
 print(f'creating file: {FILE_OUT}.h5')

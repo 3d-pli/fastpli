@@ -4,7 +4,7 @@ import scipy.ndimage
 import numba
 
 
-def add_noise(image, gain, mask=None):
+def add_noise(image, model, mask=None):
     """
     Adds noise to a simulated ccd image according to the gain value
 
@@ -12,8 +12,8 @@ def add_noise(image, gain, mask=None):
     ----------
     image : ndarray
         image data. Noise is only added to image values > 0
-    gain : float
-        gain value for noise level
+    model : function
+        noise model with intensity as input argument
     mask : ndarray
         noise is only added to masked area
 
@@ -22,22 +22,17 @@ def add_noise(image, gain, mask=None):
     res : ndarray
     """
 
-    image = np.array(image)
+    image = np.array(image, copy=False)
+    shape = image.shape
 
-    if gain < 0:
-        raise ValueError("sigma is < 0")
+    noisy = np.array(list(map(model, image.ravel())), dtype=image.dtype)
+    noisy.shape = shape
 
-    if gain == 0:
-        return image
+    if mask is not None:
+        mask = np.logical_not(np.logical_and(np.isfinite(image), mask))
+        noisy[mask] = image[mask]
 
-    if not mask:
-        mask = image > 0
-    else:
-        mask = np.logical_and(mask, image > 0)
-
-    image[mask] = np.random.negative_binomial(image[mask] / (gain - 1),
-                                              1 / gain)
-    return image
+    return noisy
 
 
 def filter(image, sigma):
