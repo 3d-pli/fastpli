@@ -27,16 +27,15 @@ def remap_direction(phi):
 def _remap_orientation(phi, theta):
     phi = phi % (2 * np.pi)
     theta = theta % (2 * np.pi)
-
     phi[phi < 0] += 2 * np.pi
+
     phi[theta < 0] += np.pi
     theta = np.abs(theta)
 
-    mask = theta != theta % np.pi
-    phi[mask] += np.pi
+    phi[theta >= np.pi] += np.pi
     theta = theta % np.pi
 
-    mask = theta > 0.5 * np.pi
+    mask = theta >= 0.5 * np.pi
     phi[mask] += np.pi
     theta[mask] = np.pi - theta[mask]
 
