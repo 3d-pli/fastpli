@@ -27,6 +27,7 @@ def remap_direction(phi):
 def _remap_orientation(phi, theta):
     phi = phi % (2 * np.pi)
     theta = theta % (2 * np.pi)
+
     phi[phi < 0] += 2 * np.pi
 
     phi[theta < 0] += np.pi
@@ -58,6 +59,41 @@ def remap_orientation(phi, theta):
     theta.shape = shape
 
     return phi, theta
+
+
+@numba.njit(cache=True)
+def _remap_spherical(phi, theta):
+    phi = phi % (2 * np.pi)
+    theta = theta % (2 * np.pi)
+
+    phi[phi < 0] += 2 * np.pi
+
+    phi[theta < 0] += np.pi
+    theta = np.abs(theta)
+
+    phi[theta >= np.pi] += np.pi
+    theta = theta % np.pi
+
+    phi = phi % (2 * np.pi)
+
+    return phi, theta
+
+
+def remap_spherical(phi, theta):
+    phi = np.array(phi)
+    theta = np.array(theta)
+    shape = phi.shape
+
+    phi.shape = (-1)
+    theta.shape = (-1)
+
+    phi, theta = _remap_spherical(phi, theta)
+
+    phi.shape = shape
+    theta.shape = shape
+
+    return phi, theta
+    pass
 
 
 def fiber_bundles(fiber_bundles):
