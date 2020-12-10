@@ -93,7 +93,6 @@ def remap_spherical(phi, theta):
     theta.shape = shape
 
     return phi, theta
-    pass
 
 
 def fiber_bundles(fiber_bundles):
