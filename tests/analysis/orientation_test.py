@@ -93,8 +93,8 @@ class MainTest(unittest.TestCase):
 
         phi, theta = fastpli.analysis.orientation.remap_spherical(
             np.deg2rad(25), np.deg2rad(200))
-        self.assertAlmostEqual(phi, np.deg2rad(205))
-        self.assertAlmostEqual(theta, np.deg2rad(20))
+        self.assertAlmostEqual(phi, np.deg2rad(180 + 25))
+        self.assertAlmostEqual(theta, np.deg2rad(360 - 200))
 
         phi, theta = fastpli.analysis.orientation.remap_spherical(
             np.deg2rad(-25), np.deg2rad(-200))
@@ -104,7 +104,7 @@ class MainTest(unittest.TestCase):
         phi, theta = fastpli.analysis.orientation.remap_spherical(
             np.deg2rad(-25), np.deg2rad(200))
         self.assertAlmostEqual(phi, np.deg2rad((360 - 25) - 180))
-        self.assertAlmostEqual(theta, np.deg2rad(20))
+        self.assertAlmostEqual(theta, np.deg2rad(360 - 200))
 
     def test_fiber_bundles(self):
         fastpli.analysis.orientation.fiber_bundles(

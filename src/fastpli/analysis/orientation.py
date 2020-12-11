@@ -71,8 +71,9 @@ def _remap_spherical(phi, theta):
     phi[theta < 0] += np.pi
     theta = np.abs(theta)
 
-    phi[theta >= np.pi] += np.pi
-    theta = theta % np.pi
+    mask = theta >= np.pi
+    phi[mask] += np.pi
+    theta[mask] = 2 * np.pi - theta[mask]
 
     phi = phi % (2 * np.pi)
 

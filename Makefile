@@ -129,7 +129,7 @@ format-c++:
 	@find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \;
 
 .PHONY: format-py
-format-py: 
+format-py:
 	${VENV}/bin/python3 -m yapf -i -r -p --style google src;
 	${VENV}/bin/python3 -m yapf -i -r -p --style google tests;
 	${VENV}/bin/python3 -m yapf -i -r -p --style google examples;
