@@ -16,95 +16,37 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.all(phi >= 0) or np.all(phi < np.pi))
 
     def test_remap_orientation(self):
-        phi = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
-        theta = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
+        phi, theta = np.mgrid[-42 * np.pi:42 * np.pi:100j,
+                              -42 * np.pi:42 * np.pi:100j]
+        phi = phi.ravel()
+        theta = theta.ravel()
         phi, theta = fastpli.analysis.orientation.remap_orientation(phi, theta)
-        self.assertTrue(
-            np.all(phi >= 0) or np.all(phi < 2 * np.pi) or np.all(theta >= 0) or
-            np.all(theta <= 0.5 * np.pi))
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(0, 0)
-        self.assertTrue(phi == 0 and theta == 0, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(
-            0, 0.5 * np.pi)
-        self.assertTrue(phi == 0 and theta == 0.5 * np.pi, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(
-            2 * np.pi, 0)
-        self.assertTrue(phi == 0 and theta == 0, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(
-            2 * np.pi, 0.5 * np.pi)
-        self.assertTrue(phi == 0 and theta == 0.5 * np.pi, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(
-            0, 0.75 * np.pi)
-        self.assertTrue(phi == np.pi and theta == 0.25 * np.pi,
-                        f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(
-            0, -0.75 * np.pi)
-        self.assertTrue(phi == 0 and theta == 0.25 * np.pi, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(
-            -0.5 * np.pi, 0)
-        self.assertTrue(phi == 1.5 * np.pi and theta == 0, f"{phi}, {theta}")
+        x = np.multiply(np.cos(phi), np.sin(theta))
+        y = np.multiply(np.sin(phi), np.sin(theta))
+        z = np.cos(theta)
+        x[z < 0] = -x[z < 0]
+        y[z < 0] = -y[z < 0]
+        z[z < 0] = -z[z < 0]
+        phi_ = np.arctan2(y, x)
+        theta_ = np.arccos(z)
+        phi_[phi_ < 0] += 2 * np.pi
+        self.assertTrue(np.allclose(phi, phi_))
+        self.assertTrue(np.allclose(theta, theta_))
 
     def test_remap_spherical(self):
-        phi = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
-        theta = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
+        phi, theta = np.mgrid[-42 * np.pi:42 * np.pi:100j,
+                              -42 * np.pi:42 * np.pi:100j]
+        phi = phi.ravel()
+        theta = theta.ravel()
         phi, theta = fastpli.analysis.orientation.remap_spherical(phi, theta)
-        self.assertTrue(
-            np.all(phi >= 0) or np.all(phi < 2 * np.pi) or np.all(theta >= 0) or
-            np.all(theta < np.pi))
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(phi, theta)
-        phi_, theta_ = fastpli.analysis.orientation.remap_spherical(phi, theta)
-        self.assertTrue(
-            np.array_equal(phi, phi_) and np.array_equal(theta, theta_))
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(0, 0)
-        self.assertTrue(phi == 0 and theta == 0, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(
-            0, 0.5 * np.pi)
-        self.assertTrue(phi == 0 and theta == 0.5 * np.pi, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(0, np.pi)
-        self.assertTrue(phi == 0 and theta == np.pi, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(2 * np.pi, 0)
-        self.assertTrue(phi == 0 and theta == 0, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(
-            2 * np.pi, 0.5 * np.pi)
-        self.assertTrue(phi == 0 and theta == 0.5 * np.pi, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(
-            0, 0.75 * np.pi)
-        self.assertTrue(phi == 0 and theta == 0.75 * np.pi, f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(
-            0, -0.75 * np.pi)
-        self.assertTrue(phi == np.pi and theta == 0.75 * np.pi,
-                        f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(
-            3.25 * np.pi, 1.75 * np.pi)
-        self.assertTrue(
-            np.isclose(phi, 0.25 * np.pi) and np.isclose(theta, 0.25 * np.pi),
-            f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(
-            3.25 * np.pi, -1.75 * np.pi)
-        self.assertTrue(
-            np.isclose(phi, 1.25 * np.pi) and np.isclose(theta, 0.25 * np.pi),
-            f"{phi}, {theta}")
-
-        phi, theta = fastpli.analysis.orientation.remap_spherical(
-            -0.5 * np.pi, 0)
-        self.assertTrue(phi == 1.5 * np.pi and theta == 0, f"{phi}, {theta}")
+        x = np.multiply(np.cos(phi), np.sin(theta))
+        y = np.multiply(np.sin(phi), np.sin(theta))
+        z = np.cos(theta)
+        phi_ = np.arctan2(y, x)
+        theta_ = np.arccos(z)
+        phi_[phi_ < 0] += 2 * np.pi
+        self.assertTrue(np.allclose(phi, phi_))
+        self.assertTrue(np.allclose(theta, theta_))
 
     def test_fiber_bundles(self):
         fastpli.analysis.orientation.fiber_bundles(
