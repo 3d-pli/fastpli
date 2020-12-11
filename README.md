@@ -82,13 +82,13 @@ make fastpli
 pip3 install .
 ```
 
-### Tests
+## Tests
 
 ```sh
 python3 setup.py test
 ```
 
-### Examples
+## Examples
 
 ```sh
 # install required modules for examples
@@ -99,6 +99,26 @@ python3 examples/sandbox.py
 python3 examples/solver.py
 python3 examples/simpli.py
 python3 examples/simulation_pipeline.py
+```
+
+## Docs
+
+### simple markdown docs
+```sh
+make docs
+```
+
+or
+
+### sphinx 
+
+```sh
+pip3 install sphinx
+pip3 install sphinx_rtd_theme
+pip3 install sphinx-autodoc-typehints
+cd docs
+make html
+open build/html/index.html
 ```
 
 # About this Project
@@ -123,11 +143,11 @@ are also welcome to add features or correct problems.
 
 ## References
 
-|                                                                                                                                                                                                                        |                                                                                                                                                              |
-| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-|                                     [![Forschungszentrum Jülich](https://www.fz-juelich.de/SharedDocs/Bilder/INM/INM-1/EN/FZj_Logo.jpg?__blob=normal)](https://www.fz-juelich.de)                                      | [Forschungszentrum Jülich](https://www.fz-juelich.de)                                                                                                        |
-| [![FA-INM-1](https://www.fz-juelich.de/SharedDocs/Bilder/INM/INM-1/DE/PLI/PLI-GruppenLogo.png?__blob=thumbnail)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) | [Fiber Architecture - INM1 - Forschungszentrum Jülich](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) |
-|                                                    [![HBP](https://sos-ch-dk-2.exo.io/public-website-production/img/HBP.png)](https://www.humanbrainproject.eu/en/)                                                    | [Human Brain Project](https://www.humanbrainproject.eu/en/)                                                                                                  |
+|                                                                                                                                                                                  |                                                                                                                                                              |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|                  [![Forschungszentrum Jülich](https://www.fz-juelich.de/SharedDocs/Bilder/INM/INM-1/EN/FZj_Logo.jpg?__blob=normal)](https://www.fz-juelich.de)                   | [Forschungszentrum Jülich](https://www.fz-juelich.de)                                                                                                        |
+| [![FA-INM-1](https://avatars2.githubusercontent.com/u/51479655?s=200&v=4)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) | [Fiber Architecture - INM1 - Forschungszentrum Jülich](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) |
+|                                 [![HBP](https://sos-ch-dk-2.exo.io/public-website-production/img/HBP.png)](https://www.humanbrainproject.eu/en/)                                 | [Human Brain Project](https://www.humanbrainproject.eu/en/)                                                                                                  |
 
 ## License
 
