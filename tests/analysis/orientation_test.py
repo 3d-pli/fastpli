@@ -11,56 +11,49 @@ np.random.seed(42)
 class MainTest(unittest.TestCase):
 
     def test_remap_direction(self):
-        phi = np.random.uniform(-1000, 1000, 1000)
+        phi = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
         phi = fastpli.analysis.orientation.remap_direction(phi)
         self.assertTrue(np.all(phi >= 0) or np.all(phi < np.pi))
 
     def test_remap_orientation(self):
-        phi = np.random.uniform(-1000, 1000, 1000)
-        theta = np.random.uniform(-1000, 1000, 1000)
+        phi = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
+        theta = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
         phi, theta = fastpli.analysis.orientation.remap_orientation(phi, theta)
         self.assertTrue(
             np.all(phi >= 0) or np.all(phi < 2 * np.pi) or np.all(theta >= 0) or
-            np.all(theta < 0.5 * np.pi))
+            np.all(theta <= 0.5 * np.pi))
+
+        phi, theta = fastpli.analysis.orientation.remap_orientation(0, 0)
+        self.assertTrue(phi == 0 and theta == 0, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_orientation(
-            np.deg2rad(0), np.deg2rad(0))
-        self.assertTrue(phi == np.deg2rad(0))
-        self.assertTrue(theta == np.deg2rad(0))
+            0, 0.5 * np.pi)
+        self.assertTrue(phi == 0 and theta == 0.5 * np.pi, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_orientation(
-            np.deg2rad(90), np.deg2rad(10))
-        self.assertTrue(phi == np.deg2rad(90))
-        self.assertTrue(theta == np.deg2rad(10))
+            2 * np.pi, 0)
+        self.assertTrue(phi == 0 and theta == 0, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_orientation(
-            np.deg2rad(360), np.deg2rad(25))
-        self.assertTrue(phi == np.deg2rad(0))
-        self.assertTrue(theta == np.deg2rad(25))
+            2 * np.pi, 0.5 * np.pi)
+        self.assertTrue(phi == 0 and theta == 0.5 * np.pi, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_orientation(
-            np.deg2rad(25), np.deg2rad(123))
-        self.assertAlmostEqual(phi, np.deg2rad(205))
-        self.assertAlmostEqual(theta, (np.pi - np.deg2rad(123)))
+            0, 0.75 * np.pi)
+        self.assertTrue(phi == np.pi and theta == 0.25 * np.pi,
+                        f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_orientation(
-            np.deg2rad(25), np.deg2rad(200))
-        self.assertAlmostEqual(phi, np.deg2rad(205))
-        self.assertAlmostEqual(theta, np.deg2rad(20))
+            0, -0.75 * np.pi)
+        self.assertTrue(phi == 0 and theta == 0.25 * np.pi, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_orientation(
-            np.deg2rad(-25), np.deg2rad(-200))
-        self.assertAlmostEqual(phi, np.deg2rad(180 - 25))
-        self.assertAlmostEqual(theta, np.deg2rad(20))
-
-        phi, theta = fastpli.analysis.orientation.remap_orientation(
-            np.deg2rad(-25), np.deg2rad(200))
-        self.assertAlmostEqual(phi, np.deg2rad(180 - 25))
-        self.assertAlmostEqual(theta, np.deg2rad(20))
+            -0.5 * np.pi, 0)
+        self.assertTrue(phi == 1.5 * np.pi and theta == 0, f"{phi}, {theta}")
 
     def test_remap_spherical(self):
-        phi = np.random.uniform(-1000, 1000, 1000)
-        theta = np.random.uniform(-1000, 1000, 1000)
+        phi = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
+        theta = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
         phi, theta = fastpli.analysis.orientation.remap_spherical(phi, theta)
         self.assertTrue(
             np.all(phi >= 0) or np.all(phi < 2 * np.pi) or np.all(theta >= 0) or
@@ -71,40 +64,47 @@ class MainTest(unittest.TestCase):
         self.assertTrue(
             np.array_equal(phi, phi_) and np.array_equal(theta, theta_))
 
-        phi, theta = fastpli.analysis.orientation.remap_spherical(
-            np.deg2rad(0), np.deg2rad(0))
-        self.assertTrue(phi == np.deg2rad(0))
-        self.assertTrue(theta == np.deg2rad(0))
+        phi, theta = fastpli.analysis.orientation.remap_spherical(0, 0)
+        self.assertTrue(phi == 0 and theta == 0, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_spherical(
-            np.deg2rad(90), np.deg2rad(10))
-        self.assertTrue(phi == np.deg2rad(90))
-        self.assertTrue(theta == np.deg2rad(10))
+            0, 0.5 * np.pi)
+        self.assertTrue(phi == 0 and theta == 0.5 * np.pi, f"{phi}, {theta}")
+
+        phi, theta = fastpli.analysis.orientation.remap_spherical(0, np.pi)
+        self.assertTrue(phi == 0 and theta == np.pi, f"{phi}, {theta}")
+
+        phi, theta = fastpli.analysis.orientation.remap_spherical(2 * np.pi, 0)
+        self.assertTrue(phi == 0 and theta == 0, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_spherical(
-            np.deg2rad(360), np.deg2rad(25))
-        self.assertAlmostEqual(phi, np.deg2rad(0))
-        self.assertAlmostEqual(theta, np.deg2rad(25))
+            2 * np.pi, 0.5 * np.pi)
+        self.assertTrue(phi == 0 and theta == 0.5 * np.pi, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_spherical(
-            np.deg2rad(25), np.deg2rad(123))
-        self.assertAlmostEqual(phi, np.deg2rad(25))
-        self.assertAlmostEqual(theta, np.deg2rad(123))
+            0, 0.75 * np.pi)
+        self.assertTrue(phi == 0 and theta == 0.75 * np.pi, f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_spherical(
-            np.deg2rad(25), np.deg2rad(200))
-        self.assertAlmostEqual(phi, np.deg2rad(180 + 25))
-        self.assertAlmostEqual(theta, np.deg2rad(360 - 200))
+            0, -0.75 * np.pi)
+        self.assertTrue(phi == np.pi and theta == 0.75 * np.pi,
+                        f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_spherical(
-            np.deg2rad(-25), np.deg2rad(-200))
-        self.assertAlmostEqual(phi, np.deg2rad(360 - 25))
-        self.assertAlmostEqual(theta, np.deg2rad(160))
+            3.25 * np.pi, 1.75 * np.pi)
+        self.assertTrue(
+            np.isclose(phi, 0.25 * np.pi) and np.isclose(theta, 0.25 * np.pi),
+            f"{phi}, {theta}")
 
         phi, theta = fastpli.analysis.orientation.remap_spherical(
-            np.deg2rad(-25), np.deg2rad(200))
-        self.assertAlmostEqual(phi, np.deg2rad((360 - 25) - 180))
-        self.assertAlmostEqual(theta, np.deg2rad(360 - 200))
+            3.25 * np.pi, -1.75 * np.pi)
+        self.assertTrue(
+            np.isclose(phi, 1.25 * np.pi) and np.isclose(theta, 0.25 * np.pi),
+            f"{phi}, {theta}")
+
+        phi, theta = fastpli.analysis.orientation.remap_spherical(
+            -0.5 * np.pi, 0)
+        self.assertTrue(phi == 1.5 * np.pi and theta == 0, f"{phi}, {theta}")
 
     def test_fiber_bundles(self):
         fastpli.analysis.orientation.fiber_bundles(
