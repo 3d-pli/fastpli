@@ -104,13 +104,14 @@ python3 examples/simulation_pipeline.py
 ## Docs
 
 ### simple markdown docs
+
 ```sh
 make docs
 ```
 
 or
 
-### sphinx 
+### sphinx
 
 ```sh
 pip3 install sphinx
