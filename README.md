@@ -103,23 +103,9 @@ python3 examples/simulation_pipeline.py
 
 ## Docs
 
-### simple markdown docs
-
 ```sh
 make docs
-```
-
-or
-
-### sphinx
-
-```sh
-pip3 install sphinx
-pip3 install sphinx_rtd_theme
-pip3 install sphinx-autodoc-typehints
-cd docs
-make html
-open build/html/index.html
+open docs/build/html/index.html
 ```
 
 # About this Project

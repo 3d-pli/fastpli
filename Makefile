@@ -134,8 +134,8 @@ format-py:
 	${VENV}/bin/python3 -m yapf -i -r -p --style google tests;
 	${VENV}/bin/python3 -m yapf -i -r -p --style google examples;
 
-.PHONY: docs
-docs:
+.PHONY: docs-wiki
+docs-wiki:
 	${VENV}/bin/pip3 -q install pdoc3
 	${VENV}/bin/python3 -m pdoc --force --html --output-dir build/docs fastpli
 	${VENV}/bin/python3 -m pdoc --pdf fastpli | sed '1,/^...$$/d' | \
@@ -144,17 +144,30 @@ docs:
 	uniq build/docs/fastpli_.md build/docs/fastpli.md; \
 	rm build/docs/fastpli_.md
 
+.PHONY: docs
+docs:
+	${VENV}/bin/pip3 install sphinx -q; \
+	${VENV}/bin/pip3 install sphinx_rtd_theme -q; \
+	${VENV}/bin/pip3 install sphinx-autodoc-typehints -q; \
+	cd docs; \
+	make html;
+
 .PHONY: clean
 clean: uninstall clean-build clean-src
 
 .PHONY: clean-all
-clean-all: clean-build clean-src clean-venv
+clean-all: clean-build clean-src clean-docs clean-venv
 
 .PHONY: clean-build
 clean-build:
 	@echo cleaning build
 	@rm -rf build
 	@rm -f setup.py
+
+.PHONY: clean-docs
+clean-docs:
+	@echo cleaning docs
+	@rm -rf docs/build
 
 .PHONY: clean-venv
 clean-venv:
