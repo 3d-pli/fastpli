@@ -5,6 +5,8 @@ help:
 	@echo pip3 install .
 	@echo -------------Tests--------------
 	@echo python3 setup.py test
+	@echo -------------Docs---------------
+	@echo make docs
 	@echo -------------Clean--------------
 	@echo make clean
 	@echo --------------------------------
