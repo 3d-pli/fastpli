@@ -130,7 +130,7 @@ The analysis is accessable inside the simulation module via a *pipeline* inside 
 # Acknowledgements
 
 This study was funded by the European Union's Horizon 2020 Research and Innovation Programme under Grant Agreement No. 785907 (Human Brain Project SGA2) and No. 945539 (Human Brain Project SGA3).
-We gratefully acknowledge the computing time granted through JARA-HPC on the supercomputer JURECA [@jureca] at Forschungszentrum Jülich, Germany.
+We gratefully acknowledge the computing time granted through JARA-HPC on the supercomputer JURECA [@Krause2016] at Forschungszentrum Jülich, Germany.
 
 # Author Contributions
 
