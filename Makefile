@@ -146,9 +146,7 @@ docs-wiki:
 
 .PHONY: docs
 docs:
-	${VENV}/bin/pip3 install sphinx -q; \
-	${VENV}/bin/pip3 install sphinx_rtd_theme -q; \
-	${VENV}/bin/pip3 install sphinx-autodoc-typehints -q; \
+	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
 	cd docs; \
 	make html;
 
