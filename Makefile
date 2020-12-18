@@ -134,16 +134,6 @@ format-py:
 	${VENV}/bin/python3 -m yapf -i -r -p --style google tests;
 	${VENV}/bin/python3 -m yapf -i -r -p --style google examples;
 
-.PHONY: docs-wiki
-docs-wiki:
-	${VENV}/bin/pip3 -q install pdoc3
-	${VENV}/bin/python3 -m pdoc --force --html --output-dir build/docs fastpli
-	${VENV}/bin/python3 -m pdoc --pdf fastpli | sed '1,/^...$$/d' | \
-		sed -e 's/{#\([^]]*\)}/<a name="\1"><\/a>/g' | head -n -2 | \
-		sed 's/  //g' | sed 's/> //g' | sed 's/######/#####/g' > build/docs/fastpli_.md; \
-	uniq build/docs/fastpli_.md build/docs/fastpli.md; \
-	rm build/docs/fastpli_.md
-
 .PHONY: docs
 docs:
 	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
