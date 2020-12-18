@@ -165,45 +165,44 @@ def histogram(phi,
 
     Examples
     --------
-    ::
-        # counts
-        _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
-        _, _, _, pc = histogram(phi,
+    >>> # counts
+    >>> _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
+    >>> _, _, _, pc = histogram(phi,
                                 theta,
                                 ax=ax,
                                 n_phi=60,
                                 n_theta=30,
                                 weight_area=False)
-        cbar = plt.colorbar(pc, ax=ax)
-        cbar.ax.set_title('#')
-        ax.set_rmax(90)
-        ax.set_rticks(range(0, 90, 10))
-        ax.set_rlabel_position(22.5)
-        ax.set_yticklabels([])
-        ax.grid(True)
+    >>> cbar = plt.colorbar(pc, ax=ax)
+    >>> cbar.ax.set_title('#')
+    >>> ax.set_rmax(90)
+    >>> ax.set_rticks(range(0, 90, 10))
+    >>> ax.set_rlabel_position(22.5)
+    >>> ax.set_yticklabels([])
+    >>> ax.grid(True)
 
-        # density
-        _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
-        phi = np.random.normal(np.pi / 3, 0.5, 1000)
-        theta = np.random.normal(np.deg2rad(45), 0.5, 1000)
+    >>> # density
+    >>> _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
+    >>> phi = np.random.normal(np.pi / 3, 0.5, 1000)
+    >>> theta = np.random.normal(np.deg2rad(45), 0.5, 1000)
 
-        _, _, _, pc = histogram(phi,
+    >>> _, _, _, pc = histogram(phi,
                                 theta,
                                 ax=ax,
                                 n_phi=60,
                                 n_theta=30,
                                 weight_area=True)
-        cbar = plt.colorbar(pc, ax=ax)
-        cbar.ax.set_title('$P(\\vartheta, \\varphi)$')
+    >>> cbar = plt.colorbar(pc, ax=ax)
+    >>> cbar.ax.set_title('$P(\\vartheta, \\varphi)$')
 
-        ax.set_rmax(90)
-        ax.set_rticks(range(0, 90, 10))
-        ax.set_rlabel_position(22.5)
-        ax.set_yticklabels([])
-        ax.set_yticklabels([])
-        ax.grid(True)
+    >>> ax.set_rmax(90)
+    >>> ax.set_rticks(range(0, 90, 10))
+    >>> ax.set_rlabel_position(22.5)
+    >>> ax.set_yticklabels([])
+    >>> ax.set_yticklabels([])
+    >>> ax.grid(True)
 
-        plt.show()
+    >>> plt.show()
     """
 
     phi, theta = remap_orientation(phi.ravel(), theta.ravel())
