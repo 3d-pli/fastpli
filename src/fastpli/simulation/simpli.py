@@ -5,13 +5,13 @@ Simpli Class
 
 import warnings
 
-from ._simpli import _Simpli
+from . import simpli_cpu
 
 
 def Simpli(gpu=False, mpi_comm=None):
     if gpu:
         if mpi_comm:
             warnings.warn("no mpi communication implemented yet", UserWarning)
-        pass
+        raise ValueError("GPU Version will be added shortly")
     else:
-        return _Simpli(mpi_comm)
+        return simpli_cpu.Simpli(mpi_comm)

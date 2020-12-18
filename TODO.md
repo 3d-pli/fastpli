@@ -7,6 +7,7 @@
 * simpli.pixel_size does not call property
 * nan values detected in light signal (for 90degree fibers?)
 * simpli simulation has high initial copying and allocation time
+* doc generation warnings about Classes: stub file not found
 
 ## simpli
 

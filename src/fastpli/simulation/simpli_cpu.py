@@ -16,7 +16,7 @@ import sys
 from .__simpli import __Simpli
 
 
-class _Simpli(__Simpli):
+class Simpli(__Simpli):
     """
     Simpli Class for simulating 3D-PLI images
     """
