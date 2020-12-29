@@ -24,18 +24,23 @@ date: 18. December 2020
 bibliography: paper.bib
 ---
 
-# Summary
+# Statement of need
 
-*fastPLI* is an open source toolbox based on Python for modeling myelinated axons, i.e. nerve fibers and simulating the results of measurement of fiber orientations with a polarization microscope using 3D-PLI [@Axer2011].
-In addition, the toolbox provides functions for further analysis of the results and helpful additional helpful features.
-
-3D-PLI is a microscopic neuroimaging technique used to study the nerve fiber architecture in unstained histological brain sections at the micrometer scale.
+3D-PLI is a microscopic neuroimaging technique used to study the nerve fiber architecture in unstained histological brain sections at the micrometer scale [@Axer2011].
 It allows to give contrast to fibers and fiber tracts and, ultimately, reconstruct 3D nerve fiber orientations.
 The physical effect behind 3D-PLI is the optical property of the nerve fibers called birefringence.
 Due to this intrinsic birefringence, it is possible to use polarized light, pass it through a thin brain section and observe the change of the polarization state of light.
 This change is directly related to the 3D orientation of the fibers and also provides strong contrasts between fibers and other tissue components.
 
-This *fastPLI* package includes the following modules:
+To understand the influence of the underlying fiber structure, simulations are an essential tool. They allow testing different hypotheses, knowing the ground truth. It has already been shown that simulations with scattered light within tissue sections require models with irregularities to mimic the behavior of the scattered light. This knowledge can now be used to understand structures such as fiber crossings that have been difficult to interpret in 3D PLI [@Menzel2020].
+
+In addition, the generated nerve fiber models can be used in other imaging simulation techniques such as diffusion magnetic resonance imaging.
+
+# Summary
+
+*fastPLI* is an open source toolbox based on Python and C++ for modeling myelinated axons, i.e. nerve fibers and simulating the results of measurement of fiber orientations with a polarization microscope using 3D-PLI.
+
+The *fastPLI* package includes the following modules:
 
 1) **Fiber Modelling Modules:**
     A detailed 3D modelling of nerve fibers at the micrometer level is essential as input for the measurement simulation.
