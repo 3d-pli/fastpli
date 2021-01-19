@@ -85,7 +85,7 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
 
         # apply optic to simulation
         if MPI.COMM_WORLD.Get_rank() == 0:
-            images = simpli.apply_optic(images)  #use mp_pool to speed up
+            _, images = simpli.apply_optic(images)  #use mp_pool to speed up
             dim = np.array(images.shape)
         else:
             dim = np.empty(3, dtype=np.int64)

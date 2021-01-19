@@ -499,14 +499,14 @@ class __Simpli:
         if self._noise_model is None:
             raise ValueError("noise_model not set")
 
-        output = self.apply_optic_resample(input, mp_pool=mp_pool)
+        resampled = self.apply_optic_resample(input, mp_pool=mp_pool)
 
-        if np.amin(output) < 0:
+        if np.amin(resampled) < 0:
             raise AssertionError("intensity < 0 detected")
 
-        output = optic.add_noise(output, self._noise_model)
+        noisy = optic.add_noise(resampled, self._noise_model)
 
-        return output
+        return resampled, noisy
 
     def apply_optic_resample(self, input, shift=(0, 0), mp_pool=None):
         """ applies optical resample, convolution and noise to image

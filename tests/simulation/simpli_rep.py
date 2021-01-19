@@ -75,7 +75,7 @@ with h5py.File(os.path.join(tempfile.gettempdir(), 'simpli_rep.h5'),
         h5f['simulation/data/' + str(t)] = images
 
         # apply optic to simulation
-        images = simpli.apply_optic(images)
+        _, images = simpli.apply_optic(images)
         h5f['simulation/optic/' + str(t)] = images
 
         # calculate modalities

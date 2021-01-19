@@ -149,7 +149,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         h5f['simulation/data/' + str(t)] = images
 
         # apply optic to simulation
-        images = simpli.apply_optic(images)
+        _, images = simpli.apply_optic(images)
         h5f['simulation/optic/' + str(t)] = images
 
         with imageio.get_writer(f'{FILE_OUT}.{t}.gif', mode='I') as writer:

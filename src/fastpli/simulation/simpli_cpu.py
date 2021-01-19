@@ -234,7 +234,7 @@ class Simpli(__Simpli):
 
         self._print("Run simulation pipeline")
         if 'all' in save or 'simulation' in save:
-            save = save + ['data', 'optic', 'epa', 'mask', 'rofl']
+            save = save + ['data', 'resample', 'optic', 'epa', 'mask', 'rofl']
 
         if self._tilts is None:
             raise ValueError("tilts is not set")
@@ -269,17 +269,23 @@ class Simpli(__Simpli):
                 h5f['simulation/data/' + str(t)].attrs['phi'] = phi
 
             # apply optic to simulation
-            new_images = self.apply_optic(images, mp_pool=mp_pool)
+            img_res, img_noise = self.apply_optic(images, mp_pool=mp_pool)
+
+            if h5f and 'resample' in save:
+                self._print("Save resample")
+                h5f['simulation/resample/' + str(t)] = img_res
+                h5f['simulation/resample/' + str(t)].attrs['theta'] = theta
+                h5f['simulation/resample/' + str(t)].attrs['phi'] = phi
 
             if h5f and 'optic' in save:
                 self._print("Save optic")
-                h5f['simulation/optic/' + str(t)] = new_images
+                h5f['simulation/optic/' + str(t)] = img_noise
                 h5f['simulation/optic/' + str(t)].attrs['theta'] = theta
                 h5f['simulation/optic/' + str(t)].attrs['phi'] = phi
 
             if h5f and 'epa' in save:
                 # calculate modalities
-                epa = self.apply_epa(new_images)
+                epa = self.apply_epa(img_noise)
 
                 self._print("Save epa")
                 h5f['analysis/epa/' + str(t) + '/transmittance'] = epa[0]
@@ -298,7 +304,7 @@ class Simpli(__Simpli):
                 h5f['analysis/epa/' + str(t) +
                     '/retardation'].attrs['phi'] = phi
 
-            tilting_stack[t] = new_images
+            tilting_stack[t] = img_noise
 
         # pseudo mask
         if h5f and 'mask' in save:
