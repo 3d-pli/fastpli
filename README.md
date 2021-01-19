@@ -34,9 +34,14 @@ See **Wiki** for detailed information
 
 ## Performance
 
-All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**. Additionally the simulation module supports the **Message Passing Interface (MPI)**.
+All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**.
+Additionally the simulation module supports the **Message Passing Interface (MPI)**.
 
 # Installation
+
+Note: The current version of `fastpli` can only be executed under Linux as operating system because of dependencies.
+If you want to use `fastpli` under Windows, please use the Windows Subsystem for Linux.
+Support for macOS is planned for the future.
 
 ## Dependencies
 
