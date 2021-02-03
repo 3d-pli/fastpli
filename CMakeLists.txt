@@ -78,14 +78,7 @@ ENDIF()
 # Libraries
 ##########################################################################
 # Python
-FIND_PACKAGE(PythonInterp 3.6 REQUIRED)
-SET(PYTHON3_INTP_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}.${PYTHON_VERSION_PATCH}")
-FIND_PACKAGE(PythonLibs ${PYTHON3_INTP_VERSION} REQUIRED)
-
-IF (NOT "${PYTHON3_INTP_VERSION}" STREQUAL "${PYTHONLIBS_VERSION_STRING}")
-   MESSAGE( SEND_ERROR string("Python Interpretor ${PYTHON3_INTP_VERSION} "
-            "and Library ${PYTHONLIBS_VERSION_STRING} versions are not equal" ))
-ENDIF()
+FIND_PACKAGE(Python3 COMPONENTS Interpreter Development REQUIRED)
 
 ADD_SUBDIRECTORY(lib/pybind11)
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
