@@ -138,7 +138,6 @@ format-py:
 	flake8 --exclude src/fastpli/__version.py src/fastpli
 	flake8 examples
 	flake8 tests
-	
 
 .PHONY: docs
 docs:
