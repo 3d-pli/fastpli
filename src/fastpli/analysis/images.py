@@ -11,10 +11,10 @@ import numba
 
 @numba.njit()
 def _vec_to_rgb(x, y, z):
-    l = np.sqrt(x**2 + y**2 + z**2)
-    x = int(x / l * 255)
-    y = int(y / l * 255)
-    z = int(z / l * 255)
+    r = np.sqrt(x**2 + y**2 + z**2)
+    x = int(x / r * 255)
+    y = int(y / r * 255)
+    z = int(z / r * 255)
     return np.array([np.abs(x), np.abs(y), np.abs(z)])
 
 
@@ -155,7 +155,8 @@ def unit_vectors(direction, inclination, mask=None):
 
 def fom_hsv_black(direction, inclination, mask=None):
     """
-    Calculates the fiber orientation map in hsv_black from direction and inclination
+    Calculates the fiber orientation map in hsv_black from direction and
+    inclination
 
     Parameters
     ----------
@@ -187,7 +188,8 @@ def fom_hsv_black(direction, inclination, mask=None):
 
 def fom_rgb(direction, inclination, mask=None):
     """
-    Calculates the fiber orientation map in hsv_black from direction and inclination
+    Calculates the fiber orientation map in hsv_black from direction and
+    inclination
 
     Parameters
     ----------

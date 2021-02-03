@@ -23,7 +23,8 @@ def load(file_name, group_name='/'):
 
     Returns
     -------
-    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii) for each fiber point
+    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii)
+          for each fiber point
     """
     _, ext = os.path.splitext(file_name)
 
@@ -50,7 +51,8 @@ def load_dat(file):
 
     Returns
     -------
-    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii) for each fiber point
+    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii)
+          for each fiber point
     """
 
     fiber = []
@@ -87,7 +89,8 @@ def load_h5(h5f):
 
     Returns
     -------
-    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii) for each fiber point
+    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii)
+          for each fiber point
     """
 
     fiber_bundles = []

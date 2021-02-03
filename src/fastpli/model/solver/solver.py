@@ -151,7 +151,7 @@ class Solver(_Solver):
     def step(self):
         """
         Applies collision solving algorithm for one step
-        
+
         Returns True if solved
         """
         self._num_steps += 1
@@ -181,7 +181,9 @@ class Solver(_Solver):
             super().draw_scene()
 
     def apply_boundary_conditions(self, n_max=10):
-        """ Applies boundary conditions for n_max steps without collision solving. """
+        """
+        Applies boundary conditions for n_max steps without collision solving.
+        """
         if not isinstance(n_max, int) or n_max <= 0:
             raise TypeError("only integer > 0 allowed")
 

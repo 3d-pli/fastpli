@@ -1,6 +1,4 @@
 import numpy as np
-import warnings
-import sys
 
 
 class _MPI:
@@ -70,8 +68,8 @@ class _MPI:
                 _lock_dim = [_lock_dim]
 
             _lock_dim = list(_lock_dim)
-            for l in _lock_dim:
-                dset_dim[l] = input.shape[l]
+            for i in _lock_dim:
+                dset_dim[i] = input.shape[i]
 
         dset = h5f.create_dataset(data_name, dset_dim, dtype=input.dtype)
 

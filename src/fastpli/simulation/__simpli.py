@@ -132,7 +132,8 @@ class __Simpli:
             raise ValueError("voxel_size <= 0")
 
         flag = False
-        if self._voxel_size is not None and self._dim is not None and self._dim_origin is not None:
+        if self._voxel_size is not None and self._dim is not None and \
+           self._dim_origin is not None:
             min, max = self.get_voi()
             flag = True
 
@@ -173,7 +174,7 @@ class __Simpli:
         return min, max
 
     def set_voi(self, min, max):
-        """ 
+        """
         set volume of interest
 
         min: [x_min, y_min, z_min]
@@ -223,7 +224,7 @@ class __Simpli:
     @property
     def tilts(self):
         """ list of spherical tilting angles [[theta, phi], ...] in radiant:
-        [[float, float], ...] 
+        [[float, float], ...]
         """
         return self._tilts
 
@@ -255,8 +256,9 @@ class __Simpli:
 
     @property
     def optical_sigma(self):
-        """ optical sigma for applying a gaussian convolution to the image
-        after resizing in pixel_size: float 
+        """
+        optical sigma for applying a gaussian convolution to the image after
+        resizing in pixel_size
         """
         return self._optical_sigma
 
@@ -309,8 +311,8 @@ class __Simpli:
 
     @property
     def untilt_sensor_view(self):
-        """ untilt the image by adapted initial light coordinates: bool
-        
+        """
+        untilt the image by adapted initial light coordinates: bool
         otherwise the image has to be untilted with an affine transformation
         """
         return self._untilt_sensor_view
@@ -543,10 +545,10 @@ class __Simpli:
                         dtype=int)
 
         if np.amin(size) == 0:
-            raise ValueError(
-                f"voxel_size {self._voxel_size}, pixel_size {self._pixel_size} \
-                    and input shape {input.shape[0:2]} result in optical image \
-                    size of {size}")
+            raise ValueError(f"voxel_size {self._voxel_size}, " +
+                             f"pixel_size {self._pixel_size} " +
+                             f"and input shape {input.shape[0:2]} " +
+                             f"result in optical image size of {size}")
 
         output = np.empty((size[0], size[1], input.shape[2]),
                           dtype=input.dtype)
