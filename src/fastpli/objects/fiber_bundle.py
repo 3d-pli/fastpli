@@ -9,7 +9,7 @@ import copy
 from . import fiber
 
 
-def Rescale(fiber_bundle, scale, mod='all'):
+def rescale(fiber_bundle, scale, mod='all'):
     """
     Rescales fiber_bundle
 
@@ -30,11 +30,11 @@ def Rescale(fiber_bundle, scale, mod='all'):
 
     fiber_bundle = copy.deepcopy(fiber_bundle)
     for i, _ in enumerate(fiber_bundle):
-        fiber_bundle[i] = fiber.Rescale(fiber_bundle[i], scale, mod)
+        fiber_bundle[i] = fiber.rescale(fiber_bundle[i], scale, mod)
     return fiber_bundle
 
 
-def Rotate(fiber_bundle, rot, offset=None):
+def rotate(fiber_bundle, rot, offset=None):
     """
     Rotates fiber_bundle around offset
 
@@ -58,11 +58,11 @@ def Rotate(fiber_bundle, rot, offset=None):
     if offset is not None:
         offset = np.array(offset, copy=False)
     for i, _ in enumerate(fiber_bundle):
-        fiber_bundle[i] = fiber.Rotate(fiber_bundle[i], rot, offset)
+        fiber_bundle[i] = fiber.rotate(fiber_bundle[i], rot, offset)
     return fiber_bundle
 
 
-def Translate(fiber_bundle, offset):
+def translate(fiber_bundle, offset):
     """
     Translates fiber_bundle
 
@@ -82,11 +82,11 @@ def Translate(fiber_bundle, offset):
     fiber_bundle = copy.deepcopy(fiber_bundle)
     offset = np.array(offset, copy=False)
     for i, _ in enumerate(fiber_bundle):
-        fiber_bundle[i] = fiber.Translate(fiber_bundle[i], offset)
+        fiber_bundle[i] = fiber.translate(fiber_bundle[i], offset)
     return fiber_bundle
 
 
-def ApplyFun(fiber_bundle, fun):
+def apply_fun(fiber_bundle, fun):
     """
     Applies function to fibers
 
@@ -108,7 +108,7 @@ def ApplyFun(fiber_bundle, fun):
     return fiber_bundle
 
 
-def ApplyFunToPosition(fiber_bundle, fun):
+def apply_fun_to_position(fiber_bundle, fun):
     """
     Applies function to fibers positions
 
@@ -130,7 +130,7 @@ def ApplyFunToPosition(fiber_bundle, fun):
     return fiber_bundle
 
 
-def ApplyFunToRadii(fiber_bundle, fun):
+def apply_fun_to_radii(fiber_bundle, fun):
     """
     Applies function to fibers radii
 
@@ -152,7 +152,7 @@ def ApplyFunToRadii(fiber_bundle, fun):
     return fiber_bundle
 
 
-def Cut(fiber_bundle, voi):
+def cut(fiber_bundle, voi):
     """
     Cut fiber into voi. The cutting process can create multiple fibers.
     It checks every fiber_segment_aabb if it overlapps with the voi.
@@ -173,12 +173,12 @@ def Cut(fiber_bundle, voi):
 
     new_fiber_bundle = []
     for f in fiber_bundle:
-        new_fiber_bundle.extend(fiber.Cut(f, voi))
+        new_fiber_bundle.extend(fiber.cut(f, voi))
 
     return new_fiber_bundle
 
 
-def CutSphere(fiber_bundle, radius, center=[0, 0, 0]):
+def cut_sphere(fiber_bundle, radius, center=[0, 0, 0]):
     """
     Cut fiber into sphere. The cutting process can create multiple fibers.
     It checks every fiber_segment_aabb if it overlapps with the sphere.
@@ -200,6 +200,6 @@ def CutSphere(fiber_bundle, radius, center=[0, 0, 0]):
 
     new_fiber_bundle = []
     for f in fiber_bundle:
-        new_fiber_bundle.extend(fiber.CutSphere(f, radius, center))
+        new_fiber_bundle.extend(fiber.cut_sphere(f, radius, center))
 
     return new_fiber_bundle

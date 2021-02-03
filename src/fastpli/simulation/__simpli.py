@@ -337,7 +337,7 @@ class __Simpli:
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
-        fbs = objects.fiber_bundles.Cast(fbs)
+        fbs = objects.fiber_bundles.cast(fbs)
         self._fiber_bundles = fbs
 
     @property

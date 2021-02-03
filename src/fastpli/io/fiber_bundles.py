@@ -150,7 +150,7 @@ def save_dat(file, fiber_bundles):
     if not fiber_bundles:
         return
 
-    fiber_bundles = objects.fiber_bundles.Cast(fiber_bundles)
+    fiber_bundles = objects.fiber_bundles.cast(fiber_bundles)
 
     for fb, fiber_bundle in enumerate(fiber_bundles):
         for fiber in fiber_bundle:
@@ -179,7 +179,7 @@ def save_h5(h5f, fiber_bundles):
     if not fiber_bundles:
         return
 
-    fiber_bundles = objects.fiber_bundles.Cast(fiber_bundles)
+    fiber_bundles = objects.fiber_bundles.cast(fiber_bundles)
 
     for fb_i, fb in enumerate(fiber_bundles):
         grp_fb = h5f.create_group(str(fb_i))

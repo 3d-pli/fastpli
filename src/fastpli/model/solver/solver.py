@@ -79,7 +79,7 @@ class Solver(_Solver):
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
-        fbs = objects.fiber_bundles.Cast(fbs)
+        fbs = objects.fiber_bundles.cast(fbs)
         super()._set_fiber_bundles(fbs)
 
     @property

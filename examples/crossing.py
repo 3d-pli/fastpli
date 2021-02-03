@@ -64,10 +64,10 @@ for i in range(1000):
 
     if i == 20:
         solver.draw_scene()
-        solver.fiber_bundles = fastpli.objects.fiber_bundles.ApplyFunToPosition(  # noqa: E501
+        solver.fiber_bundles = fastpli.objects.fiber_bundles.apply_fun_to_position(  # noqa: E501
             solver.fiber_bundles,
             lambda p: p + np.random.uniform(-10, 10, p.shape))
-        solver.fiber_bundles = fastpli.objects.fiber_bundles.ApplyFunToRadii(
+        solver.fiber_bundles = fastpli.objects.fiber_bundles.apply_fun_to_radii(
             solver.fiber_bundles,
             lambda r: r * np.random.lognormal(0, 0.1, r.shape))
         solver.draw_scene()

@@ -98,7 +98,7 @@ class MainTest(unittest.TestCase):
                              theta=np.deg2rad(0),
                              seeds=seeds,
                              radii=1)
-        cut_fb = obj.fiber_bundle.Cut(fb, [[-5] * 3, [5] * 3])
+        cut_fb = obj.fiber_bundle.cut(fb, [[-5] * 3, [5] * 3])
         for f0, f1 in zip(fb, cut_fb):
             self.assertTrue(np.array_equal(f0, f1))
 
