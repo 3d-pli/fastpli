@@ -8,8 +8,6 @@
 #include <memory>
 #include <utility>
 
-#include <Python.h>
-
 #include "fiber_class.hpp"
 #include "include/aabb.hpp"
 #include "include/omp.hpp"
