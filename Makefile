@@ -17,23 +17,48 @@ VENV := ${if ${venv},${venv},env}
 CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug
 CMAKE.info := cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release
-CMAKE.thesis := cmake .. -DCMAKE_BUILD_TYPE=Release -DTHESIS=True
 CMAKE := ${CMAKE.${BUILD}}
 
 MAKE.debug := make
 MAKE.info := make -j
 MAKE.release := make -j
-MAKE.thesis := make -j
 MAKE := ${MAKE.${BUILD}}
 
 INSTALL.debug := install .
 INSTALL.info := install . -q
 INSTALL.release := install . -q
-INSTALL.thesis := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
 DOCKER=ubuntu
 CLANG-FORMAT=clang-format-10
+
+build/:
+	mkdir build
+
+build/Makefile: build/
+	@if [ ! -f build/Makefile ]; then \
+		cd build; \
+		echo cmake; \
+		${CMAKE}; \
+	fi
+
+.PHONY: fastpli
+fastpli: build/ build/Makefile
+	cd build; \
+	${MAKE}
+
+.PHONY: docs
+docs:
+	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
+	cd docs; \
+	make html;
+
+.PHONY: clean
+clean: clean-build clean-src clean-docs
+
+################################################################################
+############################ DEVELOPER FUNCTIONS ###############################
+################################################################################
 
 ${VENV}/bin/pip3:
 	rm -rf ${VENV}
@@ -48,16 +73,8 @@ ${VENV}/bin/python3:
 .PHONY: ${VENV}
 ${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
 
-.PHONY: git-submodules
-git-submodules:
-	git submodule update --init
-
-.PHONY: examples/requirements
-examples/requirements:
-	${VENV}/bin/pip3 install -r examples/requirements.txt -q
-
-.PHONY: install
-install: ${VENV} fastpli
+.PHONY: local
+local: ${VENV} fastpli
 	${VENV}/bin/pip3 ${INSTALL}
 
 .PHONY: development
@@ -75,21 +92,6 @@ uninstall:
 			${VENV}/bin/pip3 uninstall fastpli -y; \
 		fi \
 	fi
-
-build/:
-	mkdir build
-
-build/Makefile: build/
-	@if [ ! -f build/Makefile ]; then \
-		cd build; \
-		echo cmake; \
-		${CMAKE}; \
-	fi
-
-.PHONY: fastpli
-fastpli: build/ build/Makefile
-	cd build; \
-	${MAKE}
 
 .PHONY: test
 test:
@@ -140,17 +142,9 @@ format-py:
 	${VENV}/bin/python3 -m flake8 examples
 	${VENV}/bin/python3 -m flake8 tests
 
-.PHONY: docs
-docs:
-	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
-	cd docs; \
-	make html;
-
-.PHONY: clean
-clean: uninstall clean-build clean-src
 
 .PHONY: clean-all
-clean-all: clean-build clean-src clean-docs clean-venv
+clean-all: uninstall clean-build clean-src clean-docs clean-venv
 
 .PHONY: clean-build
 clean-build:
