@@ -5,9 +5,10 @@ import warnings
 import h5py
 import sys
 import os
-import tempfile
 
 from fastpli.simulation import Simpli
+
+TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test.")
 
 
 class MainTest(unittest.TestCase):
@@ -61,11 +62,11 @@ class MainTest(unittest.TestCase):
     def test_generator(self):
         self.simpli.dim = [10, 10, 10]
         self.simpli.voxel_size = 0.2
-        tissue_0, optical_axis, tissue_properties = self.simpli.generate_tissue(
+        tissue_0, optical_axis, tissue_properties = self.simpli.generate_tissue(  # noqa: E501
             only_tissue=True)
         self.assertTrue(optical_axis.size == 0)
 
-        tissue_1, optical_axis, tissue_properties = self.simpli.generate_tissue(
+        tissue_1, optical_axis, tissue_properties = self.simpli.generate_tissue(  # noqa: E501
             only_tissue=False)
         self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
         self.assertTrue(np.array_equal(tissue_0, tissue_1))
@@ -308,20 +309,13 @@ class MainTest(unittest.TestCase):
 
         self.simpli.run_pipeline(save=["tissue", "optical_axis"])
 
-        with h5py.File(os.path.join(tempfile.gettempdir(), 'fastpli.test.h5'),
-                       'w') as h5f:
+        with h5py.File(os.path.join(TMP_FILE + 'fastpli.test.h5'), 'w') as h5f:
             with open(os.path.abspath(__file__), 'r') as script:
                 self.simpli.run_pipeline(h5f=h5f,
                                          script=script.read(),
                                          save=["tissue", "optical_axis"])
 
-        # with h5py.File('/tmp/fastpli.test.h5', 'r') as h5f:
-        #     parameters = dict(eval(str(h5f.attrs['fastpli/simpli'])))
-        #     self.assertTrue(self.simpli.get_dict() == parameters)
-        #     self.assertWarns(UserWarning, self.simpli.set_dict, parameters)
-
-        self.addCleanup(os.remove,
-                        os.path.join(tempfile.gettempdir(), 'fastpli.test.h5'))
+        self.addCleanup(os.remove, os.path.join(TMP_FILE + 'fastpli.test.h5'))
 
     def test_rofl(self):
         with self.assertRaisesRegex(ValueError, "tilts not set"):
@@ -403,19 +397,18 @@ class MainTest(unittest.TestCase):
             "h5diff",
             "--relative=0.00001",  # some have 32bit
             os.path.join(FILE_PATH, "simpli_rep.h5"),
-            os.path.join(tempfile.gettempdir(), 'simpli_rep.h5')
+            os.path.join(TMP_FILE + 'simpli_rep.h5')
         ]).returncode == 0
         if not result:
             subprocess.run([
                 "h5diff", "--relative=0.00001", "-r",
                 os.path.join(FILE_PATH, "simpli_rep.h5"),
-                os.path.join(tempfile.gettempdir(), 'simpli_rep.h5')
+                os.path.join(TMP_FILE + 'simpli_rep.h5')
             ])
         self.assertTrue(result)
 
-        self.addCleanup(
-            os.remove,
-            os.path.join(os.path.join(tempfile.gettempdir(), "simpli_rep.h5")))
+        self.addCleanup(os.remove,
+                        os.path.join(os.path.join(TMP_FILE + "simpli_rep.h5")))
 
 
 if __name__ == '__main__':
