@@ -14,7 +14,7 @@ on:
 
 jobs:
   Testing:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -27,22 +27,15 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           sudo apt-get update -qq
-          sudo apt-get install -y gcc-9 g++-9 cmake make git
+          sudo apt-get install -y gcc g++ clang-format-10 cmake make git
           sudo apt-get install -y libopenmpi-dev libhdf5-openmpi-dev h5utils
           sudo apt-get install -y freeglut3-dev
-          
-      - name: python ${{ matrix.python-version }}
-        run: |
-          sudo apt-get install -y python${{ matrix.python-version }}-dev python${{ matrix.python-version }}-venv
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          
       - name: run
         run: |
           docker/.docker_run.sh
-
-      - name: freeglut-less
-        run: |
-          sudo apt-get remove -y freeglut3-dev
-          sudo apt-get autoremove -y
-          make clean
-          make BUILD=debug CC=gcc-9 CXX=g++-9 install
-          make test
