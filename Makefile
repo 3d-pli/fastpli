@@ -65,6 +65,7 @@ development: ${VENV} fastpli
 	${VENV}/bin/pip3 install -e . -q
 	${VENV}/bin/pip3 install yapf -q
 	${VENV}/bin/pip3 install pylint -q
+	${VENV}/bin/pip3 install flake8 -q
 	${VENV}/bin/pip3 install -r examples/requirements.txt -q
 
 .PHONY: uninstall
@@ -135,9 +136,9 @@ format-py:
 	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 src;
 	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 tests;
 	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 examples;
-	flake8 --exclude src/fastpli/__version.py src/fastpli
-	flake8 examples
-	flake8 tests
+	${VENV}/bin/python3 -m flake8 --exclude src/fastpli/__version.py src/fastpli
+	${VENV}/bin/python3 -m flake8 examples
+	${VENV}/bin/python3 -m flake8 tests
 
 .PHONY: docs
 docs:

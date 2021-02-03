@@ -64,6 +64,7 @@ echo "****************Format****************"
 echo "--------------------------------------"
 make clean
 env/bin/pip3 install yapf -q
+env/bin/pip3 install flake8 -q
 make format
 if ! git diff --exit-code; then
    exit 1
