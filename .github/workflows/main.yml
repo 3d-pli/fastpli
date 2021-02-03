@@ -5,18 +5,21 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [ master, pull_request ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, pull_request ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   Testing:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
       - name: dependencies
         run: |
           export DEBIAN_FRONTEND=noninteractive
@@ -25,10 +28,14 @@ jobs:
           sudo apt-get install -y python3-dev python3-venv
           sudo apt-get install -y libopenmpi-dev libhdf5-openmpi-dev h5utils
           sudo apt-get install -y freeglut3-dev
+          cd $GITHUB_WORKSPACE
 
-      - name: testing
+      - name: run
         run: |
           docker/.docker_run.sh
+
+      - name: freeglut-less
+        run: |
           sudo apt-get remove -y freeglut3-dev
           sudo apt-get autoremove -y
           make clean
