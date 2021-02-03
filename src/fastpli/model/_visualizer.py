@@ -30,7 +30,10 @@ class Visualizer:
     center = np.empty((3), float)
     center_new = center
 
-    def __init__(self, width=800, height=600, title='fastpli.model.Visualizer'):
+    def __init__(self,
+                 width=800,
+                 height=600,
+                 title='fastpli.model.Visualizer'):
         self._glut_init(width, height, title)
 
     def _glut_init(self, width, height, title):

@@ -11,7 +11,6 @@ TMP_FILE = os.path.join(tempfile.gettempdir(), "fastpli.test")
 
 
 class MainTest(unittest.TestCase):
-
     def setUp(self):
         self.fiber_bundles = [[[[0, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]],
                                [[1, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]]],

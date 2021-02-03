@@ -69,7 +69,8 @@ def Rescale(fiber_bundles, scale, mod='all'):
     fiber_bundles = copy.deepcopy(fiber_bundles)
     for j, fb in enumerate(fiber_bundles):
         for i, _ in enumerate(fb):
-            fiber_bundles[j][i] = fiber.Rescale(fiber_bundles[j][i], scale, mod)
+            fiber_bundles[j][i] = fiber.Rescale(fiber_bundles[j][i], scale,
+                                                mod)
     return fiber_bundles
 
 
@@ -98,7 +99,8 @@ def Rotate(fiber_bundles, rot, offset=None):
         offset = np.array(offset, copy=False)
     for j, fb in enumerate(fiber_bundles):
         for i, _ in enumerate(fb):
-            fiber_bundles[j][i] = fiber.Rotate(fiber_bundles[j][i], rot, offset)
+            fiber_bundles[j][i] = fiber.Rotate(fiber_bundles[j][i], rot,
+                                               offset)
     return fiber_bundles
 
 

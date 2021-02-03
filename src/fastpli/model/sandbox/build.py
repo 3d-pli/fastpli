@@ -32,7 +32,9 @@ def _rot_z(phi):
 
 @numba.njit(cache=True)
 def _bundle(traj, seeds, radii, scale):
-    fiber_bundle = [np.empty((traj.shape[0], 4)) for i in range(seeds.shape[0])]
+    fiber_bundle = [
+        np.empty((traj.shape[0], 4)) for i in range(seeds.shape[0])
+    ]
     tangent_old = np.array([0, 0, 1.0])
 
     for i in range(0, traj.shape[0]):
@@ -180,11 +182,13 @@ def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
     # rotate cylinder into final position
     rot = _rot_z(alpha)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+        fiber_bundle[i] = np.ascontiguousarray(
+            np.dot(rot, fiber_bundle[i].T).T)
 
     rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+        fiber_bundle[i] = np.ascontiguousarray(
+            np.dot(rot, fiber_bundle[i].T).T)
 
     for i in range(len(fiber_bundle)):
         fiber_bundle[i] = fiber_bundle[i] + p.T
@@ -220,11 +224,13 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     # rotate cylinder into final position
     rot = _rot_z(alpha)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+        fiber_bundle[i] = np.ascontiguousarray(
+            np.dot(rot, fiber_bundle[i].T).T)
 
     rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+        fiber_bundle[i] = np.ascontiguousarray(
+            np.dot(rot, fiber_bundle[i].T).T)
 
     for i in range(len(fiber_bundle)):
         fiber_bundle[i] = fiber_bundle[i] + p.T
@@ -317,11 +323,12 @@ def cylinder(p,
 
     # fiber_bundle = []
     if mode == 'parallel' or mode == 'p':
-        fiber_bundle = _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta)
+        fiber_bundle = _cylinder_parallel(p, q, seeds, r_in, r_out, alpha,
+                                          beta)
 
     elif mode == 'circular' or mode == 'c':
-        fiber_bundle = _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta,
-                                          steps)
+        fiber_bundle = _cylinder_circular(p, q, seeds, r_in, r_out, alpha,
+                                          beta, steps)
 
     elif mode == 'radial' or mode == 'r':
         fiber_bundle = _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta)

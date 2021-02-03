@@ -164,7 +164,8 @@ def _calculate_rotated_fiber_params(phi, alpha, t_rel, array_matrices, tau):
 
 
 @numba.njit(cache=True)
-def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations, dir_offset):
+def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations,
+                                  dir_offset):
     '''
     Calculates intensity curves in all tilting directions
     @Params:
@@ -178,7 +179,8 @@ def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations, dir_offset):
     phi, alpha = _symmetrize_angles(phi, alpha)
     t_rel = np.abs(t_rel)
     number_tilts = len(phi)
-    rotation_angles = np.linspace(0, np.pi, num_rotations + 1)[:-1] + dir_offset
+    rotation_angles = np.linspace(0, np.pi,
+                                  num_rotations + 1)[:-1] + dir_offset
 
     I = np.empty((number_tilts, num_rotations))
     for j in range(0, number_tilts):
@@ -202,7 +204,8 @@ def _calc_Jacobi(phi, alpha, t_rel, num_rotations, dir_offset):
     phi, alpha = _symmetrize_angles(phi, alpha)
     t_rel = np.abs(t_rel)
     number_tilts = len(phi)
-    rotation_angles = np.linspace(0, np.pi, num_rotations + 1)[:-1] + dir_offset
+    rotation_angles = np.linspace(0, np.pi,
+                                  num_rotations + 1)[:-1] + dir_offset
 
     Dphi = np.empty((number_tilts, num_rotations))
     Dalpha = np.empty((number_tilts, num_rotations))
@@ -269,7 +272,7 @@ def _calc_Jacobi_for_opt(phi, alpha, t_rel, num_rotations):
             *np.cos(np.pi/2 * t_rel[j]*np.cos(alpha[j])**2)
 
     ####put Jacobian together
-    J = np.empty((3,))
+    J = np.empty((3, ))
 
     J[0] = np.sum(Dphi)
     J[1] = np.sum(Dalpha)
@@ -436,8 +439,8 @@ def _weighted_jacobi(p, array_of_matrices, tau, number_rotations, dir_offset,
     dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
         p[0], p[1], p[2], array_of_matrices, tau)
     weights = weights.flatten()
-    Jacobi = _calc_Jacobi(dir_array, alpha_array, t_rel_array, number_rotations,
-                          dir_offset)
+    Jacobi = _calc_Jacobi(dir_array, alpha_array, t_rel_array,
+                          number_rotations, dir_offset)
 
     for _ in range(3):
 
@@ -449,8 +452,8 @@ def _weighted_jacobi(p, array_of_matrices, tau, number_rotations, dir_offset,
 
 
 @numba.njit(cache=True)
-def _residuum(p, array_of_matrices, tau, number_rotations, dir_offset, measures,
-              weights):
+def _residuum(p, array_of_matrices, tau, number_rotations, dir_offset,
+              measures, weights):
     return weights * (_model(p, array_of_matrices, tau, number_rotations,
                              dir_offset) - measures)
 
@@ -510,14 +513,15 @@ def _execute_fit(phi_start,
                                                  args=arguments,
                                                  bounds=[(0, np.pi),
                                                          (-0.5 * np.pi,
-                                                          0.5 * np.pi), (0, 1)],
+                                                          0.5 * np.pi),
+                                                         (0, 1)],
                                                  popsize=100)
 
         final_angles = result.x
         fvalue = result.fun
         niter = result.nit
 
-        std_params = np.ones((3,))
+        std_params = np.ones((3, ))
 
         ####symmetrize angles back into PLI coordinate space
 

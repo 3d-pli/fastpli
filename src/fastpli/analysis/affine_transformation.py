@@ -48,7 +48,8 @@ def _interpolate_griddata(image, M, mode):
 
     for k in range(image.shape[2]):
         image_nn[:, :, k] = scipy.interpolate.griddata(points.T,
-                                                       image[:, :, k].flatten(),
+                                                       image[:, :,
+                                                             k].flatten(),
                                                        (grid_i, grid_j),
                                                        method=mode)
 
@@ -82,8 +83,7 @@ def calc_matrix(p_in, p_out):
     l = p_in.shape[0]
     B = np.vstack([np.transpose(p_in), np.ones(l)])
     D = 1.0 / np.linalg.det(B)
-    M = np.array([[(-1)**i * D * _replace_mat_row(B, R, i)
-                   for i in range(l)]
+    M = np.array([[(-1)**i * D * _replace_mat_row(B, R, i) for i in range(l)]
                   for R in np.transpose(p_out)])
 
     return np.vstack([M, [0, 0, 1]])

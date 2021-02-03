@@ -10,7 +10,6 @@ TMP_FILE = os.path.join(tempfile.gettempdir(), "fastpli.test")
 
 
 class MainTest(unittest.TestCase):
-
     def setUp(self):
         self._test_fiber = np.array([[0, 0, 0, 1], [0, 0, 1, 2]])
         self._test_fiberbundles = [[self._test_fiber]]

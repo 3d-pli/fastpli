@@ -34,7 +34,8 @@ fiber_bundle_trj_1 = [[0, -2000, 0], [0, 2000, 0]]
 
 population = fastpli.model.sandbox.seeds.triangular_circle(750, 30)
 population = fastpli.model.sandbox.seeds.crop_rectangle([-50, -10000],
-                                                        [50, 10000], population)
+                                                        [50, 10000],
+                                                        population)
 
 fiber_radii = np.random.uniform(10.0, 30.0, population.shape[0])
 fiber_bundle_0 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_0,
@@ -81,7 +82,9 @@ for i in range(1000):
         solver.draw_scene()
         break
 
-fastpli.io.fiber_bundles.save(f'{FILE_OUT}.dat', solver.fiber_bundles, mode='w')
+fastpli.io.fiber_bundles.save(f'{FILE_OUT}.dat',
+                              solver.fiber_bundles,
+                              mode='w')
 solver.close_scene()
 
 #%% Simulation
@@ -128,7 +131,8 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
                 data2image(tissue[:, :, i] / m * 255).astype(np.uint8))
 
     # Simulate PLI Measurement
-    simpli.filter_rotations = np.deg2rad(np.linspace(0, 180, 9, endpoint=False))
+    simpli.filter_rotations = np.deg2rad(np.linspace(0, 180, 9,
+                                                     endpoint=False))
     simpli.light_intensity = 26000  # a.u.
     simpli.interpolate = "Slerp"
     simpli.wavelength = 525  # in nm
@@ -164,7 +168,8 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         h5f[f'analysis/epa/{t}/direction'] = np.rad2deg(epa[1])
         h5f[f'analysis/epa/{t}/retardation'] = epa[2]
 
-        imageio.imwrite(f'{FILE_OUT}.{t}.transmittance.png', data2image(epa[0]))
+        imageio.imwrite(f'{FILE_OUT}.{t}.transmittance.png',
+                        data2image(epa[0]))
         imageio.imwrite(f'{FILE_OUT}.{t}.direction.png', data2image(epa[1]))
         imageio.imwrite(f'{FILE_OUT}.{t}.retardation.png', data2image(epa[2]))
 
