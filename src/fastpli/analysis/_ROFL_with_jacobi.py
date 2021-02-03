@@ -220,7 +220,7 @@ def _calc_Int_single_fiber_fitted(phi, alpha, t_rel, num_rotations,
     intensity = np.empty((number_tilts, num_rotations))
     for j in range(0, number_tilts):
         intensity[j, :] = np.sin(
-            np.pi / 2 * t_rel[j] * np.cos(alpha[j])**  # noqa
+            np.pi / 2 * t_rel[j] * np.cos(alpha[j])**  # noqa: E225
             2) * np.sin(2 * (rotation_angles - phi[j]))
     return intensity.flatten()
 
@@ -259,7 +259,7 @@ def _calc_Jacobi(phi, alpha, t_rel, num_rotations, dir_offset):
             np.pi / 2 * t_rel[j] * np.cos(alpha[j])**2)
         Dalpha[j, :] = -np.pi * t_rel[j] * np.cos(alpha[j]) * np.sin(
             alpha[j]) * np.cos(
-                np.pi / 2 * t_rel[j] * np.cos(alpha[j])**  # noqa 
+                np.pi / 2 * t_rel[j] * np.cos(alpha[j])**  # noqa: E225
                 2) * np.sin(2 * (rotation_angles - phi[j]))
         Dtrel[j, :] = np.pi / 2 * np.cos(alpha[j])**2 * np.sin(
             2 * (rotation_angles - phi[j])) * np.cos(
@@ -305,7 +305,7 @@ def _calc_Jacobi_for_opt(phi, alpha, t_rel, num_rotations):
             np.pi / 2 * t_rel[j] * np.cos(alpha[j])**2)
         Dalpha[j, :] = -np.pi * t_rel[j] * np.cos(alpha[j]) * np.sin(
             alpha[j]) * np.cos(
-                np.pi / 2 * t_rel[j] * np.cos(alpha[j])**  # noqa
+                np.pi / 2 * t_rel[j] * np.cos(alpha[j])**  # noqa: E225
                 2) * np.sin(2 * (rotation_angles - phi[j]))
         Dtrel[j, :] = np.pi / 2 * np.cos(alpha[j])**2 * np.sin(
             2 * (rotation_angles - phi[j])) * np.cos(
@@ -375,7 +375,7 @@ def _brute_force_grid(phi,
                                                    t_rel_steps):
 
             # calculate tilted angles and trel
-            phi_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(  # noqa
+            phi_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(  # noqa: E501
                 phi, incl, trel, array_of_matrices, tau)
 
             # evaluate function and write into outputarray
@@ -412,7 +412,7 @@ def _brute_force_grid(phi,
         for (incl, trel) in itertools.product(incl_steps, t_rel_steps):
 
             # calculate tilted angles and trel
-            phi_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(  # noqa
+            phi_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(  # noqa: E501
                 phi, incl, trel, array_of_matrices, tau)
 
             # evaluate function and write into output array

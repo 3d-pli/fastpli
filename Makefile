@@ -135,6 +135,10 @@ format-py:
 	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 src;
 	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 tests;
 	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 examples;
+	flake8 --exclude src/fastpli/__version.py src/fastpli
+	flake8 examples
+	flake8 tests
+	
 
 .PHONY: docs
 docs:
