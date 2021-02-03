@@ -57,9 +57,8 @@ for i in range(1000):
     # calculate current overlap ratio
     overlap = solver.overlap / solver.num_col_obj if solver.num_col_obj else 0
     if i % 5 == 0:
-        print(
-            f'step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%'
-        )
+        print(f'step: {i}, {solver.num_obj}/{solver.num_col_obj}' +
+              f'{round(overlap * 100)}%')
         solver.draw_scene()
         # solver.save_ppm(f'solver_{i:03}.ppm')  # save a ppm image
 

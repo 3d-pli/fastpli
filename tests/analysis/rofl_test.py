@@ -7,8 +7,6 @@ import fastpli.analysis
 import fastpli.tools
 import fastpli.objects
 
-from fastpli.analysis._ROFL_with_jacobi import _calc_Int_single_fiber_fitted
-
 # TODO: test rofl, not simpli.apply_rofl
 
 

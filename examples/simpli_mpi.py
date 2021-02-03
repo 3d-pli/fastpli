@@ -10,8 +10,6 @@ import numpy as np
 import h5py
 import os
 
-import imageio
-
 np.random.seed(42)
 
 FILE_NAME = os.path.abspath(__file__)
@@ -41,7 +39,7 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, 'cube.dat'))
 
-    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle fiber_bundle
+    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
     simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                         (0.666, 0, 5, 'b'),
                                         (1.0, 0.004, 1, 'r')]]
@@ -85,7 +83,7 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
 
         # apply optic to simulation
         if MPI.COMM_WORLD.Get_rank() == 0:
-            images = simpli.apply_optic(images)  #use mp_pool to speed up
+            images = simpli.apply_optic(images)
             dim = np.array(images.shape)
         else:
             dim = np.empty(3, dtype=np.int64)
@@ -94,7 +92,7 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
             images = np.empty(dim, np.float64)
         MPI.COMM_WORLD.Bcast(images, root=0)
 
-        images = simpli.mpi.split_optic(images)  # splitting tasks
+        images = simpli.mpi.split_optic(images)
         simpli.mpi.save_split_h5(h5f, f'simulation/optic/{t}', images)
 
         # calculate modalities
@@ -110,11 +108,11 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
     print('Run ROFL analysis:')
     rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(tilting_stack)
 
-    simpli.mpi.save_split_h5(h5f, f'analysis/rofl/direction',
+    simpli.mpi.save_split_h5(h5f, 'analysis/rofl/direction',
                              np.rad2deg(rofl_direction))
-    simpli.mpi.save_split_h5(h5f, f'analysis/rofl/inclination',
+    simpli.mpi.save_split_h5(h5f, 'analysis/rofl/inclination',
                              np.rad2deg(rofl_incl))
-    simpli.mpi.save_split_h5(h5f, f'analysis/rofl/trel', rofl_t_rel)
+    simpli.mpi.save_split_h5(h5f, 'analysis/rofl/trel', rofl_t_rel)
 
     print('Done')
     print('You can look at the data e.g with Fiji and the hdf5 plugin')

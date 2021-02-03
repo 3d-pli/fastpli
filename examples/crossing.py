@@ -1,4 +1,3 @@
-#%%
 import fastpli.model.sandbox
 import fastpli.model.solver
 import fastpli.simulation
@@ -6,16 +5,14 @@ import fastpli.analysis
 import fastpli.tools
 import fastpli.io
 
+import matplotlib.pyplot as plt
+import multiprocessing as mp
 import numpy as np
+import imageio
 import h5py
 import os
 
-import multiprocessing as mp
 pool = mp.Pool(2)
-
-import imageio
-import matplotlib.pyplot as plt
-
 np.random.seed(42)
 
 FILE_NAME = os.path.abspath(__file__)
@@ -28,7 +25,6 @@ def data2image(data):
     return np.swapaxes(np.flip(data, 1), 0, 1)
 
 
-#%% Solver
 fiber_bundle_trj_0 = [[-2000, 0, 0], [2000, 0, 0]]
 fiber_bundle_trj_1 = [[0, -2000, 0], [0, 2000, 0]]
 
@@ -53,7 +49,7 @@ solver.obj_mean_length = 4 * 20
 solver.omp_num_threads = 2
 
 # run solver
-print(f'Begin solving process:')
+print('Begin solving process:')
 solver.draw_scene()
 for i in range(1000):
     solved = solver.step()
@@ -61,20 +57,19 @@ for i in range(1000):
     # calculate current overlap ratio
     overlap = solver.overlap / solver.num_col_obj if solver.num_col_obj else 0
     if i % 10 == 0:
-        print(
-            f'step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%'
-        )
+        print(f'step: {i}, {solver.num_obj}/{solver.num_col_obj} ' +
+              f'{round(overlap * 100)}%')
         solver.draw_scene()
         # solver.save_ppm(f'solver_{i:03}.ppm')  # save a ppm image
 
     if i == 20:
         solver.draw_scene()
-        fun = lambda p: p + np.random.uniform(-10, 10, p.shape)
-        solver.fiber_bundles = fastpli.objects.fiber_bundles.ApplyFunToPosition(
-            solver.fiber_bundles, fun)
-        fun = lambda r: r * np.random.lognormal(0, 0.1, r.shape)
+        solver.fiber_bundles = fastpli.objects.fiber_bundles.ApplyFunToPosition(  # noqa
+            solver.fiber_bundles,
+            lambda p: p + np.random.uniform(-10, 10, p.shape))
         solver.fiber_bundles = fastpli.objects.fiber_bundles.ApplyFunToRadii(
-            solver.fiber_bundles, fun)
+            solver.fiber_bundles,
+            lambda r: r * np.random.lognormal(0, 0.1, r.shape))
         solver.draw_scene()
 
     if solved:
@@ -87,8 +82,7 @@ fastpli.io.fiber_bundles.save(f'{FILE_OUT}.dat',
                               mode='w')
 solver.close_scene()
 
-#%% Simulation
-
+# Simulation
 print(f'creating file: {FILE_OUT}.h5')
 with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     # save script
@@ -104,7 +98,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     simpli.set_voi([-2000, -2000, -30], [2000, 2000, 30])  # in micro meter
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(f'{FILE_OUT}.dat')
 
-    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle fiber_bundle
+    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
     simpli.fiber_bundles_properties = [[(1.0, -0.004, 10, 'p')]] * len(
         simpli.fiber_bundles)
     # (_0, _1, _2, _3)
@@ -204,7 +198,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
 print('simulation Done')
 print('You can look at the data e.g. with Fiji and the hdf5 plugin')
 
-#%%
+# Plot
 print('Plotting input and output orientations')
 fig, axs = plt.subplots(1, 2, subplot_kw=dict(projection="polar"))
 fbs_phi, fbs_theta = fastpli.analysis.orientation.fiber_bundles(
