@@ -2,7 +2,10 @@
 """
 Analyse Methods for tilted PLI signals with ROFL algorithm
 
-https://doi.org/10.3389/fnana.2018.00075
+Notes
+-----
+    Algorithm public available at https://doi.org/10.3389/fnana.2018.00075
+
 """
 
 import numpy as np
@@ -23,7 +26,7 @@ def rofl(data,
     ----------
     data : (tilts, rho)-array_like
         tilts must be [(0,0), (tilt_angle,0), (tilt_angle,pi/2),
-                       (tilt_angle,pi), (tilt_angle,3/2*pi)]
+        (tilt_angle,pi), (tilt_angle,3/2*pi)]
         rho must be equidistance between [0,pi)
 
     Returns

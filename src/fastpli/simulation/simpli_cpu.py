@@ -81,6 +81,8 @@ class Simpli(__Simpli):
         return tissue, optical_axis, tissue_properties
 
     def _init_pli_setup(self):
+        """ check all pli setup input requirements """
+
         self._check_simulation_input()
         self.__sim.set_pli_setup(self._step_size, self._light_intensity,
                                  self._voxel_size, self._wavelength,
