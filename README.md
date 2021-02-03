@@ -6,7 +6,7 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 /_/    \__,_/ /____/ \__/ /_/     /_____/___/    
 -->
 
-# Fiber Architecture Simulation Toolbox for PLI
+# Fiber Architecture Simulation Toolbox for 3D-PLI
 
 ![fastpli-logo](logo.svg)
 
@@ -34,9 +34,14 @@ See **Wiki** for detailed information
 
 ## Performance
 
-All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**. Additionally the simulation module supports the **Message Passing Interface (MPI)**.
+All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**.
+Additionally the simulation module supports the **Message Passing Interface (MPI)**.
 
 # Installation
+
+Note: The current version of `fastpli` can only be executed under Linux as operating system because of dependencies.
+If you want to use `fastpli` under Windows, please use the Windows Subsystem for Linux.
+Support for macOS is planned for the future.
 
 ## Dependencies
 
@@ -71,7 +76,7 @@ sudo apt install libopenmpi-dev freeglut3-dev
 ### Clone repository
 
 ```sh
-git clone <fastPLI-repository>
+git clone https://github.com/3d-pli/fastpli.git
 cd fastpli
 ```
 
