@@ -132,9 +132,9 @@ format-c++:
 
 .PHONY: format-py
 format-py:
-	${VENV}/bin/python3 -m yapf -i -r -p --style google src;
-	${VENV}/bin/python3 -m yapf -i -r -p --style google tests;
-	${VENV}/bin/python3 -m yapf -i -r -p --style google examples;
+	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 src;
+	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 tests;
+	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 examples;
 
 .PHONY: docs
 docs:
