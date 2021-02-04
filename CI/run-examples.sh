@@ -1,9 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "--------------------------------------"
-echo "***************Examples***************"
-echo "--------------------------------------"
 env-CI/bin/pip3 install -r examples/requirements.txt
 for f in examples/*.py; do
    if [[ $f == *"_mpi.py" ]]; then

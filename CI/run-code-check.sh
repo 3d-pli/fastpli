@@ -1,10 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "--------------------------------------"
-echo "**************Code-Check**************"
-echo "--------------------------------------"
-
 # C++
 # find supported clang-format version
 CLANGFORMAT=""
