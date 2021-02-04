@@ -29,7 +29,6 @@ INSTALL.info := install . -q
 INSTALL.release := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
-DOCKER=ubuntu
 CLANG-FORMAT=clang-format-10
 
 build/:
@@ -110,38 +109,6 @@ h5py-mpi: h5py-clean
 .PHONY: h5py-clean
 h5py-clean:
 	${VENV}/bin/pip3 uninstall h5py -y
-
-.PHONY: docker-build
-docker-build:
-	docker build -t fastpli-${DOCKER} - < docker/${DOCKER}
-
-.PHONY: docker
-docker: docker-build
-	rm -rf /tmp/fastpli-${DOCKER}
-	git clone . /tmp/fastpli-${DOCKER}
-	docker stop fastpli-cont-${DOCKER} || true && docker rm fastpli-cont-${DOCKER} || true
-	docker create --name fastpli-cont-${DOCKER} fastpli-${DOCKER}
-	docker cp /tmp/fastpli-${DOCKER}/. fastpli-cont-${DOCKER}:/code/fastpli
-	rm -rf /tmp/fastpli-${DOCKER}
-	docker start -i fastpli-cont-${DOCKER}
-
-.PHONY: format
-format: format-c++ format-py
-
-.PHONY: format-c++
-format-c++:
-	@echo "${CLANG-FORMAT} src/*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\) "
-	@find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \;
-
-.PHONY: format-py
-format-py:
-	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 src;
-	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 tests;
-	${VENV}/bin/python3 -m yapf -i -r -p --style pep8 examples;
-	${VENV}/bin/python3 -m flake8 --exclude src/fastpli/__version.py src/fastpli
-	${VENV}/bin/python3 -m flake8 examples
-	${VENV}/bin/python3 -m flake8 tests
-
 
 .PHONY: clean-all
 clean-all: uninstall clean-build clean-src clean-docs clean-venv
