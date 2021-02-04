@@ -2,15 +2,13 @@ import unittest
 import numpy as np
 import h5py
 import os
-import tempfile
 
 import fastpli.model.solver
 
-TMP_FILE = os.path.join(tempfile.gettempdir(), "fastpli.test")
+TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test")
 
 
 class MainTest(unittest.TestCase):
-
     def setUp(self):
         self._test_fiber = np.array([[0, 0, 0, 1], [0, 0, 1, 2]])
         self._test_fiberbundles = [[self._test_fiber]]

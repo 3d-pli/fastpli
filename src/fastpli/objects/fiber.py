@@ -7,7 +7,7 @@ import numpy as np
 import numba
 
 
-def Rescale(fiber, scale, mod='all'):
+def rescale(fiber, scale, mod='all'):
     """
     Rescales fiber
 
@@ -38,7 +38,7 @@ def Rescale(fiber, scale, mod='all'):
     return fiber
 
 
-def Rotate(fiber, rot, offset=None):
+def rotate(fiber, rot, offset=None):
     """
     Rotates fiber around offset
 
@@ -67,7 +67,7 @@ def Rotate(fiber, rot, offset=None):
     return fiber
 
 
-def Translate(fiber, offset):
+def translate(fiber, offset):
     """
     Translates fiber
 
@@ -133,7 +133,7 @@ def _fiber_segment_aabb_in_sphere(c0, c1, r, center):
     return dmin <= r**2
 
 
-def Cut(fiber, voi):
+def cut(fiber, voi):
     """
     Cut fiber into voi. The cutting process can create multiple fibers.
     It checks every fiber_segment_aabb if it overlapps with the voi.
@@ -160,8 +160,8 @@ def Cut(fiber, voi):
     start = 0
     voi = np.array(voi)
     for i in range(fiber.shape[0] - 1):
-        if not _fiber_segment_aabb_in_aabb(fiber[i, :], fiber[i + 1, :], voi[0],
-                                           voi[1]):
+        if not _fiber_segment_aabb_in_aabb(fiber[i, :], fiber[i + 1, :],
+                                           voi[0], voi[1]):
             if start != i:
                 fibers.append(fiber[start:i + 1])
             start = i + 1
@@ -172,7 +172,7 @@ def Cut(fiber, voi):
     return fibers
 
 
-def CutSphere(fiber, radius, center=[0, 0, 0]):
+def cut_sphere(fiber, radius, center=[0, 0, 0]):
     """
     Cut fiber into sphere. The cutting process can create multiple fibers.
     It checks every fiber_segment_aabb if it overlapps with the sphere.

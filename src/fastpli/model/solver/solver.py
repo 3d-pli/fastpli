@@ -20,6 +20,16 @@ import os
 class Solver(_Solver):
     """
     Solver Class for solving collisions between fibers
+
+    Attributes
+    ----------
+    num_steps : int
+       Number of steps.
+
+    Methods
+    -------
+    apply_boundary_conditions(n_max = 10):
+        applies the defined boundry conditions to the inserted model
     """
 
     __is_frozen = False
@@ -79,7 +89,7 @@ class Solver(_Solver):
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
-        fbs = objects.fiber_bundles.Cast(fbs)
+        fbs = objects.fiber_bundles.cast(fbs)
         super()._set_fiber_bundles(fbs)
 
     @property
@@ -151,8 +161,10 @@ class Solver(_Solver):
     def step(self):
         """
         Applies collision solving algorithm for one step
-        
-        Returns True if solved
+
+        Returns
+        -------
+        bool: status if the model is solved
         """
         self._num_steps += 1
 
@@ -181,7 +193,17 @@ class Solver(_Solver):
             super().draw_scene()
 
     def apply_boundary_conditions(self, n_max=10):
-        """ Applies boundary conditions for n_max steps without collision solving. """
+        """
+        Applies boundary conditions for n_max steps without collision solving.
+
+        Parameters
+        ----------
+        n_max: (optional) maximal number of iterations
+
+        Returns
+        -------
+        [[(nx4)-arrays]]: fiber bundles
+        """
         if not isinstance(n_max, int) or n_max <= 0:
             raise TypeError("only integer > 0 allowed")
 

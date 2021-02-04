@@ -32,7 +32,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, 'cube.dat'))
 
-    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle fiber_bundle
+    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
     simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                         (0.666, 0, 5, 'b'),
                                         (1.0, 0.004, 1, 'r')]]

@@ -4,7 +4,6 @@ import fastpli.tools
 import fastpli.io
 
 import numpy as np
-import tempfile
 import h5py
 import os
 
@@ -14,10 +13,9 @@ FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 
-print(f"creating file: {os.path.join(tempfile.gettempdir(), 'simpli_rep.h5')}")
+TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test.")
 
-with h5py.File(os.path.join(tempfile.gettempdir(), 'simpli_rep.h5'),
-               'w-') as h5f:
+with h5py.File(TMP_FILE + 'simpli_rep.h5', 'w') as h5f:
     # save script
     # h5f['version'] = fastpli.__version__
     # with open(os.path.abspath(__file__), 'r') as f:
@@ -32,7 +30,7 @@ with h5py.File(os.path.join(tempfile.gettempdir(), 'simpli_rep.h5'),
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, '..', '..', 'examples', 'cube.dat'))
 
-    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle fiber_bundle
+    # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
     simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
                                         (0.666, 0, 5, 'b'),
                                         (1.0, 0.004, 1, 'r')]]

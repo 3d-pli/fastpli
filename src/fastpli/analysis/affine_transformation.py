@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Methods for calculating and applying affine transformation to coordinates and images.
+Methods for calculating and applying affine transformation to coordinates and
+images.
 """
 
 import numpy as np
@@ -48,7 +49,8 @@ def _interpolate_griddata(image, M, mode):
 
     for k in range(image.shape[2]):
         image_nn[:, :, k] = scipy.interpolate.griddata(points.T,
-                                                       image[:, :, k].flatten(),
+                                                       image[:, :,
+                                                             k].flatten(),
                                                        (grid_i, grid_j),
                                                        method=mode)
 
@@ -79,11 +81,10 @@ def calc_matrix(p_in, p_out):
         print(p_in.shape)
         raise TypeError("shape error: input required [3x2], [3x2]")
 
-    l = p_in.shape[0]
-    B = np.vstack([np.transpose(p_in), np.ones(l)])
+    L = p_in.shape[0]
+    B = np.vstack([np.transpose(p_in), np.ones(L)])
     D = 1.0 / np.linalg.det(B)
-    M = np.array([[(-1)**i * D * _replace_mat_row(B, R, i)
-                   for i in range(l)]
+    M = np.array([[(-1)**i * D * _replace_mat_row(B, R, i) for i in range(L)]
                   for R in np.transpose(p_out)])
 
     return np.vstack([M, [0, 0, 1]])

@@ -58,7 +58,10 @@ def euler(psi, theta_, phi_):
 
 
 def a_on_b(a, b):
-    """ return rotation matrix when rotating a on b: (3)-array, (3)-array -> (3,3)-array """
+    """
+    return rotation matrix when rotating a on b:
+    (3)-array, (3)-array -> (3,3)-array
+    """
     a = a / np.linalg.norm(a)
     b = b / np.linalg.norm(b)
     if np.all(a == b):

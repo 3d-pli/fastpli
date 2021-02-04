@@ -1,16 +1,14 @@
+import fastpli.simulation
+import fastpli.io
+
+import multiprocessing as mp
 import numpy as np
+import imageio
 import h5py
 import os
 
-import imageio
-import multiprocessing as mp
 pool = mp.Pool(2)
-
-# reproducibility
 np.random.seed(42)
-
-import fastpli.simulation
-import fastpli.io
 
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
@@ -27,7 +25,7 @@ simpli.set_voi([-100, -100, -25], [2350, 550, 25])  # in micro meter
 simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
     os.path.join(FILE_PATH, 'fastpli.dat'))
 
-# define layers (e.g. axon, myelin) inside fibers of each fiber_bundle fiber_bundle
+# define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
 simpli.fiber_bundles_properties = [[(1.0, -0.001, 10, 'p')]]
 # (_0, _1, _2, _3)
 # _0: layer_scale times radius

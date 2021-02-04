@@ -32,7 +32,9 @@ def _rot_z(phi):
 
 @numba.njit(cache=True)
 def _bundle(traj, seeds, radii, scale):
-    fiber_bundle = [np.empty((traj.shape[0], 4)) for i in range(seeds.shape[0])]
+    fiber_bundle = [
+        np.empty((traj.shape[0], 4)) for i in range(seeds.shape[0])
+    ]
     tangent_old = np.array([0, 0, 1.0])
 
     for i in range(0, traj.shape[0]):
@@ -58,7 +60,8 @@ def _bundle(traj, seeds, radii, scale):
 
 def bundle(traj, seeds, radii, scale=1):
     """
-    Generates a fiber bundle along a trajectory. The fibers will be generated coresponding to their seed points. They can be scaled along the trajectory.
+    Generates a fiber bundle along a trajectory. The fibers will be generated
+    coresponding to their seed points. They can be scaled along the trajectory.
 
     Parameters
     ----------
@@ -69,8 +72,8 @@ def bundle(traj, seeds, radii, scale=1):
     radii : float or (m,)-array_like
         fiber seeds constant or individual radii
     scale : (n,)-array_like, optional
-        scale seeds along traj     
-    
+        scale seeds along traj
+
     Returns
     -------
     res : list((nx4)-array)
@@ -180,11 +183,13 @@ def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
     # rotate cylinder into final position
     rot = _rot_z(alpha)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+        fiber_bundle[i] = np.ascontiguousarray(
+            np.dot(rot, fiber_bundle[i].T).T)
 
     rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+        fiber_bundle[i] = np.ascontiguousarray(
+            np.dot(rot, fiber_bundle[i].T).T)
 
     for i in range(len(fiber_bundle)):
         fiber_bundle[i] = fiber_bundle[i] + p.T
@@ -220,11 +225,13 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     # rotate cylinder into final position
     rot = _rot_z(alpha)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+        fiber_bundle[i] = np.ascontiguousarray(
+            np.dot(rot, fiber_bundle[i].T).T)
 
     rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
     for i in range(len(fiber_bundle)):
-        fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
+        fiber_bundle[i] = np.ascontiguousarray(
+            np.dot(rot, fiber_bundle[i].T).T)
 
     for i in range(len(fiber_bundle)):
         fiber_bundle[i] = fiber_bundle[i] + p.T
@@ -243,7 +250,7 @@ def add_radii(fiber_bundle, radii):
         (x,y,z)-points of fibers
     radii : (n,)-array_like
         individual radii for each fiber inside the fiber_bundle
-    
+
     Returns
     -------
     res : list((nx4)-array)
@@ -272,7 +279,7 @@ def cylinder(p,
     ----------
     p,q : (3,)-array_like
         (x,y,z)-points of begin and end of cylinder
-    r_in,r_out : 
+    r_in,r_out :
         inner and outer radius of cylinder
     seeds : (m,2)-array_like
         fiber seeds on a 2d plane
@@ -283,8 +290,8 @@ def cylinder(p,
     mode : char or string
         \"p\", \"parallel\", \"c\", \"circular\", \"r\", \"radial\"
     steps : int
-        steps along fibers in circular mode   
-    
+        steps along fibers in circular mode
+
     Returns
     -------
     res : list((nx4)-array)
@@ -317,11 +324,12 @@ def cylinder(p,
 
     # fiber_bundle = []
     if mode == 'parallel' or mode == 'p':
-        fiber_bundle = _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta)
+        fiber_bundle = _cylinder_parallel(p, q, seeds, r_in, r_out, alpha,
+                                          beta)
 
     elif mode == 'circular' or mode == 'c':
-        fiber_bundle = _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta,
-                                          steps)
+        fiber_bundle = _cylinder_circular(p, q, seeds, r_in, r_out, alpha,
+                                          beta, steps)
 
     elif mode == 'radial' or mode == 'r':
         fiber_bundle = _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta)
@@ -394,7 +402,7 @@ def cuboid(p, q, phi, theta, seeds, radii):
         fiber seeds on a 2d plane
     radii : float or (n,)-array_like
         fiber seeds radii
-    
+
     Returns
     -------
     res : list((nx4)-array)

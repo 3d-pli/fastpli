@@ -12,8 +12,10 @@ def triangular_grid(a, b, spacing, center=False, sort=True, endpoint=True):
     spacing : float
         distance between seed points
     center : bool, optional
-        If false, the seed points will be inside [0,a]x[0,b], beginning at (0,0)
-        If true, the grid will be inside [-a/2,a/2]x[-b/2,b/2] with a seed point at (0,0) 
+        If false, the seed points will be inside [0,a]x[0,b],
+        beginning at (0,0)
+        If true, the grid will be inside [-a/2,a/2]x[-b/2,b/2] with a
+        seed point at (0,0)
     sort : bool, optional
         If true, the returning seed points are lexsorted along x,y
     endpoint : bool, optional
@@ -67,7 +69,8 @@ def triangular_circle(radius, spacing, center=[0, 0], radii=0):
     center : (2,)-array_like
         center of circle
     radii : float or (n,)-array_like, optional
-        seed points will be iterpreted as cricles with a global or individual radii
+        seed points will be iterpreted as cricles with a global or
+        individual radii
 
     Returns
     -------
@@ -94,8 +97,9 @@ def crop_rectangle(a, b, seeds, radii=0):
     seeds : (n,2)-array_like
         to be cropped seed points
     radii : float or (n,)-array_like, optional
-        seed points will be iterpreted as cricles with a global or individual radii       
-    
+        seed points will be iterpreted as cricles with a global or
+        individual radii
+
     Returns
     -------
     res : (nx2)-array
@@ -128,8 +132,9 @@ def crop_circle(radius, seeds, center=[0, 0], radii=0):
     center : (2,)-array_like
         center of circle
     radii : float or (n,)-array_like, optional
-        seed points will be iterpreted as cricles with a global or individual radii       
-    
+        seed points will be iterpreted as cricles with a global or
+        individual radii
+
     Returns
     -------
     res : (nx2)-array

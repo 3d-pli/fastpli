@@ -17,63 +17,19 @@ VENV := ${if ${venv},${venv},env}
 CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug
 CMAKE.info := cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release
-CMAKE.thesis := cmake .. -DCMAKE_BUILD_TYPE=Release -DTHESIS=True
 CMAKE := ${CMAKE.${BUILD}}
 
 MAKE.debug := make
 MAKE.info := make -j
 MAKE.release := make -j
-MAKE.thesis := make -j
 MAKE := ${MAKE.${BUILD}}
 
 INSTALL.debug := install .
 INSTALL.info := install . -q
 INSTALL.release := install . -q
-INSTALL.thesis := install . -q
 INSTALL := ${INSTALL.${BUILD}}
 
-DOCKER=ubuntu
 CLANG-FORMAT=clang-format-10
-
-${VENV}/bin/pip3:
-	rm -rf ${VENV}
-	python3 -m venv ${VENV}
-	${VENV}/bin/pip3 install --upgrade pip -q
-
-${VENV}/bin/python3:
-	rm -rf ${VENV}
-	python3 -m venv ${VENV}
-	${VENV}/bin/pip3 install --upgrade pip -q
-
-.PHONY: ${VENV}
-${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
-
-.PHONY: git-submodules
-git-submodules:
-	git submodule update --init
-
-.PHONY: examples/requirements
-examples/requirements:
-	${VENV}/bin/pip3 install -r examples/requirements.txt -q
-
-.PHONY: install
-install: ${VENV} fastpli
-	${VENV}/bin/pip3 ${INSTALL}
-
-.PHONY: development
-development: ${VENV} fastpli
-	${VENV}/bin/pip3 install -e . -q
-	${VENV}/bin/pip3 install yapf -q
-	${VENV}/bin/pip3 install pylint -q
-	${VENV}/bin/pip3 install -r examples/requirements.txt -q
-
-.PHONY: uninstall
-uninstall:
-	@if [ -f ${VENV}/bin/pip3 ]; then \
-		if ! ${VENV}/bin/pip3 list | grep -q "fastli"; then \
-			${VENV}/bin/pip3 uninstall fastpli -y; \
-		fi \
-	fi
 
 build/:
 	mkdir build
@@ -89,6 +45,52 @@ build/Makefile: build/
 fastpli: build/ build/Makefile
 	cd build; \
 	${MAKE}
+
+.PHONY: docs
+docs:
+	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
+	cd docs; \
+	make html;
+
+.PHONY: clean
+clean: clean-build clean-src clean-docs
+
+################################################################################
+############################ DEVELOPER FUNCTIONS ###############################
+################################################################################
+
+${VENV}/bin/pip3:
+	rm -rf ${VENV}
+	python3 -m venv ${VENV}
+	${VENV}/bin/pip3 install --upgrade pip -q
+
+${VENV}/bin/python3:
+	rm -rf ${VENV}
+	python3 -m venv ${VENV}
+	${VENV}/bin/pip3 install --upgrade pip -q
+
+.PHONY: ${VENV}
+${VENV}: ${VENV}/bin/pip3 ${VENV}/bin/python3
+
+.PHONY: local
+local: ${VENV} fastpli
+	${VENV}/bin/pip3 ${INSTALL}
+
+.PHONY: development
+development: ${VENV} fastpli
+	${VENV}/bin/pip3 install -e . -q
+	${VENV}/bin/pip3 install yapf -q
+	${VENV}/bin/pip3 install pylint -q
+	${VENV}/bin/pip3 install flake8 -q
+	${VENV}/bin/pip3 install -r examples/requirements.txt -q
+
+.PHONY: uninstall
+uninstall:
+	@if [ -f ${VENV}/bin/pip3 ]; then \
+		if ! ${VENV}/bin/pip3 list | grep -q "fastli"; then \
+			${VENV}/bin/pip3 uninstall fastpli -y; \
+		fi \
+	fi
 
 .PHONY: test
 test:
@@ -108,45 +110,8 @@ h5py-mpi: h5py-clean
 h5py-clean:
 	${VENV}/bin/pip3 uninstall h5py -y
 
-.PHONY: docker-build
-docker-build:
-	docker build -t fastpli-${DOCKER} - < docker/${DOCKER}
-
-.PHONY: docker
-docker: docker-build
-	rm -rf /tmp/fastpli-${DOCKER}
-	git clone . /tmp/fastpli-${DOCKER}
-	docker stop fastpli-cont-${DOCKER} || true && docker rm fastpli-cont-${DOCKER} || true
-	docker create --name fastpli-cont-${DOCKER} fastpli-${DOCKER}
-	docker cp /tmp/fastpli-${DOCKER}/. fastpli-cont-${DOCKER}:/code/fastpli
-	rm -rf /tmp/fastpli-${DOCKER}
-	docker start -i fastpli-cont-${DOCKER}
-
-.PHONY: format
-format: format-c++ format-py
-
-.PHONY: format-c++
-format-c++:
-	@echo "${CLANG-FORMAT} src/*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\) "
-	@find src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec ${CLANG-FORMAT} -i {} \;
-
-.PHONY: format-py
-format-py:
-	${VENV}/bin/python3 -m yapf -i -r -p --style google src;
-	${VENV}/bin/python3 -m yapf -i -r -p --style google tests;
-	${VENV}/bin/python3 -m yapf -i -r -p --style google examples;
-
-.PHONY: docs
-docs:
-	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
-	cd docs; \
-	make html;
-
-.PHONY: clean
-clean: uninstall clean-build clean-src
-
 .PHONY: clean-all
-clean-all: clean-build clean-src clean-docs clean-venv
+clean-all: uninstall clean-build clean-src clean-docs clean-venv
 
 .PHONY: clean-build
 clean-build:

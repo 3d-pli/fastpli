@@ -7,13 +7,10 @@ import fastpli.analysis
 import fastpli.tools
 import fastpli.objects
 
-from fastpli.analysis._ROFL_with_jacobi import _calc_Int_single_fiber_fitted
-
 # TODO: test rofl, not simpli.apply_rofl
 
 
 class MainTest(unittest.TestCase):
-
     def test_simple_rofl(self):
 
         simpli = fastpli.simulation.Simpli()
@@ -55,11 +52,11 @@ class MainTest(unittest.TestCase):
             tissue_properties[1][0]) / (simpli.wavelength / 1e3)
 
         self.assertTrue(
-            abs(rofl_direction.flatten()[0] - np.deg2rad(0)) < 1e-10 or
-            abs(rofl_direction.flatten()[0] - np.deg2rad(180)) < 1e-10)
+            abs(rofl_direction.flatten()[0] - np.deg2rad(0)) < 1e-10
+            or abs(rofl_direction.flatten()[0] - np.deg2rad(180)) < 1e-10)
         self.assertTrue(
-            abs(rofl_incl.flatten()[0] - np.deg2rad(45) < 1e-9) or
-            abs(rofl_incl.flatten()[0] - np.deg2rad(-45)) < 1e-9)
+            abs(rofl_incl.flatten()[0] - np.deg2rad(45) < 1e-9)
+            or abs(rofl_incl.flatten()[0] - np.deg2rad(-45)) < 1e-9)
         self.assertTrue(abs(rofl_t_rel.flatten()[0] - t_rel) < 1e-8)
 
 

@@ -6,8 +6,6 @@ misc methods for helping
 import glob
 import os
 
-from .. import __version__
-
 
 def pip_freeze():
     """ turns pip freeze into a string """

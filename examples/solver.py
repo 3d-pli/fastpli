@@ -31,12 +31,12 @@ elif example == 'crossing':
     population = fastpli.model.sandbox.seeds.triangular_circle(20, 5)
 
     fiber_radii = np.random.uniform(2.0, 10.0, population.shape[0])
-    fiber_bundle_0 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_0,
-                                                        population, fiber_radii)
+    fiber_bundle_0 = fastpli.model.sandbox.build.bundle(
+        fiber_bundle_trj_0, population, fiber_radii)
 
     fiber_radii = np.random.uniform(2.0, 10.0, population.shape[0])
-    fiber_bundle_1 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_1,
-                                                        population, fiber_radii)
+    fiber_bundle_1 = fastpli.model.sandbox.build.bundle(
+        fiber_bundle_trj_1, population, fiber_radii)
 
     solver.fiber_bundles = [fiber_bundle_0, fiber_bundle_1]
     solver.obj_min_radius = 10
@@ -57,9 +57,8 @@ for i in range(1000):
     # calculate current overlap ratio
     overlap = solver.overlap / solver.num_col_obj if solver.num_col_obj else 0
     if i % 5 == 0:
-        print(
-            f'step: {i}, {solver.num_obj}/{solver.num_col_obj} {round(overlap * 100)}%'
-        )
+        print(f'step: {i}, {solver.num_obj}/{solver.num_col_obj}' +
+              f'{round(overlap * 100)}%')
         solver.draw_scene()
         # solver.save_ppm(f'solver_{i:03}.ppm')  # save a ppm image
 

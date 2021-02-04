@@ -210,7 +210,7 @@ def histogram(phi,
     x = np.linspace(0, 2 * np.pi, n_phi + 1, endpoint=True)
     y = np.linspace(0, np.pi / 2, n_theta + 1, endpoint=True)
 
-    #calculate histogram
+    # calculate histogram
     hist, _, _ = np.histogram2d(phi, theta, bins=(x, y))
 
     if weight_area:
