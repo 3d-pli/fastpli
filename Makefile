@@ -122,6 +122,10 @@ format:
 	${VENV}/bin/yapf -i -r -p examples
 	${VENV}/bin/flake8
 
+.PHONY: pylint
+pylint:
+	env-CI/bin/pylint -d C0103 -d E0401 -d E0611 -d R0913 -d R0914 src/fastpli
+
 .PHONY: clean-all
 clean-all: uninstall clean-build clean-src clean-docs clean-venv
 

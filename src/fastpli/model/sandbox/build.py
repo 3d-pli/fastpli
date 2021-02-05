@@ -180,14 +180,14 @@ def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
 
     # rotate cylinder into final position
     rot = _rot_z(alpha)
-    for i in range(len(fiber_bundle)):
+    for i, _ in enumerate(fiber_bundle):
         fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
 
     rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
-    for i in range(len(fiber_bundle)):
+    for i, _ in enumerate(fiber_bundle):
         fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
 
-    for i in range(len(fiber_bundle)):
+    for i, _ in enumerate(fiber_bundle):
         fiber_bundle[i] = fiber_bundle[i] + p.T
 
     return fiber_bundle
@@ -220,14 +220,14 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
 
     # rotate cylinder into final position
     rot = _rot_z(alpha)
-    for i in range(len(fiber_bundle)):
+    for i, _ in enumerate(fiber_bundle):
         fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
 
     rot = _rot_a_on_b(np.array((0, 0, 1.0)), dp)
-    for i in range(len(fiber_bundle)):
+    for i, _ in enumerate(fiber_bundle):
         fiber_bundle[i] = np.ascontiguousarray(np.dot(rot, fiber_bundle[i].T).T)
 
-    for i in range(len(fiber_bundle)):
+    for i, _ in enumerate(fiber_bundle):
         fiber_bundle[i] = fiber_bundle[i] + p.T
 
     return fiber_bundle
@@ -317,14 +317,14 @@ def cylinder(p,
         raise ValueError('radii must have the same length as seeds')
 
     # fiber_bundle = []
-    if mode == 'parallel' or mode == 'p':
+    if mode in ('parallel', 'p'):
         fiber_bundle = _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta)
 
-    elif mode == 'circular' or mode == 'c':
+    elif mode in ('circular', 'c'):
         fiber_bundle = _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta,
                                           steps)
 
-    elif mode == 'radial' or mode == 'r':
+    elif mode in ('radial', 'r'):
         fiber_bundle = _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta)
 
     else:
@@ -336,9 +336,10 @@ def cylinder(p,
 
 
 @numba.njit(cache=True)
-def _ray_box_intersection(p, dir, b_min, b_max):
+def _ray_box_intersection(p, direction, b_min, b_max):
 
-    tmin, tmax = np.divide(b_min - p, dir), np.divide(b_max - p, dir)
+    tmin, tmax = np.divide(b_min - p,
+                           direction), np.divide(b_max - p, direction)
     tmin, tmax = tmin[np.isfinite(tmin)], tmax[np.isfinite(tmax)]
     tmin, tmax = np.minimum(tmin, tmax), np.maximum(tmin, tmax)
 
@@ -346,32 +347,32 @@ def _ray_box_intersection(p, dir, b_min, b_max):
 
 
 @numba.njit(cache=True)
-def _cuboid(min, max, dir, seeds, radii):
+def _cuboid(p, q, direction, seeds, radii):
     fiber_bundle = []
 
-    if np.all(dir == 0):
+    if np.all(direction == 0):
         raise ValueError('direction is 0-vector')
 
     # convert 0 to nan for division in _ray_box_intersection
-    dir_ = dir.copy()
-    dir_[dir_ == 0] = np.nan
+    direction_ = direction.copy()
+    direction_[direction_ == 0] = np.nan
 
     for i in range(seeds.shape[0]):
         s = seeds[i, :]
 
         # find ray box intersection
-        t_min, t_max = _ray_box_intersection(s, dir_, min, max)
+        t_min, t_max = _ray_box_intersection(s, direction_, p, q)
 
         if t_min >= t_max:  # outside of volume
             continue
 
-        p_min = s + t_min * dir
-        p_max = s + t_max * dir
+        p_min = s + t_min * direction
+        p_max = s + t_max * direction
 
-        # in case of dir is parallel to axis
-        if np.any(p_max < min):
+        # in case of direction is parallel to axis
+        if np.any(p_max < p):
             continue
-        if np.any(p_min > max):
+        if np.any(p_min > q):
             continue
 
         fiber_bundle.append(
@@ -428,12 +429,12 @@ def cuboid(p, q, phi, theta, seeds, radii):
     q = np.max(np.vstack((p, q)), axis=0)
 
     # rotate fibers
-    dir = np.array([
+    v = np.array([
         np.cos(phi) * np.sin(theta),
         np.sin(phi) * np.sin(theta),
         np.cos(theta)
     ])
-    rot = _rot_a_on_b(np.array([0, 0, 1.0]), dir)
+    rot = _rot_a_on_b(np.array([0, 0, 1.0]), v)
     seeds = np.dot(rot, seeds.T).T + 0.5 * (p + q)
 
-    return _cuboid(p, q, dir, seeds, radii)
+    return _cuboid(p, q, v, seeds, radii)

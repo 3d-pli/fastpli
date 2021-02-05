@@ -19,6 +19,7 @@ class _MPI:
         self._num_p = mpi_comm.Get_size()
 
         self._gen_dim_local = None
+        self._gen_dim_global = None
         self._gen_dim_offset = None
         self._optic_local_dim = None
         self._optic_global_dim = None
@@ -34,34 +35,34 @@ class _MPI:
                                                self._num_p)[self._rank]
         return np.array_split(data, self._num_p, axis=0)[self._rank]
 
-    def save_split_h5(self, h5f, data_name, input):
-        input = np.array(input, copy=False)
-        global_dim = self._optic_global_dim[:input.ndim]
-        dset = h5f.create_dataset(data_name, global_dim, dtype=input.dtype)
-        if input.size:
-            dset[self._optic_local_dim, :] = input
+    def save_split_h5(self, h5f, data_name, data):
+        data = np.array(data, copy=False)
+        global_dim = self._optic_global_dim[:data.ndim]
+        dset = h5f.create_dataset(data_name, global_dim, dtype=data.dtype)
+        if data.size:
+            dset[self._optic_local_dim, :] = data
 
-    def save_image_h5(self, h5f, data_name, input):
-        input = input[self._gen_dim_offset[0]:self._gen_dim_offset[0] +
-                      self._gen_dim_local[0],
-                      self._gen_dim_offset[1]:self._gen_dim_offset[1] +
-                      self._gen_dim_local[1], :]
-        self.save_h5(h5f, data_name, input, 2)
+    def save_image_h5(self, h5f, data_name, data):
+        data = data[self._gen_dim_offset[0]:self._gen_dim_offset[0] +
+                    self._gen_dim_local[0],
+                    self._gen_dim_offset[1]:self._gen_dim_offset[1] +
+                    self._gen_dim_local[1], :]
+        self.save_h5(h5f, data_name, data, 2)
 
-    def save_h5(self, h5f, data_name, input, _lock_dim=None):
+    def save_h5(self, h5f, data_name, data, _lock_dim=None):
         """
         simpli can be seperated into different mpi processes.
         This function provides a parallel hdf5 io to save data
         inside the same h5-file.
         """
 
-        input = np.array(input, copy=False)
+        data = np.array(data, copy=False)
 
         dset_dim = np.copy(self._gen_dim_global)
-        if input.ndim < len(dset_dim):
-            dset_dim = dset_dim[:len(input.shape)]
-        if input.ndim > len(dset_dim):
-            dset_dim = np.append(dset_dim, input.shape[3:])
+        if data.ndim < len(dset_dim):
+            dset_dim = dset_dim[:len(data.shape)]
+        if data.ndim > len(dset_dim):
+            dset_dim = np.append(dset_dim, data.shape[3:])
 
         if _lock_dim:
             if isinstance(_lock_dim, int):
@@ -69,53 +70,53 @@ class _MPI:
 
             _lock_dim = list(_lock_dim)
             for i in _lock_dim:
-                dset_dim[i] = input.shape[i]
+                dset_dim[i] = data.shape[i]
 
-        dset = h5f.create_dataset(data_name, dset_dim, dtype=input.dtype)
+        dset = h5f.create_dataset(data_name, dset_dim, dtype=data.dtype)
 
-        if input.ndim == 2:
-            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(input.shape[0]):
+        if data.ndim == 2:
+            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
+                for i in range(data.shape[0]):
                     dset[i + self._gen_dim_offset[0],
                          self._gen_dim_offset[1]:self._gen_dim_offset[1] +
-                         self._gen_dim_local[1]] = input[i, :]
+                         self._gen_dim_local[1]] = data[i, :]
             else:
                 dset[self._gen_dim_offset[0]:self._gen_dim_offset[0] +
                      self._gen_dim_local[0],
                      self._gen_dim_offset[1]:self._gen_dim_offset[1] +
-                     self._gen_dim_local[1]] = input
+                     self._gen_dim_local[1]] = data
 
-        elif input.ndim == 3:
-            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(input.shape[0]):
+        elif data.ndim == 3:
+            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
+                for i in range(data.shape[0]):
                     dset[i + self._gen_dim_offset[0],
                          self._gen_dim_offset[1]:self._gen_dim_offset[1] +
                          self._gen_dim_local[1],
                          self._gen_dim_offset[2]:self._gen_dim_offset[2] +
-                         self._gen_dim_local[2]] = input[i, :]
+                         self._gen_dim_local[2]] = data[i, :]
             else:
                 dset[self._gen_dim_offset[0]:self._gen_dim_offset[0] +
                      self._gen_dim_local[0],
                      self._gen_dim_offset[1]:self._gen_dim_offset[1] +
                      self._gen_dim_local[1],
                      self._gen_dim_offset[2]:self._gen_dim_offset[2] +
-                     self._gen_dim_local[2]] = input
+                     self._gen_dim_local[2]] = data
 
-        elif input.ndim > 3:
-            if input.size * input.itemsize > 2 * (2**10)**3:  # 2 GB
-                for i in range(input.shape[0]):
+        elif data.ndim > 3:
+            if data.size * data.itemsize > 2 * (2**10)**3:  # 2 GB
+                for i in range(data.shape[0]):
                     dset[i + self._gen_dim_offset[0],
                          self._gen_dim_offset[1]:self._gen_dim_offset[1] +
                          self._gen_dim_local[1],
                          self._gen_dim_offset[2]:self._gen_dim_offset[2] +
-                         self._gen_dim_local[2], :] = input[i, :]
+                         self._gen_dim_local[2], :] = data[i, :]
             else:
                 dset[self._gen_dim_offset[0]:self._gen_dim_offset[0] +
                      self._gen_dim_local[0],
                      self._gen_dim_offset[1]:self._gen_dim_offset[1] +
                      self._gen_dim_local[1],
                      self._gen_dim_offset[2]:self._gen_dim_offset[2] +
-                     self._gen_dim_local[2], :] = input
+                     self._gen_dim_local[2], :] = data
 
         else:
             raise TypeError('no compatible save_mpi_array_as_h5: ' + data_name)

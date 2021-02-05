@@ -4,8 +4,8 @@ Author: Daniel Schmitz INM-1, Forschungszentrum Jülich:
 https://doi.org/10.3389/fnana.2018.00075
 """
 
-import numpy as np
 import itertools
+import numpy as np
 from scipy import optimize
 
 import numba
@@ -42,7 +42,7 @@ def _invertmatrix(m):
 
 def _calc_centered_vals(stack_2d, gain):
 
-    num_tilts, num_rots = stack_2d.shape
+    _, num_rots = stack_2d.shape
     centered_stack = np.empty_like(stack_2d)
     trans = np.mean(stack_2d, 1)
     trans_extended = np.tile(trans, (num_rots, 1)).T
@@ -315,17 +315,9 @@ def _calc_Jacobi_for_opt(phi, alpha, t_rel, num_rotations):
     return J
 
 
-def _brute_force_grid(phi,
-                      number_inclination_steps,
-                      number_t_rel_steps,
-                      number_rotations,
-                      number_tilt_steps,
-                      array_of_matrices,
-                      dir_offset,
-                      tau,
-                      measures,
-                      weights,
-                      ret=None):
+def _brute_force_grid(phi, number_inclination_steps, number_t_rel_steps,
+                      number_rotations, number_tilt_steps, array_of_matrices,
+                      dir_offset, tau, measures, weights):
     """
     Returns the minimumm of the fitted intensities on the brute force grid
 
@@ -350,84 +342,41 @@ def _brute_force_grid(phi,
                              number_inclination_steps + 2)[1:-1]
     t_rel_steps = np.linspace(0, 0.9, number_t_rel_steps + 2)[1:-1]
 
-    if (ret is not None and ret < 0.05):
+    # initialize output array
+    number_gridpoints = number_inclination_steps * number_t_rel_steps
 
-        dir_steps = np.linspace(0, np.pi, number_inclination_steps + 2)[1:-1]
+    grid_intensities_output = np.empty((number_gridpoints, number_measurements))
 
-        number_gridpoints = number_inclination_steps**2 * number_t_rel_steps
+    j = 0
 
-        grid_intensities_output = np.empty(
-            (number_gridpoints, number_measurements))
+    # initialize list of all incl/trel combinations
+    gridlist = list(itertools.product(incl_steps, t_rel_steps))
 
-        j = 0
+    # loop over all grid points
+    for (incl, trel) in itertools.product(incl_steps, t_rel_steps):
 
-        # initialize list of all incl/trel combinations
-        gridlist = list(itertools.product(dir_steps, incl_steps, t_rel_steps))
+        # calculate tilted angles and trel
+        phi_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
+            phi, incl, trel, array_of_matrices, tau)
 
-        # loop over all grid points
-        for (phi, incl, trel) in itertools.product(dir_steps, incl_steps,
-                                                   t_rel_steps):
+        # evaluate function and write into output array
+        grid_intensities_output[j, :] = _calc_Int_single_fiber_fitted(
+            phi_array, alpha_array, t_rel_array, number_rotations, dir_offset)
+        j += 1
 
-            # calculate tilted angles and trel
-            phi_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(  # noqa: E501
-                phi, incl, trel, array_of_matrices, tau)
+    # broadcast measurement array number_gridpoints times so it can be
+    # substracted from all grid point evaluations
+    measures_repeat = np.broadcast_to(measures,
+                                      (number_gridpoints, number_measurements))
 
-            # evaluate function and write into outputarray
-            grid_intensities_output[j, :] = _calc_Int_single_fiber_fitted(
-                phi_array, alpha_array, t_rel_array, number_rotations,
-                dir_offset)
-            j += 1
+    # calculate squared deviation
+    square_diff = np.square(weights *
+                            (grid_intensities_output - measures_repeat))
 
-        # broadcast measurement array number_gridpoints times so it can be
-        # substracted from all grid point evaluations
-        measures_repeat = np.broadcast_to(
-            measures, (number_gridpoints, number_measurements))
+    # find index of minimal value
+    min_arg = np.argmin(np.sum(square_diff, 1))
 
-        # calculate squared deviation
-        square_diff = np.square(grid_intensities_output - measures_repeat)
-
-        # find index of minimal value
-        min_arg = np.argmin(np.sum(square_diff, 1))
-
-    else:
-
-        # initialize output array
-        number_gridpoints = number_inclination_steps * number_t_rel_steps
-
-        grid_intensities_output = np.empty(
-            (number_gridpoints, number_measurements))
-
-        j = 0
-
-        # initialize list of all incl/trel combinations
-        gridlist = list(itertools.product(incl_steps, t_rel_steps))
-
-        # loop over all grid points
-        for (incl, trel) in itertools.product(incl_steps, t_rel_steps):
-
-            # calculate tilted angles and trel
-            phi_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(  # noqa: E501
-                phi, incl, trel, array_of_matrices, tau)
-
-            # evaluate function and write into output array
-            grid_intensities_output[j, :] = _calc_Int_single_fiber_fitted(
-                phi_array, alpha_array, t_rel_array, number_rotations,
-                dir_offset)
-            j += 1
-
-        # broadcast measurement array number_gridpoints times so it can be
-        # substracted from all grid point evaluations
-        measures_repeat = np.broadcast_to(
-            measures, (number_gridpoints, number_measurements))
-
-        # calculate squared deviation
-        square_diff = np.square(weights *
-                                (grid_intensities_output - measures_repeat))
-
-        # find index of minimal value
-        min_arg = np.argmin(np.sum(square_diff, 1))
-
-    return (phi, gridlist[min_arg][0], gridlist[min_arg][1])
+    return phi, gridlist[min_arg][0], gridlist[min_arg][1]
 
 
 @numba.njit(cache=True)
@@ -441,8 +390,8 @@ def _model(p, array_of_matrices, tau, number_rotations, dir_offset):
 
 
 @numba.njit(cache=True)
-def _weighted_jacobi(p, array_of_matrices, tau, number_rotations, dir_offset,
-                     data, weights):
+def _weighted_jacobi(p, array_of_matrices, tau, number_rotations, dir_offset, _,
+                     weights):
     dir_array, alpha_array, t_rel_array = _calculate_rotated_fiber_params(
         p[0], p[1], p[2], array_of_matrices, tau)
     weights = weights.flatten()
@@ -470,16 +419,8 @@ def _chisq(p, array_of_matrices, tau, number_rotations, dir_offset, measures,
     return np.sum(residuals * residuals)
 
 
-def _execute_fit(phi_start,
-                 number_inclination_steps,
-                 number_t_rel_steps,
-                 dir_offset,
-                 tau,
-                 measures,
-                 gain,
-                 grad,
-                 global_opt_bool,
-                 ret=None):
+def _execute_fit(phi_start, number_inclination_steps, number_t_rel_steps,
+                 dir_offset, tau, measures, gain, grad, global_opt_bool):
 
     # calculate centered intensities and weights
     centered_I, weights = _calc_centered_vals(measures, gain)
@@ -524,12 +465,11 @@ def _execute_fit(phi_start,
         startpoints = _brute_force_grid(phi_start, number_inclination_steps,
                                         number_t_rel_steps, number_rotations,
                                         number_tilt_steps, rotation_matrices,
-                                        dir_offset, tau, centered_I, weights,
-                                        ret)
+                                        dir_offset, tau, centered_I, weights)
 
         # execute least squares fit
         if grad is True:
-            final_angles, cov, info, message, ier = optimize.leastsq(
+            final_angles, cov, info, _, _ = optimize.leastsq(
                 _residuum,
                 startpoints,
                 args=arguments,
@@ -538,12 +478,11 @@ def _execute_fit(phi_start,
                 Dfun=_weighted_jacobi,
                 col_deriv=1)
         else:
-            final_angles, cov, info, message, ier = optimize.leastsq(
-                _residuum,
-                startpoints,
-                args=arguments,
-                full_output=1,
-                maxfev=150)
+            final_angles, cov, info, _, _ = optimize.leastsq(_residuum,
+                                                             startpoints,
+                                                             args=arguments,
+                                                             full_output=1,
+                                                             maxfev=150)
 
         # extract value of the cost function
         fvalue = np.sum(np.square(info['fvec']))

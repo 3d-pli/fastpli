@@ -110,7 +110,7 @@ def exec_matrix(M, x, y):
     return x, y
 
 
-def image(image, M, mode='nearest'):
+def apply(image, M, mode='nearest'):
     """
     Execute the affine transformation on simpli images[x,y,rho].
 
@@ -131,7 +131,7 @@ def image(image, M, mode='nearest'):
     if mode == 'nearest':
         # this is faster then scipy.interpolate.griddata('nearest')
         new_image = _nearest_neighbors(image, M)
-    elif mode == 'linear' or mode == 'cubic':
+    elif mode in ('linear', 'cubic'):
         new_image = _interpolate_griddata(image, M, mode)
 
     else:

@@ -155,7 +155,7 @@ def cut(fiber, voi):
     fibers = []
     fiber = np.array(fiber, copy=False)
     if fiber.ndim != 2:
-        raise (TypeError, 'False fiber shape')
+        raise TypeError('False fiber shape')
 
     start = 0
     voi = np.array(voi)
@@ -172,7 +172,7 @@ def cut(fiber, voi):
     return fibers
 
 
-def cut_sphere(fiber, radius, center=[0, 0, 0]):
+def cut_sphere(fiber, radius, center=(0, 0, 0)):
     """
     Cut fiber into sphere. The cutting process can create multiple fibers.
     It checks every fiber_segment_aabb if it overlapps with the sphere.
@@ -197,7 +197,7 @@ def cut_sphere(fiber, radius, center=[0, 0, 0]):
     fibers = []
     fiber = np.array(fiber, copy=False)
     if fiber.ndim != 2:
-        raise (TypeError, 'False fiber shape')
+        raise TypeError('False fiber shape')
 
     start = 0
     for i in range(fiber.shape[0] - 1):

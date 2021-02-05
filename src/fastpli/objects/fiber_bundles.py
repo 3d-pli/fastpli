@@ -3,8 +3,9 @@
 Methods for manipulation of fiber_bundles objects
 """
 
-import numpy as np
 import copy
+
+import numpy as np
 
 from . import fiber
 
@@ -218,13 +219,13 @@ def cut(fiber_bundles, voi):
     new_fiber_bundles = []
     for i, fb in enumerate(fiber_bundles):
         new_fiber_bundles.append([])
-        for j, f in enumerate(fb):
+        for f in fb:
             new_fiber_bundles[i].extend(fiber.cut(f, voi))
 
     return new_fiber_bundles
 
 
-def cut_sphere(fiber_bundles, radius, center=[0, 0, 0]):
+def cut_sphere(fiber_bundles, radius, center=(0, 0, 0)):
     """
     Cut fiber into voi. The cutting process can create multiple fibers.
     It checks every fiber_segment_aabb if it overlapps with the voi.
@@ -249,7 +250,7 @@ def cut_sphere(fiber_bundles, radius, center=[0, 0, 0]):
     new_fiber_bundles = []
     for i, fb in enumerate(fiber_bundles):
         new_fiber_bundles.append([])
-        for j, f in enumerate(fb):
+        for f in fb:
             new_fiber_bundles[i].extend(fiber.cut_sphere(f, radius, center))
 
     return new_fiber_bundles

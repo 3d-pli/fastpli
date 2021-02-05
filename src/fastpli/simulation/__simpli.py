@@ -3,6 +3,11 @@
 Simpli Class
 """
 
+import warnings
+import sys
+
+import numpy as np
+
 from . import optic
 from .. import analysis
 from .. import objects
@@ -10,10 +15,6 @@ from .. import tools
 from .. import __version__
 from .. import __compiler__
 from .. import __libraries__
-
-import numpy as np
-import warnings
-import sys
 
 
 class __Simpli:
@@ -31,7 +32,7 @@ class __Simpli:
     def __freeze(self):
         self.__is_frozen = True
 
-    def __init__(self, mpi_comm=None):
+    def __init__(self):
 
         # DIMENSIONS
         self._dim = None
@@ -72,7 +73,7 @@ class __Simpli:
         """ Get all member variables which are properties """
         members = dict()
         for key, value in self.__dict__.items():
-            if key == '_cells_populations' or key == '_fiber_bundles':
+            if key in ('_cells_populations', '_fiber_bundles'):
                 continue
             if key.startswith('_') and not key.startswith(
                     '__') and not key.startswith('_Simpli'):
@@ -84,9 +85,9 @@ class __Simpli:
 
         return members
 
-    def set_dict(self, input):
+    def set_dict(self, data):
         """ Set dictionary of variables to class members """
-        for key, value in input.items():
+        for key, value in data.items():
             if key.startswith('_'):
                 raise ValueError('member variable cant be set directly')
 
@@ -124,7 +125,7 @@ class __Simpli:
     @property
     def voxel_size(self):
         """ size of voxel in micro: float """
-        return (self._voxel_size)
+        return self._voxel_size
 
     @voxel_size.setter
     def voxel_size(self, voxel_size):
@@ -134,19 +135,19 @@ class __Simpli:
         flag = False
         if self._voxel_size is not None and self._dim is not None and \
            self._dim_origin is not None:
-            min, max = self.get_voi()
+            v_min, v_max = self.get_voi()
             flag = True
 
         self._voxel_size = float(voxel_size)
 
         if flag and self._dim is not None and self._dim_origin is not None:
-            self.set_voi(min, max)
+            self.set_voi(v_min, v_max)
             self._print('voxel_size: recalculated dimensions')
 
     @property
     def pixel_size(self):
         """ pixel size of resulting optical image in micro: float """
-        return (self._pixel_size)
+        return self._pixel_size
 
     @pixel_size.setter
     def pixel_size(self, pixel_size):
@@ -169,39 +170,39 @@ class __Simpli:
         voi[::2] = self._dim_origin
         voi[1::2] = voi[::2] + self._dim * self._voxel_size
 
-        min = np.array(voi[0::2])
-        max = np.array(voi[1::2])
-        return min, max
+        v_min = np.array(voi[0::2])
+        v_max = np.array(voi[1::2])
+        return v_min, v_max
 
-    def set_voi(self, min, max):
+    def set_voi(self, v_min, v_max):
         """
         set volume of interest
 
-        min: [x_min, y_min, z_min]
-        max: [x_max, y_max, z_max]
+        v_min: [x_min, y_min, z_min]
+        v_max: [x_max, y_max, z_max]
         """
 
-        min = np.array(min, dtype=float)
-        max = np.array(max, dtype=float)
+        v_min = np.array(v_min, dtype=float)
+        v_max = np.array(v_max, dtype=float)
 
-        if min.ndim != 1 or max.ndim != 1:
-            raise TypeError('min,max : ndim != 1')
-        if min.size != 3 or max.size != 3:
-            raise TypeError('min,max : size != 1')
-        if np.any(min >= max):
-            raise ValueError('min >= max')
+        if v_min.ndim != 1 or v_max.ndim != 1:
+            raise TypeError('v_min,v_max : ndim != 1')
+        if v_min.size != 3 or v_max.size != 3:
+            raise TypeError('v_min,v_max : size != 1')
+        if np.any(v_min >= v_max):
+            raise ValueError('v_min >= v_max')
 
         if self._voxel_size is None:
             raise TypeError('voxel_size is not set yet')
 
-        self._dim = np.array(np.round((max - min) / self._voxel_size),
+        self._dim = np.array(np.round((v_max - v_min) / self._voxel_size),
                              dtype=int)
-        self._dim_origin = min
+        self._dim_origin = v_min
 
     @property
     def filter_rotations(self):
         """ list of filter rotation position in radiant: [float] """
-        return (self._filter_rotations)
+        return self._filter_rotations
 
     @filter_rotations.setter
     def filter_rotations(self, filter_rotations):
@@ -459,7 +460,7 @@ class __Simpli:
 
         self.get_voi()
 
-    def _check_generation_input(self):
+    def _check_generation_data(self):
         if not self._fiber_bundles and not self._cells_populations:
             raise ValueError('fiber_bundles and cells_populations are not set')
         self._check_property_length()
@@ -492,16 +493,16 @@ class __Simpli:
         if script:
             h5f.attrs['script'] = script.encode().decode('ascii', 'ignore')
 
-    def apply_optic(self, input, shift=(0, 0), mp_pool=None):
+    def apply_optic(self, data, mp_pool=None):
         """ applies optical resample, convolution and noise to image
-        input: np.array(x,y(,rho))
+        data: np.array(x,y(,rho))
         """
 
         self._print('Apply optic')
         if self._noise_model is None:
             raise ValueError('noise_model not set')
 
-        resampled = self.apply_optic_resample(input, mp_pool=mp_pool)
+        resampled = self.apply_optic_resample(data, mp_pool=mp_pool)
 
         if np.amin(resampled) < 0:
             raise AssertionError('intensity < 0 detected')
@@ -510,9 +511,9 @@ class __Simpli:
 
         return resampled, noisy
 
-    def apply_optic_resample(self, input, shift=(0, 0), mp_pool=None):
+    def apply_optic_resample(self, data, shift=(0, 0), mp_pool=None):
         """ applies optical resample, convolution and noise to image
-        input: np.array(x,y(,rho))
+        data: np.array(x,y(,rho))
         """
 
         self._print('Apply optic resample')
@@ -525,53 +526,53 @@ class __Simpli:
         if self._pixel_size is None:
             raise ValueError('pixel_size not set')
 
-        input = np.atleast_3d(np.array(input))
-        if input.ndim > 3:
-            raise TypeError('input can be 1d, 2d or 3d')
+        data = np.atleast_3d(np.array(data))
+        if data.ndim > 3:
+            raise TypeError('data can be 1d, 2d or 3d')
 
         shift = np.array(shift, int)
         if shift.size != 2 or shift.ndim != 1:
             raise TypeError('shift has to be (x,y)')
 
         if shift[0] > 0 and shift[1] > 0:
-            input = input[shift[0]:, shift[1]:, ...]
+            data = data[shift[0]:, shift[1]:, ...]
 
         scale = self._voxel_size / self._pixel_size
-        size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
+        size = np.array(np.round(np.array(data.shape[0:2]) * scale), dtype=int)
 
         if np.amin(size) == 0:
             raise ValueError(f'voxel_size {self._voxel_size}, ' +
                              f'pixel_size {self._pixel_size} ' +
-                             f'and input shape {input.shape[0:2]} ' +
+                             f'and data shape {data.shape[0:2]} ' +
                              f'result in optical image size of {size}')
 
-        output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
+        output = np.empty((size[0], size[1], data.shape[2]), dtype=data.dtype)
 
-        if mp_pool and input.shape[2] > 1:
-            chunk = [(input[:, :, i], self._optical_sigma, scale)
-                     for i in range(input.shape[2])]
+        if mp_pool and data.shape[2] > 1:
+            chunk = [(data[:, :, i], self._optical_sigma, scale)
+                     for i in range(data.shape[2])]
 
             results = mp_pool.starmap(optic.filter_resample, chunk)
-            for i in range(input.shape[2]):
+            for i in range(data.shape[2]):
                 output[:, :, i] = results[i]
         else:
-            for i in range(input.shape[2]):
+            for i in range(data.shape[2]):
                 output[:, :,
-                       i] = optic.filter_resample(input[:, :, i],
+                       i] = optic.filter_resample(data[:, :, i],
                                                   self._optical_sigma, scale)
 
         return np.squeeze(output)
 
-    def apply_untilt(self, input, theta, phi, mode='nearest'):
+    def apply_untilt(self, data, theta, phi, mode='nearest'):
         """ applies optical untilt to image with affine transformation
 
         only necessary if untilt_view = False
 
-        input: np.array(x,y(,rho))
+        data: np.array(x,y(,rho))
         """
 
         if theta == 0:
-            return input
+            return data
 
         self._print('Apply untilt')
         # calculate transformation matrix
@@ -586,20 +587,20 @@ class __Simpli:
         M = analysis.affine_transformation.calc_matrix(p_in[:, :2],
                                                        p_out[:, :2])
 
-        output = analysis.affine_transformation.image(input, M, mode)
-        if input.ndim == 3:
+        output = analysis.affine_transformation.apply(data, M, mode)
+        if data.ndim == 3:
             output = np.atleast_3d(output)
 
         return output
 
-    def apply_epa(self, input, mask=None):
+    def apply_epa(self, data, mask=None):
         """ applies epa analysis to images
 
-        input = np.array(x,y,rho)
+        data = np.array(x,y,rho)
         """
 
         self._print('Apply epa')
-        transmittance, direction, retardation = analysis.epa.epa(input)
+        transmittance, direction, retardation = analysis.epa.epa(data)
         if mask is not None:
             transmittance[np.invert(mask)] = float('nan')
             direction[np.invert(mask)] = float('nan')
@@ -607,10 +608,10 @@ class __Simpli:
 
         return transmittance, direction, retardation
 
-    def apply_rofl(self, input, mask=None, mp_pool=None, grad_mode=False):
+    def apply_rofl(self, data, mask=None, mp_pool=None, grad_mode=False):
         """ applies ROFL analysis to images
 
-        input = np.array(tilt,x,y,rho)
+        data = np.array(tilt,x,y,rho)
         """
 
         self._print('Apply rofl')
@@ -624,33 +625,33 @@ class __Simpli:
 
         tilt_angle = self._tilts[1, 0]
 
-        input = np.array(input, copy=False)
+        data = np.array(data, copy=False)
 
-        if input.ndim != 4:
-            raise TypeError('input: np.array([tilts,x,y,stack])')
+        if data.ndim != 4:
+            raise TypeError('data: np.array([tilts,x,y,stack])')
 
-        if input.shape[0] != 5:
-            raise ValueError('input need 1 + 4 measurements')
+        if data.shape[0] != 5:
+            raise ValueError('data need 1 + 4 measurements')
 
-        if input.shape[-1] <= 3:
-            raise ValueError('input needs at least 3 equidistant rotations')
+        if data.shape[-1] <= 3:
+            raise ValueError('data needs at least 3 equidistant rotations')
 
         if mask is None:
-            mask = np.ones((input.shape[1], input.shape[2]), bool)
+            mask = np.ones((data.shape[1], data.shape[2]), bool)
 
-        directionmap = np.empty_like(mask, dtype=input.dtype)
-        inclmap = np.empty_like(mask, dtype=input.dtype)
-        trelmap = np.empty_like(mask, dtype=input.dtype)
-        dirdevmap = np.empty_like(mask, dtype=input.dtype)
-        incldevmap = np.empty_like(mask, dtype=input.dtype)
-        treldevmap = np.empty_like(mask, dtype=input.dtype)
-        funcmap = np.empty_like(mask, dtype=input.dtype)
-        itermap = np.empty_like(mask, dtype=input.dtype)
+        directionmap = np.empty_like(mask, dtype=data.dtype)
+        inclmap = np.empty_like(mask, dtype=data.dtype)
+        trelmap = np.empty_like(mask, dtype=data.dtype)
+        dirdevmap = np.empty_like(mask, dtype=data.dtype)
+        incldevmap = np.empty_like(mask, dtype=data.dtype)
+        treldevmap = np.empty_like(mask, dtype=data.dtype)
+        funcmap = np.empty_like(mask, dtype=data.dtype)
+        itermap = np.empty_like(mask, dtype=data.dtype)
 
         if mp_pool:
-            for j in range(input.shape[2]):
-                chunk = [(input[:, i, j, :], tilt_angle, 3, 0, grad_mode)
-                         for i in range(input.shape[1])]
+            for j in range(data.shape[2]):
+                chunk = [(data[:, i, j, :], tilt_angle, 3, 0, grad_mode)
+                         for i in range(data.shape[1])]
                 results = mp_pool.starmap(analysis.rofl.rofl, chunk)
 
                 for i, result in enumerate(results):
@@ -660,14 +661,14 @@ class __Simpli:
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = result
         else:
-            for i in range(input.shape[1]):
-                for j in range(input.shape[2]):
+            for i in range(data.shape[1]):
+                for j in range(data.shape[2]):
                     if not mask[i, j]:
                         continue
                     directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
                         i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
                             i, j], itermap[i, j] = analysis.rofl.rofl(
-                                input[:, i, j, :], tilt_angle, 3, 0, grad_mode)
+                                data[:, i, j, :], tilt_angle, 3, 0, grad_mode)
 
         return directionmap, inclmap, trelmap, (dirdevmap, incldevmap,
                                                 treldevmap, funcmap, itermap)

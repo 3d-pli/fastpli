@@ -3,6 +3,12 @@
 Solver Class
 """
 
+import platform
+import warnings
+import os
+
+import numpy as np
+
 from .__solver import _Solver
 
 from ... import io
@@ -11,10 +17,6 @@ from ... import tools
 from ... import __version__
 from ... import __compiler__
 from ... import __libraries__
-
-import numpy as np
-import warnings
-import os
 
 
 class Solver(_Solver):
@@ -61,7 +63,7 @@ class Solver(_Solver):
         """ Get all member variables which are properties """
         members = dict()
         for key, value in self.__dict__.items():
-            if key == '_cells_populations' or key == '_fiber_bundles':
+            if key in ('_cells_populations', '_fiber_bundles'):
                 continue
             if key.startswith('_') and not key.startswith(
                     '__') and not key.startswith('_Solver'):
@@ -71,9 +73,9 @@ class Solver(_Solver):
                     members[key[1:]] = value
         return members
 
-    def set_dict(self, input):
+    def set_dict(self, data):
         """ Set dictionary of variables to class members """
-        for key, value in input.items():
+        for key, value in data.items():
             if key.startswith('_'):
                 raise ValueError('member variable cant be set directly')
 
@@ -175,7 +177,6 @@ class Solver(_Solver):
             rot = [x,y,z] view Angle
         """
         if self.__display is None:
-            import platform
             if platform.system() == 'Darwin':
                 self.__display = display
             else:

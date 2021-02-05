@@ -93,13 +93,13 @@ def remap_spherical(phi, theta):
     return phi, theta
 
 
-def fiber_bundles(fiber_bundles):
+def fiber_bundles(fbs):
     """
     Calculates the orientation of all fiber segments and plots the result.
 
     Parameters
     ----------
-    fiber_bundles : [[(nx4)-array]]
+    fbs : [[(nx4)-array]]
         fiber_bundle object
 
     Returns
@@ -111,7 +111,7 @@ def fiber_bundles(fiber_bundles):
     gphi = []
     gtheta = []
 
-    for fb in fiber_bundles:
+    for fb in fbs:
         for f in fb:
             if f.shape[0] <= 1:
                 continue

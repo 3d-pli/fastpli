@@ -3,16 +3,16 @@
 Simpli CPU Class
 """
 
+import warnings
+
+import numpy as np
+
+from .__simpli import __Simpli
 from .__generation import _Generator
 from .__simulation import _Simulator
 
 from . import _mpi
 from .. import analysis
-
-import numpy as np
-import warnings
-
-from .__simpli import __Simpli
 
 
 class Simpli(__Simpli):
@@ -44,8 +44,7 @@ class Simpli(__Simpli):
 
     @interpolate.setter
     def interpolate(self, interpolate):
-        if interpolate != 'NN' and interpolate != 'Lerp' and \
-           interpolate != 'Slerp':
+        if interpolate not in ('NN', 'Lerp', 'Slerp'):
             raise ValueError('Only \'NN\', \'Lerp\' or \'Slerp\' are supported')
         self._interpolate = interpolate
 
@@ -145,7 +144,7 @@ class Simpli(__Simpli):
     def run_tissue_pipeline(self,
                             h5f=None,
                             script=None,
-                            save=['tissue', 'optical_axis']):
+                            save=('tissue', 'optical_axis')):
         """ Automatic pipeline for tissue generation with save options """
 
         self._print('Run tissue pipeline')
@@ -216,20 +215,20 @@ class Simpli(__Simpli):
         self.dim_origin[:2] -= self.crop_tilt_voxel() * self.voxel_size
         self.dim[:2] += 2 * self.crop_tilt_voxel()
 
-    def rm_crop_tilt_halo(self, input):
+    def rm_crop_tilt_halo(self, data):
         """ remove number of added boundary voxel from tilted images """
         self._print('rm crop-tilt-halo')
         delta_voxel = self.crop_tilt_voxel()
         if delta_voxel == 0:
-            return input
-        return input[delta_voxel:-delta_voxel, delta_voxel:-delta_voxel, :]
+            return data
+        return data[delta_voxel:-delta_voxel, delta_voxel:-delta_voxel, :]
 
     def run_simulation_pipeline(self,
                                 tissue,
                                 optical_axis,
                                 tissue_properties,
                                 h5f=None,
-                                save=['data', 'optic', 'epa', 'mask', 'rofl'],
+                                save=('data', 'optic', 'epa', 'mask', 'rofl'),
                                 crop_tilt=False,
                                 mp_pool=None):
         """
@@ -361,10 +360,8 @@ class Simpli(__Simpli):
     def run_pipeline(self,
                      h5f=None,
                      script=None,
-                     save=[
-                         'tissue', 'optical_axis', 'data', 'optic', 'epa',
-                         'mask', 'rofl'
-                     ],
+                     save=('tissue', 'optical_axis', 'data', 'optic', 'epa',
+                           'mask', 'rofl'),
                      crop_tilt=False,
                      mp_pool=None):
         """
@@ -453,8 +450,10 @@ class Simpli(__Simpli):
 
         if item == 'tissue':
             # tissue + distance_array
-            return np.prod(self._dim) * (32 + 32) / 8 / div
+            usage = np.prod(self._dim) * (32 + 32) / 8 / div
         elif item == 'all':
-            return np.prod(self._dim) * (32 + 32 + 3 * 32) / 8 / div
+            usage = np.prod(self._dim) * (32 + 32 + 3 * 32) / 8 / div
         else:
             raise ValueError('allowed is only \'tissue\' or \'all\'')
+
+        return usage

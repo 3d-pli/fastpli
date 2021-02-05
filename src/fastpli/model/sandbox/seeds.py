@@ -56,7 +56,7 @@ def triangular_grid(a, b, spacing, center=False, sort=True, endpoint=True):
     return np.ascontiguousarray(grid.T)
 
 
-def triangular_circle(radius, spacing, center=[0, 0], radii=0):
+def triangular_circle(radius, spacing, center=(0, 0), radii=0):
     """
     Generated 2d triangular grid inside a circle.
 
@@ -119,7 +119,7 @@ def crop_rectangle(a, b, seeds, radii=0):
                                 np.all(seeds + radii.T <= b, 1))]
 
 
-def crop_circle(radius, seeds, center=[0, 0], radii=0):
+def crop_circle(radius, seeds, center=(0, 0), radii=0):
     """
     Crops a sequence of 2-dim points inside a circle.
 
