@@ -144,6 +144,7 @@ clean-docs:
 clean-venv:
 	@echo cleaning ${VENV}
 	@rm -rf ${VENV}
+	@rm -rf env-CI
 
 .PHONY: clean-src
 clean-src:
