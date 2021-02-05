@@ -158,11 +158,11 @@ def save_dat(file, fiber_bundles):
                 raise TypeError('Wrong shape:', fiber.shape)
             for line in fiber:
                 file.write(
-                    str(line[0]) + " " + str(line[1]) + " " + str(line[2]) +
-                    " " + str(line[3]) + "\n")
-            file.write("\n")
+                    str(line[0]) + ' ' + str(line[1]) + ' ' + str(line[2]) +
+                    ' ' + str(line[3]) + '\n')
+            file.write('\n')
         if fb != len(fiber_bundles) - 1:
-            file.write("\n")
+            file.write('\n')
 
 
 def save_h5(h5f, fiber_bundles):

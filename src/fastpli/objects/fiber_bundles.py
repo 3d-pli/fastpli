@@ -28,21 +28,21 @@ def cast(fiber_bundles):
         return fiber_bundles
 
     if not isinstance(fiber_bundles, (list, tuple)):
-        raise TypeError("fiber_bundles is not a list")
+        raise TypeError('fiber_bundles is not a list')
 
     for fb_i, fb in enumerate(fiber_bundles):
         if not isinstance(fb, (list, tuple)):
-            raise TypeError("fiber_bundle is not a list")
+            raise TypeError('fiber_bundle is not a list')
 
         for f_i, f in enumerate(fb):
             fiber_bundles[fb_i][f_i] = np.array(f, dtype=float)
 
             if fiber_bundles[fb_i][f_i].ndim != 2 or fiber_bundles[fb_i][
                     f_i].shape[1] != 4:
-                raise TypeError("fiber elements has to be of shape nx4")
+                raise TypeError('fiber elements has to be of shape nx4')
 
             if not np.all(np.isfinite(fiber_bundles[fb_i][f_i])):
-                raise ValueError("fiber element is not finite")
+                raise ValueError('fiber element is not finite')
 
     return fiber_bundles
 

@@ -25,7 +25,7 @@ class __Simpli:
 
     def __setattr__(self, key, value):
         if self.__is_frozen and not hasattr(self, key):
-            raise TypeError(f"{self.__class__.__name__} is a frozen class")
+            raise TypeError(f'{self.__class__.__name__} is a frozen class')
         object.__setattr__(self, key, value)
 
     def __freeze(self):
@@ -47,7 +47,7 @@ class __Simpli:
         # SIMULATION
         self._filter_rotations = None
         self._flip_z_beam = False
-        self._interpolate = "Slerp"
+        self._interpolate = 'Slerp'
         self._light_intensity = None
         self._pixel_size = None
         self._optical_sigma = None
@@ -74,8 +74,8 @@ class __Simpli:
         for key, value in self.__dict__.items():
             if key == '_cells_populations' or key == '_fiber_bundles':
                 continue
-            if key.startswith("_") and not key.startswith(
-                    "__") and not key.startswith("_Simpli"):
+            if key.startswith('_') and not key.startswith(
+                    '__') and not key.startswith('_Simpli'):
 
                 if isinstance(value, np.ndarray):
                     members[key[1:]] = value.tolist()
@@ -87,13 +87,13 @@ class __Simpli:
     def set_dict(self, input):
         """ Set dictionary of variables to class members """
         for key, value in input.items():
-            if key.startswith("_"):
-                raise ValueError("member variable cant be set directly")
+            if key.startswith('_'):
+                raise ValueError('member variable cant be set directly')
 
             if value is not None:
                 setattr(self, key, value)
             else:
-                warnings.warn("None value in dict detected")
+                warnings.warn('None value in dict detected')
 
     @property
     def dim(self):
@@ -104,11 +104,11 @@ class __Simpli:
     def dim(self, dim):
         dim = np.array(dim)
         if dim.dtype != int:
-            raise TypeError("dim is not np.array(int)")
+            raise TypeError('dim is not np.array(int)')
         if dim.size != 3:
-            raise TypeError("dim.size != 3")
+            raise TypeError('dim.size != 3')
         if dim.ndim != 1:
-            raise TypeError("dim.ndim != 1")
+            raise TypeError('dim.ndim != 1')
 
         self._dim = dim
 
@@ -129,7 +129,7 @@ class __Simpli:
     @voxel_size.setter
     def voxel_size(self, voxel_size):
         if voxel_size <= 0:
-            raise ValueError("voxel_size <= 0")
+            raise ValueError('voxel_size <= 0')
 
         flag = False
         if self._voxel_size is not None and self._dim is not None and \
@@ -141,7 +141,7 @@ class __Simpli:
 
         if flag and self._dim is not None and self._dim_origin is not None:
             self.set_voi(min, max)
-            self._print("voxel_size: recalculated dimensions")
+            self._print('voxel_size: recalculated dimensions')
 
     @property
     def pixel_size(self):
@@ -151,19 +151,19 @@ class __Simpli:
     @pixel_size.setter
     def pixel_size(self, pixel_size):
         if pixel_size <= 0:
-            raise ValueError("pixel_size <= 0")
+            raise ValueError('pixel_size <= 0')
         self._pixel_size = float(pixel_size)
 
     def get_voi(self):
         """ get volume of interest """
         if self._voxel_size is None:
-            raise ValueError("voxel_size is not set, voi can't be calculated")
+            raise ValueError('voxel_size is not set, voi can\'t be calculated')
 
         if self._dim is None:
-            raise ValueError("dim is not set, voi can't be calculated")
+            raise ValueError('dim is not set, voi can\'t be calculated')
 
         if self._dim_origin is None:
-            raise ValueError("dim_origin is not set, voi can't be calculated")
+            raise ValueError('dim_origin is not set, voi can\'t be calculated')
 
         voi = np.zeros((6,))
         voi[::2] = self._dim_origin
@@ -185,14 +185,14 @@ class __Simpli:
         max = np.array(max, dtype=float)
 
         if min.ndim != 1 or max.ndim != 1:
-            raise TypeError("min,max : ndim != 1")
+            raise TypeError('min,max : ndim != 1')
         if min.size != 3 or max.size != 3:
-            raise TypeError("min,max : size != 1")
+            raise TypeError('min,max : size != 1')
         if np.any(min >= max):
-            raise ValueError("min >= max")
+            raise ValueError('min >= max')
 
         if self._voxel_size is None:
-            raise TypeError("voxel_size is not set yet")
+            raise TypeError('voxel_size is not set yet')
 
         self._dim = np.array(np.round((max - min) / self._voxel_size),
                              dtype=int)
@@ -208,7 +208,7 @@ class __Simpli:
         filter_rotations = np.array(filter_rotations, dtype=float)
 
         if filter_rotations.size == 0 or filter_rotations.ndim != 1:
-            raise TypeError("filter_rotations : nx1")
+            raise TypeError('filter_rotations : nx1')
 
         self._filter_rotations = filter_rotations
 
@@ -231,13 +231,13 @@ class __Simpli:
     @tilts.setter
     def tilts(self, tilts):
         if not isinstance(tilts, (list, tuple, np.ndarray)):
-            raise TypeError("tilts is not a list or array")
+            raise TypeError('tilts is not a list or array')
 
         tilts = np.array(tilts, ndmin=2)
         if tilts.ndim != 2:
-            raise TypeError("tilts.shape != nx2")
+            raise TypeError('tilts.shape != nx2')
         if tilts.shape[-1] != 2:
-            raise TypeError("tilts.shape != nx2")
+            raise TypeError('tilts.shape != nx2')
 
         self._tilts = tilts
 
@@ -250,7 +250,7 @@ class __Simpli:
     def noise_model(self, noise_model):
 
         if not callable(noise_model):
-            raise TypeError("noise model is not callable")
+            raise TypeError('noise model is not callable')
 
         self._noise_model = noise_model
 
@@ -266,10 +266,10 @@ class __Simpli:
     def optical_sigma(self, optical_sigma):
 
         if not isinstance(optical_sigma, (int, float)):
-            raise TypeError("optical_sigma is not a number")
+            raise TypeError('optical_sigma is not a number')
 
         if optical_sigma < 0:
-            raise ValueError("optical_sigma is < 0")
+            raise ValueError('optical_sigma is < 0')
 
         self._optical_sigma = optical_sigma
 
@@ -355,26 +355,26 @@ class __Simpli:
             return
 
         if not isinstance(bundle_layer_properties, (list, tuple)):
-            raise TypeError("properties != list(list(tuples))")
+            raise TypeError('properties != list(list(tuples))')
 
         self._fiber_bundles_properties = []
         for prop in bundle_layer_properties:
             if not isinstance(prop, (list, tuple)):
-                raise TypeError("properties != list(list(tuples))")
+                raise TypeError('properties != list(list(tuples))')
 
             self._fiber_bundles_properties.append([])
 
             for ly in prop:
                 if len(ly) != 4:
-                    raise TypeError("layer != (float, float, float, char)")
+                    raise TypeError('layer != (float, float, float, char)')
 
                 if ly[1] < 0 and ly[-1] == 'r':
-                    warnings.warn("birefringence negative and radial")
+                    warnings.warn('birefringence negative and radial')
                 if ly[1] > 0 and ly[-1] == 'p':
-                    warnings.warn("birefringence positive and parallel")
+                    warnings.warn('birefringence positive and parallel')
                 if ly[1] != 0 and ly[-1] == 'b':
                     warnings.warn(
-                        "birefringence != 0 for background. Will be set to 0")
+                        'birefringence != 0 for background. Will be set to 0')
 
         self._fiber_bundles_properties = bundle_layer_properties
 
@@ -390,20 +390,20 @@ class __Simpli:
             return
 
         if not isinstance(cps, (list, tuple)):
-            raise TypeError("cells_populations != list")
+            raise TypeError('cells_populations != list')
 
         for cp_i, cp in enumerate(cps):
             if not isinstance(cp, (list, tuple)):
-                raise TypeError("cells_population != list")
+                raise TypeError('cells_population != list')
 
             for c_i, c in enumerate(cp):
                 cps[cp_i][c_i] = np.array(c, dtype=float)
 
                 if cps[cp_i][c_i].ndim != 2:
-                    raise TypeError("cell size need to be nx4")
+                    raise TypeError('cell size need to be nx4')
 
                 if cps[cp_i][c_i].shape[1] != 4:
-                    raise TypeError("cell size need to be nx4")
+                    raise TypeError('cell size need to be nx4')
 
         self._cells_populations = cps
 
@@ -422,16 +422,16 @@ class __Simpli:
             return
 
         if not isinstance(cells_populations_properties, (list, tuple)):
-            raise TypeError("properties must be a list")
+            raise TypeError('properties must be a list')
 
         self._cells_populations_properties = []
 
         for prop in cells_populations_properties:
             if not isinstance(prop, (list, tuple)):
-                raise TypeError("cell properties must be a list of 2 arguments")
+                raise TypeError('cell properties must be a list of 2 arguments')
 
             if len(prop) != 2:
-                raise TypeError("cell properties must be a list of 2 arguments")
+                raise TypeError('cell properties must be a list of 2 arguments')
 
         self._cells_populations_properties = cells_populations_properties
 
@@ -439,50 +439,50 @@ class __Simpli:
         if self._fiber_bundles:
             if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
                 raise TypeError(
-                    "len(fiber_bundles) != len(fiber_bundles_properties)\n\
-                        For each fiber_bundle there hast to be a [(prop), ...]")
+                    'len(fiber_bundles) != len(fiber_bundles_properties)\n\
+                        For each fiber_bundle there hast to be a [(prop), ...]')
 
         if self._cells_populations:
             if len(self._cells_populations) != len(
                     self._cells_populations_properties):
-                raise TypeError("len(cell_populations) != len(cell_properties)")
+                raise TypeError('len(cell_populations) != len(cell_properties)')
 
     def _check_volume_input(self):
         if self._dim is None:
-            raise ValueError("dim not set")
+            raise ValueError('dim not set')
 
         if self._dim_origin is None:
-            raise ValueError("dim_origin not set")
+            raise ValueError('dim_origin not set')
 
         if self._voxel_size is None:
-            raise ValueError("voxel_size not set")
+            raise ValueError('voxel_size not set')
 
         self.get_voi()
 
     def _check_generation_input(self):
         if not self._fiber_bundles and not self._cells_populations:
-            raise ValueError("fiber_bundles and cells_populations are not set")
+            raise ValueError('fiber_bundles and cells_populations are not set')
         self._check_property_length()
 
     def _check_simulation_input(self):
         if self._step_size <= 0:
-            raise ValueError("step_size <= 0")
+            raise ValueError('step_size <= 0')
 
         if self._light_intensity is None:
-            raise ValueError("light_intensity not set")
+            raise ValueError('light_intensity not set')
 
         if self._voxel_size is None:
-            raise ValueError("voxel_size not set")
+            raise ValueError('voxel_size not set')
 
         if self._wavelength is None:
-            raise ValueError("wavelength not set")
+            raise ValueError('wavelength not set')
 
         if self._filter_rotations is None:
-            raise ValueError("filter_rotations not set")
+            raise ValueError('filter_rotations not set')
 
     def save_parameter_h5(self, h5f, script=None):
         """ Saves class members without fiber_bundles in hdf5 file. """
-        self._print("Save fastpli parameter")
+        self._print('Save fastpli parameter')
         h5f.attrs['fastpli/simpli'] = str(self.get_dict())
         h5f.attrs['fastpli/version'] = __version__
         h5f.attrs['fastpli/compiler'] = __compiler__
@@ -497,14 +497,14 @@ class __Simpli:
         input: np.array(x,y(,rho))
         """
 
-        self._print("Apply optic")
+        self._print('Apply optic')
         if self._noise_model is None:
-            raise ValueError("noise_model not set")
+            raise ValueError('noise_model not set')
 
         resampled = self.apply_optic_resample(input, mp_pool=mp_pool)
 
         if np.amin(resampled) < 0:
-            raise AssertionError("intensity < 0 detected")
+            raise AssertionError('intensity < 0 detected')
 
         noisy = optic.add_noise(resampled, self._noise_model)
 
@@ -515,23 +515,23 @@ class __Simpli:
         input: np.array(x,y(,rho))
         """
 
-        self._print("Apply optic resample")
+        self._print('Apply optic resample')
         if self._optical_sigma is None:
-            raise ValueError("optical_sigma is None")
+            raise ValueError('optical_sigma is None')
 
         if self._voxel_size is None:
-            raise ValueError("voxel_size not set")
+            raise ValueError('voxel_size not set')
 
         if self._pixel_size is None:
-            raise ValueError("pixel_size not set")
+            raise ValueError('pixel_size not set')
 
         input = np.atleast_3d(np.array(input))
         if input.ndim > 3:
-            raise TypeError("input can be 1d, 2d or 3d")
+            raise TypeError('input can be 1d, 2d or 3d')
 
         shift = np.array(shift, int)
         if shift.size != 2 or shift.ndim != 1:
-            raise TypeError("shift has to be (x,y)")
+            raise TypeError('shift has to be (x,y)')
 
         if shift[0] > 0 and shift[1] > 0:
             input = input[shift[0]:, shift[1]:, ...]
@@ -540,10 +540,10 @@ class __Simpli:
         size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
 
         if np.amin(size) == 0:
-            raise ValueError(f"voxel_size {self._voxel_size}, " +
-                             f"pixel_size {self._pixel_size} " +
-                             f"and input shape {input.shape[0:2]} " +
-                             f"result in optical image size of {size}")
+            raise ValueError(f'voxel_size {self._voxel_size}, ' +
+                             f'pixel_size {self._pixel_size} ' +
+                             f'and input shape {input.shape[0:2]} ' +
+                             f'result in optical image size of {size}')
 
         output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
 
@@ -573,7 +573,7 @@ class __Simpli:
         if theta == 0:
             return input
 
-        self._print("Apply untilt")
+        self._print('Apply untilt')
         # calculate transformation matrix
         p = self._dim.copy()
         p_rot = 0.5 * np.array([p[0], p[1], 0])
@@ -598,7 +598,7 @@ class __Simpli:
         input = np.array(x,y,rho)
         """
 
-        self._print("Apply epa")
+        self._print('Apply epa')
         transmittance, direction, retardation = analysis.epa.epa(input)
         if mask is not None:
             transmittance[np.invert(mask)] = float('nan')
@@ -613,27 +613,27 @@ class __Simpli:
         input = np.array(tilt,x,y,rho)
         """
 
-        self._print("Apply rofl")
+        self._print('Apply rofl')
         if self._tilts is None:
-            raise ValueError("tilts not set")
+            raise ValueError('tilts not set')
 
         if np.any(self._tilts[:, 1] != np.deg2rad([0, 0, 90, 180, 270])
                  ) or self._tilts[0, 0] != 0 or np.any(
                      self._tilts[1:, 0] != self._tilts[1, 0]):
-            raise ValueError("tilts not suitable for ROFL")
+            raise ValueError('tilts not suitable for ROFL')
 
         tilt_angle = self._tilts[1, 0]
 
         input = np.array(input, copy=False)
 
         if input.ndim != 4:
-            raise TypeError("input: np.array([tilts,x,y,stack])")
+            raise TypeError('input: np.array([tilts,x,y,stack])')
 
         if input.shape[0] != 5:
-            raise ValueError("input need 1 + 4 measurements")
+            raise ValueError('input need 1 + 4 measurements')
 
         if input.shape[-1] <= 3:
-            raise ValueError("input needs at least 3 equidistant rotations")
+            raise ValueError('input needs at least 3 equidistant rotations')
 
         if mask is None:
             mask = np.ones((input.shape[1], input.shape[2]), bool)

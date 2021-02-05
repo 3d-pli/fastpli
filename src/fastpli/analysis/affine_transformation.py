@@ -74,11 +74,11 @@ def calc_matrix(p_in, p_out):
     p_out = np.array(p_out)
 
     if not np.all(np.equal(np.array(p_in.shape), np.array(p_out.shape))):
-        raise TypeError("in and out not the same shape")
+        raise TypeError('in and out not the same shape')
 
     if not np.all(np.equal(np.array(p_in.shape), np.array([3, 2]))):
         print(p_in.shape)
-        raise TypeError("shape error: input required [3x2], [3x2]")
+        raise TypeError('shape error: input required [3x2], [3x2]')
 
     L = p_in.shape[0]
     B = np.vstack([np.transpose(p_in), np.ones(L)])
@@ -121,7 +121,7 @@ def image(image, M, mode='nearest'):
     M : float
         affine transformation matrix
     mode : str
-        "nearest", "linear", "cubic" interpolation mode
+        'nearest', 'linear', 'cubic' interpolation mode
 
     Returns
     -------
@@ -135,6 +135,6 @@ def image(image, M, mode='nearest'):
         new_image = _interpolate_griddata(image, M, mode)
 
     else:
-        raise ValueError(f"mode \"{mode}\" does not exist")
+        raise ValueError(f'mode \'{mode}\' does not exist')
 
     return np.squeeze(new_image)

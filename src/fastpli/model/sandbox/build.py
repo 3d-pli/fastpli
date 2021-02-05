@@ -89,7 +89,7 @@ def bundle(traj, seeds, radii, scale=1):
         raise ValueError('traj size is to small')
 
     if seeds.ndim != 2 or seeds.shape[1] != 2:
-        raise ValueError("seeds : (mx2)-array")
+        raise ValueError('seeds : (mx2)-array')
     seeds = np.insert(seeds, 2, 0, axis=1)
 
     if radii.size == 1:
@@ -134,7 +134,7 @@ def _cylinder_parallel(p, q, seeds, r_in, r_out, alpha, beta):
     seeds = np.dot(rot, seeds.T).T
 
     if seeds.size == 0:
-        print("WARNING: cropped area is empty")
+        print('WARNING: cropped area is empty')
 
     fiber_bundle = []
     f = np.empty((2, 3), dtype=seeds.dtype)
@@ -159,7 +159,7 @@ def _cylinder_circular(p, q, seeds, r_in, r_out, alpha, beta, steps):
     seeds = seeds[seeds[:, 1] <= height]
 
     if seeds.size == 0:
-        print("WARNING: cropped area is empty")
+        print('WARNING: cropped area is empty')
 
     # seeds are along x-z
     xz_seeds = np.empty_like(seeds)
@@ -205,7 +205,7 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     seeds = seeds[seeds[:, 1] <= height]
 
     if seeds.size == 0:
-        print("WARNING: cropped area is empty")
+        print('WARNING: cropped area is empty')
 
     fiber_bundle = []
     # map seeds onto inner z-cylinder wall and extend to outer wall
@@ -282,7 +282,7 @@ def cylinder(p,
     alpha, beta : float
         fibers are between alpha end beta inside cylinder
     mode : char or string
-        \"p\", \"parallel\", \"c\", \"circular\", \"r\", \"radial\"
+        \'p\', \'parallel\', \'c\', \'circular\', \'r\', \'radial\'
     steps : int
         steps along fibers in circular mode
 
@@ -306,7 +306,7 @@ def cylinder(p,
         return np.array([])
 
     if seeds.ndim != 2 or seeds.shape[1] != 2:
-        raise ValueError("seeds : (nx2)-array")
+        raise ValueError('seeds : (nx2)-array')
     seeds = np.insert(seeds, 2, 0, axis=1)
 
     if radii.ndim != 1:
@@ -328,7 +328,7 @@ def cylinder(p,
         fiber_bundle = _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta)
 
     else:
-        raise ValueError('mode has to be "parallel" or "radial"')
+        raise ValueError('mode has to be \'parallel\' or \'radial\'')
 
     add_radii(fiber_bundle, radii)
 
@@ -350,7 +350,7 @@ def _cuboid(min, max, dir, seeds, radii):
     fiber_bundle = []
 
     if np.all(dir == 0):
-        raise ValueError("direction is 0-vector")
+        raise ValueError('direction is 0-vector')
 
     # convert 0 to nan for division in _ray_box_intersection
     dir_ = dir.copy()
@@ -410,19 +410,19 @@ def cuboid(p, q, phi, theta, seeds, radii):
     radii = np.array(radii, ndmin=1)
 
     if p.ndim != 1 or q.ndim != 1:
-        raise ValueError("p.ndim, q.ndim = 1")
+        raise ValueError('p.ndim, q.ndim = 1')
     if p.size != 3 or q.size != 3:
-        raise ValueError("p.size, q.size != 3")
+        raise ValueError('p.size, q.size != 3')
 
     if seeds.ndim != 2 or seeds.shape[1] != 2:
-        raise ValueError("seeds : (nx2)-ndarray")
+        raise ValueError('seeds : (nx2)-ndarray')
     seeds = np.insert(seeds, 2, 0, axis=1)
 
     if radii.shape[0] == 1:
         radii = np.ones(seeds.shape[0], radii.dtype) * radii
 
     if seeds.shape[0] != radii.shape[0]:
-        raise ValueError("seeds.shape[1] != radii.shape[0]")
+        raise ValueError('seeds.shape[1] != radii.shape[0]')
 
     p = np.min(np.vstack((p, q)), axis=0)
     q = np.max(np.vstack((p, q)), axis=0)

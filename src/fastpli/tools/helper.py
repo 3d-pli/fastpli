@@ -13,7 +13,7 @@ def pip_freeze():
         from pip._internal.operations import freeze
     except ImportError:
         from pip.operations import freeze
-    return "\n".join(freeze.freeze())
+    return '\n'.join(freeze.freeze())
 
 
 def version_file_name(file_name):
@@ -24,7 +24,7 @@ def version_file_name(file_name):
 
     def in_list(i, files):
         for f in files:
-            if file_name + f".v{i}" in f:
+            if file_name + f'.v{i}' in f:
                 return True
         return False
 
@@ -32,7 +32,7 @@ def version_file_name(file_name):
     while in_list(i, files):
         i += 1
 
-    return os.path.join(file_path, file_name + f".v{i}")
+    return os.path.join(file_path, file_name + f'.v{i}')
 
 
 def version_path(path, name):
@@ -43,7 +43,7 @@ def version_path(path, name):
 
     def in_list(i, name):
         for f in folders:
-            if name + f".v{i}" in f:
+            if name + f'.v{i}' in f:
                 return True
         return False
 
@@ -51,4 +51,4 @@ def version_path(path, name):
     while in_list(i, name):
         i += 1
 
-    return os.path.join(path, name + f".v{i}")
+    return os.path.join(path, name + f'.v{i}')

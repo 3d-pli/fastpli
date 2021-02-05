@@ -36,7 +36,7 @@ class Solver(_Solver):
 
     def __setattr__(self, key, value):
         if self.__is_frozen and not hasattr(self, key):
-            raise TypeError("%r is a frozen class" % self)
+            raise TypeError('%r is a frozen class' % self)
         object.__setattr__(self, key, value)
 
     def __freeze(self):
@@ -63,8 +63,8 @@ class Solver(_Solver):
         for key, value in self.__dict__.items():
             if key == '_cells_populations' or key == '_fiber_bundles':
                 continue
-            if key.startswith("_") and not key.startswith(
-                    "__") and not key.startswith("_Solver"):
+            if key.startswith('_') and not key.startswith(
+                    '__') and not key.startswith('_Solver'):
                 if isinstance(value, np.ndarray):
                     members[key[1:]] = value.tolist()
                 else:
@@ -74,13 +74,13 @@ class Solver(_Solver):
     def set_dict(self, input):
         """ Set dictionary of variables to class members """
         for key, value in input.items():
-            if key.startswith("_"):
-                raise ValueError("member variable cant be set directly")
+            if key.startswith('_'):
+                raise ValueError('member variable cant be set directly')
 
             if value is not None:
                 setattr(self, key, value)
             else:
-                warnings.warn("None value in dict detected")
+                warnings.warn('None value in dict detected')
 
     @property
     def fiber_bundles(self):
@@ -143,7 +143,7 @@ class Solver(_Solver):
     def col_voi(self, voi):
         # TODO:
         if not isinstance(voi, tuple):
-            raise TypeError("col_voi := (min, max)")
+            raise TypeError('col_voi := (min, max)')
         self._col_voi = voi
         super()._set_col_voi(self._col_voi[0], self._col_voi[1])
 
@@ -176,17 +176,17 @@ class Solver(_Solver):
         """
         if self.__display is None:
             import platform
-            if platform.system() == "Darwin":
+            if platform.system() == 'Darwin':
                 self.__display = display
             else:
-                if "DISPLAY" in os.environ:
+                if 'DISPLAY' in os.environ:
                     if os.environ['DISPLAY']:
                         self.__display = display
                     else:
-                        warnings.warn("test_opengl: DISPLAY variable empty")
+                        warnings.warn('test_opengl: DISPLAY variable empty')
                         self.__display = False
                 else:
-                    warnings.warn("test_opengl: no DISPLAY variable detected")
+                    warnings.warn('test_opengl: no DISPLAY variable detected')
                     self.__display = False
 
         if self.__display:
@@ -205,7 +205,7 @@ class Solver(_Solver):
         [[(nx4)-arrays]]: fiber bundles
         """
         if not isinstance(n_max, int) or n_max <= 0:
-            raise TypeError("only integer > 0 allowed")
+            raise TypeError('only integer > 0 allowed')
 
         super().apply_boundary_conditions(n_max)
 
@@ -232,7 +232,7 @@ class Solver(_Solver):
         self.set_dict(dict(eval(str(h5f.attrs['fastpli/solver']))))
 
         if h5f.attrs['fastpli/version'] != __version__:
-            warnings.warn("__version__ changed")
+            warnings.warn('__version__ changed')
 
         if h5f.attrs['fastpli/pip_freeze'] != tools.helper.pip_freeze():
-            warnings.warn("pip_freeze changed")
+            warnings.warn('pip_freeze changed')

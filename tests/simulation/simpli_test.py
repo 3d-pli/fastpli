@@ -8,7 +8,7 @@ import os
 
 from fastpli.simulation import Simpli
 
-TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test.")
+TMP_FILE = os.path.join(os.path.dirname(__file__), 'tmp.fastpli.test.')
 
 
 class MainTest(unittest.TestCase):
@@ -54,7 +54,7 @@ class MainTest(unittest.TestCase):
                                             dtype=int)))
 
     def test_set_get_voi(self):
-        with self.assertRaisesRegex(TypeError, "voxel_size is not set yet"):
+        with self.assertRaisesRegex(TypeError, 'voxel_size is not set yet'):
             self.simpli.set_voi([0, 0, 0], [12, 12, 12])
 
         # TODO:
@@ -111,7 +111,7 @@ class MainTest(unittest.TestCase):
                         optical_axis[i, j, 0, :],
                         [np.cos(phi), np.sin(phi), 0],
                         decimal=np.finfo(optical_axis.dtype).precision,
-                        err_msg=f"x:{x}, y:{y}, i:{i},j:{j}")
+                        err_msg=f'x:{x}, y:{y}, i:{i},j:{j}')
 
     def test_tissue_parallel(self):
         self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
@@ -149,7 +149,7 @@ class MainTest(unittest.TestCase):
                     np.testing.assert_array_almost_equal(
                         optical_axis[i, j, 0, :], [0, 0, 1],
                         decimal=np.finfo(optical_axis.dtype).precision,
-                        err_msg=f"x:{x}, y:{y}, i:{i},j:{j}")
+                        err_msg=f'x:{x}, y:{y}, i:{i},j:{j}')
 
     def test_tissue_layered(self):
         self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
@@ -191,7 +191,7 @@ class MainTest(unittest.TestCase):
                         np.testing.assert_array_almost_equal(
                             optical_axis[i, j, 0, :], [0, 0, 1],
                             decimal=np.finfo(optical_axis.dtype).precision,
-                            err_msg=f"x:{x}, y:{y}, i:{i},j:{j}")
+                            err_msg=f'x:{x}, y:{y}, i:{i},j:{j}')
                     elif np.sqrt(rr) < 0.6 * r:
                         self.assertTrue(tissue[i, j, 0] == 2)
                         self.assertTrue(
@@ -203,7 +203,7 @@ class MainTest(unittest.TestCase):
                             optical_axis[i, j, 0, :],
                             [np.cos(phi), np.sin(phi), 0],
                             decimal=np.finfo(optical_axis.dtype).precision,
-                            err_msg=f"x:{x}, y:{y}, i:{i},j:{j}")
+                            err_msg=f'x:{x}, y:{y}, i:{i},j:{j}')
                 else:
                     self.assertTrue(tissue[i, j, 0] == t)
 
@@ -307,21 +307,21 @@ class MainTest(unittest.TestCase):
         self.simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
                                         (5.5, 270)])
 
-        self.simpli.run_pipeline(save=["tissue", "optical_axis"])
+        self.simpli.run_pipeline(save=['tissue', 'optical_axis'])
 
         with h5py.File(os.path.join(TMP_FILE + 'fastpli.test.h5'), 'w') as h5f:
             with open(os.path.abspath(__file__), 'r') as script:
                 self.simpli.run_pipeline(h5f=h5f,
                                          script=script.read(),
-                                         save=["tissue", "optical_axis"])
+                                         save=['tissue', 'optical_axis'])
 
         self.addCleanup(os.remove, os.path.join(TMP_FILE + 'fastpli.test.h5'))
 
     def test_rofl(self):
-        with self.assertRaisesRegex(ValueError, "tilts not set"):
+        with self.assertRaisesRegex(ValueError, 'tilts not set'):
             self.simpli.apply_rofl(0)
 
-        with self.assertRaisesRegex(ValueError, "tilts not suitable for ROFL"):
+        with self.assertRaisesRegex(ValueError, 'tilts not suitable for ROFL'):
             self.simpli.tilts = [0, 1]
             self.simpli.apply_rofl(0)
 
@@ -390,25 +390,25 @@ class MainTest(unittest.TestCase):
         FILE_PATH = os.path.dirname(FILE_NAME)
         subprocess.run(
             [sys.executable,
-             os.path.join(FILE_PATH, "simpli_rep.py")],
+             os.path.join(FILE_PATH, 'simpli_rep.py')],
             stdout=subprocess.DEVNULL,
             check=True)
         result = subprocess.run([
-            "h5diff",
-            "--relative=0.00001",  # some have 32bit
-            os.path.join(FILE_PATH, "simpli_rep.h5"),
+            'h5diff',
+            '--relative=0.00001',  # some have 32bit
+            os.path.join(FILE_PATH, 'simpli_rep.h5'),
             os.path.join(TMP_FILE + 'simpli_rep.h5')
         ]).returncode == 0
         if not result:
             subprocess.run([
-                "h5diff", "--relative=0.00001", "-r",
-                os.path.join(FILE_PATH, "simpli_rep.h5"),
+                'h5diff', '--relative=0.00001', '-r',
+                os.path.join(FILE_PATH, 'simpli_rep.h5'),
                 os.path.join(TMP_FILE + 'simpli_rep.h5')
             ])
         self.assertTrue(result)
 
         self.addCleanup(os.remove,
-                        os.path.join(os.path.join(TMP_FILE + "simpli_rep.h5")))
+                        os.path.join(os.path.join(TMP_FILE + 'simpli_rep.h5')))
 
 
 if __name__ == '__main__':

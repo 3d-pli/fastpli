@@ -63,7 +63,7 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
     # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000  # a.u.
-    simpli.interpolate = "Slerp"
+    simpli.interpolate = 'Slerp'
     # simpli.untilt_sensor_view = True
     simpli.wavelength = 525  # in nm
     simpli.pixel_size = 20  # in micro meter

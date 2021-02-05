@@ -37,16 +37,16 @@ def rofl(data,
     data = np.array(data, copy=False)
 
     if data.ndim != 2:
-        raise TypeError("data: np.array([tilts,stack])")
+        raise TypeError('data: np.array([tilts,stack])')
 
     if data.shape[0] != 5:
-        raise ValueError("data need 1 + 4 measurements")
+        raise ValueError('data need 1 + 4 measurements')
 
     if data.shape[1] <= 3:
-        raise ValueError("data needs at least 3 equidistant rotations")
+        raise ValueError('data needs at least 3 equidistant rotations')
 
     if gain <= 1:
-        raise ValueError("rofl gain <= 1")
+        raise ValueError('rofl gain <= 1')
 
     direction = epa.direction(data[0, :])
 

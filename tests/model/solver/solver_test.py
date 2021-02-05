@@ -5,7 +5,7 @@ import os
 
 import fastpli.model.solver
 
-TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test")
+TMP_FILE = os.path.join(os.path.dirname(__file__), 'tmp.fastpli.test')
 
 
 class MainTest(unittest.TestCase):

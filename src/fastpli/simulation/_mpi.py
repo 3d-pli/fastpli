@@ -7,7 +7,7 @@ class _MPI:
 
     def __setattr__(self, key, value):
         if self.__is_frozen and not hasattr(self, key):
-            raise TypeError(f"{self.__class__.__name__} is a frozen class")
+            raise TypeError(f'{self.__class__.__name__} is a frozen class')
         object.__setattr__(self, key, value)
 
     def __freeze(self):
@@ -118,4 +118,4 @@ class _MPI:
                      self._gen_dim_local[2], :] = input
 
         else:
-            raise TypeError("no compatible save_mpi_array_as_h5: " + data_name)
+            raise TypeError('no compatible save_mpi_array_as_h5: ' + data_name)

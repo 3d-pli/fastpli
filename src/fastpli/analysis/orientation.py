@@ -134,7 +134,7 @@ def histogram(phi,
               n_theta=50,
               weight_area=False,
               fun=lambda x: x,
-              cmap="viridis"):
+              cmap='viridis'):
     """
     Plot the Orientation angles in a histogram
 
@@ -166,7 +166,7 @@ def histogram(phi,
     Examples
     --------
     >>> # counts
-    >>> _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
+    >>> _, ax = plt.subplots(subplot_kw=dict(projection='polar'))
     >>> _, _, _, pc = histogram(phi,
                                 theta,
                                 ax=ax,
@@ -182,7 +182,7 @@ def histogram(phi,
     >>> ax.grid(True)
 
     >>> # density
-    >>> _, ax = plt.subplots(subplot_kw=dict(projection="polar"))
+    >>> _, ax = plt.subplots(subplot_kw=dict(projection='polar'))
     >>> phi = np.random.normal(np.pi / 3, 0.5, 1000)
     >>> theta = np.random.normal(np.deg2rad(45), 0.5, 1000)
 

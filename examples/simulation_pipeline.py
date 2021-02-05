@@ -36,7 +36,7 @@ simpli.fiber_bundles_properties = [[(1.0, -0.001, 10, 'p')]]
 # define pli setup
 simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])  # in deg
 simpli.light_intensity = 26000  # a.u.
-simpli.interpolate = "Slerp"
+simpli.interpolate = 'Slerp'
 simpli.wavelength = 525  # in nm
 simpli.pixel_size = 10  # in micro meter
 simpli.tilts = np.deg2rad(

@@ -13,7 +13,7 @@ FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 
-TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test.")
+TMP_FILE = os.path.join(os.path.dirname(__file__), 'tmp.fastpli.test.')
 
 with h5py.File(TMP_FILE + 'simpli_rep.h5', 'w') as h5f:
     # save script
@@ -54,7 +54,7 @@ with h5py.File(TMP_FILE + 'simpli_rep.h5', 'w') as h5f:
     # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000  # a.u.
-    simpli.interpolate = "Slerp"
+    simpli.interpolate = 'Slerp'
     simpli.wavelength = 525  # in nm
     simpli.pixel_size = 20  # in micro meter
     simpli.optical_sigma = 0.71  # in pixel size

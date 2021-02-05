@@ -43,7 +43,7 @@ for p, t in zip(phi, theta):
 
 phi, theta = fastpli.analysis.orientation.fiber_bundles(fiber_bundles)
 
-_, ax = plt.subplots(subplot_kw=dict(projection="polar"))
+_, ax = plt.subplots(subplot_kw=dict(projection='polar'))
 _, _, _, pc = fastpli.analysis.orientation.histogram(phi,
                                                      theta,
                                                      ax=ax,

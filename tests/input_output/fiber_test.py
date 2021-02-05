@@ -6,7 +6,7 @@ import os
 from fastpli.io import fiber_bundles
 from fastpli.model.solver import Solver
 
-TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test.")
+TMP_FILE = os.path.join(os.path.dirname(__file__), 'tmp.fastpli.test.')
 
 
 class MainTest(unittest.TestCase):

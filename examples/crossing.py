@@ -124,7 +124,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad(np.linspace(0, 180, 9, endpoint=False))
     simpli.light_intensity = 26000  # a.u.
-    simpli.interpolate = "Slerp"
+    simpli.interpolate = 'Slerp'
     simpli.wavelength = 525  # in nm
     simpli.pixel_size = 20  # in micro meter
     simpli.optical_sigma = 0.71  # in pixel size
@@ -195,7 +195,7 @@ print('You can look at the data e.g. with Fiji and the hdf5 plugin')
 
 # Plot
 print('Plotting input and output orientations')
-fig, axs = plt.subplots(1, 2, subplot_kw=dict(projection="polar"))
+fig, axs = plt.subplots(1, 2, subplot_kw=dict(projection='polar'))
 fbs_phi, fbs_theta = fastpli.analysis.orientation.fiber_bundles(
     solver.fiber_bundles)
 

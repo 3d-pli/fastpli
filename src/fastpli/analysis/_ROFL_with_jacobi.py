@@ -546,10 +546,10 @@ def _execute_fit(phi_start,
                 maxfev=150)
 
         # extract value of the cost function
-        fvalue = np.sum(np.square(info["fvec"]))
+        fvalue = np.sum(np.square(info['fvec']))
 
         # extract number of iterations of the optimizer
-        niter = info["nfev"]
+        niter = info['nfev']
 
         # calculate confidence intervals
         # symmetrize angles back into PLI coordinate space
