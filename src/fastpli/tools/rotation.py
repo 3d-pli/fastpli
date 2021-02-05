@@ -37,24 +37,9 @@ def zyz(alpha, beta, gamma):
     return np.dot(z(alpha), np.dot(y(beta), z(gamma)))
 
 
-def phi(phi):
-    """ 3d rotation around z-axis: float -> (3,3)-array """
-    return z(phi)
-
-
-def theta(theta):
-    """ 3d rotation around y-axis: float -> (3,3)-array """
-    return y(theta)
-
-
-def theta_phi(theta_, phi_):
+def zymz(theta, phi):
     """ 3d rotation around (theta,phi)-axis: float, float -> (3,3)-array """
-    return np.dot(phi(phi_), np.dot(theta(theta_), phi(-phi_)))
-
-
-def euler(psi, theta_, phi_):
-    """ 3d rotation with euler angles: float, float, float -> (3,3)-array """
-    return np.dot(phi(psi), np.dot(theta(theta_), phi(phi_)))
+    return np.dot(z(phi), np.dot(y(theta), z(-phi)))
 
 
 def a_on_b(a, b):

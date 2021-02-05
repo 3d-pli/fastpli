@@ -578,7 +578,7 @@ class __Simpli:
         p = self._dim.copy()
         p_rot = 0.5 * np.array([p[0], p[1], 0])
         p_out = np.array([[p[0], p[1], 0], [p[0], 0, 0], [0, p[1], 0]])
-        rot = tools.rotation.theta_phi(-theta, phi)
+        rot = tools.rotation.zymz(-theta, phi)
 
         p_in = np.array([np.dot(rot, p - p_rot) + p_rot for p in p_out])
 
