@@ -44,8 +44,6 @@ plt.scatter(circ_seeds[:, 0], circ_seeds[:, 1])
 t = np.linspace(0, 2 * np.pi, 100)
 plt.plot(np.cos(t) * 21, np.sin(t) * 21)
 ax.set_aspect('equal', 'box')
-# plt.axis('equal')
-# plt.tight_layout()
 
 # define a fiber bundle trajectory
 t = np.linspace(0, 2 * np.pi, 50, True)
