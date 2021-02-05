@@ -462,6 +462,7 @@ def _execute_fit(phi_start, number_inclination_steps, number_t_rel_steps,
     else:  # local
 
         # find start point via brute force minimization
+        # maybe speedup: fix startpoint = (phi, 0, 0.2),
         startpoints = _brute_force_grid(phi_start, number_inclination_steps,
                                         number_t_rel_steps, number_rotations,
                                         number_tilt_steps, rotation_matrices,
