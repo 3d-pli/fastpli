@@ -110,6 +110,18 @@ h5py-mpi: h5py-clean
 h5py-clean:
 	${VENV}/bin/pip3 uninstall h5py -y
 
+.PHONY: docker
+docker:
+	./CI/run-docker.sh
+
+.PHONY: format
+format:
+	find ./src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' | xargs ${CLANG-FORMAT} -i
+	${VENV}/bin/yapf -i -r -p src
+	${VENV}/bin/yapf -i -r -p tests
+	${VENV}/bin/yapf -i -r -p examples
+	${VENV}/bin/flake8
+
 .PHONY: clean-all
 clean-all: uninstall clean-build clean-src clean-docs clean-venv
 
