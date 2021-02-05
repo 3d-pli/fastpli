@@ -12,4 +12,5 @@ ENV HDF5_DIR /usr/lib/x86_64-linux-gnu/hdf5/openmpi
 
 WORKDIR /code/fastpli
 
-CMD [ "CI/run-all.sh" ]
+ENTRYPOINT ["./CI/run-all.sh"]
+CMD ["BUILD=release"]
