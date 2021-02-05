@@ -97,8 +97,7 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
 
         # calculate modalities
         epa = simpli.apply_epa(images)
-        simpli.mpi.save_split_h5(h5f, f'analysis/epa/{t}/transmittance',
-                                 epa[0])
+        simpli.mpi.save_split_h5(h5f, f'analysis/epa/{t}/transmittance', epa[0])
         simpli.mpi.save_split_h5(h5f, f'analysis/epa/{t}/direction',
                                  np.rad2deg(epa[1]))
         simpli.mpi.save_split_h5(h5f, f'analysis/epa/{t}/retardation', epa[2])

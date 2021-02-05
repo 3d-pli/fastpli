@@ -9,6 +9,7 @@ np.random.seed(42)
 
 
 class MainTest(unittest.TestCase):
+
     def test_remap_direction(self):
         phi = np.linspace(-42 * np.pi, 42 * np.pi, 1000)
         phi = fastpli.analysis.orientation.remap_direction(phi)

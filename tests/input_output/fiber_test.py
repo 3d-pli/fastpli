@@ -10,6 +10,7 @@ TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test.")
 
 
 class MainTest(unittest.TestCase):
+
     def setUp(self):
         self.fiber_bundles = [[[[0, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]],
                                [[1, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]]],
@@ -83,8 +84,7 @@ class MainTest(unittest.TestCase):
         fiber_bundles.save(TMP_FILE + 'fiber_test.h5',
                            self.solver.fiber_bundles, 'fiber_bundles', 'a')
 
-        fbs_h5 = fiber_bundles.load(TMP_FILE + 'fiber_test.h5',
-                                    'fiber_bundles')
+        fbs_h5 = fiber_bundles.load(TMP_FILE + 'fiber_test.h5', 'fiber_bundles')
         fbs_dat = fiber_bundles.load(TMP_FILE + '.dat', 'fiber_bundles')
 
         self.assertTrue(len(fbs_h5) == len(fbs_dat))

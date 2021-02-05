@@ -160,8 +160,8 @@ def cut(fiber, voi):
     start = 0
     voi = np.array(voi)
     for i in range(fiber.shape[0] - 1):
-        if not _fiber_segment_aabb_in_aabb(fiber[i, :], fiber[i + 1, :],
-                                           voi[0], voi[1]):
+        if not _fiber_segment_aabb_in_aabb(fiber[i, :], fiber[i + 1, :], voi[0],
+                                           voi[1]):
             if start != i:
                 fibers.append(fiber[start:i + 1])
             start = i + 1

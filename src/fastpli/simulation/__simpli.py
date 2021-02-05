@@ -165,7 +165,7 @@ class __Simpli:
         if self._dim_origin is None:
             raise ValueError("dim_origin is not set, voi can't be calculated")
 
-        voi = np.zeros((6, ))
+        voi = np.zeros((6,))
         voi[::2] = self._dim_origin
         voi[1::2] = voi[::2] + self._dim * self._voxel_size
 
@@ -428,12 +428,10 @@ class __Simpli:
 
         for prop in cells_populations_properties:
             if not isinstance(prop, (list, tuple)):
-                raise TypeError(
-                    "cell properties must be a list of 2 arguments")
+                raise TypeError("cell properties must be a list of 2 arguments")
 
             if len(prop) != 2:
-                raise TypeError(
-                    "cell properties must be a list of 2 arguments")
+                raise TypeError("cell properties must be a list of 2 arguments")
 
         self._cells_populations_properties = cells_populations_properties
 
@@ -442,14 +440,12 @@ class __Simpli:
             if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
                 raise TypeError(
                     "len(fiber_bundles) != len(fiber_bundles_properties)\n\
-                        For each fiber_bundle there hast to be a [(prop), ...]"
-                )
+                        For each fiber_bundle there hast to be a [(prop), ...]")
 
         if self._cells_populations:
             if len(self._cells_populations) != len(
                     self._cells_populations_properties):
-                raise TypeError(
-                    "len(cell_populations) != len(cell_properties)")
+                raise TypeError("len(cell_populations) != len(cell_properties)")
 
     def _check_volume_input(self):
         if self._dim is None:
@@ -541,8 +537,7 @@ class __Simpli:
             input = input[shift[0]:, shift[1]:, ...]
 
         scale = self._voxel_size / self._pixel_size
-        size = np.array(np.round(np.array(input.shape[0:2]) * scale),
-                        dtype=int)
+        size = np.array(np.round(np.array(input.shape[0:2]) * scale), dtype=int)
 
         if np.amin(size) == 0:
             raise ValueError(f"voxel_size {self._voxel_size}, " +
@@ -550,8 +545,7 @@ class __Simpli:
                              f"and input shape {input.shape[0:2]} " +
                              f"result in optical image size of {size}")
 
-        output = np.empty((size[0], size[1], input.shape[2]),
-                          dtype=input.dtype)
+        output = np.empty((size[0], size[1], input.shape[2]), dtype=input.dtype)
 
         if mp_pool and input.shape[2] > 1:
             chunk = [(input[:, :, i], self._optical_sigma, scale)
@@ -624,8 +618,8 @@ class __Simpli:
             raise ValueError("tilts not set")
 
         if np.any(self._tilts[:, 1] != np.deg2rad([0, 0, 90, 180, 270])
-                  ) or self._tilts[0, 0] != 0 or np.any(
-                      self._tilts[1:, 0] != self._tilts[1, 0]):
+                 ) or self._tilts[0, 0] != 0 or np.any(
+                     self._tilts[1:, 0] != self._tilts[1, 0]):
             raise ValueError("tilts not suitable for ROFL")
 
         tilt_angle = self._tilts[1, 0]
@@ -662,21 +656,18 @@ class __Simpli:
                 for i, result in enumerate(results):
                     if not mask[i, j]:
                         continue
-                    directionmap[i, j], inclmap[i, j], trelmap[
-                        i, j], dirdevmap[i, j], incldevmap[i, j], treldevmap[
-                            i, j], funcmap[i, j], itermap[i, j] = result
+                    directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
+                        i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
+                            i, j], itermap[i, j] = result
         else:
             for i in range(input.shape[1]):
                 for j in range(input.shape[2]):
                     if not mask[i, j]:
                         continue
-                    directionmap[i, j], inclmap[i, j], trelmap[
-                        i, j], dirdevmap[i, j], incldevmap[i, j], treldevmap[
-                            i,
-                            j], funcmap[i,
-                                        j], itermap[i, j] = analysis.rofl.rofl(
-                                            input[:, i, j, :], tilt_angle, 3,
-                                            0, grad_mode)
+                    directionmap[i, j], inclmap[i, j], trelmap[i, j], dirdevmap[
+                        i, j], incldevmap[i, j], treldevmap[i, j], funcmap[
+                            i, j], itermap[i, j] = analysis.rofl.rofl(
+                                input[:, i, j, :], tilt_angle, 3, 0, grad_mode)
 
         return directionmap, inclmap, trelmap, (dirdevmap, incldevmap,
                                                 treldevmap, funcmap, itermap)

@@ -6,6 +6,7 @@ import fastpli.objects as obj
 
 
 class MainTest(unittest.TestCase):
+
     def setUp(self):
         pass
 

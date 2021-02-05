@@ -19,6 +19,7 @@ class Simpli(__Simpli):
     """
     Simpli Class for simulating 3D-PLI images
     """
+
     def __init__(self, mpi_comm=None):
 
         super().__init__()
@@ -45,8 +46,7 @@ class Simpli(__Simpli):
     def interpolate(self, interpolate):
         if interpolate != "NN" and interpolate != "Lerp" and \
            interpolate != "Slerp":
-            raise ValueError(
-                "Only \"NN\", \"Lerp\" or \"Slerp\" are supported")
+            raise ValueError("Only \"NN\", \"Lerp\" or \"Slerp\" are supported")
         self._interpolate = interpolate
 
     def generate_tissue(self, only_tissue=False):
@@ -247,8 +247,8 @@ class Simpli(__Simpli):
 
         flag_rofl = True
         if np.any(self._tilts[:, 1] != np.deg2rad([0, 0, 90, 180, 270])
-                  ) or self._tilts[0, 0] != 0 or np.any(
-                      self._tilts[1:, 0] != self._tilts[1, 0]):
+                 ) or self._tilts[0, 0] != 0 or np.any(
+                     self._tilts[1:, 0] != self._tilts[1, 0]):
             warnings.warn("Tilts not suitable for ROFL. Skipping analysis")
             flag_rofl = False
 
@@ -257,9 +257,8 @@ class Simpli(__Simpli):
         self._print("Simulate tilts:")
         for t, tilt in enumerate(self._tilts):
             theta, phi = tilt[0], tilt[1]
-            self._print(
-                f"Tilt {t}: theta: {np.rad2deg(theta):.1f} deg, phi: " +
-                f"{np.rad2deg(phi):.1f} deg")
+            self._print(f"Tilt {t}: theta: {np.rad2deg(theta):.1f} deg, phi: " +
+                        f"{np.rad2deg(phi):.1f} deg")
             images = self.run_simulation(tissue, optical_axis,
                                          tissue_properties, theta, phi)
 
@@ -324,10 +323,10 @@ class Simpli(__Simpli):
 
         if flag_rofl:
             rofl_direction, rofl_incl, rofl_t_rel, (
-                rofl_direction_conf, rofl_incl_conf, rofl_t_rel_conf,
-                rofl_func, rofl_n_iter) = self.apply_rofl(tilting_stack,
-                                                          mask=None,
-                                                          mp_pool=mp_pool)
+                rofl_direction_conf, rofl_incl_conf, rofl_t_rel_conf, rofl_func,
+                rofl_n_iter) = self.apply_rofl(tilting_stack,
+                                               mask=None,
+                                               mp_pool=mp_pool)
         else:
             rofl_direction = None
             rofl_incl = None
@@ -375,8 +374,7 @@ class Simpli(__Simpli):
         self._print("Run pipeline")
         if 'all' in save:
             save = [
-                'tissue', 'optical_axis', 'data', 'optic', 'epa', 'mask',
-                'rofl'
+                'tissue', 'optical_axis', 'data', 'optic', 'epa', 'mask', 'rofl'
             ]
         if 'tissue' in save:
             save = save + ['tissue', 'optical_axis']

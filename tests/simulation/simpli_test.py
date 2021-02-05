@@ -12,6 +12,7 @@ TMP_FILE = os.path.join(os.path.dirname(__file__), "tmp.fastpli.test.")
 
 
 class MainTest(unittest.TestCase):
+
     def setUp(self):
         self.fiber_bundles = [[[[0, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]]]]
         self.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
@@ -62,11 +63,11 @@ class MainTest(unittest.TestCase):
     def test_generator(self):
         self.simpli.dim = [10, 10, 10]
         self.simpli.voxel_size = 0.2
-        tissue_0, optical_axis, tissue_properties = self.simpli.generate_tissue(  # noqa: E501
+        tissue_0, optical_axis, tissue_properties = self.simpli.generate_tissue(
             only_tissue=True)
         self.assertTrue(optical_axis.size == 0)
 
-        tissue_1, optical_axis, tissue_properties = self.simpli.generate_tissue(  # noqa: E501
+        tissue_1, optical_axis, tissue_properties = self.simpli.generate_tissue(
             only_tissue=False)
         self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
         self.assertTrue(np.array_equal(tissue_0, tissue_1))
@@ -194,8 +195,7 @@ class MainTest(unittest.TestCase):
                     elif np.sqrt(rr) < 0.6 * r:
                         self.assertTrue(tissue[i, j, 0] == 2)
                         self.assertTrue(
-                            np.array_equal(optical_axis[i, j, 0, :],
-                                           [0, 0, 0]))
+                            np.array_equal(optical_axis[i, j, 0, :], [0, 0, 0]))
                     else:
                         self.assertTrue(tissue[i, j, 0] == 3)
                         phi = np.arctan2((j + 0.5) - y, (i + 0.5) - x)
@@ -304,8 +304,8 @@ class MainTest(unittest.TestCase):
         self.simpli.noise_model = lambda x: np.random.negative_binomial(
             x / (3 - 1), 1 / 3)
         self.simpli.pixel_size = 2
-        self.simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90),
-                                        (5.5, 180), (5.5, 270)])
+        self.simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180),
+                                        (5.5, 270)])
 
         self.simpli.run_pipeline(save=["tissue", "optical_axis"])
 
