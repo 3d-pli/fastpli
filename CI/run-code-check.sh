@@ -1,5 +1,7 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
+
+EXIT_STATUS=0
 
 # C++
 # find supported clang-format version
@@ -10,32 +12,27 @@ for v in {11..6}; do
    fi
    if command -v clang-format-$v &>/dev/null; then
       CLANGFORMAT="clang-format-$v"
-      echo "found $CLANGFORMAT"
       break
    fi
 done
 
 # run check
 if [ ! "$CLANGFORMAT" == "" ]; then
-   find ./src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' -exec $CLANGFORMAT -i {} \;
+   find ./src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' | xargs $CLANGFORMAT --dry-run --Werror
+   if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
 else
-   echo "clang-format not found."
+   echo "WARNING: clang-format not found."
    echo "SKIPPING c/c++ format check."
 fi
 
 # Python
-env-CI/bin/pip3 install yapf -q
-env-CI/bin/pip3 install flake8 -q
+env-CI/bin/python3 -m yapf -r -p -d src
+if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
+env-CI/bin/python3 -m yapf -r -p -d tests
+if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
+env-CI/bin/python3 -m yapf -r -p -d examples
+if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
+env-CI/bin/python3 -m flake8
+if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
 
-env-CI/bin/python3 -m yapf -i -r -p --style pep8 src
-env-CI/bin/python3 -m yapf -i -r -p --style pep8 tests
-env-CI/bin/python3 -m yapf -i -r -p --style pep8 examples
-env-CI/bin/python3 -m flake8 --exclude src/fastpli/__version.py src/fastpli
-env-CI/bin/python3 -m flake8 examples
-env-CI/bin/python3 -m flake8 tests
-
-if ! git diff --exit-code; then
-   echo "Check code format failed."
-   echo "Please check and commit."
-   exit 1
-fi
+exit $EXIT_STATUS
