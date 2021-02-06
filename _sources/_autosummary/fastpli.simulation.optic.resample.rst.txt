@@ -1,0 +1,6 @@
+fastpli.simulation.optic.resample
+=================================
+
+.. currentmodule:: fastpli.simulation.optic
+
+.. autofunction:: resample

@@ -1,0 +1,6 @@
+fastpli.analysis.orientation.histogram
+======================================
+
+.. currentmodule:: fastpli.analysis.orientation
+
+.. autofunction:: histogram

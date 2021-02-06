@@ -1,0 +1,6 @@
+fastpli.model.sandbox.build.bundle
+==================================
+
+.. currentmodule:: fastpli.model.sandbox.build
+
+.. autofunction:: bundle

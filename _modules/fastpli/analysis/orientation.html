@@ -1,0 +1,457 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fastpli.analysis.orientation &mdash; fastPLI v1.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> fastPLI
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.analysis.html">fastpli.analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.io.html">fastpli.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.model.html">fastpli.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.objects.html">fastpli.objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.simulation.html">fastpli.simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.tools.html">fastpli.tools</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fastPLI</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fastpli.analysis.orientation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fastpli.analysis.orientation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Analyse Methods fiber_bundles orientations</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">phi</span><span class="p">[</span><span class="n">phi</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="k">return</span> <span class="n">phi</span>
+
+
+<div class="viewcode-block" id="remap_direction"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_direction.html#fastpli.analysis.orientation.remap_direction">[docs]</a><span class="k">def</span> <span class="nf">remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return direction in range of [0, np.pi)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : np.ndarray</span>
+<span class="sd">        direction in [0, np.pi)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">phi</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">_remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+    <span class="k">return</span> <span class="n">phi</span></div>
+
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_remap_orientation</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="n">phi</span><span class="p">[</span><span class="n">phi</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="n">phi</span><span class="p">[</span><span class="n">theta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">phi</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span>
+
+
+<div class="viewcode-block" id="remap_orientation"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_orientation.html#fastpli.analysis.orientation.remap_orientation">[docs]</a><span class="k">def</span> <span class="nf">remap_orientation</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle</span>
+<span class="sd">    theta in [0, 0.5*np.pi)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (np.ndarray, np.ndarray)</span>
+<span class="sd">        aximuth in [0, 2*np.pi], theta in [0, 0.5*np.pi]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">phi</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_remap_orientation</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+
+    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+    <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+
+    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span></div>
+
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_remap_spherical</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+    <span class="n">phi</span><span class="p">[</span><span class="n">phi</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="n">phi</span><span class="p">[</span><span class="n">theta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">phi</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span>
+
+
+<div class="viewcode-block" id="remap_spherical"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_spherical.html#fastpli.analysis.orientation.remap_spherical">[docs]</a><span class="k">def</span> <span class="nf">remap_spherical</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle</span>
+<span class="sd">    theta in [0, np.pi)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (np.ndarray, np.ndarray)</span>
+<span class="sd">        aximuth in [0, 2*np.pi], theta in [0, np.pi]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">phi</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_remap_spherical</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+
+    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+    <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+
+    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span></div>
+
+
+<div class="viewcode-block" id="fiber_bundles"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.fiber_bundles.html#fastpli.analysis.orientation.fiber_bundles">[docs]</a><span class="k">def</span> <span class="nf">fiber_bundles</span><span class="p">(</span><span class="n">fbs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the orientation of all fiber segments and plots the result.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fbs : [[(nx4)-array]]</span>
+<span class="sd">        fiber_bundle object</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : 1d-array, 1d-array</span>
+<span class="sd">        arrays of spherical coordinates phi and theta for all fiber segments</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">gphi</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">gtheta</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">fb</span> <span class="ow">in</span> <span class="n">fbs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fb</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">df</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">df</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">df</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">gphi</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+            <span class="n">gtheta</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+    <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span> <span class="o">=</span> <span class="n">remap_orientation</span><span class="p">(</span><span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span></div>
+
+
+<div class="viewcode-block" id="histogram"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.histogram.html#fastpli.analysis.orientation.histogram">[docs]</a><span class="k">def</span> <span class="nf">histogram</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span>
+              <span class="n">theta</span><span class="p">,</span>
+              <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">n_phi</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+              <span class="n">n_theta</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+              <span class="n">weight_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">fun</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+              <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the Orientation angles in a histogram</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        list of azimuthal angles</span>
+<span class="sd">    theta : array_like</span>
+<span class="sd">        list of polar angles</span>
+<span class="sd">    ax : axes object, optional</span>
+<span class="sd">        for matplotlib</span>
+<span class="sd">    n_phi : int, optional</span>
+<span class="sd">        number of angular segments</span>
+<span class="sd">    n_theta : int, optional</span>
+<span class="sd">        number of radii segments</span>
+<span class="sd">    density : bool, optional</span>
+<span class="sd">        density argument for numpy histogram</span>
+<span class="sd">    weight_area : bool, optional</span>
+<span class="sd">        weighting the density by the histogram bin on a sphere</span>
+<span class="sd">    fun : function , optional</span>
+<span class="sd">        function apply to histogram height</span>
+<span class="sd">    cmap : str, optional</span>
+<span class="sd">        colormap name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # counts</span>
+<span class="sd">    &gt;&gt;&gt; _, ax = plt.subplots(subplot_kw=dict(projection=&#39;polar&#39;))</span>
+<span class="sd">    &gt;&gt;&gt; _, _, _, pc = histogram(phi,</span>
+<span class="sd">                                theta,</span>
+<span class="sd">                                ax=ax,</span>
+<span class="sd">                                n_phi=60,</span>
+<span class="sd">                                n_theta=30,</span>
+<span class="sd">                                weight_area=False)</span>
+<span class="sd">    &gt;&gt;&gt; cbar = plt.colorbar(pc, ax=ax)</span>
+<span class="sd">    &gt;&gt;&gt; cbar.ax.set_title(&#39;#&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; ax.set_rmax(90)</span>
+<span class="sd">    &gt;&gt;&gt; ax.set_rticks(range(0, 90, 10))</span>
+<span class="sd">    &gt;&gt;&gt; ax.set_rlabel_position(22.5)</span>
+<span class="sd">    &gt;&gt;&gt; ax.set_yticklabels([])</span>
+<span class="sd">    &gt;&gt;&gt; ax.grid(True)</span>
+
+<span class="sd">    &gt;&gt;&gt; # density</span>
+<span class="sd">    &gt;&gt;&gt; _, ax = plt.subplots(subplot_kw=dict(projection=&#39;polar&#39;))</span>
+<span class="sd">    &gt;&gt;&gt; phi = np.random.normal(np.pi / 3, 0.5, 1000)</span>
+<span class="sd">    &gt;&gt;&gt; theta = np.random.normal(np.deg2rad(45), 0.5, 1000)</span>
+
+<span class="sd">    &gt;&gt;&gt; _, _, _, pc = histogram(phi,</span>
+<span class="sd">                                theta,</span>
+<span class="sd">                                ax=ax,</span>
+<span class="sd">                                n_phi=60,</span>
+<span class="sd">                                n_theta=30,</span>
+<span class="sd">                                weight_area=True)</span>
+<span class="sd">    &gt;&gt;&gt; cbar = plt.colorbar(pc, ax=ax)</span>
+<span class="sd">    &gt;&gt;&gt; cbar.ax.set_title(&#39;$P(\\vartheta, \\varphi)$&#39;)</span>
+
+<span class="sd">    &gt;&gt;&gt; ax.set_rmax(90)</span>
+<span class="sd">    &gt;&gt;&gt; ax.set_rticks(range(0, 90, 10))</span>
+<span class="sd">    &gt;&gt;&gt; ax.set_rlabel_position(22.5)</span>
+<span class="sd">    &gt;&gt;&gt; ax.set_yticklabels([])</span>
+<span class="sd">    &gt;&gt;&gt; ax.set_yticklabels([])</span>
+<span class="sd">    &gt;&gt;&gt; ax.grid(True)</span>
+
+<span class="sd">    &gt;&gt;&gt; plt.show()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">remap_orientation</span><span class="p">(</span><span class="n">phi</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">theta</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n_phi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n_theta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># calculate histogram</span>
+    <span class="n">hist</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">weight_area</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">hist</span> <span class="o">/=</span> <span class="n">hist</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hist</span><span class="p">:</span>
+            <span class="n">h</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">h</span><span class="p">[:],</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">weights</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ax</span><span class="p">:</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">fun</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">hist</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">pc</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Forschungszentrum Jülich, INM-1.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

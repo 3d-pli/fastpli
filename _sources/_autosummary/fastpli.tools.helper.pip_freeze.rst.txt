@@ -1,0 +1,6 @@
+fastpli.tools.helper.pip\_freeze
+================================
+
+.. currentmodule:: fastpli.tools.helper
+
+.. autofunction:: pip_freeze

@@ -1,0 +1,32 @@
+fastpli.model.solver.solver
+===========================
+
+.. automodule:: fastpli.model.solver.solver
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   
+      Solver
+   
+   
+
+   
+   
+   
+
+
+

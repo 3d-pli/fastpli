@@ -1,0 +1,6 @@
+fastpli.simulation.optic.add\_noise
+===================================
+
+.. currentmodule:: fastpli.simulation.optic
+
+.. autofunction:: add_noise

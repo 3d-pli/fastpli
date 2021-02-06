@@ -1,0 +1,31 @@
+﻿fastpli.simulation
+==================
+
+.. automodule:: fastpli.simulation
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   fastpli.simulation.optic
+   fastpli.simulation.simpli
+

@@ -1,0 +1,6 @@
+fastpli.analysis.images.hsv\_black\_sphere
+==========================================
+
+.. currentmodule:: fastpli.analysis.images
+
+.. autofunction:: hsv_black_sphere

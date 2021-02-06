@@ -1,0 +1,6 @@
+fastpli.io.fiber\_bundles.save\_h5
+==================================
+
+.. currentmodule:: fastpli.io.fiber_bundles
+
+.. autofunction:: save_h5

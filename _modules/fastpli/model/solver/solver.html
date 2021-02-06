@@ -1,0 +1,443 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fastpli.model.solver.solver &mdash; fastPLI v1.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> fastPLI
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.analysis.html">fastpli.analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.io.html">fastpli.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.model.html">fastpli.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.objects.html">fastpli.objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.simulation.html">fastpli.simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.tools.html">fastpli.tools</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">fastPLI</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fastpli.model.solver.solver</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fastpli.model.solver.solver</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Solver Class</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.__solver</span> <span class="kn">import</span> <span class="n">_Solver</span>
+
+<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">io</span>
+<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">objects</span>
+<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">tools</span>
+<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">__compiler__</span>
+<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">__libraries__</span>
+
+
+<div class="viewcode-block" id="Solver"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver">[docs]</a><span class="k">class</span> <span class="nc">Solver</span><span class="p">(</span><span class="n">_Solver</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solver Class for solving collisions between fibers</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    num_steps : int</span>
+<span class="sd">       Number of steps.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    apply_boundary_conditions(n_max = 10):</span>
+<span class="sd">        applies the defined boundry conditions to the inserted model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__is_frozen</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__is_frozen</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is a frozen class&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__freeze</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__is_frozen</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drag</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj_min_radius</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj_mean_length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col_voi</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omp_num_threads</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__display</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_omp_num_threads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_omp_num_threads</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__freeze</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Solver.get_dict"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver.get_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get all member variables which are properties &quot;&quot;&quot;</span>
+        <span class="n">members</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;_cells_populations&#39;</span><span class="p">,</span> <span class="s1">&#39;_fiber_bundles&#39;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                    <span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_Solver&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="n">members</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">members</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">members</span></div>
+
+<div class="viewcode-block" id="Solver.set_dict"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver.set_dict">[docs]</a>    <span class="k">def</span> <span class="nf">set_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set dictionary of variables to class members &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;member variable cant be set directly&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;None value in dict detected&#39;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fiber_bundles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get/set fiber_bundles [[(,4)-array]] &quot;&quot;&quot;</span>
+        <span class="n">fbs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_fiber_bundles</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">objects</span><span class="o">.</span><span class="n">FiberBundles</span><span class="p">(</span><span class="n">fbs</span><span class="p">)</span>
+
+    <span class="nd">@fiber_bundles</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fiber_bundles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fbs</span><span class="p">):</span>
+        <span class="n">fbs</span> <span class="o">=</span> <span class="n">objects</span><span class="o">.</span><span class="n">FiberBundles</span><span class="p">(</span><span class="n">fbs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_fiber_bundles</span><span class="p">(</span><span class="n">fbs</span><span class="o">.</span><span class="n">as_array</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">drag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; drag value applied in each step, optional &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_parameters</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@drag</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">drag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drag</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj_min_radius</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_obj_mean_length</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get/set number of applied steps &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span>
+
+    <span class="nd">@num_steps</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">num_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">obj_min_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get/set minimal circular radius allowed for fiber &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_parameters</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@obj_min_radius</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">obj_min_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj_min_radius</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj_min_radius</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_obj_mean_length</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">obj_mean_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get/set mean value allowed for fiber segment &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_parameters</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@obj_mean_length</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">obj_mean_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj_mean_length</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj_min_radius</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_obj_mean_length</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">col_voi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get/set volume on witch the collision algorithm is applied &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col_voi</span>
+
+    <span class="nd">@col_voi</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">col_voi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voi</span><span class="p">):</span>
+        <span class="c1"># TODO:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">voi</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;col_voi := (min, max)&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col_voi</span> <span class="o">=</span> <span class="n">voi</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_col_voi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_col_voi</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col_voi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omp_num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get/set number of omp threads &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_omp_num_threads</span>
+
+    <span class="nd">@omp_num_threads</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">omp_num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omp_num_threads</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omp_num_threads</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_omp_num_threads</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_omp_num_threads</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Solver.step"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies collision solving algorithm for one step</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool: status if the model is solved</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Solver.draw_scene"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver.draw_scene">[docs]</a>    <span class="k">def</span> <span class="nf">draw_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Draws model configuration in if OpenGl window can be created.</span>
+<span class="sd">            rot = [x,y,z] view Angle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__display</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Darwin&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__display</span> <span class="o">=</span> <span class="n">display</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;DISPLAY&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DISPLAY&#39;</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__display</span> <span class="o">=</span> <span class="n">display</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;test_opengl: DISPLAY variable empty&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__display</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;test_opengl: no DISPLAY variable detected&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__display</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__display</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">draw_scene</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Solver.apply_boundary_conditions"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver.apply_boundary_conditions">[docs]</a>    <span class="k">def</span> <span class="nf">apply_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_max</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies boundary conditions for n_max steps without collision solving.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_max: (optional) maximal number of iterations</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        [[(nx4)-arrays]]: fiber bundles</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_max</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">n_max</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;only integer &gt; 0 allowed&#39;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">apply_boundary_conditions</span><span class="p">(</span><span class="n">n_max</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fiber_bundles</span></div>
+
+<div class="viewcode-block" id="Solver.save_parameter_h5"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver.save_parameter_h5">[docs]</a>    <span class="k">def</span> <span class="nf">save_parameter_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h5f</span><span class="p">,</span> <span class="n">script</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Saves class members without fiber_bundles in hdf5 file. &quot;&quot;&quot;</span>
+        <span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fastpli/version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">__version__</span>
+        <span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fastpli/compiler&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">__compiler__</span>
+        <span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fastpli/libraries&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">__libraries__</span>
+        <span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fastpli/pip_freeze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">helper</span><span class="o">.</span><span class="n">pip_freeze</span><span class="p">()</span>
+        <span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fastpli/solver&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dict</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">script</span><span class="p">:</span>
+            <span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;script&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">script</span></div>
+
+<div class="viewcode-block" id="Solver.save_h5"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver.save_h5">[docs]</a>    <span class="k">def</span> <span class="nf">save_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h5f</span><span class="p">,</span> <span class="n">script</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Saves class members in hdf5 file. &quot;&quot;&quot;</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">fiber_bundles</span><span class="o">.</span><span class="n">save_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fiber_bundles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_parameter_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">script</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Solver.load_h5"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.solver.solver.Solver.html#fastpli.model.solver.solver.Solver.load_h5">[docs]</a>    <span class="k">def</span> <span class="nf">load_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h5f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads class members from hdf5 file. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fiber_bundles</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">fiber_bundles</span><span class="o">.</span><span class="n">load_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fastpli/solver&#39;</span><span class="p">]))))</span>
+
+        <span class="k">if</span> <span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fastpli/version&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">__version__</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;__version__ changed&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">h5f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fastpli/pip_freeze&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">tools</span><span class="o">.</span><span class="n">helper</span><span class="o">.</span><span class="n">pip_freeze</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;pip_freeze changed&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Forschungszentrum Jülich, INM-1.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

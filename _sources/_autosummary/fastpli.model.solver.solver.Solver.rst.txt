@@ -1,0 +1,57 @@
+fastpli.model.solver.solver.Solver
+==================================
+
+.. currentmodule:: fastpli.model.solver.solver
+
+.. autoclass:: Solver
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :nosignatures:
+   
+      ~Solver.apply_boundary_conditions
+      ~Solver.close_scene
+      ~Solver.draw_scene
+      ~Solver.get_dict
+      ~Solver.load_h5
+      ~Solver.reset_view
+      ~Solver.save_h5
+      ~Solver.save_parameter_h5
+      ~Solver.save_ppm
+      ~Solver.save_stl
+      ~Solver.set_dict
+      ~Solver.set_view_angles
+      ~Solver.set_view_center
+      ~Solver.set_view_distance
+      ~Solver.step
+      ~Solver.toggle_axis
+      ~Solver.toggle_collision_view
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Solver.col_voi
+      ~Solver.drag
+      ~Solver.fiber_bundles
+      ~Solver.max_speed
+      ~Solver.num_col_obj
+      ~Solver.num_obj
+      ~Solver.num_steps
+      ~Solver.obj_mean_length
+      ~Solver.obj_min_radius
+      ~Solver.omp_num_threads
+      ~Solver.overlap
+   
+   

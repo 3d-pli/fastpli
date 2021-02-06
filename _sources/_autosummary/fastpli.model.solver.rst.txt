@@ -1,0 +1,30 @@
+fastpli.model.solver
+====================
+
+.. automodule:: fastpli.model.solver
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   fastpli.model.solver.solver
+

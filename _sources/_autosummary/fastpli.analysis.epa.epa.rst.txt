@@ -1,0 +1,6 @@
+fastpli.analysis.epa.epa
+========================
+
+.. currentmodule:: fastpli.analysis.epa
+
+.. autofunction:: epa

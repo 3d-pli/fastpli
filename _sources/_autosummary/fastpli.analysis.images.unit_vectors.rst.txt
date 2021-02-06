@@ -1,0 +1,6 @@
+fastpli.analysis.images.unit\_vectors
+=====================================
+
+.. currentmodule:: fastpli.analysis.images
+
+.. autofunction:: unit_vectors

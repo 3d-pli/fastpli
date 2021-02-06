@@ -1,0 +1,6 @@
+fastpli.model.sandbox.seeds.crop\_circle
+========================================
+
+.. currentmodule:: fastpli.model.sandbox.seeds
+
+.. autofunction:: crop_circle

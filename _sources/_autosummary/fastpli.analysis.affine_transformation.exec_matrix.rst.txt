@@ -1,0 +1,6 @@
+fastpli.analysis.affine\_transformation.exec\_matrix
+====================================================
+
+.. currentmodule:: fastpli.analysis.affine_transformation
+
+.. autofunction:: exec_matrix

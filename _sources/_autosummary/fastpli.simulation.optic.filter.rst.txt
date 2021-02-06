@@ -1,0 +1,6 @@
+fastpli.simulation.optic.filter
+===============================
+
+.. currentmodule:: fastpli.simulation.optic
+
+.. autofunction:: filter

@@ -1,0 +1,6 @@
+fastpli.tools.rotation.y
+========================
+
+.. currentmodule:: fastpli.tools.rotation
+
+.. autofunction:: y

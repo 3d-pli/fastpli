@@ -1,0 +1,6 @@
+fastpli.tools.rotation.z\_2d
+============================
+
+.. currentmodule:: fastpli.tools.rotation
+
+.. autofunction:: z_2d

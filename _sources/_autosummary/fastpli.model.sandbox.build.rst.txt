@@ -1,0 +1,33 @@
+fastpli.model.sandbox.build
+===========================
+
+.. automodule:: fastpli.model.sandbox.build
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      bundle
+      cuboid
+      cylinder
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

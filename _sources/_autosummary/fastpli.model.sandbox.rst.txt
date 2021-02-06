@@ -1,0 +1,31 @@
+fastpli.model.sandbox
+=====================
+
+.. automodule:: fastpli.model.sandbox
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   fastpli.model.sandbox.build
+   fastpli.model.sandbox.seeds
+

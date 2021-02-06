@@ -1,0 +1,6 @@
+fastpli.tools.rotation.a\_on\_b
+===============================
+
+.. currentmodule:: fastpli.tools.rotation
+
+.. autofunction:: a_on_b

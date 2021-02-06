@@ -1,0 +1,33 @@
+fastpli.objects.layers
+======================
+
+.. automodule:: fastpli.objects.layers
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   
+      Layer
+      Layers
+   
+   
+
+   
+   
+   
+
+
+

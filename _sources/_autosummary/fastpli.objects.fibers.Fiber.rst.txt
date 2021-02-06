@@ -1,0 +1,44 @@
+fastpli.objects.fibers.Fiber
+============================
+
+.. currentmodule:: fastpli.objects.fibers
+
+.. autoclass:: Fiber
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :nosignatures:
+   
+      ~Fiber.apply
+      ~Fiber.apply_to_points
+      ~Fiber.apply_to_radii
+      ~Fiber.as_array
+      ~Fiber.cast
+      ~Fiber.copy
+      ~Fiber.cut
+      ~Fiber.cut_sphere
+      ~Fiber.rotate
+      ~Fiber.scale
+      ~Fiber.translate
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Fiber.dtype
+      ~Fiber.points
+      ~Fiber.radii
+      ~Fiber.shape
+   
+   

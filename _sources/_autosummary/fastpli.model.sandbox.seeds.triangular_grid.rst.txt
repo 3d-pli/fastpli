@@ -1,0 +1,6 @@
+fastpli.model.sandbox.seeds.triangular\_grid
+============================================
+
+.. currentmodule:: fastpli.model.sandbox.seeds
+
+.. autofunction:: triangular_grid

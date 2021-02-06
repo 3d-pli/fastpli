@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fastpli.objects.layers.Layer &mdash; fastPLI v1.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="fastpli.objects.layers.Layers" href="fastpli.objects.layers.Layers.html" />
+    <link rel="prev" title="fastpli.objects.layers" href="fastpli.objects.layers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> fastPLI
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="fastpli.analysis.html">fastpli.analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastpli.io.html">fastpli.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastpli.model.html">fastpli.model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="fastpli.objects.html">fastpli.objects</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fastpli.objects.fibers.html">fastpli.objects.fibers</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="fastpli.objects.layers.html">fastpli.objects.layers</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">fastpli.objects.layers.Layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.objects.layers.Layers.html">fastpli.objects.layers.Layers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fastpli.simulation.html">fastpli.simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastpli.tools.html">fastpli.tools</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fastPLI</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="fastpli.objects.html">fastpli.objects</a> &raquo;</li>
+        
+          <li><a href="fastpli.objects.layers.html">fastpli.objects.layers</a> &raquo;</li>
+        
+      <li>fastpli.objects.layers.Layer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="fastpli-objects-layers-layer">
+<h1>fastpli.objects.layers.Layer<a class="headerlink" href="#fastpli-objects-layers-layer" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="fastpli.objects.layers.Layer">
+<em class="property">class </em><code class="sig-name descname">Layer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/objects/layers.html#Layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.objects.layers.Layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.objects.layers.Layer.copy" title="fastpli.objects.layers.Layer.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<td><p>returns copy of np.ndarray</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.objects.layers.Layer.data" title="fastpli.objects.layers.Layer.data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code></a></p></td>
+<td><p>returns view np.ndarray</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.objects.layers.Layer.absorption" title="fastpli.objects.layers.Layer.absorption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">absorption</span></code></a></p></td>
+<td><p>returns absorption parameter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.objects.layers.Layer.birefringence" title="fastpli.objects.layers.Layer.birefringence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">birefringence</span></code></a></p></td>
+<td><p>returns birefringence parameter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.objects.layers.Layer.model" title="fastpli.objects.layers.Layer.model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code></a></p></td>
+<td><p>returns model parameter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.objects.layers.Layer.scale" title="fastpli.objects.layers.Layer.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a></p></td>
+<td><p>returns scale parameter</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="fastpli.objects.layers.Layer.absorption">
+<em class="property">property </em><code class="sig-name descname">absorption</code><a class="headerlink" href="#fastpli.objects.layers.Layer.absorption" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns absorption parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.objects.layers.Layer.birefringence">
+<em class="property">property </em><code class="sig-name descname">birefringence</code><a class="headerlink" href="#fastpli.objects.layers.Layer.birefringence" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns birefringence parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.objects.layers.Layer.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/objects/layers.html#Layer.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.objects.layers.Layer.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns copy of np.ndarray</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.objects.layers.Layer.data">
+<code class="sig-name descname">data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/objects/layers.html#Layer.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.objects.layers.Layer.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns view np.ndarray</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.objects.layers.Layer.model">
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#fastpli.objects.layers.Layer.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns model parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.objects.layers.Layer.scale">
+<em class="property">property </em><code class="sig-name descname">scale</code><a class="headerlink" href="#fastpli.objects.layers.Layer.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns scale parameter</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="fastpli.objects.layers.Layers.html" class="btn btn-neutral float-right" title="fastpli.objects.layers.Layers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="fastpli.objects.layers.html" class="btn btn-neutral float-left" title="fastpli.objects.layers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Forschungszentrum Jülich, INM-1.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

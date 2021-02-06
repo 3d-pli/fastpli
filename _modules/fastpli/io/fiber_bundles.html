@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fastpli.io.fiber_bundles &mdash; fastPLI v1.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> fastPLI
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.analysis.html">fastpli.analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.io.html">fastpli.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.model.html">fastpli.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.objects.html">fastpli.objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.simulation.html">fastpli.simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.tools.html">fastpli.tools</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fastPLI</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fastpli.io.fiber_bundles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fastpli.io.fiber_bundles</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Methods for loading and saving fiber_bundles objects into .dat and .h5 files</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">objects</span>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../_autosummary/fastpli.io.fiber_bundles.load.html#fastpli.io.fiber_bundles.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load fiberbundles configurations from a text file oder hdf5 file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_name : string</span>
+<span class="sd">        path to file</span>
+<span class="sd">    group_name : string, optional</span>
+<span class="sd">        path inside hdf5-file for fiber bundles</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii)</span>
+<span class="sd">          for each fiber point</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;.txt&#39;</span><span class="p">]:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">fiber_bundles</span> <span class="o">=</span> <span class="n">load_dat</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.h5&#39;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5f</span><span class="p">:</span>
+            <span class="n">fiber_bundles</span> <span class="o">=</span> <span class="n">load_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">[</span><span class="n">group_name</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">ext</span> <span class="o">+</span> <span class="s1">&#39; is not implemented yet&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fiber_bundles</span></div>
+
+
+<div class="viewcode-block" id="load_dat"><a class="viewcode-back" href="../../../_autosummary/fastpli.io.fiber_bundles.load_dat.html#fastpli.io.fiber_bundles.load_dat">[docs]</a><span class="k">def</span> <span class="nf">load_dat</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load fiberbundles configurations from a text file oder hdf5 file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : file object</span>
+<span class="sd">        opened file: with open(file_name, &#39;r&#39;) as file:</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii)</span>
+<span class="sd">          for each fiber point</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fiber</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fiber_bundles</span> <span class="o">=</span> <span class="p">[[]]</span>
+    <span class="n">empty_lines</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">empty_lines</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">numbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+            <span class="n">fiber</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># empty line</span>
+            <span class="n">empty_lines</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">empty_lines</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># end of fiber</span>
+                <span class="k">if</span> <span class="n">fiber</span><span class="p">:</span>
+                    <span class="n">fiber_bundles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fiber</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+                    <span class="n">fiber</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">elif</span> <span class="n">empty_lines</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># end of fiber_bundle</span>
+                <span class="k">if</span> <span class="n">fiber_bundles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">fiber_bundles</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="k">if</span> <span class="n">fiber</span><span class="p">:</span>  <span class="c1"># save last fiber</span>
+        <span class="n">fiber_bundles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fiber</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">objects</span><span class="o">.</span><span class="n">FiberBundles</span><span class="p">(</span><span class="n">fiber_bundles</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_h5"><a class="viewcode-back" href="../../../_autosummary/fastpli.io.fiber_bundles.load_h5.html#fastpli.io.fiber_bundles.load_h5">[docs]</a><span class="k">def</span> <span class="nf">load_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load fiberbundles configurations from a hdf5 class</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    h5f : hdf5 class</span>
+<span class="sd">        h5-file or group object</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : list(list(fiber)), fibers are (n,4)-arrays with (x,y,z,radii)</span>
+<span class="sd">          for each fiber point</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fiber_bundles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fb_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">h5f</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+    <span class="n">fb_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">fb</span> <span class="ow">in</span> <span class="n">fb_list</span><span class="p">:</span>
+        <span class="n">fiber_bundles</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        <span class="n">f_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">h5f</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">fb</span><span class="p">)]</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+        <span class="n">f_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">f_list</span><span class="p">:</span>
+            <span class="n">fiber_bundles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h5f</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">fb</span><span class="p">)][</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)][:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">objects</span><span class="o">.</span><span class="n">FiberBundles</span><span class="p">(</span><span class="n">fiber_bundles</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save"><a class="viewcode-back" href="../../../_autosummary/fastpli.io.fiber_bundles.save.html#fastpli.io.fiber_bundles.save">[docs]</a><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">fiber_bundles</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w-&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save fiberbundles configurations to a text file oder hdf5 file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_name : string</span>
+<span class="sd">        path to file</span>
+<span class="sd">    fiber_bundles : list( list( (n,4)-array_like ) )</span>
+<span class="sd">    group_name : string, optional</span>
+<span class="sd">        path inside hdf5-file for fiber bundles</span>
+<span class="sd">    mode : string, optional</span>
+<span class="sd">        file mode of open() or h5py.File()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;.txt&#39;</span><span class="p">]:</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;w-&#39;</span> <span class="k">else</span> <span class="n">mode</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">save_dat</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fiber_bundles</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.h5&#39;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">group_name</span> <span class="ow">or</span> <span class="n">group_name</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+                <span class="n">save_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">fiber_bundles</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">save_h5</span><span class="p">(</span><span class="n">h5f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">group_name</span><span class="p">),</span> <span class="n">fiber_bundles</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">ext</span> <span class="o">+</span> <span class="s1">&#39; is not implemented yet&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_dat"><a class="viewcode-back" href="../../../_autosummary/fastpli.io.fiber_bundles.save_dat.html#fastpli.io.fiber_bundles.save_dat">[docs]</a><span class="k">def</span> <span class="nf">save_dat</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fiber_bundles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save fiberbundles configurations to a text file oder hdf5 file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_obj : file object</span>
+<span class="sd">        opened file: with open(file_name, &#39;w-&#39;) as file:</span>
+<span class="sd">    fiber_bundles : list( list( (n,4)-array_like ) )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fiber_bundles</span> <span class="o">=</span> <span class="n">objects</span><span class="o">.</span><span class="n">FiberBundles</span><span class="p">(</span><span class="n">fiber_bundles</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fb</span><span class="p">,</span> <span class="n">fiber_bundle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fiber_bundles</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fiber</span> <span class="ow">in</span> <span class="n">fiber_bundle</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fiber</span><span class="p">:</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span>
+                    <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fb</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fiber_bundles</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_h5"><a class="viewcode-back" href="../../../_autosummary/fastpli.io.fiber_bundles.save_h5.html#fastpli.io.fiber_bundles.save_h5">[docs]</a><span class="k">def</span> <span class="nf">save_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">fiber_bundles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save fiberbundles configurations inside a hdf5 file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    h5f : hdf5 class</span>
+<span class="sd">        h5-file or group object</span>
+<span class="sd">    fiber_bundles : FiberBundles</span>
+<span class="sd">        list( list( (n,4)-array_like ) )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fiber_bundles</span> <span class="o">=</span> <span class="n">objects</span><span class="o">.</span><span class="n">FiberBundles</span><span class="p">(</span><span class="n">fiber_bundles</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">fb_i</span><span class="p">,</span> <span class="n">fb</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fiber_bundles</span><span class="p">):</span>
+        <span class="n">grp_fb</span> <span class="o">=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fb_i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fb</span><span class="p">):</span>
+            <span class="n">grp_fb</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[:,</span> <span class="p">:]</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Forschungszentrum Jülich, INM-1.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

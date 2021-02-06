@@ -1,0 +1,6 @@
+fastpli.analysis.rofl.rofl
+==========================
+
+.. currentmodule:: fastpli.analysis.rofl
+
+.. autofunction:: rofl

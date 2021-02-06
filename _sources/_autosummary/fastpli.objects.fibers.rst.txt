@@ -1,0 +1,34 @@
+fastpli.objects.fibers
+======================
+
+.. automodule:: fastpli.objects.fibers
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   
+      Fiber
+      FiberBundle
+      FiberBundles
+   
+   
+
+   
+   
+   
+
+
+

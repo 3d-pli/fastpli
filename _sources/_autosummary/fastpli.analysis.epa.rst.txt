@@ -1,0 +1,32 @@
+fastpli.analysis.epa
+====================
+
+.. automodule:: fastpli.analysis.epa
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      direction
+      epa
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

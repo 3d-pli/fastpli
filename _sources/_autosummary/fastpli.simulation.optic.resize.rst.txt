@@ -1,0 +1,6 @@
+fastpli.simulation.optic.resize
+===============================
+
+.. currentmodule:: fastpli.simulation.optic
+
+.. autofunction:: resize

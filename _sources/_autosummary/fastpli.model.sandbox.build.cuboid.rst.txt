@@ -1,0 +1,6 @@
+fastpli.model.sandbox.build.cuboid
+==================================
+
+.. currentmodule:: fastpli.model.sandbox.build
+
+.. autofunction:: cuboid

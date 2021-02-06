@@ -1,0 +1,6 @@
+fastpli.tools.helper.version\_path
+==================================
+
+.. currentmodule:: fastpli.tools.helper
+
+.. autofunction:: version_path

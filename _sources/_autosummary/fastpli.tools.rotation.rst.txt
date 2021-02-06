@@ -1,0 +1,37 @@
+fastpli.tools.rotation
+======================
+
+.. automodule:: fastpli.tools.rotation
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      a_on_b
+      x
+      y
+      z
+      z_2d
+      zymz
+      zyz
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

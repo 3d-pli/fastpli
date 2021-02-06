@@ -1,0 +1,33 @@
+fastpli.tools.helper
+====================
+
+.. automodule:: fastpli.tools.helper
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      pip_freeze
+      version_file_name
+      version_path
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

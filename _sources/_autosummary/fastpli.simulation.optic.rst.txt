@@ -1,0 +1,37 @@
+fastpli.simulation.optic
+========================
+
+.. automodule:: fastpli.simulation.optic
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      add_noise
+      filter
+      filter2d
+      filter_resample
+      filter_resize
+      resample
+      resize
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

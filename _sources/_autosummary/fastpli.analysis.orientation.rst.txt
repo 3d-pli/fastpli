@@ -1,0 +1,35 @@
+fastpli.analysis.orientation
+============================
+
+.. automodule:: fastpli.analysis.orientation
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      fiber_bundles
+      histogram
+      remap_direction
+      remap_orientation
+      remap_spherical
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

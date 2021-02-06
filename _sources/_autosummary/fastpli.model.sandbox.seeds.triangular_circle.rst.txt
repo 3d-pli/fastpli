@@ -1,0 +1,6 @@
+fastpli.model.sandbox.seeds.triangular\_circle
+==============================================
+
+.. currentmodule:: fastpli.model.sandbox.seeds
+
+.. autofunction:: triangular_circle

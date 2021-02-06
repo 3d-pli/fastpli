@@ -1,0 +1,34 @@
+fastpli.model.sandbox.seeds
+===========================
+
+.. automodule:: fastpli.model.sandbox.seeds
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      crop_circle
+      crop_rectangle
+      triangular_circle
+      triangular_grid
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

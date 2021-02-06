@@ -1,0 +1,34 @@
+﻿fastpli.analysis
+================
+
+.. automodule:: fastpli.analysis
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   fastpli.analysis.affine_transformation
+   fastpli.analysis.epa
+   fastpli.analysis.images
+   fastpli.analysis.orientation
+   fastpli.analysis.rofl
+

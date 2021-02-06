@@ -1,0 +1,32 @@
+fastpli.simulation.simpli
+=========================
+
+.. automodule:: fastpli.simulation.simpli
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   
+      Simpli
+   
+   
+
+   
+   
+   
+
+
+

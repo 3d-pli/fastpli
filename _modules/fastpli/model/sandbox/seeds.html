@@ -1,0 +1,369 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fastpli.model.sandbox.seeds &mdash; fastPLI v1.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> fastPLI
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.analysis.html">fastpli.analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.io.html">fastpli.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.model.html">fastpli.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.objects.html">fastpli.objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.simulation.html">fastpli.simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/fastpli.tools.html">fastpli.tools</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">fastPLI</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fastpli.model.sandbox.seeds</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fastpli.model.sandbox.seeds</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="triangular_grid"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.sandbox.seeds.triangular_grid.html#fastpli.model.sandbox.seeds.triangular_grid">[docs]</a><span class="k">def</span> <span class="nf">triangular_grid</span><span class="p">(</span><span class="n">width</span><span class="p">,</span>
+                    <span class="n">height</span><span class="p">,</span>
+                    <span class="n">spacing</span><span class="p">,</span>
+                    <span class="n">center</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generated 2d triangular grid of seed points inside [0,width]x[0,height].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    width, height : float</span>
+<span class="sd">        length and height of grid [0,width]x[0,height]</span>
+<span class="sd">    spacing : float</span>
+<span class="sd">        distance between seed points</span>
+<span class="sd">    center : bool, optional</span>
+<span class="sd">        If false, the seed points will be inside [0,width]x[0,height],</span>
+<span class="sd">        beginning at (0,0).</span>
+<span class="sd">        If true, the grid will be inside</span>
+<span class="sd">        [-width/2,width/2]x[-height/2,height/2] with widths eed point at (0,0).</span>
+<span class="sd">    sort : bool, optional</span>
+<span class="sd">        If true, the returning seed points are lexsorted along x,y.</span>
+<span class="sd">    endpoint : bool, optional</span>
+<span class="sd">        If false, [0,width)x[0,height) or</span>
+<span class="sd">        [-width/2,width/2)x[-height/2,height/2).</span>
+<span class="sd">        If true,  [0,width]x[0,height] or</span>
+<span class="sd">        [-width/2,width/2]x[-height/2,height/2].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (nx2)-array</span>
+<span class="sd">        seed points</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">x0</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">y0</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">spacing</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># np.sin(np.deg2rad(30))</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">spacing</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># np.cos(np.deg2rad(30))</span>
+
+    <span class="k">if</span> <span class="n">center</span><span class="p">:</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="k">if</span> <span class="n">endpoint</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">width</span> <span class="o">%</span> <span class="n">spacing</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="n">dx</span><span class="p">)</span> <span class="o">%</span> <span class="n">spacing</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">width</span> <span class="o">+=</span> <span class="n">dx</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">height</span> <span class="o">%</span> <span class="n">spacing</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">dy</span><span class="p">)</span> <span class="o">%</span> <span class="n">spacing</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">height</span> <span class="o">+=</span> <span class="n">dy</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="n">grid_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">x0</span><span class="p">:</span><span class="n">width</span><span class="p">:</span><span class="n">spacing</span><span class="p">,</span> <span class="n">y0</span><span class="p">:</span><span class="n">height</span><span class="p">:</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dy</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">grid_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">x0</span> <span class="o">+</span> <span class="n">dx</span><span class="p">:</span><span class="n">width</span><span class="p">:</span><span class="n">spacing</span><span class="p">,</span>
+                      <span class="n">y0</span> <span class="o">+</span> <span class="n">dy</span><span class="p">:</span><span class="n">height</span><span class="p">:</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dy</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">grid_0</span><span class="p">,</span> <span class="n">grid_1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">center</span><span class="p">:</span>
+        <span class="c1"># mirror x axis</span>
+        <span class="n">grid_mirror</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[:,</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">grid_mirror</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">grid</span><span class="p">,</span> <span class="n">grid_mirror</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># mirror y axis</span>
+        <span class="n">grid_mirror</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[:,</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">grid_mirror</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">grid</span><span class="p">,</span> <span class="n">grid_mirror</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lexsort</span><span class="p">((</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]))</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="triangular_circle"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.sandbox.seeds.triangular_circle.html#fastpli.model.sandbox.seeds.triangular_circle">[docs]</a><span class="k">def</span> <span class="nf">triangular_circle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">radii</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generated 2d triangular grid inside a circle.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    radius : float</span>
+<span class="sd">        radius of circle</span>
+<span class="sd">    spacing : float</span>
+<span class="sd">        distance between seed points</span>
+<span class="sd">    center : (2,)-array_like</span>
+<span class="sd">        center of circle</span>
+<span class="sd">    radii : float or (n,)-array_like, optional</span>
+<span class="sd">        seed points will be iterpreted as cricles with a global or</span>
+<span class="sd">        individual radii</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (nx2)-array</span>
+<span class="sd">        seed points</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">seeds</span> <span class="o">=</span> <span class="n">triangular_grid</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">radius</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span>
+                            <span class="p">(</span><span class="n">radius</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">),</span> <span class="n">spacing</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="n">center</span>
+
+    <span class="k">return</span> <span class="n">crop_circle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">seeds</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">radii</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="crop_rectangle"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.sandbox.seeds.crop_rectangle.html#fastpli.model.sandbox.seeds.crop_rectangle">[docs]</a><span class="k">def</span> <span class="nf">crop_rectangle</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">seeds</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Crops a sequence of 2-dim points inside a rectangle.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a, b : float</span>
+<span class="sd">        cropping between [0,a]x[0,b]</span>
+<span class="sd">    a, b : (2,)-array_like</span>
+<span class="sd">        cropping between [a[0],b[0]]x[a[1],b[1]]</span>
+<span class="sd">    seeds : (n,2)-array_like</span>
+<span class="sd">        to be cropped seed points</span>
+<span class="sd">    radii : float or (n,)-array_like, optional</span>
+<span class="sd">        seed points will be iterpreted as cricles with a global or</span>
+<span class="sd">        individual radii</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (nx2)-array</span>
+<span class="sd">        cropped seed points</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">seeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seeds</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">radii</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">seeds</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">seeds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;seeds : (nx2)-array&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">seeds</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">seeds</span> <span class="o">-</span> <span class="n">radii</span><span class="o">.</span><span class="n">T</span> <span class="o">&gt;=</span> <span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">seeds</span> <span class="o">+</span> <span class="n">radii</span><span class="o">.</span><span class="n">T</span> <span class="o">&lt;=</span> <span class="n">b</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span></div>
+
+
+<div class="viewcode-block" id="crop_circle"><a class="viewcode-back" href="../../../../_autosummary/fastpli.model.sandbox.seeds.crop_circle.html#fastpli.model.sandbox.seeds.crop_circle">[docs]</a><span class="k">def</span> <span class="nf">crop_circle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">seeds</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">radii</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Crops a sequence of 2-dim points inside a circle.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    radius : float</span>
+<span class="sd">        radius of circle area</span>
+<span class="sd">    seeds : (n,2)-array_like</span>
+<span class="sd">        to be cropped seed points</span>
+<span class="sd">    center : (2,)-array_like</span>
+<span class="sd">        center of circle</span>
+<span class="sd">    radii : float or (n,)-array_like, optional</span>
+<span class="sd">        seed points will be iterpreted as cricles with a global or</span>
+<span class="sd">        individual radii</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (nx2)-array</span>
+<span class="sd">        cropped seed points</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">seeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seeds</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">radii</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">seeds</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">seeds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;seeds : (nx2)-array&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">seeds</span><span class="p">[(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">seeds</span> <span class="o">-</span> <span class="n">center</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">radius</span> <span class="o">-</span> <span class="n">radii</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Forschungszentrum Jülich, INM-1.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

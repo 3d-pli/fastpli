@@ -1,0 +1,6 @@
+fastpli.analysis.images.to\_image\_space
+========================================
+
+.. currentmodule:: fastpli.analysis.images
+
+.. autofunction:: to_image_space

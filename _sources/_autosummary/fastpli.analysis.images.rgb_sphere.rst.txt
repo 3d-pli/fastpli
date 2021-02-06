@@ -1,0 +1,6 @@
+fastpli.analysis.images.rgb\_sphere
+===================================
+
+.. currentmodule:: fastpli.analysis.images
+
+.. autofunction:: rgb_sphere

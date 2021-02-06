@@ -1,0 +1,31 @@
+﻿fastpli.objects
+===============
+
+.. automodule:: fastpli.objects
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   fastpli.objects.fibers
+   fastpli.objects.layers
+

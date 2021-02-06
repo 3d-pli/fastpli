@@ -1,0 +1,771 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fastpli.simulation.simpli &mdash; fastPLI v1.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> fastPLI
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.analysis.html">fastpli.analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.io.html">fastpli.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.model.html">fastpli.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.objects.html">fastpli.objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.simulation.html">fastpli.simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/fastpli.tools.html">fastpli.tools</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fastPLI</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fastpli.simulation.simpli</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fastpli.simulation.simpli</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Simpli CPU Class</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.__simpli</span> <span class="kn">import</span> <span class="n">__Simpli</span>
+<span class="kn">from</span> <span class="nn">.__generation</span> <span class="kn">import</span> <span class="n">_Generator</span>
+<span class="kn">from</span> <span class="nn">.__simulation</span> <span class="kn">import</span> <span class="n">_Simulator</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_mpi</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">analysis</span>
+
+
+<div class="viewcode-block" id="Simpli"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli">[docs]</a><span class="k">class</span> <span class="nc">Simpli</span><span class="p">(</span><span class="n">__Simpli</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simpli Class for simulating 3D-PLI images</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_comm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># LIBRARIES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__gen</span> <span class="o">=</span> <span class="n">_Generator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sim</span> <span class="o">=</span> <span class="n">_Simulator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpi</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">mpi_comm</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__gen</span><span class="o">.</span><span class="n">set_mpi_comm</span><span class="p">(</span><span class="n">MPI</span><span class="o">.</span><span class="n">_addressof</span><span class="p">(</span><span class="n">mpi_comm</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__sim</span><span class="o">.</span><span class="n">set_mpi_comm</span><span class="p">(</span><span class="n">MPI</span><span class="o">.</span><span class="n">_addressof</span><span class="p">(</span><span class="n">mpi_comm</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpi</span> <span class="o">=</span> <span class="n">_mpi</span><span class="o">.</span><span class="n">_MPI</span><span class="p">(</span><span class="n">mpi_comm</span><span class="p">)</span>
+
+        <span class="c1"># freeze class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__freeze</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        birefringence optical axis interpolation True/False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res : bool</span>
+<span class="sd">            is the interpolation fo the birefringence optical axis activated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate</span>
+
+    <span class="nd">@interpolate</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interpolate</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">interpolate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;Lerp&#39;</span><span class="p">,</span> <span class="s1">&#39;Slerp&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only </span><span class="se">\&#39;</span><span class="s1">NN</span><span class="se">\&#39;</span><span class="s1">, </span><span class="se">\&#39;</span><span class="s1">Lerp</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">Slerp</span><span class="se">\&#39;</span><span class="s1"> are supported&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate</span> <span class="o">=</span> <span class="n">interpolate</span>
+
+<div class="viewcode-block" id="Simpli.generate_tissue"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.generate_tissue">[docs]</a>    <span class="k">def</span> <span class="nf">generate_tissue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_tissue</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generation of discreticesd tissue.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        only_tissue: bool</span>
+<span class="sd">            generates only first return value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res : np.ndarray, np.ndarray, np.ndarray</span>
+<span class="sd">            discreticed tissue, optical axis and tissue_properties</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Generate Tissue&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Memory needed: ~</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_usage</span><span class="p">())</span><span class="si">:</span><span class="s1">.0f</span><span class="si">}</span><span class="s1"> MB&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_volume_input</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_generation_input</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__gen</span><span class="o">.</span><span class="n">set_volume</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim_origin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_voxel_size</span><span class="p">)</span>
+
+        <span class="n">fbs_properties</span> <span class="o">=</span> <span class="p">[</span><span class="n">lys</span><span class="o">.</span><span class="n">data</span><span class="p">()</span> <span class="k">for</span> <span class="n">lys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fiber_bundles</span><span class="o">.</span><span class="n">layers</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__gen</span><span class="o">.</span><span class="n">set_fiber_bundles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fiber_bundles</span><span class="o">.</span><span class="n">as_array</span><span class="p">(),</span>
+                                     <span class="n">fbs_properties</span><span class="p">)</span>
+
+        <span class="n">tissue</span><span class="p">,</span> <span class="n">optical_axis</span><span class="p">,</span> <span class="n">tissue_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen</span><span class="o">.</span><span class="n">run_generation</span><span class="p">(</span>
+            <span class="n">only_tissue</span><span class="p">)</span>
+
+        <span class="c1"># set background absorption</span>
+        <span class="n">tissue_properties</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background_absorption</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">tissue</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s1">&#39;All labels are 0. Usually this means, that the VOI contains &#39;</span> <span class="o">+</span>
+                <span class="s1">&#39;no fiber_bundles or that the voxel_size is to large.&#39;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">_set_gen_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__gen</span><span class="o">.</span><span class="n">dim_local</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span><span class="p">,</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">__gen</span><span class="o">.</span><span class="n">dim_offset</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">tissue</span><span class="p">,</span> <span class="n">optical_axis</span><span class="p">,</span> <span class="n">tissue_properties</span></div>
+
+    <span class="k">def</span> <span class="nf">_init_pli_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; check all pli setup input requirements &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_simulation_input</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sim</span><span class="o">.</span><span class="n">set_pli_setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_step_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_light_intensity</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">_voxel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wavelength</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">_tissue_refrection</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">_untilt_sensor_view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flip_z_beam</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">_filter_rotations</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_generation_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fiber_bundles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;fiber_bundles is not set&#39;</span><span class="p">)</span>
+        <span class="c1"># if any(self._fiber_bundles.layers is None):</span>
+        <span class="k">for</span> <span class="n">lys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fiber_bundles</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ly</span> <span class="ow">in</span> <span class="n">lys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ly</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;fiber_bundle properties are </span><span class="se">\&quot;</span><span class="s1">None</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Simpli.run_simulation"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.run_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tissue</span><span class="p">,</span> <span class="n">optical_axis</span><span class="p">,</span> <span class="n">tissue_properties</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span>
+                       <span class="n">phi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generation of discreticesd tissue.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tissue: np.ndarray</span>
+<span class="sd">            discretized tissue array</span>
+<span class="sd">        optical_axis: np.ndarray</span>
+<span class="sd">            discretized tissue array</span>
+<span class="sd">        tissue_properties: np.ndarray</span>
+<span class="sd">            discretized tissue array</span>
+<span class="sd">        theta: float</span>
+<span class="sd">            polar angle of tilting</span>
+<span class="sd">        phi: float</span>
+<span class="sd">            azimuthal angle of tilting</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        images : np.ndarray</span>
+<span class="sd">            images of all rotation angles with a pixel size of voxel_size</span>
+<span class="sd">            To calculate the optical resolution and noise apply_optics()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Run simulation&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_volume_input</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_pli_setup</span><span class="p">()</span>
+
+        <span class="n">tissue_properties</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tissue_properties</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tissue_properties</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tissue_properties.ndim !=2&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tissue_properties</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tissue_properties.shape[1] != 2&#39;</span><span class="p">)</span>
+
+        <span class="n">tissue_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tissue</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">optical_axis_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">optical_axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tissue_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">tissue</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;tissue is copied&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">optical_axis_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">optical_axis</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;optical_axis is copied&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tissue</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tissue.ndim != 3&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">optical_axis</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;optical_axis.ndim != 4&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">optical_axis</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;optical_axis.shape[3] != 3&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">tissue</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">optical_axis</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;not np.equal(tissue.shape, optical_axis.shape[:-1])&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">tissue</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;np.any(tissue.shape != self._dim)&#39;</span><span class="p">)</span>
+
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sim</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dim</span><span class="p">,</span> <span class="n">tissue_</span><span class="p">,</span> <span class="n">optical_axis_</span><span class="p">,</span>
+                                           <span class="n">tissue_properties</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;intensity &lt; 0 detected&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">images</span></div>
+
+<div class="viewcode-block" id="Simpli.run_tissue_pipeline"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.run_tissue_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">run_tissue_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                            <span class="n">h5f</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">script</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">save</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;tissue&#39;</span><span class="p">,</span> <span class="s1">&#39;optical_axis&#39;</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Automatized hdf5 saving tissue pipeline</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        h5f: hdf5-File</span>
+<span class="sd">        script: np.ndarray</span>
+<span class="sd">            save a script in h5f.attrs[&#39;script&#39;]</span>
+<span class="sd">        save: list(str)</span>
+<span class="sd">            name of parameters to save</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res : np.ndarray, np.ndarray, np.ndarray</span>
+<span class="sd">            discreticed tissue, optical axis and tissue_properties</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Run tissue pipeline&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_volume_input</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_generation_input</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">script</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_parameter_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">script</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">save</span> <span class="ow">or</span> <span class="s1">&#39;simulation&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">save</span> <span class="o">=</span> <span class="n">save</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;tissue&#39;</span><span class="p">,</span> <span class="s1">&#39;optical_axis&#39;</span><span class="p">]</span>
+
+        <span class="c1"># run tissue generation</span>
+        <span class="n">tissue</span><span class="p">,</span> <span class="n">optical_axis</span><span class="p">,</span> <span class="n">tissue_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_tissue</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="s1">&#39;tissue&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Save tissue&#39;</span><span class="p">)</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;tissue/tissue&#39;</span><span class="p">,</span>
+                                      <span class="n">tissue</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                      <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span>
+                                      <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">,</span>
+                                      <span class="n">compression_opts</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tissue</span>
+
+        <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="s1">&#39;optical_axis&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Save optical_axis&#39;</span><span class="p">)</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;tissue/optical_axis&#39;</span><span class="p">,</span>
+                                      <span class="n">optical_axis</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                      <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                                      <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">,</span>
+                                      <span class="n">compression_opts</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">optical_axis</span>
+
+        <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="s1">&#39;tissue&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;tissue/properties&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tissue_properties</span>
+
+        <span class="k">return</span> <span class="n">tissue</span><span class="p">,</span> <span class="n">optical_axis</span><span class="p">,</span> <span class="n">tissue_properties</span></div>
+
+<div class="viewcode-block" id="Simpli.crop_tilt_pixel"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.crop_tilt_pixel">[docs]</a>    <span class="k">def</span> <span class="nf">crop_tilt_pixel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; crop affected boundary pixel from tilted images &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;calc crop-tilt-halo pixel&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">untilt_sensor_view</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;currently only for untilt_sensor_view=True&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_voxel_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;voxel_size is not set&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixel_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;pixel_size is not set&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tilts are not set&#39;</span><span class="p">)</span>
+
+        <span class="n">delta_pixel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_voxel_size</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixel_size</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">delta_pixel</span></div>
+
+<div class="viewcode-block" id="Simpli.crop_tilt_voxel"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.crop_tilt_voxel">[docs]</a>    <span class="k">def</span> <span class="nf">crop_tilt_voxel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get number of affected boundary voxel from tilted images &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;calc crop-tilt-halo voxel&#39;</span><span class="p">)</span>
+        <span class="n">delta_voxel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crop_tilt_pixel</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixel_size</span> <span class="o">/</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">_voxel_size</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">delta_voxel</span></div>
+
+<div class="viewcode-block" id="Simpli.add_crop_tilt_halo"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.add_crop_tilt_halo">[docs]</a>    <span class="k">def</span> <span class="nf">add_crop_tilt_halo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; add number of necessary boundary voxel from tilted images &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;add crop-tilt-halo&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim_origin</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_tilt_voxel</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_tilt_voxel</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simpli.rm_crop_tilt_halo"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.rm_crop_tilt_halo">[docs]</a>    <span class="k">def</span> <span class="nf">rm_crop_tilt_halo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; remove number of added boundary voxel from tilted images &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;rm crop-tilt-halo&#39;</span><span class="p">)</span>
+        <span class="n">delta_voxel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_tilt_voxel</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">delta_voxel</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">delta_voxel</span><span class="p">:</span><span class="o">-</span><span class="n">delta_voxel</span><span class="p">,</span> <span class="n">delta_voxel</span><span class="p">:</span><span class="o">-</span><span class="n">delta_voxel</span><span class="p">,</span> <span class="p">:]</span></div>
+
+<div class="viewcode-block" id="Simpli.run_simulation_pipeline"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.run_simulation_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">run_simulation_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                <span class="n">tissue</span><span class="p">,</span>
+                                <span class="n">optical_axis</span><span class="p">,</span>
+                                <span class="n">tissue_properties</span><span class="p">,</span>
+                                <span class="n">h5f</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">save</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;optic&#39;</span><span class="p">,</span> <span class="s1">&#39;epa&#39;</span><span class="p">,</span> <span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;rofl&#39;</span><span class="p">),</span>
+                                <span class="n">crop_tilt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">mp_pool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Automatized hdf5 saving simulation pipeline</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tissue: np.ndarray</span>
+<span class="sd">            discretized tissue array</span>
+<span class="sd">        optical_axis: np.ndarray</span>
+<span class="sd">            discretized tissue array</span>
+<span class="sd">        tissue_properties: np.ndarray</span>
+<span class="sd">            discretized tissue array</span>
+<span class="sd">        h5f: hdf5-File</span>
+<span class="sd">        save: list(str)</span>
+<span class="sd">            name of parameters to save</span>
+<span class="sd">        crop_tilt: bool</span>
+<span class="sd">            crop voxel outside of combined tilting view</span>
+<span class="sd">        mp_pool: multiprocessing.Pool</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res : np.ndarray, np.ndarray, np.ndarray</span>
+<span class="sd">            discreticed tissue, optical axis and tissue_properties</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Run simulation pipeline&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">save</span> <span class="ow">or</span> <span class="s1">&#39;simulation&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">save</span> <span class="o">=</span> <span class="n">save</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;resample&#39;</span><span class="p">,</span> <span class="s1">&#39;optic&#39;</span><span class="p">,</span> <span class="s1">&#39;epa&#39;</span><span class="p">,</span> <span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;rofl&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tilts is not set&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optical_sigma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;optical_sigma is not set&#39;</span><span class="p">)</span>
+
+        <span class="n">flag_rofl</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">270</span><span class="p">])</span>
+                 <span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Tilts not suitable for ROFL. Skipping analysis&#39;</span><span class="p">)</span>
+            <span class="n">flag_rofl</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">tilting_stack</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Simulate tilts:&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">tilt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span><span class="p">):</span>
+            <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">tilt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tilt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Tilt </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s1">: theta: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> deg, phi: &#39;</span> <span class="o">+</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> deg&#39;</span><span class="p">)</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">tissue</span><span class="p">,</span> <span class="n">optical_axis</span><span class="p">,</span>
+                                         <span class="n">tissue_properties</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">crop_tilt</span><span class="p">:</span>
+                <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rm_crop_tilt_halo</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="s1">&#39;data&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Save data&#39;</span><span class="p">)</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/data/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="o">=</span> <span class="n">images</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/data/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/data/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi</span>
+
+            <span class="c1"># apply optic to simulation</span>
+            <span class="n">img_res</span><span class="p">,</span> <span class="n">img_noise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_optic</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">mp_pool</span><span class="o">=</span><span class="n">mp_pool</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="s1">&#39;resample&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Save resample&#39;</span><span class="p">)</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/resample/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="o">=</span> <span class="n">img_res</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/resample/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/resample/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi</span>
+
+            <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="s1">&#39;optic&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Save optic&#39;</span><span class="p">)</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/optic/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="o">=</span> <span class="n">img_noise</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/optic/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/optic/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi</span>
+
+            <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="s1">&#39;epa&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+                <span class="c1"># calculate modalities</span>
+                <span class="n">epa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_epa</span><span class="p">(</span><span class="n">img_noise</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Save epa&#39;</span><span class="p">)</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/transmittance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">epa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">epa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/retardation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">epa</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39;/transmittance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39;/transmittance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39;/direction&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/direction&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39;/retardation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span>
+                <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/epa/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39;/retardation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi</span>
+
+            <span class="n">tilting_stack</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_noise</span>
+
+        <span class="c1"># pseudo mask</span>
+        <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="s1">&#39;mask&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Calc mask&#39;</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tissue</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_optic_resample</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">mask</span><span class="p">,</span> <span class="n">mp_pool</span><span class="o">=</span><span class="n">mp_pool</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Save mask&#39;</span><span class="p">)</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;simulation/optic/mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+        <span class="n">tilting_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tilting_stack</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">tilting_stack</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">tilting_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tilting_stack</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">flag_rofl</span><span class="p">:</span>
+            <span class="n">rofl_direction</span><span class="p">,</span> <span class="n">rofl_incl</span><span class="p">,</span> <span class="n">rofl_t_rel</span><span class="p">,</span> <span class="p">(</span>
+                <span class="n">rofl_direction_conf</span><span class="p">,</span> <span class="n">rofl_incl_conf</span><span class="p">,</span> <span class="n">rofl_t_rel_conf</span><span class="p">,</span> <span class="n">rofl_func</span><span class="p">,</span>
+                <span class="n">rofl_n_iter</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_rofl</span><span class="p">(</span><span class="n">tilting_stack</span><span class="p">,</span>
+                                               <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                               <span class="n">mp_pool</span><span class="o">=</span><span class="n">mp_pool</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rofl_direction</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">rofl_incl</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">rofl_t_rel</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">rofl_direction_conf</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">rofl_incl_conf</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">rofl_t_rel_conf</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">rofl_func</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">rofl_n_iter</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="n">flag_rofl</span> <span class="ow">and</span> <span class="s1">&#39;rofl&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Save rofl&#39;</span><span class="p">)</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/rofl/direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rofl_direction</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/rofl/inclination&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rofl_incl</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/rofl/t_rel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rofl_t_rel</span>
+
+        <span class="k">if</span> <span class="n">h5f</span> <span class="ow">and</span> <span class="n">flag_rofl</span> <span class="ow">and</span> <span class="s1">&#39;rofl_conf&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/rofl/direction_conf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rofl_direction_conf</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/rofl/inclination_conf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rofl_incl_conf</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/rofl/t_rel_conf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rofl_t_rel_conf</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/rofl/func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rofl_func</span>
+            <span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;analysis/rofl/n_iter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rofl_n_iter</span>
+
+        <span class="k">if</span> <span class="n">flag_rofl</span><span class="p">:</span>
+            <span class="n">fom</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">fom_hsv_black</span><span class="p">(</span><span class="n">rofl_direction</span><span class="p">,</span> <span class="n">rofl_incl</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fom</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">tilting_stack</span><span class="p">,</span> <span class="p">(</span><span class="n">rofl_direction</span><span class="p">,</span> <span class="n">rofl_incl</span><span class="p">,</span> <span class="n">rofl_t_rel</span><span class="p">),</span> <span class="n">fom</span></div>
+
+<div class="viewcode-block" id="Simpli.run_pipeline"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.run_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">run_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">h5f</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">script</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">save</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;tissue&#39;</span><span class="p">,</span> <span class="s1">&#39;optical_axis&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;optic&#39;</span><span class="p">,</span> <span class="s1">&#39;epa&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;rofl&#39;</span><span class="p">),</span>
+                     <span class="n">crop_tilt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">mp_pool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Automatized hdf5 saving tissue and simulation pipeline</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: np.ndarray</span>
+<span class="sd">            save a script in h5f.attrs[&#39;script&#39;]</span>
+<span class="sd">        save: list(str)</span>
+<span class="sd">            name of parameters to save</span>
+<span class="sd">        crop_tilt: bool</span>
+<span class="sd">            crop voxel outside of combined tilting view</span>
+<span class="sd">        mp_pool: multiprocessing.Pool</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res : (np.ndarray, np.ndarray, np.ndarray), np.ndarray,</span>
+<span class="sd">              (np.ndarray,np.ndarray, np.ndarray) np.ndarray</span>
+<span class="sd">            (tissue, optical_axis, tissue_properties), tilting_stack,</span>
+<span class="sd">            (rofl_direction, rofl_incl, rofl_t_rel), fom</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print</span><span class="p">(</span><span class="s1">&#39;Run pipeline&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">save</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s1">&#39;tissue&#39;</span><span class="p">,</span> <span class="s1">&#39;optical_axis&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;optic&#39;</span><span class="p">,</span> <span class="s1">&#39;epa&#39;</span><span class="p">,</span> <span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;rofl&#39;</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;tissue&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">save</span> <span class="o">=</span> <span class="n">save</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;tissue&#39;</span><span class="p">,</span> <span class="s1">&#39;optical_axis&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;simulation&#39;</span> <span class="ow">in</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">save</span> <span class="o">=</span> <span class="n">save</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;optic&#39;</span><span class="p">,</span> <span class="s1">&#39;epa&#39;</span><span class="p">,</span> <span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;rofl&#39;</span><span class="p">]</span>
+
+        <span class="c1"># check parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_volume_input</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_generation_input</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_simulation_input</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tilts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tilts is not set&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optical_sigma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;optical_sigma is not set&#39;</span><span class="p">)</span>
+
+        <span class="c1"># save parameters</span>
+        <span class="k">if</span> <span class="n">h5f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_parameter_h5</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">script</span><span class="p">)</span>
+
+        <span class="c1"># run tissue generation</span>
+        <span class="n">tissue</span><span class="p">,</span> <span class="n">optical_axis</span><span class="p">,</span> <span class="n">tissue_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_tissue_pipeline</span><span class="p">(</span>
+            <span class="n">h5f</span><span class="o">=</span><span class="n">h5f</span><span class="p">,</span> <span class="n">script</span><span class="o">=</span><span class="n">script</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span>
+
+        <span class="c1"># run simulation and analysis</span>
+        <span class="n">tilting_stack</span><span class="p">,</span> <span class="p">(</span><span class="n">rofl_direction</span><span class="p">,</span> <span class="n">rofl_incl</span><span class="p">,</span>
+                        <span class="n">rofl_t_rel</span><span class="p">),</span> <span class="n">fom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_simulation_pipeline</span><span class="p">(</span>
+                            <span class="n">tissue</span><span class="p">,</span>
+                            <span class="n">optical_axis</span><span class="p">,</span>
+                            <span class="n">tissue_properties</span><span class="p">,</span>
+                            <span class="n">h5f</span><span class="o">=</span><span class="n">h5f</span><span class="p">,</span>
+                            <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
+                            <span class="n">crop_tilt</span><span class="o">=</span><span class="n">crop_tilt</span><span class="p">,</span>
+                            <span class="n">mp_pool</span><span class="o">=</span><span class="n">mp_pool</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">tissue</span><span class="p">,</span> <span class="n">optical_axis</span><span class="p">,</span>
+                <span class="n">tissue_properties</span><span class="p">),</span> <span class="n">tilting_stack</span><span class="p">,</span> <span class="p">(</span><span class="n">rofl_direction</span><span class="p">,</span> <span class="n">rofl_incl</span><span class="p">,</span>
+                                                    <span class="n">rofl_t_rel</span><span class="p">),</span> <span class="n">fom</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omp_num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get/set number of omp threads &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_omp_num_threads</span>
+
+    <span class="nd">@omp_num_threads</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">omp_num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_threads</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; set number of omp threads &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_threads</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;num_threads != int&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_threads</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;num_threads &lt;= 0&#39;</span><span class="p">)</span>
+
+        <span class="n">num_threads_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen</span><span class="o">.</span><span class="n">set_omp_num_threads</span><span class="p">(</span><span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">num_threads_sim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sim</span><span class="o">.</span><span class="n">set_omp_num_threads</span><span class="p">(</span><span class="n">num_threads</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_threads_gen</span> <span class="o">!=</span> <span class="n">num_threads_sim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s1">&#39;num_threads_gen != num_threads_sim&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_threads_gen</span> <span class="o">!=</span> <span class="n">num_threads</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;reduced num_threads: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_threads_gen</span><span class="p">),</span>
+                          <span class="ne">UserWarning</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omp_num_threads</span> <span class="o">=</span> <span class="n">num_threads_gen</span>
+
+<div class="viewcode-block" id="Simpli.memory_usage"><a class="viewcode-back" href="../../../_autosummary/fastpli.simulation.simpli.Simpli.html#fastpli.simulation.simpli.Simpli.memory_usage">[docs]</a>    <span class="k">def</span> <span class="nf">memory_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns expected memory ussage</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        unit: str</span>
+<span class="sd">            unit in &#39;MB&#39; or &#39;GB&#39;</span>
+<span class="sd">        item: list(str)</span>
+<span class="sd">            &#39;all&#39; or only &#39;tissue&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res : str</span>
+<span class="sd">            expected memory ussage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;MB&#39;</span><span class="p">:</span>
+            <span class="n">div</span> <span class="o">=</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;GB&#39;</span><span class="p">:</span>
+            <span class="n">div</span> <span class="o">=</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;allowed is only </span><span class="se">\&#39;</span><span class="s1">MB</span><span class="se">\&#39;</span><span class="s1">, </span><span class="se">\&#39;</span><span class="s1">GB</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;dimension not set yet&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s1">&#39;tissue&#39;</span><span class="p">:</span>
+            <span class="c1"># tissue + distance_array</span>
+            <span class="n">usage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dim</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">32</span> <span class="o">+</span> <span class="mi">32</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">/</span> <span class="n">div</span>
+        <span class="k">elif</span> <span class="n">item</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="n">usage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dim</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">32</span> <span class="o">+</span> <span class="mi">32</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">32</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">/</span> <span class="n">div</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;allowed is only </span><span class="se">\&#39;</span><span class="s1">tissue</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">all</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">usage</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Forschungszentrum Jülich, INM-1.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+﻿fastpli.io
+==========
+
+.. automodule:: fastpli.io
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   fastpli.io.fiber_bundles
+

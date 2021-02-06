@@ -1,0 +1,6 @@
+fastpli.model.sandbox.build.cylinder
+====================================
+
+.. currentmodule:: fastpli.model.sandbox.build
+
+.. autofunction:: cylinder

@@ -1,0 +1,6 @@
+fastpli.io.fiber\_bundles.load\_dat
+===================================
+
+.. currentmodule:: fastpli.io.fiber_bundles
+
+.. autofunction:: load_dat

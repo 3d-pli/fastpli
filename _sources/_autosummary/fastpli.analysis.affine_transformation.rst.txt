@@ -1,0 +1,33 @@
+fastpli.analysis.affine\_transformation
+=======================================
+
+.. automodule:: fastpli.analysis.affine_transformation
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      apply
+      calc_matrix
+      exec_matrix
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

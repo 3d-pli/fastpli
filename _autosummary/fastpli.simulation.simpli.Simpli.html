@@ -1,0 +1,871 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fastpli.simulation.simpli.Simpli &mdash; fastPLI v1.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="fastpli.tools" href="fastpli.tools.html" />
+    <link rel="prev" title="fastpli.simulation.simpli" href="fastpli.simulation.simpli.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> fastPLI
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="fastpli.analysis.html">fastpli.analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastpli.io.html">fastpli.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastpli.model.html">fastpli.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fastpli.objects.html">fastpli.objects</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="fastpli.simulation.html">fastpli.simulation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fastpli.simulation.optic.html">fastpli.simulation.optic</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="fastpli.simulation.simpli.html">fastpli.simulation.simpli</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">fastpli.simulation.simpli.Simpli</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fastpli.tools.html">fastpli.tools</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fastPLI</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="fastpli.simulation.html">fastpli.simulation</a> &raquo;</li>
+        
+          <li><a href="fastpli.simulation.simpli.html">fastpli.simulation.simpli</a> &raquo;</li>
+        
+      <li>fastpli.simulation.simpli.Simpli</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="fastpli-simulation-simpli-simpli">
+<h1>fastpli.simulation.simpli.Simpli<a class="headerlink" href="#fastpli-simulation-simpli-simpli" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="fastpli.simulation.simpli.Simpli">
+<em class="property">class </em><code class="sig-name descname">Simpli</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mpi_comm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">fastpli.simulation.__simpli.__Simpli</span></code></p>
+<p>Simpli Class for simulating 3D-PLI images</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.add_crop_tilt_halo" title="fastpli.simulation.simpli.Simpli.add_crop_tilt_halo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_crop_tilt_halo</span></code></a></p></td>
+<td><p>add number of necessary boundary voxel from tilted images</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.apply_epa" title="fastpli.simulation.simpli.Simpli.apply_epa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_epa</span></code></a></p></td>
+<td><p>calculates transmittance, direction and retardation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.apply_optic" title="fastpli.simulation.simpli.Simpli.apply_optic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_optic</span></code></a></p></td>
+<td><p>applies optical filters and resampling to image</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.apply_optic_resample" title="fastpli.simulation.simpli.Simpli.apply_optic_resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_optic_resample</span></code></a></p></td>
+<td><p>applies optical resampling to image</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.apply_rofl" title="fastpli.simulation.simpli.Simpli.apply_rofl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_rofl</span></code></a></p></td>
+<td><p>calculates tilt analysis for direction, inclination and t_rel and additional fitting parameters</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.apply_untilt" title="fastpli.simulation.simpli.Simpli.apply_untilt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_untilt</span></code></a></p></td>
+<td><p>applies optical untilt to image with affine transformation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.crop_tilt_pixel" title="fastpli.simulation.simpli.Simpli.crop_tilt_pixel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crop_tilt_pixel</span></code></a></p></td>
+<td><p>crop affected boundary pixel from tilted images</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.crop_tilt_voxel" title="fastpli.simulation.simpli.Simpli.crop_tilt_voxel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crop_tilt_voxel</span></code></a></p></td>
+<td><p>get number of affected boundary voxel from tilted images</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.generate_tissue" title="fastpli.simulation.simpli.Simpli.generate_tissue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_tissue</span></code></a></p></td>
+<td><p>Generation of discreticesd tissue.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.get_dict" title="fastpli.simulation.simpli.Simpli.get_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dict</span></code></a></p></td>
+<td><p>Get all member variables which are properties as dictionary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.get_voi" title="fastpli.simulation.simpli.Simpli.get_voi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_voi</span></code></a></p></td>
+<td><p>get volume of interest</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.memory_usage" title="fastpli.simulation.simpli.Simpli.memory_usage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory_usage</span></code></a></p></td>
+<td><p>returns expected memory ussage</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.rm_crop_tilt_halo" title="fastpli.simulation.simpli.Simpli.rm_crop_tilt_halo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rm_crop_tilt_halo</span></code></a></p></td>
+<td><p>remove number of added boundary voxel from tilted images</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.run_pipeline" title="fastpli.simulation.simpli.Simpli.run_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_pipeline</span></code></a></p></td>
+<td><p>Automatized hdf5 saving tissue and simulation pipeline</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.run_simulation" title="fastpli.simulation.simpli.Simpli.run_simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_simulation</span></code></a></p></td>
+<td><p>Generation of discreticesd tissue.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.run_simulation_pipeline" title="fastpli.simulation.simpli.Simpli.run_simulation_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_simulation_pipeline</span></code></a></p></td>
+<td><p>Automatized hdf5 saving simulation pipeline</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.run_tissue_pipeline" title="fastpli.simulation.simpli.Simpli.run_tissue_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_tissue_pipeline</span></code></a></p></td>
+<td><p>Automatized hdf5 saving tissue pipeline</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.save_parameter_h5" title="fastpli.simulation.simpli.Simpli.save_parameter_h5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_parameter_h5</span></code></a></p></td>
+<td><p>Saves class members without fiber_bundles in hdf5 file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.set_dict" title="fastpli.simulation.simpli.Simpli.set_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_dict</span></code></a></p></td>
+<td><p>Set dictionary of variables to class members</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.set_voi" title="fastpli.simulation.simpli.Simpli.set_voi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_voi</span></code></a></p></td>
+<td><p>set volume of interest</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.background_absorption" title="fastpli.simulation.simpli.Simpli.background_absorption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">background_absorption</span></code></a></p></td>
+<td><p>absorption coefficient of the background</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.dim" title="fastpli.simulation.simpli.Simpli.dim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dim</span></code></a></p></td>
+<td><p>(3)-np.ndarray</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.dim_origin" title="fastpli.simulation.simpli.Simpli.dim_origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dim_origin</span></code></a></p></td>
+<td><p>(3)-np.ndarray</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.fiber_bundles" title="fastpli.simulation.simpli.Simpli.fiber_bundles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fiber_bundles</span></code></a></p></td>
+<td><p>FiberBundles</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.filter_rotations" title="fastpli.simulation.simpli.Simpli.filter_rotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_rotations</span></code></a></p></td>
+<td><p>[float]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.flip_z_beam" title="fastpli.simulation.simpli.Simpli.flip_z_beam"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flip_z_beam</span></code></a></p></td>
+<td><p>flip light z-direction</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.interpolate" title="fastpli.simulation.simpli.Simpli.interpolate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code></a></p></td>
+<td><p>birefringence optical axis interpolation True/False</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.light_intensity" title="fastpli.simulation.simpli.Simpli.light_intensity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">light_intensity</span></code></a></p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.noise_model" title="fastpli.simulation.simpli.Simpli.noise_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noise_model</span></code></a></p></td>
+<td><p>noise model to apply on resampled image</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.omp_num_threads" title="fastpli.simulation.simpli.Simpli.omp_num_threads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omp_num_threads</span></code></a></p></td>
+<td><p>get/set number of omp threads</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.optical_sigma" title="fastpli.simulation.simpli.Simpli.optical_sigma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optical_sigma</span></code></a></p></td>
+<td><p>optical_sigma of convolution to applie before resampled image</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.pixel_size" title="fastpli.simulation.simpli.Simpli.pixel_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pixel_size</span></code></a></p></td>
+<td><p>side length of pixel of resulting optical image in micro meter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.step_size" title="fastpli.simulation.simpli.Simpli.step_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step_size</span></code></a></p></td>
+<td><p>step_size of light inside tissue in voxeln</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.tilts" title="fastpli.simulation.simpli.Simpli.tilts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tilts</span></code></a></p></td>
+<td><p>list of spherical tilting angles [[theta, phi], …] in radiant:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.tissue_refrection" title="fastpli.simulation.simpli.Simpli.tissue_refrection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tissue_refrection</span></code></a></p></td>
+<td><p>tissue refrection to include in tilting light path calculation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.untilt_sensor_view" title="fastpli.simulation.simpli.Simpli.untilt_sensor_view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">untilt_sensor_view</span></code></a></p></td>
+<td><p>automatic untilting of images</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.verbose" title="fastpli.simulation.simpli.Simpli.verbose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">verbose</span></code></a></p></td>
+<td><p>bool</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.voxel_size" title="fastpli.simulation.simpli.Simpli.voxel_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">voxel_size</span></code></a></p></td>
+<td><p>size length of voxel in micro meter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastpli.simulation.simpli.Simpli.wavelength" title="fastpli.simulation.simpli.Simpli.wavelength"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wavelength</span></code></a></p></td>
+<td><p>wavelength of light</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.add_crop_tilt_halo">
+<code class="sig-name descname">add_crop_tilt_halo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.add_crop_tilt_halo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.add_crop_tilt_halo" title="Permalink to this definition">¶</a></dt>
+<dd><p>add number of necessary boundary voxel from tilted images</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.apply_epa">
+<code class="sig-name descname">apply_epa</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.apply_epa" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates transmittance, direction and retardation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – images(x,y,rho)</p></li>
+<li><p><strong>mask</strong> (<em>np.ndarray(bool)</em>) – only True elements will be calculated</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – transmittance, direction, retardation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray, np.ndarray, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.apply_optic">
+<code class="sig-name descname">apply_optic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">mp_pool</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.apply_optic" title="Permalink to this definition">¶</a></dt>
+<dd><p>applies optical filters and resampling to image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – images(x,y,rho)</p></li>
+<li><p><strong>mp_pool</strong> (<em>optional, multiprocessing.Pool</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – images in reduced size and applied noise model</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.apply_optic_resample">
+<code class="sig-name descname">apply_optic_resample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">shift</span><span class="o">=</span><span class="default_value">(0, 0)</span></em>, <em class="sig-param"><span class="n">mp_pool</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.apply_optic_resample" title="Permalink to this definition">¶</a></dt>
+<dd><p>applies optical resampling to image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – images(x,y,rho)</p></li>
+<li><p><strong>mp_pool</strong> (<em>optional, multiprocessing.Pool</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – images in reduced size</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.apply_rofl">
+<code class="sig-name descname">apply_rofl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mp_pool</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">grad_mode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.apply_rofl" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates tilt analysis for direction, inclination and t_rel and
+additional fitting parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – images(x,y,rho)</p></li>
+<li><p><strong>mask</strong> (<em>optional, np.ndarray(bool)</em>) – only True elements will be calculated</p></li>
+<li><p><strong>mp_pool</strong> (<em>optional, multiprocessing.Pool</em>)</p></li>
+<li><p><strong>grad_mode</strong> (<em>optional, bool</em>) – activate gradient method inside rofl algorithm</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> –  (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray)
+directionmap, inclmap, trelmap,
+(dirdevmap, incldevmap, treldevmap, funcmap, itermap)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray, np.ndarray, np.ndarray,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.apply_untilt">
+<code class="sig-name descname">apply_untilt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">theta</span></em>, <em class="sig-param"><span class="n">phi</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'nearest'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.apply_untilt" title="Permalink to this definition">¶</a></dt>
+<dd><p>applies optical untilt to image with affine transformation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – images(x,y,rho)</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – polar angle</p></li>
+<li><p><strong>phi</strong> (<em>float</em>) – azimuthal angle</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – method of scipy.interpolate.griddata</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – untilted images</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.background_absorption">
+<em class="property">property </em><code class="sig-name descname">background_absorption</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.background_absorption" title="Permalink to this definition">¶</a></dt>
+<dd><p>absorption coefficient of the background</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>background_absorption</strong> (<em>float</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.crop_tilt_pixel">
+<code class="sig-name descname">crop_tilt_pixel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.crop_tilt_pixel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.crop_tilt_pixel" title="Permalink to this definition">¶</a></dt>
+<dd><p>crop affected boundary pixel from tilted images</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.crop_tilt_voxel">
+<code class="sig-name descname">crop_tilt_voxel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.crop_tilt_voxel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.crop_tilt_voxel" title="Permalink to this definition">¶</a></dt>
+<dd><p>get number of affected boundary voxel from tilted images</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.dim">
+<em class="property">property </em><code class="sig-name descname">dim</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>(3)-np.ndarray</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dimension of volume in voxel</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.dim_origin">
+<em class="property">property </em><code class="sig-name descname">dim_origin</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.dim_origin" title="Permalink to this definition">¶</a></dt>
+<dd><p>(3)-np.ndarray</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>origin of volume in micro meter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.fiber_bundles">
+<em class="property">property </em><code class="sig-name descname">fiber_bundles</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.fiber_bundles" title="Permalink to this definition">¶</a></dt>
+<dd><p>FiberBundles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>get fiber_bundles</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.filter_rotations">
+<em class="property">property </em><code class="sig-name descname">filter_rotations</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.filter_rotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>[float]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of filter rotation position in radiant</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.flip_z_beam">
+<em class="property">property </em><code class="sig-name descname">flip_z_beam</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.flip_z_beam" title="Permalink to this definition">¶</a></dt>
+<dd><p>flip light z-direction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>flip_z_beam</strong> (<em>bool</em>) – True or False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.generate_tissue">
+<code class="sig-name descname">generate_tissue</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_tissue</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.generate_tissue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.generate_tissue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generation of discreticesd tissue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_tissue</strong> (<em>bool</em>) – generates only first return value</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – discreticed tissue, optical axis and tissue_properties</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray, np.ndarray, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.get_dict">
+<code class="sig-name descname">get_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.get_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all member variables which are properties as dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.get_voi">
+<code class="sig-name descname">get_voi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.get_voi" title="Permalink to this definition">¶</a></dt>
+<dd><p>get volume of interest</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>res</strong> – v_min: [x_min, y_min, z_min]
+v_max: [x_max, y_max, z_max]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.interpolate">
+<em class="property">property </em><code class="sig-name descname">interpolate</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.interpolate" title="Permalink to this definition">¶</a></dt>
+<dd><p>birefringence optical axis interpolation True/False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>res</strong> – is the interpolation fo the birefringence optical axis activated</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.light_intensity">
+<em class="property">property </em><code class="sig-name descname">light_intensity</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.light_intensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>float</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>initial light intensity value in a.u.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.memory_usage">
+<code class="sig-name descname">memory_usage</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">'MB'</span></em>, <em class="sig-param"><span class="n">item</span><span class="o">=</span><span class="default_value">'all'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.memory_usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.memory_usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns expected memory ussage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – unit in ‘MB’ or ‘GB’</p></li>
+<li><p><strong>item</strong> (<em>list(str)</em>) – ‘all’ or only ‘tissue’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – expected memory ussage</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.noise_model">
+<em class="property">property </em><code class="sig-name descname">noise_model</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.noise_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>noise model to apply on resampled image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fun</strong> (<em>function</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.omp_num_threads">
+<em class="property">property </em><code class="sig-name descname">omp_num_threads</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.omp_num_threads" title="Permalink to this definition">¶</a></dt>
+<dd><p>get/set number of omp threads</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.optical_sigma">
+<em class="property">property </em><code class="sig-name descname">optical_sigma</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.optical_sigma" title="Permalink to this definition">¶</a></dt>
+<dd><p>optical_sigma of convolution to applie before resampled image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>optical_sigma</strong> (<em>float</em>) – in pixel size</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.pixel_size">
+<em class="property">property </em><code class="sig-name descname">pixel_size</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.pixel_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>side length of pixel of resulting optical image in micro meter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.rm_crop_tilt_halo">
+<code class="sig-name descname">rm_crop_tilt_halo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.rm_crop_tilt_halo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.rm_crop_tilt_halo" title="Permalink to this definition">¶</a></dt>
+<dd><p>remove number of added boundary voxel from tilted images</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.run_pipeline">
+<code class="sig-name descname">run_pipeline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h5f</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">script</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">('tissue', 'optical_axis', 'data', 'optic', 'epa', 'mask', 'rofl')</span></em>, <em class="sig-param"><span class="n">crop_tilt</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mp_pool</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.run_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.run_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatized hdf5 saving tissue and simulation pipeline</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>script</strong> (<em>np.ndarray</em>) – save a script in h5f.attrs[‘script’]</p></li>
+<li><p><strong>save</strong> (<em>list(str)</em>) – name of parameters to save</p></li>
+<li><p><strong>crop_tilt</strong> (<em>bool</em>) – crop voxel outside of combined tilting view</p></li>
+<li><p><strong>mp_pool</strong> (<em>multiprocessing.Pool</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> –   (np.ndarray,np.ndarray, np.ndarray) np.ndarray
+(tissue, optical_axis, tissue_properties), tilting_stack,
+(rofl_direction, rofl_incl, rofl_t_rel), fom</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray, np.ndarray, np.ndarray), np.ndarray,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.run_simulation">
+<code class="sig-name descname">run_simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tissue</span></em>, <em class="sig-param"><span class="n">optical_axis</span></em>, <em class="sig-param"><span class="n">tissue_properties</span></em>, <em class="sig-param"><span class="n">theta</span></em>, <em class="sig-param"><span class="n">phi</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.run_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.run_simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generation of discreticesd tissue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tissue</strong> (<em>np.ndarray</em>) – discretized tissue array</p></li>
+<li><p><strong>optical_axis</strong> (<em>np.ndarray</em>) – discretized tissue array</p></li>
+<li><p><strong>tissue_properties</strong> (<em>np.ndarray</em>) – discretized tissue array</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – polar angle of tilting</p></li>
+<li><p><strong>phi</strong> (<em>float</em>) – azimuthal angle of tilting</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>images</strong> – images of all rotation angles with a pixel size of voxel_size
+To calculate the optical resolution and noise apply_optics()</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.run_simulation_pipeline">
+<code class="sig-name descname">run_simulation_pipeline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tissue</span></em>, <em class="sig-param"><span class="n">optical_axis</span></em>, <em class="sig-param"><span class="n">tissue_properties</span></em>, <em class="sig-param"><span class="n">h5f</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">('data', 'optic', 'epa', 'mask', 'rofl')</span></em>, <em class="sig-param"><span class="n">crop_tilt</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mp_pool</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.run_simulation_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.run_simulation_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatized hdf5 saving simulation pipeline</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tissue</strong> (<em>np.ndarray</em>) – discretized tissue array</p></li>
+<li><p><strong>optical_axis</strong> (<em>np.ndarray</em>) – discretized tissue array</p></li>
+<li><p><strong>tissue_properties</strong> (<em>np.ndarray</em>) – discretized tissue array</p></li>
+<li><p><strong>h5f</strong> (<em>hdf5-File</em>)</p></li>
+<li><p><strong>save</strong> (<em>list(str)</em>) – name of parameters to save</p></li>
+<li><p><strong>crop_tilt</strong> (<em>bool</em>) – crop voxel outside of combined tilting view</p></li>
+<li><p><strong>mp_pool</strong> (<em>multiprocessing.Pool</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – discreticed tissue, optical axis and tissue_properties</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray, np.ndarray, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.run_tissue_pipeline">
+<code class="sig-name descname">run_tissue_pipeline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h5f</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">script</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">('tissue', 'optical_axis')</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/simulation/simpli.html#Simpli.run_tissue_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.run_tissue_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatized hdf5 saving tissue pipeline</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5f</strong> (<em>hdf5-File</em>)</p></li>
+<li><p><strong>script</strong> (<em>np.ndarray</em>) – save a script in h5f.attrs[‘script’]</p></li>
+<li><p><strong>save</strong> (<em>list(str)</em>) – name of parameters to save</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – discreticed tissue, optical axis and tissue_properties</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray, np.ndarray, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.save_parameter_h5">
+<code class="sig-name descname">save_parameter_h5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h5f</span></em>, <em class="sig-param"><span class="n">script</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.save_parameter_h5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves class members without fiber_bundles in hdf5 file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.set_dict">
+<code class="sig-name descname">set_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.set_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set dictionary of variables to class members</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.set_voi">
+<code class="sig-name descname">set_voi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v_min</span></em>, <em class="sig-param"><span class="n">v_max</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.set_voi" title="Permalink to this definition">¶</a></dt>
+<dd><p>set volume of interest</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v_min</strong> (<em>(float,float,float)-array-like</em>) – [x_min, y_min, z_min]</p></li>
+<li><p><strong>v_max</strong> (<em>(float,float,float)-array-like</em>) – [x_max, y_max, z_max]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.step_size">
+<em class="property">property </em><code class="sig-name descname">step_size</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.step_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>step_size of light inside tissue in voxeln</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>step_size</strong> (<em>float</em>) – of light inside tissue in voxeln</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.tilts">
+<em class="property">property </em><code class="sig-name descname">tilts</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.tilts" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of spherical tilting angles [[theta, phi], …] in radiant:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tilts</strong> (<em>[[float, float], …]</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.tissue_refrection">
+<em class="property">property </em><code class="sig-name descname">tissue_refrection</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.tissue_refrection" title="Permalink to this definition">¶</a></dt>
+<dd><p>tissue refrection to include in tilting light path calculation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tissue_refrection</strong> (<em>float</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.untilt_sensor_view">
+<em class="property">property </em><code class="sig-name descname">untilt_sensor_view</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.untilt_sensor_view" title="Permalink to this definition">¶</a></dt>
+<dd><p>automatic untilting of images</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>untilt_sensor_view</strong> (<em>bool</em>) – True or False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.verbose">
+<em class="property">property </em><code class="sig-name descname">verbose</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>additional information will be printed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.voxel_size">
+<em class="property">property </em><code class="sig-name descname">voxel_size</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.voxel_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>size length of voxel in micro meter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fastpli.simulation.simpli.Simpli.wavelength">
+<em class="property">property </em><code class="sig-name descname">wavelength</code><a class="headerlink" href="#fastpli.simulation.simpli.Simpli.wavelength" title="Permalink to this definition">¶</a></dt>
+<dd><p>wavelength of light</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>wavelength</strong> (<em>float</em>) – in nano meter</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="fastpli.tools.html" class="btn btn-neutral float-right" title="fastpli.tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="fastpli.simulation.simpli.html" class="btn btn-neutral float-left" title="fastpli.simulation.simpli" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Forschungszentrum Jülich, INM-1.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

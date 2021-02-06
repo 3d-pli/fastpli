@@ -1,0 +1,6 @@
+fastpli.analysis.images.fom\_rgb
+================================
+
+.. currentmodule:: fastpli.analysis.images
+
+.. autofunction:: fom_rgb

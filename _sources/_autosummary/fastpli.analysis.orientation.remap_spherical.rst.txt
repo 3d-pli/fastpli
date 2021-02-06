@@ -1,0 +1,6 @@
+fastpli.analysis.orientation.remap\_spherical
+=============================================
+
+.. currentmodule:: fastpli.analysis.orientation
+
+.. autofunction:: remap_spherical

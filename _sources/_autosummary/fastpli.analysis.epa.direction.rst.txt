@@ -1,0 +1,6 @@
+fastpli.analysis.epa.direction
+==============================
+
+.. currentmodule:: fastpli.analysis.epa
+
+.. autofunction:: direction

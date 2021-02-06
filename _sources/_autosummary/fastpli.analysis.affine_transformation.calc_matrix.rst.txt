@@ -1,0 +1,6 @@
+fastpli.analysis.affine\_transformation.calc\_matrix
+====================================================
+
+.. currentmodule:: fastpli.analysis.affine_transformation
+
+.. autofunction:: calc_matrix

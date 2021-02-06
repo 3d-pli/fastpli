@@ -1,0 +1,35 @@
+fastpli.objects.layers.Layer
+============================
+
+.. currentmodule:: fastpli.objects.layers
+
+.. autoclass:: Layer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :nosignatures:
+   
+      ~Layer.copy
+      ~Layer.data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Layer.absorption
+      ~Layer.birefringence
+      ~Layer.model
+      ~Layer.scale
+   
+   

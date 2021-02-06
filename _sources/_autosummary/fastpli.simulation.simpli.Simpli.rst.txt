@@ -1,0 +1,68 @@
+fastpli.simulation.simpli.Simpli
+================================
+
+.. currentmodule:: fastpli.simulation.simpli
+
+.. autoclass:: Simpli
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :nosignatures:
+   
+      ~Simpli.add_crop_tilt_halo
+      ~Simpli.apply_epa
+      ~Simpli.apply_optic
+      ~Simpli.apply_optic_resample
+      ~Simpli.apply_rofl
+      ~Simpli.apply_untilt
+      ~Simpli.crop_tilt_pixel
+      ~Simpli.crop_tilt_voxel
+      ~Simpli.generate_tissue
+      ~Simpli.get_dict
+      ~Simpli.get_voi
+      ~Simpli.memory_usage
+      ~Simpli.rm_crop_tilt_halo
+      ~Simpli.run_pipeline
+      ~Simpli.run_simulation
+      ~Simpli.run_simulation_pipeline
+      ~Simpli.run_tissue_pipeline
+      ~Simpli.save_parameter_h5
+      ~Simpli.set_dict
+      ~Simpli.set_voi
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Simpli.background_absorption
+      ~Simpli.dim
+      ~Simpli.dim_origin
+      ~Simpli.fiber_bundles
+      ~Simpli.filter_rotations
+      ~Simpli.flip_z_beam
+      ~Simpli.interpolate
+      ~Simpli.light_intensity
+      ~Simpli.noise_model
+      ~Simpli.omp_num_threads
+      ~Simpli.optical_sigma
+      ~Simpli.pixel_size
+      ~Simpli.step_size
+      ~Simpli.tilts
+      ~Simpli.tissue_refrection
+      ~Simpli.untilt_sensor_view
+      ~Simpli.verbose
+      ~Simpli.voxel_size
+      ~Simpli.wavelength
+   
+   

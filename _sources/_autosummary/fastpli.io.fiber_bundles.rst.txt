@@ -1,0 +1,36 @@
+fastpli.io.fiber\_bundles
+=========================
+
+.. automodule:: fastpli.io.fiber_bundles
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      load
+      load_dat
+      load_h5
+      save
+      save_dat
+      save_h5
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

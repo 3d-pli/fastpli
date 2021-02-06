@@ -1,0 +1,31 @@
+fastpli.analysis.rofl
+=====================
+
+.. automodule:: fastpli.analysis.rofl
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      rofl
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

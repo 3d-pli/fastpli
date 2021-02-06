@@ -1,0 +1,6 @@
+fastpli.io.fiber\_bundles.save
+==============================
+
+.. currentmodule:: fastpli.io.fiber_bundles
+
+.. autofunction:: save

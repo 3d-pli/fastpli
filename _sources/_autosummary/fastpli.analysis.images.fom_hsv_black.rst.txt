@@ -1,0 +1,6 @@
+fastpli.analysis.images.fom\_hsv\_black
+=======================================
+
+.. currentmodule:: fastpli.analysis.images
+
+.. autofunction:: fom_hsv_black
