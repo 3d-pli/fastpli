@@ -2,8 +2,8 @@ import fastpli.simulation
 import fastpli.io
 
 import multiprocessing as mp
+import matplotlib.pyplot as plt
 import numpy as np
-import imageio
 import h5py
 import os
 
@@ -54,7 +54,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
                                            crop_tilt=True,
                                            mp_pool=pool)
 
-    imageio.imwrite(f'{FILE_OUT}.fom.png', np.swapaxes(fom, 0, 1))
+    plt.imshow(np.swapaxes(fom, 0, 1))
 
 pool.close()
 

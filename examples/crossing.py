@@ -6,9 +6,9 @@ import fastpli.tools
 import fastpli.io
 
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import multiprocessing as mp
 import numpy as np
-import imageio
 import h5py
 import os
 
@@ -115,11 +115,14 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     h5f['tissue/optical_axis'] = optical_axis
     h5f['tissue/tissue_properties'] = tissue_properties
 
-    with imageio.get_writer(f'{FILE_OUT}.tissue.gif', mode='I') as writer:
-        m = np.amax(tissue)
-        for i in range(tissue.shape[2]):
-            writer.append_data(
-                data2image(tissue[:, :, i] / m * 255).astype(np.uint8))
+    # Show tissue sections
+    sections = [tissue[:, :, i] for i in tissue.shape[-1]]
+    fig = plt.figure()
+    ani = animation.ArtistAnimation(fig,
+                                    sections,
+                                    interval=50,
+                                    blit=True,
+                                    repeat_delay=1000)
 
     # Simulate PLI Measurement
     simpli.filter_rotations = np.deg2rad(np.linspace(0, 180, 9, endpoint=False))
@@ -146,11 +149,14 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         _, images = simpli.apply_optic(images)
         h5f['simulation/optic/' + str(t)] = images
 
-        with imageio.get_writer(f'{FILE_OUT}.{t}.gif', mode='I') as writer:
-            for i in range(images.shape[-1]):
-                writer.append_data(
-                    (data2image(images[:, :, i] - np.amin(images)) /
-                     np.amax(images - np.amin(images)) * 255).astype(np.uint8))
+        # Show microscope images
+        imgs = [images[:, :, i] for i in images.shape[-1]]
+        fig = plt.figure()
+        ani = animation.ArtistAnimation(fig,
+                                        imgs,
+                                        interval=50,
+                                        blit=True,
+                                        repeat_delay=1000)
 
         # calculate modalities
         epa = simpli.apply_epa(images)
@@ -158,9 +164,12 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         h5f[f'analysis/epa/{t}/direction'] = np.rad2deg(epa[1])
         h5f[f'analysis/epa/{t}/retardation'] = epa[2]
 
-        imageio.imwrite(f'{FILE_OUT}.{t}.transmittance.png', data2image(epa[0]))
-        imageio.imwrite(f'{FILE_OUT}.{t}.direction.png', data2image(epa[1]))
-        imageio.imwrite(f'{FILE_OUT}.{t}.retardation.png', data2image(epa[2]))
+        # show pli modalities
+        fig, axs = plt.subplots(1, 3)
+        axs[0] = plt.imshow(data2image(epa[0]))
+        axs[1] = plt.imshow(data2image(epa[1]))
+        axs[2] = plt.imshow(data2image(epa[2]))
+        plt.show()
 
         tilting_stack[t] = images
 
@@ -179,16 +188,14 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     h5f['analysis/rofl/inclination'] = np.rad2deg(rofl_incl)
     h5f['analysis/rofl/trel'] = rofl_t_rel
 
-    imageio.imwrite(f'{FILE_OUT}.r.direction.png', data2image(rofl_direction))
-    imageio.imwrite(f'{FILE_OUT}.r.inclination.png', data2image(rofl_incl))
-    imageio.imwrite(f'{FILE_OUT}.r.trel.png', data2image(rofl_t_rel))
-
-    print(f'creating Fiber Orientation Map: {FILE_OUT}.png')
-
-    imageio.imwrite(
-        f'{FILE_OUT}.fom.png',
-        data2image(
-            fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
+    # show pli rofl results
+    fig, axs = plt.subplots(1, 4)
+    axs[0] = plt.imshow(data2image(np.rad2deg(rofl_direction)))
+    axs[1] = plt.imshow(data2image(np.rad2deg(rofl_incl)))
+    axs[2] = plt.imshow(data2image(rofl_t_rel))
+    fom = fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)
+    axs[3] = plt.imshow(data2image(fom))
+    plt.show()
 
 print('simulation Done')
 print('You can look at the data e.g. with Fiji and the hdf5 plugin')

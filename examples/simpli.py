@@ -3,11 +3,10 @@ import fastpli.analysis
 import fastpli.tools
 import fastpli.io
 
+import matplotlib.pyplot as plt
 import numpy as np
 import h5py
 import os
-
-import imageio
 
 np.random.seed(42)
 
@@ -103,12 +102,8 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     def data2image(data):
         return np.swapaxes(np.flip(data, 1), 0, 1)
 
-    print(f'creating Fiber Orientation Map: {FILE_OUT}.png')
-
-    imageio.imwrite(
-        f'{FILE_OUT}.png',
+    plt.imshow(
         data2image(
             fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)))
 
-print('Done')
-print('You can look at the data e.g with Fiji and the hdf5 plugin')
+print('Done - You can look at the data e.g with Fiji and the hdf5 plugin')
