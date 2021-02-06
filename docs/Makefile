@@ -7,6 +7,7 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
+DOCS          = gh-pages
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -14,11 +15,15 @@ help:
 
 .PHONY: help Makefile
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+.PHONY: help Makefile
+github:
+	rm -rf gh-pages
+	git clone --branch gh-pages --single-branch https://github.com/3d-pli/fastpli.git gh-pages
+	rm -rf $(BUILDDIR)/*
+	make html
+	mv $(BUILDDIR)/html/* $(DOCS)/
+	touch $(DOCS)/.nojekyll
 
-# Create a .py (percent format with multiline comments) from an .ipynb in the first place:
-# jupytext --update-metadata '{"jupytext": {"cell_markers": "\"\"\""}}' --to py:percent <name-of-notebook>.ipynb
 
 # Convert .py to .ipynb (don't seem to need to --execute? perhaps sphinx-build does it...), then build html:
 %: Makefile

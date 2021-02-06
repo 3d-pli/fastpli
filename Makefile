@@ -50,7 +50,7 @@ fastpli: build/ build/Makefile
 docs:
 	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
 	cd docs; \
-	make html;
+	make github;
 
 .PHONY: clean
 clean: clean-build clean-src clean-docs

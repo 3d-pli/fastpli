@@ -1,6 +1,7 @@
 # build
 build/
 docs/build/
+docs/gh-pages/
 docs/source/_autosummary
 setup.py
 src/fastpli/__version.py
