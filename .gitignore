@@ -10,6 +10,7 @@ src/include/version.hpp
 env*/
 dev/*
 wiki/
+*.ipynb.py
 
 # data
 *.h5
