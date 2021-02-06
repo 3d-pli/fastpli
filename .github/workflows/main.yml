@@ -39,8 +39,9 @@ jobs:
         run: |
           ./CI/run-all.sh
 
-jobs:
   Sphinx-Doc:
+    needs: Testing
+    
     runs-on: ubuntu-latest
 
     steps:
