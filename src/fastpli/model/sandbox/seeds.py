@@ -34,8 +34,6 @@ def triangular_grid(a, b, spacing, center=False, sort=True, endpoint=True):
     dy = spacing * np.sqrt(3) / 2  # np.cos(np.deg2rad(30))
 
     if center:
-        x0 = -((a / 2) // (2 * dx)) * 2 * dx
-        y0 = -((b / 2) // (2 * dy)) * 2 * dy
         a = a / 2
         b = b / 2
 
@@ -48,6 +46,16 @@ def triangular_grid(a, b, spacing, center=False, sort=True, endpoint=True):
     grid_0 = np.mgrid[x0:a:spacing, y0:b:2 * dy].reshape(2, -1)
     grid_1 = np.mgrid[x0 + dx:a:spacing, y0 + dy:b:2 * dy].reshape(2, -1)
     grid = np.concatenate((grid_0, grid_1), axis=1)
+
+    if center:
+        # mirror x axis
+        grid_mirror = grid[:, grid[1, :] != 0]
+        grid_mirror[1, :] *= -1
+        grid = np.concatenate((grid, grid_mirror), axis=1)
+        # mirror y axis
+        grid_mirror = grid[:, grid[0, :] != 0]
+        grid_mirror[0, :] *= -1
+        grid = np.concatenate((grid, grid_mirror), axis=1)
 
     if sort:
         idx = np.lexsort((grid[0, :], grid[1, :]))
