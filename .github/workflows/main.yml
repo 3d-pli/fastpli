@@ -56,7 +56,6 @@ jobs:
 
       - name: build
         run: |
-          commit_msg=$(git describe --always)
           make docs
           cd docs/gh-pages
           git add .

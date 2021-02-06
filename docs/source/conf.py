@@ -11,6 +11,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
+import subprocess
 sys.path.insert(0, os.path.abspath(
     '../../src/fastpli'))  # Source code dir relative to this file
 import warnings
@@ -23,7 +24,10 @@ project = 'fastpli'
 author = 'fmatuschke'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+proc = subprocess.run(['git', 'describe', '--always'],
+                      capture_output=True,
+                      shell=True)
+release = proc.stdout.decode('utf-8')
 
 # -- General configuration ---------------------------------------------------
 

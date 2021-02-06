@@ -19,7 +19,7 @@ help:
 github:
 	rm -rf gh-pages
 	git clone --branch gh-pages --single-branch https://github.com/3d-pli/fastpli.git gh-pages
-	rm -rf $(BUILDDIR)/*
+	rm -rf $(DOCS)/*
 	make html
 	mv $(BUILDDIR)/html/* $(DOCS)/
 	touch $(DOCS)/.nojekyll

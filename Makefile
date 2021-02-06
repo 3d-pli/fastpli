@@ -5,8 +5,6 @@ help:
 	@echo pip3 install .
 	@echo -------------Tests--------------
 	@echo python3 setup.py test
-	@echo -------------Docs---------------
-	@echo make docs
 	@echo -------------Clean--------------
 	@echo make clean
 	@echo --------------------------------
@@ -46,14 +44,8 @@ fastpli: build/ build/Makefile
 	cd build; \
 	${MAKE}
 
-.PHONY: docs
-docs:
-	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
-	cd docs; \
-	make github;
-
 .PHONY: clean
-clean: clean-build clean-src clean-docs
+clean: clean-build clean-src
 
 ################################################################################
 ############################ DEVELOPER FUNCTIONS ###############################
@@ -110,6 +102,13 @@ h5py-mpi: h5py-clean
 h5py-clean:
 	${VENV}/bin/pip3 uninstall h5py -y
 
+.PHONY: docs
+docs: ${VENV} clean-docs
+	${VENV}/bin/pip3 -q install -r docs/requirements.txt
+	. ${VENV}/bin/activate
+	cd docs; \
+	make github
+
 .PHONY: docker
 docker:
 	./CI/run-docker.sh
@@ -139,6 +138,8 @@ clean-build:
 clean-docs:
 	@echo cleaning docs
 	@rm -rf docs/build
+	@rm -rf docs/source/_autosummary
+	@rm -rf docs/gh-pages
 
 .PHONY: clean-venv
 clean-venv:
