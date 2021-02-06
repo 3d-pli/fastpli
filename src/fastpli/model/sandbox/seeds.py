@@ -1,26 +1,33 @@
 import numpy as np
 
 
-def triangular_grid(a, b, spacing, center=False, sort=True, endpoint=True):
+def triangular_grid(width,
+                    height,
+                    spacing,
+                    center=False,
+                    sort=True,
+                    endpoint=True):
     """
-    Generated 2d triangular grid of seed points inside [0,a]x[0,b].
+    Generated 2d triangular grid of seed points inside [0,width]x[0,height].
 
     Parameters
     ----------
-    a, b : float
-        length and height of grid [0,a]x[0,b]
+    width, height : float
+        length and height of grid [0,width]x[0,height]
     spacing : float
         distance between seed points
     center : bool, optional
-        If false, the seed points will be inside [0,a]x[0,b],
-        beginning at (0,0)
-        If true, the grid will be inside [-a/2,a/2]x[-b/2,b/2] with a
-        seed point at (0,0)
+        If false, the seed points will be inside [0,width]x[0,height],
+        beginning at (0,0).
+        If true, the grid will be inside
+        [-width/2,width/2]x[-height/2,height/2] with widths eed point at (0,0).
     sort : bool, optional
-        If true, the returning seed points are lexsorted along x,y
+        If true, the returning seed points are lexsorted along x,y.
     endpoint : bool, optional
-        If false, [0,a)x[0,b) or [-a/2,a/2)x[-b/2,b/2)
-        If true,  [0,a]x[0,b] or [-a/2,a/2]x[-b/2,b/2]
+        If false, [0,width)x[0,height) or
+        [-width/2,width/2)x[-height/2,height/2).
+        If true,  [0,width]x[0,height] or
+        [-width/2,width/2]x[-height/2,height/2].
 
     Returns
     -------
@@ -34,17 +41,18 @@ def triangular_grid(a, b, spacing, center=False, sort=True, endpoint=True):
     dy = spacing * np.sqrt(3) / 2  # np.cos(np.deg2rad(30))
 
     if center:
-        a = a / 2
-        b = b / 2
+        width = width / 2
+        height = height / 2
 
     if endpoint:
-        if a % spacing == 0 or (a + dx) % spacing == 0:
-            a += dx / 2
-        if b % spacing == 0 or (b + dy) % spacing == 0:
-            b += dy / 2
+        if width % spacing == 0 or (width + dx) % spacing == 0:
+            width += dx / 2
+        if height % spacing == 0 or (height + dy) % spacing == 0:
+            height += dy / 2
 
-    grid_0 = np.mgrid[x0:a:spacing, y0:b:2 * dy].reshape(2, -1)
-    grid_1 = np.mgrid[x0 + dx:a:spacing, y0 + dy:b:2 * dy].reshape(2, -1)
+    grid_0 = np.mgrid[x0:width:spacing, y0:height:2 * dy].reshape(2, -1)
+    grid_1 = np.mgrid[x0 + dx:width:spacing,
+                      y0 + dy:height:2 * dy].reshape(2, -1)
     grid = np.concatenate((grid_0, grid_1), axis=1)
 
     if center:

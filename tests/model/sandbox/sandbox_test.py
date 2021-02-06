@@ -83,7 +83,10 @@ class MainTest(unittest.TestCase):
         p = np.array([0, 80, 50])
         q = np.array([40, 180, 100])
         d = np.max(np.abs(p - q)) * np.sqrt(3)
-        seeds = sb.seeds.triangular_grid(a=d, b=d, spacing=5, center=True)
+        seeds = sb.seeds.triangular_grid(width=d,
+                                         height=d,
+                                         spacing=5,
+                                         center=True)
         sb.build.cuboid(p=p,
                         q=q,
                         phi=np.deg2rad(45),

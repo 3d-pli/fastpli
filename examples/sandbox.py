@@ -34,7 +34,10 @@ def plot_fiber_bundle(fb, title=''):
 
 
 # create fiber bundle along trajectory
-seeds = sandbox.seeds.triangular_grid(a=42, b=42, spacing=4, center=True)
+seeds = sandbox.seeds.triangular_grid(width=42,
+                                      height=42,
+                                      spacing=4,
+                                      center=True)
 circ_seeds = sandbox.seeds.crop_circle(radius=21, seeds=seeds)
 fig, ax = plt.subplots(1, 1)
 plt.title('seed points')
@@ -56,7 +59,10 @@ fiber_bundle = sandbox.build.bundle(traj=traj,
 plot_fiber_bundle(fiber_bundle, 'Scale fiberbundle along trajectory')
 
 # create circular shaped triangular seeds
-seeds = sandbox.seeds.triangular_grid(a=200, b=200, spacing=5, center=True)
+seeds = sandbox.seeds.triangular_grid(width=200,
+                                      height=200,
+                                      spacing=5,
+                                      center=True)
 for i, mode in enumerate(['radial', 'circular', 'parallel']):
     fiber_bundle = sandbox.build.cylinder(p=(0, 80, 50),
                                           q=(40, 80, 100),
@@ -75,7 +81,7 @@ q = np.array([40, 180, 100])
 
 # create seed points which will fill the cube
 d = np.max(np.abs(p - q)) * np.sqrt(3)
-seeds = sandbox.seeds.triangular_grid(a=d, b=d, spacing=5, center=True)
+seeds = sandbox.seeds.triangular_grid(width=d, height=d, spacing=5, center=True)
 
 # fill a cube with (theta, phi) directed fibers
 fiber_bundle = sandbox.build.cuboid(p=p,
