@@ -5,15 +5,18 @@ import fastpli.io
 import numpy as np
 import os
 
+# reproducibility
 np.random.seed(42)
 
+# get current file path
 FILE_NAME = os.path.abspath(__file__)
 FILE_PATH = os.path.dirname(FILE_NAME)
 FILE_BASE = os.path.basename(FILE_NAME)
 FILE_OUT = os.path.join(FILE_PATH, f'fastpli.example.{FILE_BASE}')
 
 solver = fastpli.model.solver.Solver()
-example = 'curved'
+solver.omp_num_threads = 2
+example = 'curved'  # curved, crossing
 
 if example == 'curved':
     phi = np.linspace(0, 1 / 2 * np.pi, 16)
@@ -25,28 +28,22 @@ if example == 'curved':
     solver.fiber_bundles = [fiber_bundle]
 
 elif example == 'crossing':
-    fiber_bundle_trj_0 = [[-150, 0, 0], [150, 0, 0]]
-    fiber_bundle_trj_1 = [[0, -150, 0], [0, 150, 0]]
+    fiber_bundle_trj_x = [[-150, 0, 0], [150, 0, 0]]
+    fiber_bundle_trj_y = [[0, -150, 0], [0, 150, 0]]
 
     population = fastpli.model.sandbox.seeds.triangular_circle(20, 5)
 
     fiber_radii = np.random.uniform(2.0, 10.0, population.shape[0])
-    fiber_bundle_0 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_0,
+    fiber_bundle_0 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_x,
                                                         population, fiber_radii)
 
     fiber_radii = np.random.uniform(2.0, 10.0, population.shape[0])
-    fiber_bundle_1 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_1,
+    fiber_bundle_1 = fastpli.model.sandbox.build.bundle(fiber_bundle_trj_y,
                                                         population, fiber_radii)
 
     solver.fiber_bundles = [fiber_bundle_0, fiber_bundle_1]
     solver.obj_min_radius = 10
     solver.obj_mean_length = 30
-
-# additional parameter, 0 means disabled
-# solver.drag = 0
-# solver.obj_min_radius = 0
-# solver.obj_mean_length = 0
-# solver.omp_num_threads = 1
 
 # run solver
 solver.toggle_axis(True)
@@ -68,5 +65,3 @@ for i in range(1000):
         break
 
 fastpli.io.fiber_bundles.save(f'{FILE_OUT}.dat', solver.fiber_bundles, mode='w')
-
-print('Done')
