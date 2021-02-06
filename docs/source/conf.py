@@ -24,10 +24,10 @@ project = 'fastpli'
 author = 'fmatuschke'
 
 # The full version, including alpha/beta/rc tags
-proc = subprocess.run(['git', 'describe', '--always'],
-                      capture_output=True,
-                      shell=True)
-release = proc.stdout.decode('utf-8')
+proc = subprocess.Popen(['git describe --always'],
+                        stdout=subprocess.PIPE,
+                        shell=True)
+release = proc.stdout.read().rstrip().decode('utf-8').split('-')[0]
 
 # -- General configuration ---------------------------------------------------
 

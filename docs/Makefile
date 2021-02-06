@@ -7,7 +7,6 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
-DOCS          = gh-pages
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -19,10 +18,9 @@ help:
 github:
 	rm -rf gh-pages
 	git clone --branch gh-pages --single-branch https://github.com/3d-pli/fastpli.git gh-pages
-	rm -rf $(DOCS)/*
 	make html
-	mv $(BUILDDIR)/html/* $(DOCS)/
-	touch $(DOCS)/.nojekyll
+	cp -r $(BUILDDIR)/html/* gh-pages/
+	touch gh-pages/.nojekyll
 
 
 # Convert .py to .ipynb (don't seem to need to --execute? perhaps sphinx-build does it...), then build html:

@@ -1,11 +1,11 @@
-name: CI
+name: Release-Check
 
 on:
   push:
-    branches: [ master, development, TestCI ]
-  pull_request:
-    branches: [ master ]
-
+    branches: 
+      - 'release/**'
+    tags:
+      - 'v[0-9].[0-9]+.[0-9]+'
   workflow_dispatch:
 
 jobs:
@@ -39,8 +39,7 @@ jobs:
         run: |
           ./CI/run-all.sh
 
-  # # currently in main for early testing. 
-  # # TODO: implementation in automatic release
+
   Sphinx-Doc:
     needs: Tests
     runs-on: ubuntu-latest
@@ -78,3 +77,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           directory: docs/gh-pages
+  
+# Zip-Release:
+#   needs: Sphinx-Doc
+#   runs-on: ubuntu-latest
+#   steps:
