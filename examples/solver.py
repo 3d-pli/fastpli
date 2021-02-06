@@ -67,6 +67,6 @@ for i in range(1000):
         solver.draw_scene()
         break
 
-fastpli.io.fiber_bundles.save(f'{FILE_OUT}.dat', solver.fiber_bundles)
+fastpli.io.fiber_bundles.save(f'{FILE_OUT}.dat', solver.fiber_bundles, mode='w')
 
 print('Done')
