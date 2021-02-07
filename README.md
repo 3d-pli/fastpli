@@ -12,7 +12,17 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 
 ## Basic Information
 
-`fastpli` is a Python package consisting of the following modules
+fastPLI is an open source toolbox for modeling nerve fibers, simulating them in a 3D PLI microscope and the signal processing.
+
+It consists of three consecutive parts:
+
+* [Sandbox](https://github.com/3d-pli/fastpli/wiki/Sandbox): building nerve fiber models.
+* [Solver](https://github.com/3d-pli/fastpli/wiki/Solver): solve collisions of nerve fiber models
+* [Simulation](https://github.com/3d-pli/fastpli/wiki/Simulation): 3D-PLI simulations of nerve fiber models
+  
+In addition, other modules exist to support io and analysis.
+
+## Content
 
 | module                  | information                                                   |
 | ----------------------- | ------------------------------------------------------------- |
@@ -24,18 +34,12 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 | `fastpli.tools`         | mathematical tools and helper function                        |
 | `fastpli.simulation`    | simulation of fiber models inside a virtual 3D-PLI microscope |
 
-The aim of this package is to provide consistent system that allows the following:
+## Additiona informations
 
-* **model** 3d (non colliding) nerve fibers
-* **simulate** nerve fiber inside a virtual tiltable 3D-PLI microscope
-* **analyse** the simulated signals to extract the resulting fiber orientation
-
-See **Wiki** for detailed information
-
-## Performance
-
-All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**.
-Additionally the simulation module supports the **Message Passing Interface (MPI)**.
+* [Wiki](https://github.com/3d-pli/fastpli/wiki)
+* [Module documentation](https://3d-pli.github.io/fastpli/)
+* [Examples](https://github.com/3d-pli/fastpli/tree/master/examples)
+* [Tutorial](https://github.com/3d-pli/fastpli/tree/master/examples)
 
 # Installation
 
@@ -71,7 +75,6 @@ sudo apt install gcc g++ cmake make git
 sudo apt install python3-dev python3-venv
 sudo apt install libopenmpi-dev freeglut3-dev
 ```
-<!-- libhdf5-openmpi-dev -->
 
 ### Clone repository
 
@@ -95,6 +98,15 @@ python3 setup.py test
 
 ## Examples
 
+### Interactive jupyter notebooks
+
+```sh
+sandbox.ipynb
+solver.ipynb
+```
+
+### Scripts
+
 ```sh
 # install required modules for examples
 pip3 install -r examples/requirements.txt
@@ -104,16 +116,17 @@ python3 examples/sandbox.py
 python3 examples/solver.py
 python3 examples/simpli.py
 python3 examples/simulation_pipeline.py
-```
 
-## Docs
-
-```sh
-make docs
-open docs/build/html/index.html
+# run complete pipeline
+python3 examples/crossing.py
 ```
 
 # About this Project
+
+## Libraries
+
+All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **c++**, which can be accessed via **pybind11**.
+Additionally the simulation module supports the **Message Passing Interface (MPI)**.
 
 ## Contributions and Bug Reports
 
