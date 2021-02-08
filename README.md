@@ -10,9 +10,7 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 
 ![fastpli-logo](logo.svg)
 
-## Basic Information
-
-fastPLI is an open source toolbox for modeling nerve fibers, simulating them in a [3D-PLI](https://dx.doi.org/10.3389%2Ffninf.2011.00034) microscope and the signal processing developed by the [fiber architecture group](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) at the [Forschungszentrum Jülich](https://www.fz-juelich.de) - [INM1](https://www.fz-juelich.de/inm/inm-1/EN/Home/home_node.html).
+[fastPLI](https://github.com/3d-pli/fastpli) is an open source toolbox for modeling nerve fibers, simulating them in a [3D-PLI](https://dx.doi.org/10.3389%2Ffninf.2011.00034) microscope and the signal processing developed by the [fiber architecture group](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) at the [Forschungszentrum Jülich](https://www.fz-juelich.de) - [INM1](https://www.fz-juelich.de/inm/inm-1/EN/Home/home_node.html).
 
 It consists of three consecutive parts:
 
@@ -34,12 +32,11 @@ In addition, other modules exist to support io and analysis.
 | `fastpli.tools`         | mathematical tools and helper function                        |
 | `fastpli.simulation`    | simulation of fiber models inside a virtual 3D-PLI microscope |
 
-## Additiona informations
+## Additional information
 
 - [Wiki](https://github.com/3d-pli/fastpli/wiki)
 - [Module documentation](https://3d-pli.github.io/fastpli/)
-- [Examples](https://github.com/3d-pli/fastpli/tree/master/examples)
-- [Tutorial](https://github.com/3d-pli/fastpli/tree/master/examples)
+- [Examples and Jupyter notebooks](https://github.com/3d-pli/fastpli/tree/master/examples)
 
 # Installation
 
@@ -136,10 +133,7 @@ Additionally the simulation module supports the **Message Passing Interface (MPI
 Please submit [issues](https://github.com/3d-pli/fastpli/issues) on GitHub to report
 problems or suggest features. [Pull requests](https://github.com/3d-pli/fastpli/pulls)
 are also welcome to add features or correct problems.
-
-## Authors
-
-- **Felix Matuschke**
+Please run the local env-CI environment `./CI/run-all.sh` or docker container `make docker` in advance.
 
 ## Literature
 
@@ -148,6 +142,10 @@ are also welcome to add features or correct problems.
 - [MEDUSA](https://doi.org/10.1016/j.neuroimage.2019.02.055)
 - [simulation](https://doi.org/10.1016/j.neuroimage.2015.02.020)
 - [tilting analysis](https://doi.org/10.3389/fnana.2018.00075)
+
+## Authors
+
+- **Felix Matuschke**
 
 ## References
 
