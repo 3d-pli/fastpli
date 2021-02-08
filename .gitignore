@@ -19,6 +19,7 @@ wiki/
 
 # example output
 fastpli.example.*
+examples/*.png
 !examples/cube.dat
 !examples/fastpli.dat
 

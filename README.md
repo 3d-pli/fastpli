@@ -95,14 +95,14 @@ pip3 install .
 
 # Examples
 
-### Interactive jupyter notebooks
+## Interactive jupyter notebooks
 
 ```sh
 sandbox.ipynb
 solver.ipynb
 ```
 
-### Scripts
+## Scripts
 
 ```sh
 # install required modules for examples
