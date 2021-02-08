@@ -68,7 +68,7 @@ Support for macOS is planned for the future.
 
 Install all necessary packages.
 
-Example using Ubuntu or Debian:
+For Ubuntu:
 
 ```sh
 sudo apt install gcc g++ cmake make git
@@ -84,6 +84,8 @@ cd fastpli
 ```
 
 ### Compilation
+
+Use zour favorite environment e. g. `python3 -m venv env` and `source env/bin/activate`
 
 ```sh
 make fastpli
