@@ -90,13 +90,7 @@ make fastpli
 pip3 install .
 ```
 
-## Tests
-
-```sh
-python3 setup.py test
-```
-
-## Examples
+# Examples
 
 ### Interactive jupyter notebooks
 
@@ -119,6 +113,12 @@ python3 examples/simulation_pipeline.py
 
 # run complete pipeline
 python3 examples/crossing.py
+```
+
+# Tests
+
+```sh
+python3 setup.py test
 ```
 
 # About this Project
