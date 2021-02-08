@@ -1,9 +1,9 @@
-<!-- 
+<!--
 ________             ___________________________
 ___  __/_____ _________  /___  __ \__  /____  _/
-__  /_ _  __ `/_  ___/  __/_  /_/ /_  /  __  /  
-_  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /   
-/_/    \__,_/ /____/ \__/ /_/     /_____/___/    
+__  /_ _  __ `/_  ___/  __/_  /_/ /_  /  __  /
+_  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
+/_/    \__,_/ /____/ \__/ /_/     /_____/___/
 -->
 
 # Fiber Architecture Simulation Toolbox for 3D-PLI
@@ -12,14 +12,14 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 
 ## Basic Information
 
-fastPLI is an open source toolbox for modeling nerve fibers, simulating them in a 3D PLI microscope and the signal processing.
+fastPLI is an open source toolbox for modeling nerve fibers, simulating them in a [3D-PLI](https://dx.doi.org/10.3389%2Ffninf.2011.00034) microscope and the signal processing developed by the [fiber architecture group](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) at the [Forschungszentrum Jülich](https://www.fz-juelich.de) - [INM1](https://www.fz-juelich.de/inm/inm-1/EN/Home/home_node.html).
 
 It consists of three consecutive parts:
 
-* [Sandbox](https://github.com/3d-pli/fastpli/wiki/Sandbox): building nerve fiber models.
-* [Solver](https://github.com/3d-pli/fastpli/wiki/Solver): solve collisions of nerve fiber models
-* [Simulation](https://github.com/3d-pli/fastpli/wiki/Simulation): 3D-PLI simulations of nerve fiber models
-  
+- [Sandbox](https://github.com/3d-pli/fastpli/wiki/Sandbox): building nerve fiber models.
+- [Solver](https://github.com/3d-pli/fastpli/wiki/Solver): solve collisions of nerve fiber models
+- [Simulation](https://github.com/3d-pli/fastpli/wiki/Simulation): 3D-PLI simulations of nerve fiber models
+
 In addition, other modules exist to support io and analysis.
 
 ## Content
@@ -36,10 +36,10 @@ In addition, other modules exist to support io and analysis.
 
 ## Additiona informations
 
-* [Wiki](https://github.com/3d-pli/fastpli/wiki)
-* [Module documentation](https://3d-pli.github.io/fastpli/)
-* [Examples](https://github.com/3d-pli/fastpli/tree/master/examples)
-* [Tutorial](https://github.com/3d-pli/fastpli/tree/master/examples)
+- [Wiki](https://github.com/3d-pli/fastpli/wiki)
+- [Module documentation](https://3d-pli.github.io/fastpli/)
+- [Examples](https://github.com/3d-pli/fastpli/tree/master/examples)
+- [Tutorial](https://github.com/3d-pli/fastpli/tree/master/examples)
 
 # Installation
 
@@ -51,16 +51,16 @@ Support for macOS is planned for the future.
 
 ### Requirements
 
-* C++17
-* Make
-* CMake
-* Python3
-* MPI
-* OpenGL (optional)
+- C++17
+- Make
+- CMake
+- Python3
+- MPI
+- OpenGL (optional, recommended)
 
 ### Submodules
 
-* pybind11
+- pybind11
 
 ## Install instructions
 
@@ -136,15 +136,15 @@ are also welcome to add features or correct problems.
 
 ## Authors
 
-* **Felix Matuschke**
+- **Felix Matuschke**
 
 ## Literature
 
-* [3D-PLI](https://dx.doi.org/10.3389%2Ffninf.2011.00034)
-* [dense fiber modeling](https://arxiv.org/abs/1901.10284)
-* [MEDUSA](https://doi.org/10.1016/j.neuroimage.2019.02.055)
-* [simulation](https://doi.org/10.1016/j.neuroimage.2015.02.020)
-* [tilting analysis](https://doi.org/10.3389/fnana.2018.00075)
+- [3D-PLI](https://dx.doi.org/10.3389%2Ffninf.2011.00034)
+- [dense fiber modeling](https://arxiv.org/abs/1901.10284)
+- [MEDUSA](https://doi.org/10.1016/j.neuroimage.2019.02.055)
+- [simulation](https://doi.org/10.1016/j.neuroimage.2015.02.020)
+- [tilting analysis](https://doi.org/10.3389/fnana.2018.00075)
 
 ## References
 
