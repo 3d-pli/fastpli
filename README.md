@@ -45,6 +45,9 @@ In addition, other modules exist to support io and analysis.
 
 Note: The current version of `fastpli` can only be executed under Linux as operating system because of dependencies.
 If you want to use `fastpli` under Windows, please use the Windows Subsystem for Linux.
+To allow for graphical output you have to install a X server.
+Additional information can be found at <https://wiki.ubuntu.com/WSL>.
+
 Support for macOS is planned for the future.
 
 ## Dependencies
