@@ -7,7 +7,7 @@ import numpy as np
 import numba
 
 
-def rescale(fiber, scale, mode='all'):
+def scale(fiber, scale, mode='all'):
     """
     Rescales fiber
 

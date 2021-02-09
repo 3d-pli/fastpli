@@ -14,23 +14,23 @@ class MainTest(unittest.TestCase):
         self.fiber_bundles = [[self.fiber.copy()]]
 
     def test_resize(self):
-        fiber = fastpli.objects.fiber.rescale(self.fiber, 10)
+        fiber = fastpli.objects.fiber.scale(self.fiber, 10)
         self.assertTrue(np.array_equal(fiber, self.fiber * 10))
 
-        fb = fastpli.objects.fiber_bundle.rescale(self.fiber_bundle, 10)
+        fb = fastpli.objects.fiber_bundle.scale(self.fiber_bundle, 10)
         for f in fb:
             self.assertTrue(np.array_equal(f, self.fiber * 10))
 
-        fbs = fastpli.objects.fiber_bundles.rescale(self.fiber_bundles, 10)
+        fbs = fastpli.objects.fiber_bundles.scale(self.fiber_bundles, 10)
         for fb in fbs:
             for f in fb:
                 self.assertTrue(np.array_equal(f, self.fiber * 10))
 
-        fiber = fastpli.objects.fiber.rescale(self.fiber, 10, mode='points')
+        fiber = fastpli.objects.fiber.scale(self.fiber, 10, mode='points')
         self.assertTrue(np.array_equal(fiber[:, :-2], self.fiber[:, :-2] * 10))
         self.assertTrue(np.array_equal(fiber[:, -1], self.fiber[:, -1]))
 
-        fiber = fastpli.objects.fiber.rescale(self.fiber, 10, mode='radii')
+        fiber = fastpli.objects.fiber.scale(self.fiber, 10, mode='radii')
         self.assertTrue(np.array_equal(fiber[:, :-2], self.fiber[:, :-2]))
         self.assertTrue(np.array_equal(fiber[:, -1], self.fiber[:, -1] * 10))
 
