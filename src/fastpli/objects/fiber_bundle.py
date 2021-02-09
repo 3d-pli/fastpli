@@ -10,7 +10,7 @@ import numpy as np
 from . import fiber
 
 
-def rescale(fiber_bundle, scale, mod='all'):
+def rescale(fiber_bundle, scale, mode='all'):
     """
     Rescales fiber_bundle
 
@@ -20,7 +20,7 @@ def rescale(fiber_bundle, scale, mod='all'):
         list of fibers
     scale : float
         scale factor
-    mod : str, optional
+    mode : str, optional
         'all', 'points' or 'radii' will be scaled
 
     Returns
@@ -31,7 +31,7 @@ def rescale(fiber_bundle, scale, mod='all'):
 
     fiber_bundle = copy.deepcopy(fiber_bundle)
     for i, _ in enumerate(fiber_bundle):
-        fiber_bundle[i] = fiber.rescale(fiber_bundle[i], scale, mod)
+        fiber_bundle[i] = fiber.rescale(fiber_bundle[i], scale, mode)
     return fiber_bundle
 
 

@@ -7,7 +7,7 @@ import numpy as np
 import numba
 
 
-def rescale(fiber, scale, mod='all'):
+def rescale(fiber, scale, mode='all'):
     """
     Rescales fiber
 
@@ -17,7 +17,7 @@ def rescale(fiber, scale, mod='all'):
         fiber
     scale : float
         scale factor
-    mod : str, optional
+    mode : str, optional
         'all', 'points' or 'radii' will be scaled
 
     Returns
@@ -27,14 +27,14 @@ def rescale(fiber, scale, mod='all'):
     """
 
     fiber = np.array(fiber, copy=True)
-    if mod == 'all':
+    if mode == 'all':
         fiber *= scale
-    elif mod == 'points':
+    elif mode == 'points':
         fiber[:, :3] *= scale
-    elif mod == 'radii':
+    elif mode == 'radii':
         fiber[:, -1] *= scale
     else:
-        raise ValueError('mod = [all, points, radii]')
+        raise ValueError('mode = [all, points, radii]')
     return fiber
 
 

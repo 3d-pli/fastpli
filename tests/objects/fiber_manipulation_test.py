@@ -26,11 +26,11 @@ class MainTest(unittest.TestCase):
             for f in fb:
                 self.assertTrue(np.array_equal(f, self.fiber * 10))
 
-        fiber = fastpli.objects.fiber.rescale(self.fiber, 10, mod='points')
+        fiber = fastpli.objects.fiber.rescale(self.fiber, 10, mode='points')
         self.assertTrue(np.array_equal(fiber[:, :-2], self.fiber[:, :-2] * 10))
         self.assertTrue(np.array_equal(fiber[:, -1], self.fiber[:, -1]))
 
-        fiber = fastpli.objects.fiber.rescale(self.fiber, 10, mod='radii')
+        fiber = fastpli.objects.fiber.rescale(self.fiber, 10, mode='radii')
         self.assertTrue(np.array_equal(fiber[:, :-2], self.fiber[:, :-2]))
         self.assertTrue(np.array_equal(fiber[:, -1], self.fiber[:, -1] * 10))
 

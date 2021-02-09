@@ -48,7 +48,7 @@ def cast(fiber_bundles):
     return fiber_bundles
 
 
-def rescale(fiber_bundles, scale, mod='all'):
+def rescale(fiber_bundles, scale, mode='all'):
     """
     Rescales fiber_bundles
 
@@ -58,7 +58,7 @@ def rescale(fiber_bundles, scale, mod='all'):
         list of fiber_bundle
     scale : float
         scale factor
-    mod : str, optional
+    mode : str, optional
         'all', 'points' or 'radii' will be scaled
 
     Returns
@@ -70,7 +70,8 @@ def rescale(fiber_bundles, scale, mod='all'):
     fiber_bundles = copy.deepcopy(fiber_bundles)
     for j, fb in enumerate(fiber_bundles):
         for i, _ in enumerate(fb):
-            fiber_bundles[j][i] = fiber.rescale(fiber_bundles[j][i], scale, mod)
+            fiber_bundles[j][i] = fiber.rescale(fiber_bundles[j][i], scale,
+                                                mode)
     return fiber_bundles
 
 
