@@ -108,13 +108,6 @@ docs: ${VENV} clean-docs
 	cd docs; \
 	make html
 
-.PHONY: docs-github
-docs-github: local clean-docs
-	. ${VENV}/bin/activate; \
-	pip3 -q install -r docs/requirements.txt; \
-	cd docs; \
-	make github
-
 .PHONY: docker
 docker:
 	./CI/run-docker.sh

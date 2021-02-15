@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master, development, TestCI ]
+    branches: [master, development, TestCI]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
   workflow_dispatch:
 
@@ -14,8 +14,8 @@ jobs:
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04]
         config:
-        - {run-opengl: true}
-        - {run-opengl: false}
+          - { run-opengl: true }
+          - { run-opengl: false }
 
     runs-on: ${{ matrix.os }}
 
@@ -31,15 +31,14 @@ jobs:
           sudo apt-get install -y libopenmpi-dev libhdf5-openmpi-dev h5utils
 
       - name: openGL
-        run:
-          sudo apt-get install -y freeglut3-dev
+        run: sudo apt-get install -y freeglut3-dev
         if: matrix.config.run-it
-          
+
       - name: run
         run: |
           ./CI/run-all.sh
 
-  # # currently in main for early testing. 
+  # # currently in main for early testing.
   # # TODO: implementation in automatic release
   Sphinx-Doc:
     needs: Tests

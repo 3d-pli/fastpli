@@ -9,19 +9,21 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+#
 import os
 import sys
 import subprocess
-sys.path.insert(0, os.path.abspath(
-    '../../src/fastpli'))  # Source code dir relative to this file
-import warnings
-warnings.filterwarnings(
-    'ignore', message='sphinx.util.inspect.Signature\(\) is deprecated')
+
+import recommonmark
+from recommonmark.transform import AutoStructify
+
+sys.path.insert(0, os.path.abspath('../src/'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'fastpli'
-author = 'fmatuschke'
+project = 'fastPLI'
+copyright = '2021, Forschungszentrum Jülich, INM-1'
+author = 'Felix Matuschke'
 
 # The full version, including alpha/beta/rc tags
 proc = subprocess.Popen(['git describe --always'],
@@ -40,32 +42,62 @@ extensions = [
     'sphinx.ext.intersphinx',  # Link to other project's documentation (see mapping below)
     'sphinx.ext.viewcode',  # Add a link to the Python source code for classes, functions etc.
     'sphinx_autodoc_typehints',  # Automatically document param types (less noise in class signature)
-    'numpydoc',
+    'sphinx.ext.napoleon',
+    'recommonmark',
+    'sphinx_markdown_tables',
 ]
 
-# Mappings for sphinx.ext.intersphinx. Projects have to have Sphinx-generated doc! (.inv file)
-intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
-}
-
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
-autoclass_content = 'both'  # Add __init__ doc (ie. params) to class summaries
+autoclass_content = "both"  # Add __init__ doc (ie. params) to class summaries
 html_show_sourcelink = False  # Remove 'view source code' from top of page (for html, not python)
-autodoc_inherit_docstrings = True  # If no class summary, inherit base class summary
+autodoc_inherit_docstrings = True  # If no docstring, inherit from base class
+set_type_checking_flag = True  # Enable 'expensive' imports for sphinx_autodoc_typehints
+nbsphinx_allow_errors = True  # Continue through Jupyter errors
+#autodoc_typehints = "description" # Sphinx-native method. Not as good as sphinx_autodoc_typehints
+add_module_names = False  # Remove namespaces from class/method signatures
+napoleon_google_docstring = False
+napoleon_use_param = False
+napoleon_use_ivar = True
+
+source_parsers = {
+    '.md': 'recommonmark.parser.CommonMarkParser',
+}
+source_suffix = ['.rst', '.md']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
-# -- Options for HTML output -------------------------------------------------
+# List of patterns, relative to source directory, that match files and
+# directories to ignore when looking for source files.
+# This pattern also affects html_static_path and html_extra_path.
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-# on_rtd is whether on readthedocs.org, this line of code grabbed from docs.readthedocs.org...
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if not on_rtd:  # only import and set the theme if we're building docs locally
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+# -- Options for HTML output -------------------------------------------------
+import sphinx_rtd_theme
+
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+#
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
-# so a file named 'default.css' will overwrite the builtin 'default.css'.
-# html_static_path = ['_static']
+# so a file named "default.css" will overwrite the builtin "default.css".
+# html_static_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+
+def setup(app):
+    app.add_config_value(
+        'recommonmark_config',
+        {
+            #'url_resolver': lambda url: github_doc_root + url,
+            'enable_auto_toc_tree': True,
+            # 'auto_toc_tree_section': 'Contents',
+            'auto_toc_maxdepth': 1,
+            # 'enable_math': False,
+            # 'enable_inline_math': False,
+            # 'enable_eval_rst': True,
+            # 'enable_auto_doc_ref': True,
+        },
+        True)
+    app.add_transform(AutoStructify)

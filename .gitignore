@@ -1,8 +1,8 @@
 # build
 build/
-docs/build/
+docs/_autosummary
+docs/_build/
 docs/gh-pages/
-docs/source/_autosummary
 setup.py
 src/fastpli/__version.py
 src/include/version.hpp
