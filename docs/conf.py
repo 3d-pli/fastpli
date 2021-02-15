@@ -14,9 +14,6 @@ import os
 import sys
 import subprocess
 
-import recommonmark
-from recommonmark.transform import AutoStructify
-
 sys.path.insert(0, os.path.abspath('../src/'))
 
 # -- Project information -----------------------------------------------------
@@ -43,8 +40,6 @@ extensions = [
     'sphinx.ext.viewcode',  # Add a link to the Python source code for classes, functions etc.
     'sphinx_autodoc_typehints',  # Automatically document param types (less noise in class signature)
     'sphinx.ext.napoleon',
-    'recommonmark',
-    'sphinx_markdown_tables',
 ]
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
@@ -59,10 +54,6 @@ napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
 
-source_parsers = {
-    '.md': 'recommonmark.parser.CommonMarkParser',
-}
-source_suffix = ['.rst', '.md']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -84,20 +75,3 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = [sphinx_rtd_theme.get_html_theme_path()]
-
-
-def setup(app):
-    app.add_config_value(
-        'recommonmark_config',
-        {
-            #'url_resolver': lambda url: github_doc_root + url,
-            'enable_auto_toc_tree': True,
-            # 'auto_toc_tree_section': 'Contents',
-            'auto_toc_maxdepth': 1,
-            # 'enable_math': False,
-            # 'enable_inline_math': False,
-            # 'enable_eval_rst': True,
-            # 'enable_auto_doc_ref': True,
-        },
-        True)
-    app.add_transform(AutoStructify)
