@@ -40,10 +40,7 @@ class __Simpli:
         self._voxel_size = None
 
         # GENERATION
-        self._cells_populations = None
-        self._cells_populations_properties = None
         self._fiber_bundles = None
-        self._fiber_bundles_properties = None
 
         # SIMULATION
         self._filter_rotations = None
@@ -73,7 +70,7 @@ class __Simpli:
         """ Get all member variables which are properties """
         members = dict()
         for key, value in self.__dict__.items():
-            if key in ('_cells_populations', '_fiber_bundles'):
+            if key in ('_fiber_bundles'):
                 continue
             if key.startswith('_') and not key.startswith(
                     '__') and not key.startswith('_Simpli'):
@@ -333,120 +330,17 @@ class __Simpli:
 
     @property
     def fiber_bundles(self):
-        """ set fiber_bundles: [[(,4)-array]] """
+        """ get fiber_bundles: FiberBundles """
         return self._fiber_bundles
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
-        fbs = objects.fiber_bundles.cast(fbs)
-        self._fiber_bundles = fbs
-
-    @property
-    def fiber_bundles_properties(self):
-        """ set physical properties of fiber_bundles per fiber_bundle [(dn, mu)]:
-        [(float, float)]
-        """
-        return self._fiber_bundles_properties
-
-    @fiber_bundles_properties.setter
-    def fiber_bundles_properties(self, bundle_layer_properties):
-
-        if bundle_layer_properties is None:
-            self._fiber_bundles_properties = None
-            return
-
-        if not isinstance(bundle_layer_properties, (list, tuple)):
-            raise TypeError('properties != list(list(tuples))')
-
-        self._fiber_bundles_properties = []
-        for prop in bundle_layer_properties:
-            if not isinstance(prop, (list, tuple)):
-                raise TypeError('properties != list(list(tuples))')
-
-            self._fiber_bundles_properties.append([])
-
-            for ly in prop:
-                if len(ly) != 4:
-                    raise TypeError('layer != (float, float, float, char)')
-
-                if ly[1] < 0 and ly[-1] == 'r':
-                    warnings.warn('birefringence negative and radial')
-                if ly[1] > 0 and ly[-1] == 'p':
-                    warnings.warn('birefringence positive and parallel')
-                if ly[1] != 0 and ly[-1] == 'b':
-                    warnings.warn(
-                        'birefringence != 0 for background. Will be set to 0')
-
-        self._fiber_bundles_properties = bundle_layer_properties
-
-    @property
-    def cells_populations(self):
-        """ set cells_populations: [[(,4)-array]] """
-        return self._cells_populations
-
-    @cells_populations.setter
-    def cells_populations(self, cps):
-        if cps is None:
-            self._cells_populations = None
-            return
-
-        if not isinstance(cps, (list, tuple)):
-            raise TypeError('cells_populations != list')
-
-        for cp_i, cp in enumerate(cps):
-            if not isinstance(cp, (list, tuple)):
-                raise TypeError('cells_population != list')
-
-            for c_i, c in enumerate(cp):
-                cps[cp_i][c_i] = np.array(c, dtype=float)
-
-                if cps[cp_i][c_i].ndim != 2:
-                    raise TypeError('cell size need to be nx4')
-
-                if cps[cp_i][c_i].shape[1] != 4:
-                    raise TypeError('cell size need to be nx4')
-
-        self._cells_populations = cps
-
-    @property
-    def cells_populations_properties(self):
-        """ set physical properties of fiber_bundles per fiber_bundle [(dn, mu)]:
-        [(float, float)]
-        """
-        return self._cells_populations_properties
-
-    @cells_populations_properties.setter
-    def cells_populations_properties(self, cells_populations_properties):
-
-        if cells_populations_properties is None:
-            self._cells_populations_properties = None
-            return
-
-        if not isinstance(cells_populations_properties, (list, tuple)):
-            raise TypeError('properties must be a list')
-
-        self._cells_populations_properties = []
-
-        for prop in cells_populations_properties:
-            if not isinstance(prop, (list, tuple)):
-                raise TypeError('cell properties must be a list of 2 arguments')
-
-            if len(prop) != 2:
-                raise TypeError('cell properties must be a list of 2 arguments')
-
-        self._cells_populations_properties = cells_populations_properties
-
-    def _check_property_length(self):
-        if self._fiber_bundles:
-            if len(self._fiber_bundles) != len(self._fiber_bundles_properties):
-                raise TypeError(
-                    'len(fiber_bundles) != len(fiber_bundles_properties)\n\
-                        For each fiber_bundle there hast to be a [(prop), ...]')
-
-        if self._cells_populations:
-            if len(self._cells_populations) != len(
-                    self._cells_populations_properties):
-                raise TypeError('len(cell_populations) != len(cell_properties)')
+        """ set fiber_bundles: [[(,4)-array]] """
+        if fbs is None:
+            self._fiber_bundles = None
+        else:
+            fbs = objects.FiberBundles(fbs)
+            self._fiber_bundles = fbs
 
     def _check_volume_input(self):
         if self._dim is None:
@@ -461,9 +355,8 @@ class __Simpli:
         self.get_voi()
 
     def _check_generation_data(self):
-        if not self._fiber_bundles and not self._cells_populations:
-            raise ValueError('fiber_bundles and cells_populations are not set')
-        self._check_property_length()
+        if not self._fiber_bundles:
+            raise ValueError('fiber_bundles is not set')
 
     def _check_simulation_input(self):
         if self._step_size <= 0:

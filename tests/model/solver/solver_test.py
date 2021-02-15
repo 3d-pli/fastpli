@@ -4,6 +4,7 @@ import h5py
 import os
 
 import fastpli.model.solver
+import fastpli.objects
 
 TMP_FILE = os.path.join(os.path.dirname(__file__), 'tmp.fastpli.test')
 
@@ -11,8 +12,8 @@ TMP_FILE = os.path.join(os.path.dirname(__file__), 'tmp.fastpli.test')
 class MainTest(unittest.TestCase):
 
     def setUp(self):
-        self._test_fiber = np.array([[0, 0, 0, 1], [0, 0, 1, 2]])
-        self._test_fiberbundles = [[self._test_fiber]]
+        self._test_fiber = fastpli.objects.Fiber([[0, 0, 0, 1], [0, 0, 1, 2]])
+        self._test_fiberbundles = fastpli.objects.FiberBundles(self._test_fiber)
         self.solver = fastpli.model.solver.Solver()
         self.solver.fiber_bundles = self._test_fiberbundles
 
@@ -31,7 +32,11 @@ class MainTest(unittest.TestCase):
 
     def test_set_fiber_bundle(self):
         self.solver.fiber_bundles = [[np.array([[0, 0, 0, 1], [0, 0, 2, 3]])]]
-        _ = self.solver.fiber_bundles
+        fbs = self.solver.fiber_bundles
+        self.assertTrue(isinstance(fbs, fastpli.objects.FiberBundles))
+        self.solver.fiber_bundles = self._test_fiberbundles
+        fbs = self.solver.fiber_bundles
+        self.assertTrue(isinstance(fbs, fastpli.objects.FiberBundles))
 
     def test_split(self):
         self.solver.drag = 0

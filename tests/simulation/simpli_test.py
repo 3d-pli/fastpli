@@ -7,6 +7,7 @@ import sys
 import os
 
 from fastpli.simulation import Simpli
+import fastpli.objects
 
 TMP_FILE = os.path.join(os.path.dirname(__file__), 'tmp.fastpli.test.')
 
@@ -15,30 +16,21 @@ class MainTest(unittest.TestCase):
 
     def setUp(self):
         self.fiber_bundles = [[[[0, 0, 0, 1], [1, 1, 1, 1], [2, 2, 2, 1]]]]
-        self.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                          (0.666, 0, 5, 'b'),
-                                          (1.0, 0.004, 1, 'r')]]
+
+        self.fiber_bundles = fastpli.objects.FiberBundles(
+            self.fiber_bundles, [[(0.333, -0.004, 10, 'p'), (0.666, 0, 5, 'b'),
+                                  (1.0, 0.004, 1, 'r')]])
 
         self.simpli = Simpli()
         self.simpli.fiber_bundles = self.fiber_bundles
-        self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
 
     def test_dict(self):
         d = self.simpli.get_dict()
         self.assertWarns(UserWarning, self.simpli.set_dict, d)
 
-        # # io
-        # with h5py.File('/tmp/fastpli.test.h5', 'w') as h5f:
-        #     h5f['dict'] = str(d)
-        #     d_read = h5f['dict'][...]
-        #     d_new = dict(eval(str(d_read)))
-        #     self.assertWarns(UserWarning, self.simpli.set_dict, d_new)
-
-        # self.addCleanup(os.remove, '/tmp/fastpli.test.h5')
-
     def test_dimension(self):
-        self.simpli.fiber_bundles = [[[[1, 3, 0, 2], [1, 3, 7, 2]]]]
-        self.simpli.fiber_bundles_properties = [[(1, 0, 0, 'p')]]
+        self.simpli.fiber_bundles = fastpli.objects.FiberBundles(
+            [[[[1, 3, 0, 2], [1, 3, 7, 2]]]], [[(1, 0, 0, 'p')]])
         self.simpli.dim = [3, 5, 7]
         self.simpli.dim_origin = [0, 0, 0]
         self.simpli.voxel_size = 1.0
@@ -57,9 +49,6 @@ class MainTest(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, 'voxel_size is not set yet'):
             self.simpli.set_voi([0, 0, 0], [12, 12, 12])
 
-        # TODO:
-        pass
-
     def test_generator(self):
         self.simpli.dim = [10, 10, 10]
         self.simpli.voxel_size = 0.2
@@ -74,17 +63,17 @@ class MainTest(unittest.TestCase):
         self.assertTrue(np.array_equal(tissue_1.shape, optical_axis.shape[:3]))
 
     def test_tissue_radial(self):
-        self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
-        self.fiber_bundles_properties = [[(1.0, 0.004, 1, 'r')]]
+        fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
+        fiber_bundles_properties = [[(1.0, 0.004, 1, 'r')]]
+        fiber_bundles = fastpli.objects.FiberBundles(fiber_bundles,
+                                                     fiber_bundles_properties)
 
         self.simpli = Simpli()
-        self.simpli.fiber_bundles = self.fiber_bundles
-        self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
-
+        self.simpli.fiber_bundles = fiber_bundles
         self.simpli.voxel_size = 0.1
         self.simpli.set_voi([0, 0, 0], [1.5, 1.5, 1.5])
 
-        tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
+        tissue, optical_axis, _ = self.simpli.generate_tissue()
 
         self.assertTrue(tissue.dtype == np.int32)
         self.assertTrue(optical_axis.dtype == np.float32)
@@ -96,9 +85,9 @@ class MainTest(unittest.TestCase):
                 optical_axis[:, :, i, :],
                 decimal=np.finfo(optical_axis.dtype).precision)
 
-        x = self.fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
-        y = self.fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
-        r = self.fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
+        x = fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
+        y = fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
+        r = fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
 
         for i in range(tissue.shape[0]):
             for j in range(tissue.shape[1]):
@@ -114,17 +103,17 @@ class MainTest(unittest.TestCase):
                         err_msg=f'x:{x}, y:{y}, i:{i},j:{j}')
 
     def test_tissue_parallel(self):
-        self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
-        self.fiber_bundles_properties = [[(1.0, -0.004, 1, 'p')]]
+        fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
+        fiber_bundles = fastpli.objects.FiberBundles(fiber_bundles,
+                                                     [[(1.0, -0.004, 1, 'p')]])
 
         self.simpli = Simpli()
-        self.simpli.fiber_bundles = self.fiber_bundles
-        self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
+        self.simpli.fiber_bundles = fiber_bundles
 
         self.simpli.voxel_size = 0.1
         self.simpli.set_voi([0, 0, 0], [1.5, 1.5, 1.5])
 
-        tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
+        tissue, optical_axis, _ = self.simpli.generate_tissue()
 
         self.assertTrue(tissue.dtype == np.int32)
         self.assertTrue(optical_axis.dtype == np.float32)
@@ -136,9 +125,9 @@ class MainTest(unittest.TestCase):
                 optical_axis[:, :, i, :],
                 decimal=np.finfo(optical_axis.dtype).precision)
 
-        x = self.fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
-        y = self.fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
-        r = self.fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
+        x = fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
+        y = fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
+        r = fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
 
         for i in range(tissue.shape[0]):
             for j in range(tissue.shape[1]):
@@ -152,14 +141,13 @@ class MainTest(unittest.TestCase):
                         err_msg=f'x:{x}, y:{y}, i:{i},j:{j}')
 
     def test_tissue_layered(self):
-        self.fiber_bundles = [[[[0, 0.25, -500, 1], [0, 0.25, 500, 1]]]]
-        self.fiber_bundles_properties = [[(0.3, -0.004, 1, 'p'),
-                                          (0.6, 0, 1, 'b'),
-                                          (1.0, 0.004, 1, 'r')]]
+        fiber_bundles = fastpli.objects.FiberBundles([[[[0, 0.25, -500, 1],
+                                                        [0, 0.25, 500, 1]]]])
+        fiber_bundles.layers = [[(0.3, -0.004, 1, 'p'), (0.6, 0, 1, 'b'),
+                                 (1.0, 0.004, 1, 'r')]]
 
         self.simpli = Simpli()
-        self.simpli.fiber_bundles = self.fiber_bundles
-        self.simpli.fiber_bundles_properties = self.fiber_bundles_properties
+        self.simpli.fiber_bundles = fiber_bundles
 
         self.simpli.voxel_size = 0.1
         self.simpli.set_voi([0, 0, 0], [1.5, 1.5, 1.5])
@@ -176,9 +164,9 @@ class MainTest(unittest.TestCase):
                 optical_axis[:, :, i, :],
                 decimal=np.finfo(optical_axis.dtype).precision)
 
-        x = self.fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
-        y = self.fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
-        r = self.fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
+        x = fiber_bundles[0][0][0, 0] / self.simpli.voxel_size
+        y = fiber_bundles[0][0][0, 1] / self.simpli.voxel_size
+        r = fiber_bundles[0][0][0, 3] / self.simpli.voxel_size
 
         for i in range(tissue.shape[0]):
             for j in range(tissue.shape[1]):
@@ -209,10 +197,10 @@ class MainTest(unittest.TestCase):
 
         self.simpli.voxel_size = 1
         self.simpli.set_voi([-10] * 3, [10] * 3)
-        self.simpli.fiber_bundles = [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]]
-        self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                                 (0.666, 0, 5, 'b'),
-                                                 (1.0, 0.004, 1, 'r')]]
+        self.simpli.fiber_bundles = fastpli.objects.FiberBundles(
+            [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]], [[(0.333, -0.004, 10, 'p'),
+                                                       (0.666, 0, 5, 'b'),
+                                                       (1.0, 0.004, 1, 'r')]])
 
         tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
 
@@ -229,29 +217,13 @@ class MainTest(unittest.TestCase):
 
         self.assertTrue(np.array_equal(tissue_properties.shape, [4, 2]))
 
-    def test_cell_population(self):
-        self.simpli.voxel_size = 1
-        self.simpli.dim = [10, 10, 10]
-        self.simpli.dim_origin = self.simpli.dim / 2
-        self.simpli.cells_populations = [[[[0, 0, 0, 100]]]]
-        self.simpli.cells_populations_properties = [[1, 10]]
-
-        self.simpli.fiber_bundles = None
-        self.simpli.fiber_bundles_properties = None
-
-        tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
-
-        self.assertTrue(np.all(tissue == 1))
-        self.assertTrue(np.all(optical_axis == 0))
-        self.assertTrue(np.array_equal(tissue_properties.shape, [2, 2]))
-
     def test_simulator(self):
         self.simpli.voxel_size = 1
         self.simpli.set_voi([-10] * 3, [10] * 3)
-        self.simpli.fiber_bundles = [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]]
-        self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                                 (0.666, 0, 5, 'b'),
-                                                 (1.0, 0.004, 1, 'r')]]
+        self.simpli.fiber_bundles = fastpli.objects.FiberBundles(
+            [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]], [[(0.333, -0.004, 10, 'p'),
+                                                       (0.666, 0, 5, 'b'),
+                                                       (1.0, 0.004, 1, 'r')]])
 
         tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
 
@@ -291,10 +263,10 @@ class MainTest(unittest.TestCase):
         self.simpli.voxel_size = 1
         self.simpli.dim = [10, 10, 10]
         self.simpli.dim_origin = self.simpli.dim / 2
-        self.simpli.fiber_bundles = [[[[0, 0, 30, 100], [640, 640, 30, 100]]]]
-        self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                                 (0.666, 0, 5, 'b'),
-                                                 (1.0, 0.004, 1, 'r')]]
+        self.simpli.fiber_bundles = fastpli.objects.FiberBundles(
+            [[[[0, 0, 30, 100], [640, 640, 30, 100]]]],
+            [[(0.333, -0.004, 10, 'p'), (0.666, 0, 5, 'b'),
+              (1.0, 0.004, 1, 'r')]])
         self.simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
         self.simpli.light_intensity = 26000
         self.simpli.voxel_size = 1
@@ -356,10 +328,10 @@ class MainTest(unittest.TestCase):
 
         self.simpli.voxel_size = 1
         self.simpli.set_voi([-10] * 3, [10] * 3)
-        self.simpli.fiber_bundles = [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]]
-        self.simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                                 (0.666, 0, 5, 'b'),
-                                                 (1.0, 0.004, 1, 'r')]]
+        self.simpli.fiber_bundles = fastpli.objects.FiberBundles(
+            [[[[-100, 0, 0, 10], [100, 0, 0, 10]]]], [[(0.333, -0.004, 10, 'p'),
+                                                       (0.666, 0, 5, 'b'),
+                                                       (1.0, 0.004, 1, 'r')]])
 
         tissue, optical_axis, tissue_properties = self.simpli.generate_tissue()
 

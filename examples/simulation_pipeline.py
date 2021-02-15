@@ -26,7 +26,7 @@ simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
     os.path.join(FILE_PATH, 'fastpli.dat'))
 
 # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
-simpli.fiber_bundles_properties = [[(1.0, -0.001, 10, 'p')]]
+simpli.fiber_bundles.layers = [[(1.0, -0.001, 10, 'p')]]
 # (_0, _1, _2, _3)
 # _0: layer_scale times radius
 # _1: strength of birefringence

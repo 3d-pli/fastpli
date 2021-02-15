@@ -87,12 +87,13 @@ class Solver(_Solver):
     @property
     def fiber_bundles(self):
         """ get/set fiber_bundles [[(,4)-array]] """
-        return super()._get_fiber_bundles()
+        fbs = super()._get_fiber_bundles()
+        return objects.FiberBundles(fbs)
 
     @fiber_bundles.setter
     def fiber_bundles(self, fbs):
-        fbs = objects.fiber_bundles.cast(fbs)
-        super()._set_fiber_bundles(fbs)
+        fbs = objects.FiberBundles(fbs)
+        super()._set_fiber_bundles(fbs.as_array())
 
     @property
     def drag(self):

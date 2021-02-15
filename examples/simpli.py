@@ -32,9 +32,8 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         os.path.join(FILE_PATH, 'cube.dat'))
 
     # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
-    simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                        (0.666, 0, 5, 'b'),
-                                        (1.0, 0.004, 1, 'r')]]
+    simpli.fiber_bundles.layers = [[(0.333, -0.004, 10, 'p'),
+                                    (0.666, 0, 5, 'b'), (1.0, 0.004, 1, 'r')]]
     # (_0, _1, _2, _3)
     # _0: layer_scale times radius
     # _1: strength of birefringence

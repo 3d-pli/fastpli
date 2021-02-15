@@ -63,11 +63,9 @@ for i in range(1000):
 
     if i == 20:
         solver.draw_scene()
-        solver.fiber_bundles = fastpli.objects.fiber_bundles.apply_fun_to_position(
-            solver.fiber_bundles,
+        solver.fiber_bundles = solver.fiber_bundles.apply_to_points(
             lambda p: p + np.random.uniform(-10, 10, p.shape))
-        solver.fiber_bundles = fastpli.objects.fiber_bundles.apply_fun_to_radii(
-            solver.fiber_bundles,
+        solver.fiber_bundles = solver.fiber_bundles.apply_to_radii(
             lambda r: r * np.random.lognormal(0, 0.1, r.shape))
         solver.draw_scene()
 
@@ -96,7 +94,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(f'{FILE_OUT}.dat')
 
     # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
-    simpli.fiber_bundles_properties = [[(1.0, -0.004, 10, 'p')]] * len(
+    simpli.fiber_bundles.layers = [[(1.0, -0.004, 10, 'p')]] * len(
         simpli.fiber_bundles)
     # (_0, _1, _2, _3)
     # _0: layer_scale times radius
@@ -116,7 +114,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
     h5f['tissue/tissue_properties'] = tissue_properties
 
     # Show tissue sections
-    sections = [tissue[:, :, i] for i in tissue.shape[-1]]
+    sections = [tissue[:, :, i] for i in range(tissue.shape[-1])]
     fig = plt.figure()
     ani = animation.ArtistAnimation(fig,
                                     sections,
@@ -150,7 +148,7 @@ with h5py.File(f'{FILE_OUT}.h5', 'w') as h5f:
         h5f['simulation/optic/' + str(t)] = images
 
         # Show microscope images
-        imgs = [images[:, :, i] for i in images.shape[-1]]
+        imgs = [images[:, :, i] for i in range(images.shape[-1])]
         fig = plt.figure()
         ani = animation.ArtistAnimation(fig,
                                         imgs,

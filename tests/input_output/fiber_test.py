@@ -29,7 +29,7 @@ class MainTest(unittest.TestCase):
             fbs = fiber_bundles.load_h5(h5f)
             for fb_a, fb_b in zip(fbs, self.solver.fiber_bundles):
                 for f_a, f_b in zip(fb_a, fb_b):
-                    self.assertTrue(np.alltrue(f_a == f_b))
+                    self.assertTrue(np.alltrue(f_a[:] == f_b[:]))
 
         with h5py.File(TMP_FILE + 'fiber_test.h5', 'w') as h5f:
             h5g = h5f.create_group('test')
@@ -39,7 +39,7 @@ class MainTest(unittest.TestCase):
             fbs = fiber_bundles.load_h5(h5f['test'])
             for fb_a, fb_b in zip(fbs, self.solver.fiber_bundles):
                 for f_a, f_b in zip(fb_a, fb_b):
-                    self.assertTrue(np.alltrue(f_a == f_b))
+                    self.assertTrue(np.alltrue(f_a[:] == f_b[:]))
 
         self.addCleanup(os.remove, TMP_FILE + 'fiber_test.h5')
 
@@ -51,7 +51,7 @@ class MainTest(unittest.TestCase):
             fbs = fiber_bundles.load_dat(file)
             for fb_a, fb_b in zip(fbs, self.solver.fiber_bundles):
                 for f_a, f_b in zip(fb_a, fb_b):
-                    self.assertTrue(np.alltrue(f_a == f_b))
+                    self.assertTrue(np.alltrue(f_a[:] == f_b[:]))
 
         self.addCleanup(os.remove, TMP_FILE + '.dat')
 
@@ -72,17 +72,20 @@ class MainTest(unittest.TestCase):
                 fbs_dat = fiber_bundles.load_dat(file)
                 for fb_a, fb_b in zip(fbs_h5, fbs_dat):
                     for f_a, f_b in zip(fb_a, fb_b):
-                        self.assertTrue(np.alltrue(f_a == f_b))
+                        self.assertTrue(np.alltrue(f_a[:] == f_b[:]))
 
         self.addCleanup(os.remove, TMP_FILE + 'fiber_test.h5')
         self.addCleanup(os.remove, TMP_FILE + '.dat')
 
     def test_save_load(self):
-        fiber_bundles.save(TMP_FILE + '.dat', self.solver.fiber_bundles,
-                           'fiber_bundles'
-                           'w')
+        fiber_bundles.save(TMP_FILE + '.dat',
+                           self.solver.fiber_bundles,
+                           'fiber_bundles',
+                           mode='w')
         fiber_bundles.save(TMP_FILE + 'fiber_test.h5',
-                           self.solver.fiber_bundles, 'fiber_bundles', 'a')
+                           self.solver.fiber_bundles,
+                           'fiber_bundles',
+                           mode='a')
 
         fbs_h5 = fiber_bundles.load(TMP_FILE + 'fiber_test.h5', 'fiber_bundles')
         fbs_dat = fiber_bundles.load(TMP_FILE + '.dat', 'fiber_bundles')
@@ -92,7 +95,7 @@ class MainTest(unittest.TestCase):
         for fb_a, fb_b in zip(fbs_h5, fbs_dat):
             self.assertTrue(len(fb_a) == len(fb_b))
             for f_a, f_b in zip(fb_a, fb_b):
-                self.assertTrue(np.alltrue(f_a == f_b))
+                self.assertTrue(np.alltrue(f_a[:] == f_b[:]))
 
         self.addCleanup(os.remove, TMP_FILE + 'fiber_test.h5')
         self.addCleanup(os.remove, TMP_FILE + '.dat')

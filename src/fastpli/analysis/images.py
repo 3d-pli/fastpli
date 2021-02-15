@@ -173,7 +173,7 @@ def fom_hsv_black(direction, inclination, mask=None):
         resulting hsv-black fom
     """
     if mask is None:
-        mask = np.ones_like(direction, dtype=np.bool)
+        mask = np.ones_like(direction, dtype=bool)
 
     hsv = np.zeros((mask.shape[0], mask.shape[1], 3), np.uint8)
     for x in range(mask.shape[0]):

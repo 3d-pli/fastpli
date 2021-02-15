@@ -104,8 +104,14 @@ h5py-clean:
 
 .PHONY: docs
 docs: ${VENV} clean-docs
-	${VENV}/bin/pip3 -q install -r docs/requirements.txt
+	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
+	cd docs; \
+	make html
+
+.PHONY: docs-github
+docs-github: local clean-docs
 	. ${VENV}/bin/activate; \
+	pip3 -q install -r docs/requirements.txt; \
 	cd docs; \
 	make github
 

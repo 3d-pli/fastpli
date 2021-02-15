@@ -4,7 +4,7 @@ Analyse Methods for tilted PLI signals with ROFL algorithm
 
 Notes
 -----
-    Algorithm public available at https://doi.org/10.3389/fnana.2018.00075
+Algorithm public available at https://doi.org/10.3389/fnana.2018.00075
 
 """
 

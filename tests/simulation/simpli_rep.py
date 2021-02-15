@@ -27,13 +27,13 @@ with h5py.File(TMP_FILE + 'simpli_rep.h5', 'w') as h5f:
     simpli.omp_num_threads = 1
     simpli.voxel_size = 5  # in micro meter
     simpli.set_voi([-60] * 3, [60] * 3)  # in micro meter
-    simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
+    fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, '..', '..', 'examples', 'cube.dat'))
 
     # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
-    simpli.fiber_bundles_properties = [[(0.333, -0.004, 10, 'p'),
-                                        (0.666, 0, 5, 'b'),
-                                        (1.0, 0.004, 1, 'r')]]
+    fiber_bundles.layers = [[(0.333, -0.004, 10, 'p'), (0.666, 0, 5, 'b'),
+                             (1.0, 0.004, 1, 'r')]]
+    simpli.fiber_bundles = fiber_bundles
     # (_0, _1, _2, _3)
     # _0: layer_scale times radius
     # _1: strength of birefringence

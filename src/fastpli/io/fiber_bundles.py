@@ -75,7 +75,7 @@ def load_dat(file):
     if fiber:  # save last fiber
         fiber_bundles[-1].append(np.array(fiber))
 
-    return fiber_bundles
+    return objects.FiberBundles(fiber_bundles)
 
 
 def load_h5(h5f):
@@ -103,7 +103,7 @@ def load_h5(h5f):
         for f in f_list:
             fiber_bundles[-1].append(h5f[str(fb)][str(f)][:].astype(float))
 
-    return fiber_bundles
+    return objects.FiberBundles(fiber_bundles)
 
 
 def save(file_name, fiber_bundles, group_name='/', mode='w-'):
@@ -147,15 +147,9 @@ def save_dat(file, fiber_bundles):
     fiber_bundles : list( list( (n,4)-array_like ) )
     """
 
-    if not fiber_bundles:
-        return
-
-    fiber_bundles = objects.fiber_bundles.cast(fiber_bundles)
-
+    fiber_bundles = objects.FiberBundles(fiber_bundles)
     for fb, fiber_bundle in enumerate(fiber_bundles):
         for fiber in fiber_bundle:
-            if fiber.shape[1] != 4 or len(fiber.shape) != 2:
-                raise TypeError('Wrong shape:', fiber.shape)
             for line in fiber:
                 file.write(
                     str(line[0]) + ' ' + str(line[1]) + ' ' + str(line[2]) +
@@ -173,13 +167,11 @@ def save_h5(h5f, fiber_bundles):
     ----------
     h5f : hdf5 class
         h5-file or group object
-    fiber_bundles : list( list( (n,4)-array_like ) )
+    fiber_bundles : FiberBundles
+        list( list( (n,4)-array_like ) )
     """
 
-    if not fiber_bundles:
-        return
-
-    fiber_bundles = objects.fiber_bundles.cast(fiber_bundles)
+    fiber_bundles = objects.FiberBundles(fiber_bundles)
 
     for fb_i, fb in enumerate(fiber_bundles):
         grp_fb = h5f.create_group(str(fb_i))

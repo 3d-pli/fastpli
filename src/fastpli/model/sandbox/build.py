@@ -8,6 +8,8 @@ optimized with numba
 import numpy as np
 import numba
 
+from ... import objects
+
 
 @numba.njit(cache=True)
 def _rot_a_on_b(a, b):
@@ -74,7 +76,7 @@ def bundle(traj, seeds, radii, scale=1):
 
     Returns
     -------
-    res : list((nx4)-array)
+    res : FiberBundle
         list of fibers with (x,y,z,r)-coordinates
     """
 
@@ -110,7 +112,7 @@ def bundle(traj, seeds, radii, scale=1):
         if np.array_equal(traj[i, :3], traj[i + 1, :3]):
             raise TypeError('same point:', i)
 
-    return _bundle(traj, seeds, radii, scale)
+    return objects.FiberBundle(_bundle(traj, seeds, radii, scale))
 
 
 @numba.njit(cache=True)
@@ -233,29 +235,6 @@ def _cylinder_radial(p, q, seeds, r_in, r_out, alpha, beta):
     return fiber_bundle
 
 
-# @numba.njit(cache=True)
-def add_radii(fiber_bundle, radii):
-    """
-    Adding radii to a fiber_bundle
-
-    Parameters
-    ----------
-    fiber_bundle : [(,3)-array_like]
-        (x,y,z)-points of fibers
-    radii : (n,)-array_like
-        individual radii for each fiber inside the fiber_bundle
-
-    Returns
-    -------
-    res : list((nx4)-array)
-        list of fibers with (x,y,z,r)-coordinates
-    """
-    for i, (f, r) in enumerate(zip(fiber_bundle, radii)):
-        fiber_bundle[i] = np.concatenate((f, np.ones((f.shape[0], 1)) * r),
-                                         axis=1)
-    return fiber_bundle
-
-
 def cylinder(p,
              q,
              r_in,
@@ -330,9 +309,11 @@ def cylinder(p,
     else:
         raise ValueError('mode has to be \'parallel\' or \'radial\'')
 
-    add_radii(fiber_bundle, radii)
+    for i, (f, r) in enumerate(zip(fiber_bundle, radii)):
+        fiber_bundle[i] = np.concatenate((f, np.ones((f.shape[0], 1)) * r),
+                                         axis=1)
 
-    return fiber_bundle
+    return objects.FiberBundle(fiber_bundle)
 
 
 @numba.njit(cache=True)
@@ -437,4 +418,4 @@ def cuboid(p, q, phi, theta, seeds, radii):
     rot = _rot_a_on_b(np.array([0, 0, 1.0]), v)
     seeds = np.dot(rot, seeds.T).T + 0.5 * (p + q)
 
-    return _cuboid(p, q, v, seeds, radii)
+    return objects.FiberBundle(_cuboid(p, q, v, seeds, radii))
