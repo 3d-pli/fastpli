@@ -1,6 +1,9 @@
 #!/bin/bash
 set -uo pipefail
 
+env-CI/bin/pip3 install yapf -q
+env-CI/bin/pip3 install flake8 -q
+
 EXIT_STATUS=0
 
 # C++
