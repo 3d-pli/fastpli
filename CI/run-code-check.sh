@@ -40,7 +40,7 @@ if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
 
 # Notebooks
 env-CI/bin/pip3 install -q -r examples/requirements.txt
-find ./examples -iname '*ipynb' | xargs -I {} env-CI/bin/jupyter-nbconvert --clear-output --ClearMetadataPreprocessor.enabled=True --stdout {} | diff {} - &>/dev/null
+find ./examples -iname '*ipynb' | xargs -I {} sh -c "env-CI/bin/jupyter-nbconvert --clear-output --ClearMetadataPreprocessor.enabled=True --stdout {} | diff {} -"
 if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
 
 exit $EXIT_STATUS
