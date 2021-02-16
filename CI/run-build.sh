@@ -9,5 +9,6 @@ else
    make fastpli $1
 fi
 
+python3 -m venv env-CI
 env-CI/bin/pip3 install --upgrade pip
 env-CI/bin/pip3 install .
