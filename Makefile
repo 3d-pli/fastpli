@@ -112,7 +112,7 @@ docs: ${VENV} clean-docs
 wiki: ${VENV}
 	${VENV}/bin/pip3 -q install -r examples/requirements.txt
 	rm -rf examples/wiki
-	find examples/ -iname '*.ipynb' | xargs -P 2 -I {} ${VENV}/bin/jupyter-nbconvert --execute --to markdown --output-dir='examples/wiki' {}
+	find examples/ -iname '*.ipynb' | xargs -P 2 -I {} ${VENV}/bin/jupyter-nbconvert --execute --to markdown --output-dir='examples/notebooks' {}
 
 
 .PHONY: docker
