@@ -35,4 +35,8 @@ if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
 env-CI/bin/python3 -m flake8
 if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
 
+# Notebooks
+find ./examples -iname '*ipynb' | xargs -I {} env-CI/bin/jupyter-nbconvert --clear-output --ClearMetadataPreprocessor.enabled=True --stdout {} | diff {} - &>/dev/null
+if [ ! $? -eq 0 ]; then EXIT_STATUS=1; fi
+
 exit $EXIT_STATUS

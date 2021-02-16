@@ -104,9 +104,14 @@ h5py-clean:
 
 .PHONY: docs
 docs: ${VENV} clean-docs
-	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
-	cd docs; \
-	make html
+	${VENV}/bin/pip3 -q install -r docs/requirements.txt
+	find examples/ -iname "*.ipynb" | xargs 
+	${VENV}/bin/jupyter-nbconvert --execute
+
+.PHONY: wiki
+wiki: ${VENV}
+	${VENV}/bin/pip3 -q install -r examples/requirements.txt
+
 
 .PHONY: docker
 docker:
@@ -119,6 +124,7 @@ format:
 	${VENV}/bin/yapf -i -r -p tests
 	${VENV}/bin/yapf -i -r -p examples
 	${VENV}/bin/flake8
+	find examples/ -iname "*.ipynb" | xargs ${VENV}/bin/jupyter-nbconvert --clear-output --ClearMetadataPreprocessor.enabled=True --inplace
 
 .PHONY: pylint
 pylint:

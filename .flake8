@@ -1,4 +1,4 @@
 [flake8]
-exclude = .git*,build,CI,cmake,docs,lib,paper,__pycache__,src/__version.py,setup.py
+exclude = .git*,env*/,build,CI,cmake,docs,lib,paper,__pycache__,src/__version.py,setup.py
 ignore = E124,E126,E225,W503,W504,
 max-line-length = 127
