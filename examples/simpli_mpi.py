@@ -1,4 +1,12 @@
-# mpirun -n $i python3 -m mpi4py examples/simpli_mpi.py
+"""
+MPI executable example.
+
+NOTE: if h5py is used, it has to be compiled in parallel mode. See
+https://docs.h5py.org/en/stable/mpi.html for more information
+
+Ecexution:
+mpirun -n 2 python3 -m mpi4py examples/simpli_mpi.py
+"""
 
 import fastpli.simulation
 import fastpli.analysis
@@ -24,17 +32,10 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
                driver='mpio',
                comm=MPI.COMM_WORLD) as h5f:
 
-    # saveing string not supported in mpi yet
-    # h5f['version'] = fastpli.__version__
-    # h5f['parameter/pip_freeze'] = fastpli.tools.helper.pip_freeze()
-    # with open(os.path.abspath(__file__), 'r') as f:
-    #     h5f['parameter/script'] = f.read()
-
     # Setup Simpli for Tissue Generation
     simpli = fastpli.simulation.Simpli(MPI.COMM_WORLD)
     simpli.omp_num_threads = 1
     simpli.voxel_size = 0.5  # in micro meter
-    # simpli.set_voi([-20, -5, -10], [20, 5, 10])  # in micro meter
     simpli.set_voi([-60] * 3, [60] * 3)  # in micro meter
     simpli.fiber_bundles = fastpli.io.fiber_bundles.load(
         os.path.join(FILE_PATH, 'cube.dat'))
@@ -63,7 +64,7 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
     simpli.filter_rotations = np.deg2rad([0, 30, 60, 90, 120, 150])
     simpli.light_intensity = 26000  # a.u.
     simpli.interpolate = 'Slerp'
-    # simpli.untilt_sensor_view = True
+    simpli.untilt_sensor_view = True
     simpli.wavelength = 525  # in nm
     simpli.pixel_size = 20  # in micro meter
     simpli.optical_sigma = 0.71  # in pixel size
