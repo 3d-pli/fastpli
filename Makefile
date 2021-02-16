@@ -104,9 +104,9 @@ h5py-clean:
 
 .PHONY: docs
 docs: ${VENV} clean-docs
-	${VENV}/bin/pip3 -q install -r docs/requirements.txt
-	find examples/ -iname "*.ipynb" | xargs 
-	${VENV}/bin/jupyter-nbconvert --execute
+	${VENV}/bin/pip3 -q install -r docs/requirements.txt; \
+	cd docs; \
+	make html
 
 .PHONY: wiki
 wiki: ${VENV}
