@@ -17,11 +17,14 @@ wiki/
 *.h5
 *.dat
 
+# tests
+!tests/cube.dat
+
 # example output
 fastpli.example.*
 examples/*.png
 examples/notebooks
-!examples/cube.dat
+!examples/optic_chiasm.dat
 !examples/fastpli.dat
 
 # misc

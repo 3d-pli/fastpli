@@ -28,7 +28,7 @@ with h5py.File(TMP_FILE + 'simpli_rep.h5', 'w') as h5f:
     simpli.voxel_size = 5  # in micro meter
     simpli.set_voi([-60] * 3, [60] * 3)  # in micro meter
     fiber_bundles = fastpli.io.fiber_bundles.load(
-        os.path.join(FILE_PATH, '..', '..', 'examples', 'cube.dat'))
+        os.path.join(FILE_PATH, '..', '..', 'tests', 'cube.dat'))
 
     # define layers (e.g. axon, myelin) inside fibers of each fiber_bundle
     fiber_bundles.layers = [[(0.333, -0.004, 10, 'p'), (0.666, 0, 5, 'b'),

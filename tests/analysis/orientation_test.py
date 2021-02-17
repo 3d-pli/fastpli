@@ -50,7 +50,7 @@ class MainTest(unittest.TestCase):
 
     def test_fiber_bundles(self):
         fastpli.analysis.orientation.fiber_bundles(
-            fastpli.io.fiber_bundles.load('examples/cube.dat'))
+            fastpli.io.fiber_bundles.load('tests/cube.dat'))
 
     def test_histogram(self):
         phi = np.random.normal(np.pi / 3, 0.5, 1000)
