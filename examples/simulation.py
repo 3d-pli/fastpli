@@ -42,8 +42,8 @@ simpli.optical_sigma = 0.71  # in pixel size
 simpli.noise_model = lambda x: np.random.negative_binomial(x / (3 - 1), 1 / 3)
 simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)])
 
-print(f'creating file: simpli.h5')
-with h5py.File(f'simpli.h5', 'w') as h5f:
+print('creating file: simpli.h5')
+with h5py.File('simpli.h5', 'w') as h5f:
     with open(os.path.abspath(__file__), 'r') as script:
         results = simpli.run_pipeline(h5f=h5f,
                                       script=script.read(),

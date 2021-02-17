@@ -814,7 +814,7 @@ class FiberBundles():
     @layers.setter
     def layers(self, value):
         if len(value) != len(self):
-            raise ValueError("Wrong number of [layers]")
+            raise ValueError('Wrong number of [layers]')
         for fb, lys in zip(self, value):
             fb.layers = lys
 

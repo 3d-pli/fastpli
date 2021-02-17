@@ -100,7 +100,7 @@ simpli.tilts = np.deg2rad([(0, 0), (5.5, 0), (5.5, 90), (5.5, 180), (5.5, 270)])
 
 tilting_stack = []
 for theta, phi in simpli.tilts:
-    print(f"Tilt: theta={np.rad2deg(theta):.1f}, phi={np.rad2deg(phi):.1f}")
+    print(f'Tilt: theta={np.rad2deg(theta):.1f}, phi={np.rad2deg(phi):.1f}')
     images = simpli.run_simulation(tissue, optical_axis, tissue_properties,
                                    theta, phi)
 
