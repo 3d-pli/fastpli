@@ -116,6 +116,7 @@ rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(tilting_stack,
 fom = fastpli.analysis.images.fom_hsv_black(rofl_direction, rofl_incl)
 
 # plot results
+# Note: all data are xyz sorted.
 fig, axs = plt.subplots(1, 3, sharey=True, figsize=(15, 5))
 axs[0].imshow(transmittance.T, origin='lower', interpolation='nearest')
 axs[0].set_title('transmittance')
@@ -135,7 +136,8 @@ axs[3].imshow(np.swapaxes(fom, 0, 1), origin='lower', interpolation='nearest')
 axs[3].set_title('fom')
 
 fig, axs = plt.subplots(1, 1, figsize=(1, 1))
-plt.imshow(np.swapaxes(fastpli.analysis.images.hsv_black_sphere(), 0, 1))
+plt.imshow(np.swapaxes(fastpli.analysis.images.hsv_black_sphere(), 0, 1),
+           origin='lower')
 plt.title('fom - legend')
 plt.axis('off')
 plt.show()
