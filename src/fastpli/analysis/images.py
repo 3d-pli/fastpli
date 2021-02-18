@@ -222,3 +222,19 @@ def fom_rgb(direction, inclination, mask=None):
                     np.sin(direction[x, y]),
                     np.cos(0.5 * np.pi - inclination[x, y]))
     return rgb
+
+
+def to_image_space(data):
+    """
+    Return xyz data with lower origin to yxz ordered with upper origin suitable
+    for most image visualization libraries like matplotlib.
+
+    Returns
+    -------
+    res : np.ndarray
+        reordered view of original data
+
+    Note
+        Alternative use plt.imshow(np.swapaxes(data, 0, 1), origin='lower')
+    """
+    return np.swapaxes(np.flip(data, 1), 0, 1)

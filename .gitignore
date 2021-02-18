@@ -9,9 +9,8 @@ src/include/version.hpp
 
 # development
 env*/
-dev/*
+dev/
 wiki/
-*.ipynb.py
 
 # data
 *.h5
