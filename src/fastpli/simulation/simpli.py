@@ -39,7 +39,15 @@ class Simpli(__Simpli):
 
     @property
     def interpolate(self):
-        """ (de)activate interpolation of vectors in simulation: bool """
+        """
+        birefringence optical axis interpolation True/False
+
+        Returns
+        -------
+        res : bool
+            is the interpolation fo the birefringence optical axis activated
+        """
+
         return self._interpolate
 
     @interpolate.setter
@@ -49,7 +57,19 @@ class Simpli(__Simpli):
         self._interpolate = interpolate
 
     def generate_tissue(self, only_tissue=False):
-        """ generating discret tissue for simulation """
+        """
+        Generation of discreticesd tissue.
+
+        Parameters
+        ----------
+        only_tissue: bool
+            generates only first return value
+
+        Returns
+        -------
+        res : np.ndarray, np.ndarray, np.ndarray
+            discreticed tissue, optical axis and tissue_properties
+        """
 
         self._print('Generate Tissue')
         self._print(f'Memory needed: ~{np.ceil(self.memory_usage()):.0f} MB')
@@ -100,10 +120,26 @@ class Simpli(__Simpli):
     def run_simulation(self, tissue, optical_axis, tissue_properties, theta,
                        phi):
         """
-        running simulation. Input from tissue_generation
+        Generation of discreticesd tissue.
 
-        tissue and optical_axis will be passed by reference
-        theta, phi: tilting angle in radiant
+        Parameters
+        ----------
+        tissue: np.ndarray
+            discretized tissue array
+        optical_axis: np.ndarray
+            discretized tissue array
+        tissue_properties: np.ndarray
+            discretized tissue array
+        theta: float
+            polar angle of tilting
+        phi: float
+            azimuthal angle of tilting
+
+        Returns
+        -------
+        images : np.ndarray
+            images of all rotation angles with a pixel size of voxel_size
+            To calculate the optical resolution and noise apply_optics()
         """
 
         self._print('Run simulation')
@@ -148,7 +184,23 @@ class Simpli(__Simpli):
                             h5f=None,
                             script=None,
                             save=('tissue', 'optical_axis')):
-        """ Automatic pipeline for tissue generation with save options """
+        """
+        Automatized hdf5 saving tissue pipeline
+
+        Parameters
+        ----------
+        h5f: hdf5-File
+            
+        script: np.ndarray
+            save a script in h5f.attrs['script']
+        save: list(str)
+            name of parameters to save
+
+        Returns
+        -------
+        res : np.ndarray, np.ndarray, np.ndarray
+            discreticed tissue, optical axis and tissue_properties
+        """
 
         self._print('Run tissue pipeline')
         self._check_volume_input()
@@ -235,7 +287,27 @@ class Simpli(__Simpli):
                                 crop_tilt=False,
                                 mp_pool=None):
         """
-        Automatic pipeline for simulation and analysis with save options
+        Automatized hdf5 saving simulation pipeline
+
+        Parameters
+        ----------
+        tissue: np.ndarray
+            discretized tissue array
+        optical_axis: np.ndarray
+            discretized tissue array
+        tissue_properties: np.ndarray
+            discretized tissue array
+        h5f: hdf5-File
+        save: list(str)
+            name of parameters to save
+        crop_tilt: bool
+            crop voxel outside of combined tilting view
+        mp_pool: multiprocessing.Pool
+
+        Returns
+        -------
+        res : np.ndarray, np.ndarray, np.ndarray
+            discreticed tissue, optical axis and tissue_properties
         """
 
         self._print('Run simulation pipeline')
@@ -368,7 +440,24 @@ class Simpli(__Simpli):
                      crop_tilt=False,
                      mp_pool=None):
         """
-        Automatic tissue generation and simulation pipeline with save options
+        Automatized hdf5 saving tissue and simulation pipeline
+
+        Parameters
+        ----------
+        script: np.ndarray
+            save a script in h5f.attrs['script']
+        save: list(str)
+            name of parameters to save
+        crop_tilt: bool
+            crop voxel outside of combined tilting view
+        mp_pool: multiprocessing.Pool
+
+        Returns
+        -------
+        res : (np.ndarray, np.ndarray, np.ndarray), np.ndarray,
+              (np.ndarray,np.ndarray, np.ndarray) np.ndarray
+            (tissue, optical_axis, tissue_properties), tilting_stack,
+            (rofl_direction, rofl_incl, rofl_t_rel), fom
         """
 
         self._print('Run pipeline')
@@ -420,6 +509,7 @@ class Simpli(__Simpli):
 
     @omp_num_threads.setter
     def omp_num_threads(self, num_threads):
+        """ set number of omp threads """
 
         if not isinstance(num_threads, int):
             raise TypeError('num_threads != int')
@@ -440,7 +530,21 @@ class Simpli(__Simpli):
         self._omp_num_threads = num_threads_gen
 
     def memory_usage(self, unit='MB', item='all'):
-        """ print expected memory ussage """
+        """
+        returns expected memory ussage
+
+        Parameters
+        ----------
+        unit: str
+            unit in 'MB' or 'GB'
+        item: list(str)
+            'all' or only 'tissue'
+
+        Returns
+        -------
+        res : str
+            expected memory ussage
+        """
         if unit == 'MB':
             div = 1024**2
         elif unit == 'GB':
