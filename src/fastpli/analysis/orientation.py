@@ -15,6 +15,14 @@ def _remap_direction(phi):
 
 
 def remap_direction(phi):
+    """
+    Return direction in range of [0, np.pi)
+
+    Returns
+    -------
+    res : np.ndarray
+        direction in [0, np.pi)
+    """
     phi = np.array(phi, copy=False)
     shape = phi.shape
     phi.shape = (-1)
@@ -43,6 +51,15 @@ def _remap_orientation(phi, theta):
 
 
 def remap_orientation(phi, theta):
+    """
+    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle
+    theta in [0, 0.5*np.pi)
+
+    Returns
+    -------
+    res : (np.ndarray, np.ndarray)
+        aximuth in [0, 2*np.pi], theta in [0, 0.5*np.pi]
+    """
     phi = np.array(phi)
     theta = np.array(theta)
     shape = phi.shape
@@ -78,6 +95,15 @@ def _remap_spherical(phi, theta):
 
 
 def remap_spherical(phi, theta):
+    """
+    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle
+    theta in [0, np.pi)
+
+    Returns
+    -------
+    res : (np.ndarray, np.ndarray)
+        aximuth in [0, 2*np.pi], theta in [0, np.pi]
+    """
     phi = np.array(phi)
     theta = np.array(theta)
     shape = phi.shape
