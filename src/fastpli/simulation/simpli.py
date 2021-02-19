@@ -190,7 +190,6 @@ class Simpli(__Simpli):
         Parameters
         ----------
         h5f: hdf5-File
-            
         script: np.ndarray
             save a script in h5f.attrs['script']
         save: list(str)
