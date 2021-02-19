@@ -67,7 +67,7 @@ class __Simpli:
             print(msg)
 
     def get_dict(self):
-        """ Get all member variables which are properties """
+        """ Get all member variables which are properties as dictionary """
         members = dict()
         for key, value in self.__dict__.items():
             if key in ('_fiber_bundles'):
@@ -95,14 +95,14 @@ class __Simpli:
 
     @property
     def dim(self):
-        """ dimension of volume in voxel: (3)-array """
+        """ dimension of volume in voxel: (3)-np.ndarray """
         return self._dim
 
     @dim.setter
     def dim(self, dim):
         dim = np.array(dim)
         if dim.dtype != int:
-            raise TypeError('dim is not np.array(int)')
+            raise TypeError('dim is not np.ndarray(int)')
         if dim.size != 3:
             raise TypeError('dim.size != 3')
         if dim.ndim != 1:
@@ -112,7 +112,7 @@ class __Simpli:
 
     @property
     def dim_origin(self):
-        """ origin of volume in micro: (3)-array """
+        """ origin of volume in micro meter: (3)-np.ndarray """
         return self._dim_origin
 
     @dim_origin.setter
@@ -121,7 +121,7 @@ class __Simpli:
 
     @property
     def voxel_size(self):
-        """ size of voxel in micro: float """
+        """ size length of voxel in micro meter """
         return self._voxel_size
 
     @voxel_size.setter
@@ -143,7 +143,7 @@ class __Simpli:
 
     @property
     def pixel_size(self):
-        """ pixel size of resulting optical image in micro: float """
+        """ side length of pixel of resulting optical image in micro meter """
         return self._pixel_size
 
     @pixel_size.setter
@@ -153,7 +153,15 @@ class __Simpli:
         self._pixel_size = float(pixel_size)
 
     def get_voi(self):
-        """ get volume of interest """
+        """
+        get volume of interest
+
+        Returns
+        -------
+        res: np.ndarray, np.ndarray
+            v_min: [x_min, y_min, z_min]
+            v_max: [x_max, y_max, z_max]
+        """
         if self._voxel_size is None:
             raise ValueError('voxel_size is not set, voi can\'t be calculated')
 
@@ -175,8 +183,12 @@ class __Simpli:
         """
         set volume of interest
 
-        v_min: [x_min, y_min, z_min]
-        v_max: [x_max, y_max, z_max]
+        Parameters
+        ----------
+        v_min: (float,float,float)-array-like
+            [x_min, y_min, z_min]
+        v_max: (float,float,float)-array-like
+            [x_max, y_max, z_max]
         """
 
         v_min = np.array(v_min, dtype=float)
@@ -221,8 +233,12 @@ class __Simpli:
 
     @property
     def tilts(self):
-        """ list of spherical tilting angles [[theta, phi], ...] in radiant:
-        [[float, float], ...]
+        """
+        list of spherical tilting angles [[theta, phi], ...] in radiant:
+
+        Parameters
+        ----------
+        tilts: [[float, float], ...]
         """
         return self._tilts
 
@@ -241,7 +257,13 @@ class __Simpli:
 
     @property
     def noise_model(self):
-        """ applying noise model: function """
+        """
+        noise model to apply on resampled image
+
+        Parameters
+        ----------
+        fun: function
+        """
         return self._noise_model
 
     @noise_model.setter
@@ -255,8 +277,12 @@ class __Simpli:
     @property
     def optical_sigma(self):
         """
-        optical sigma for applying a gaussian convolution to the image after
-        resizing in pixel_size
+        optical_sigma of convolution to applie before resampled image
+
+        Parameters
+        ----------
+        optical_sigma: float
+            in pixel size
         """
         return self._optical_sigma
 
@@ -273,7 +299,14 @@ class __Simpli:
 
     @property
     def wavelength(self):
-        """ wavelength of light in nm: float """
+        """
+        wavelength of light
+
+        Parameters
+        ----------
+        wavelength: float
+            in nano meter
+        """
         return self._wavelength
 
     @wavelength.setter
@@ -282,7 +315,13 @@ class __Simpli:
 
     @property
     def tissue_refrection(self):
-        """ tissue refractive index in a.u.: float """
+        """
+        tissue refrection to include in tilting light path calculation
+
+        Parameters
+        ----------
+        tissue_refrection: float
+        """
         return self._tissue_refrection
 
     @tissue_refrection.setter
@@ -291,7 +330,14 @@ class __Simpli:
 
     @property
     def step_size(self):
-        """ step size for light in voxel: float """
+        """
+        step_size of light inside tissue in voxeln
+
+        Parameters
+        ----------
+        step_size: float
+            of light inside tissue in voxeln
+        """
         return self._step_size
 
     @step_size.setter
@@ -310,8 +356,12 @@ class __Simpli:
     @property
     def untilt_sensor_view(self):
         """
-        untilt the image by adapted initial light coordinates: bool
-        otherwise the image has to be untilted with an affine transformation
+        automatic untilting of images
+
+        Parameters
+        ----------
+        untilt_sensor_view: bool
+            True or False
         """
         return self._untilt_sensor_view
 
@@ -321,7 +371,14 @@ class __Simpli:
 
     @property
     def flip_z_beam(self):
-        """ flip the direction of light along the z-axis e.g. PM: bool """
+        """
+        flip light z-direction
+
+        Parameters
+        ----------
+        flip_z_beam: bool
+            True or False
+        """
         return self._flip_z_beam
 
     @flip_z_beam.setter
@@ -387,8 +444,19 @@ class __Simpli:
             h5f.attrs['script'] = script.encode().decode('ascii', 'ignore')
 
     def apply_optic(self, data, mp_pool=None):
-        """ applies optical resample, convolution and noise to image
-        data: np.array(x,y(,rho))
+        """
+        applies optical filters and resampling to image
+
+        Parameters
+        ----------
+        data: np.ndarray
+            images(x,y,rho)
+        mp_pool: optional, multiprocessing.Pool
+
+        Return
+        ------
+        res: np.ndarray
+            images in reduced size and applied noise model
         """
 
         self._print('Apply optic')
@@ -405,8 +473,19 @@ class __Simpli:
         return resampled, noisy
 
     def apply_optic_resample(self, data, shift=(0, 0), mp_pool=None):
-        """ applies optical resample, convolution and noise to image
-        data: np.array(x,y(,rho))
+        """
+        applies optical resampling to image
+
+        Parameters
+        ----------
+        data: np.ndarray
+            images(x,y,rho)
+        mp_pool: optional, multiprocessing.Pool
+
+        Return
+        ------
+        res: np.ndarray
+            images in reduced size
         """
 
         self._print('Apply optic resample')
@@ -457,11 +536,24 @@ class __Simpli:
         return np.squeeze(output)
 
     def apply_untilt(self, data, theta, phi, mode='nearest'):
-        """ applies optical untilt to image with affine transformation
+        """
+        applies optical untilt to image with affine transformation
 
-        only necessary if untilt_view = False
+        Parameters
+        ----------
+        data: np.ndarray
+            images(x,y,rho)
+        theta: float
+            polar angle
+        phi: float
+            azimuthal angle
+        mode: str
+            method of scipy.interpolate.griddata
 
-        data: np.array(x,y(,rho))
+        Return
+        ------
+        res: np.ndarray
+            untilted images
         """
 
         if theta == 0:
@@ -487,9 +579,20 @@ class __Simpli:
         return output
 
     def apply_epa(self, data, mask=None):
-        """ applies epa analysis to images
+        """
+        calculates transmittance, direction and retardation
 
-        data = np.array(x,y,rho)
+        Parameters
+        ----------
+        data: np.ndarray
+            images(x,y,rho)
+        mask: np.ndarray(bool)
+            only True elements will be calculated
+
+        Return
+        ------
+        res: np.ndarray, np.ndarray, np.ndarray
+            transmittance, direction, retardation
         """
 
         self._print('Apply epa')
@@ -502,9 +605,26 @@ class __Simpli:
         return transmittance, direction, retardation
 
     def apply_rofl(self, data, mask=None, mp_pool=None, grad_mode=False):
-        """ applies ROFL analysis to images
+        """
+        calculates tilt analysis for direction, inclination and t_rel and
+        additional fitting parameters
 
-        data = np.array(tilt,x,y,rho)
+        Parameters
+        ----------
+        data: np.ndarray
+            images(x,y,rho)
+        mask: optional, np.ndarray(bool)
+            only True elements will be calculated
+        mp_pool: optional, multiprocessing.Pool
+        grad_mode: optional, bool
+            activate gradient method inside rofl algorithm
+
+        Return
+        ------
+        res: np.ndarray, np.ndarray, np.ndarray,
+             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray)
+            directionmap, inclmap, trelmap,
+            (dirdevmap, incldevmap, treldevmap, funcmap, itermap)
         """
 
         self._print('Apply rofl')
