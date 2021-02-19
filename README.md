@@ -124,11 +124,16 @@ pip3 install .
 
 # Examples
 
-## Interactive jupyter notebooks
+## Tutorials
 
 ```sh
-sandbox.ipynb
-solver.ipynb
+# install required modules for examples
+pip3 install -r examples/requirements.txt
+
+jupyter-notebook examples/sandbox.ipynb
+jupyter-notebook examples/solver.ipynb
+jupyter-notebook examples/simulation.ipynb
+jupyter-notebook examples/optic_chiasm.ipynb
 ```
 
 ## Scripts
@@ -140,11 +145,8 @@ pip3 install -r examples/requirements.txt
 # run examples
 python3 examples/sandbox.py
 python3 examples/solver.py
-python3 examples/simpli.py
-python3 examples/simulation_pipeline.py
-
-# run complete pipeline
-python3 examples/crossing.py
+python3 examples/simulation.py
+python3 examples/optic_chiasm.py
 ```
 
 # Tests
