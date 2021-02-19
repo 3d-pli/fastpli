@@ -7,45 +7,132 @@ import numpy as np
 
 
 def x(phi):
-    """ 3d rotation around x-axis: float -> (3,3)-array """
+    """
+    returns rotation array along x-axis
+
+    Parameters
+    ----------
+    phi: float
+        rotation angle
+
+    Returns
+    -------
+    res : (3,3)-np.ndarray
+        rotation array along x-axis
+    """
     return np.array(((1, 0, 0), (0, np.cos(phi), -np.sin(phi)),
                      (0, np.sin(phi), np.cos(phi))), float)
 
 
 def y(phi):
-    """ 3d rotation around y-axis: float -> (3,3)-array """
+    """
+    returns rotation array along y-axis
+
+    Parameters
+    ----------
+    phi: float
+        rotation angle
+
+    Returns
+    -------
+    res : (3,3)-np.ndarray
+        rotation array along y-axis
+    """
     return np.array(((np.cos(phi), 0, np.sin(phi)), (0, 1, 0),
                      (-np.sin(phi), 0, np.cos(phi))), float)
 
 
 def z(phi):
-    """ 3d rotation around z-axis: float -> (3,3)-array """
+    """
+    returns rotation array along z-axis
+
+    Parameters
+    ----------
+    phi: float
+        rotation angle
+
+    Returns
+    -------
+    res : (3,3)-np.ndarray
+        rotation array along z-axis
+    """
     return np.array(((np.cos(phi), -np.sin(phi), 0),
                      (np.sin(phi), np.cos(phi), 0), (0, 0, 1)), float)
 
 
 def z_2d(phi):
-    """ 2d rotation around z-axis: float -> (2,2)-array """
+    """
+    returns rotation array along z-axis for 2d case
+
+    Parameters
+    ----------
+    phi: float
+        rotation angle
+
+    Returns
+    -------
+    res : (2,2)-np.ndarray
+        rotation array along z-axis
+    """
     return np.array(((np.cos(phi), -np.sin(phi)), (np.sin(phi), np.cos(phi))),
                     float)
 
 
 def zyz(alpha, beta, gamma):
-    """ 3d rotation around z-, y-, z-axis:
-    float, float, float -> (3,3)-array
+    """
+    returns rotation array along z-axis y-axis z-axis
+
+    Parameters
+    ----------
+    alpha: float
+        rotation angle
+    beta: float
+        rotation angle
+    gamma: float
+        rotation angle
+
+    Returns
+    -------
+    res : (3,3)-np.ndarray
+        rotation array
     """
     return np.dot(z(alpha), np.dot(y(beta), z(gamma)))
 
 
 def zymz(theta, phi):
-    """ 3d rotation around (theta,phi)-axis: float, float -> (3,3)-array """
+    """
+    returns rotation array along z-axis y-axis -z-axis
+
+    Parameters
+    ----------
+    theta: float
+        rotation angle
+    phi: float
+        rotation angle
+
+    Returns
+    -------
+    res : (3,3)-np.ndarray
+        rotation array
+    """
     return np.dot(z(phi), np.dot(y(theta), z(-phi)))
 
 
 def a_on_b(a, b):
     """
-    return rotation matrix when rotating a on b:
-    (3)-array, (3)-array -> (3,3)-array
+    returns rotation array from vector a on vector b
+
+    Parameters
+    ----------
+    a: np.ndarray
+        vector to rotate
+    b: np.ndarray
+        vector to rotate on
+
+    Returns
+    -------
+    res : (3,3)-np.ndarray
+        rotation array
     """
     a = a / np.linalg.norm(a)
     b = b / np.linalg.norm(b)
