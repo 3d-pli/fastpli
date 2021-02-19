@@ -45,25 +45,31 @@ class Layer:
         return self._data.__repr__()
 
     def copy(self):
+        """ returns copy of np.ndarray """
         return copy.deepcopy(self)
 
     def data(self):
+        """ returns view np.ndarray """
         return self._data
 
     @property
     def scale(self):
+        """ returns scale parameter """
         return self._data[0]
 
     @property
     def birefringence(self):
+        """ returns birefringence parameter """
         return self._data[1]
 
     @property
     def absorption(self):
+        """ returns absorption parameter """
         return self._data[2]
 
     @property
     def model(self):
+        """ returns model parameter """
         return self._data[3]
 
 
