@@ -18,9 +18,9 @@ The [Fiber Architecture Simulation Toolbox for PLI (fastpli)](https://github.com
   The first module allows the user to create different types of nerve fiber bundles and additionally fill them with individual nerve fibers.
 
   - [Details](https://github.com/3d-pli/fastpli/wiki/NerveFiber)
-  - [Tutorial](https://github.com/3d-pli/fastpli/wiki//tutorial-sandbox)
+  - [Tutorial](https://github.com/3d-pli/fastpli/wiki/tutorial-sandbox)
 
-<img align="right" src="" alt="fiber" width="125">
+<img align="right" src="https://raw.githubusercontent.com/wiki/3d-pli/fastpli/images/solver_1_cropped.gif" alt="fiber" width="125">
 
 - [`Solver` - generating collision free models](https://github.com/3d-pli/fastpli/wiki/Solver):
   The second module takes as input a configuration of nerve fibers and checks them for spatial collisions.
