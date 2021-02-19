@@ -81,37 +81,11 @@ with h5py.File(f'{FILE_OUT}_{MPI.COMM_WORLD.Get_size()}.h5',
                                        theta, phi)
         simpli.mpi.save_image_h5(h5f, f'simulation/data/{t}', images)
 
-        # apply optic to simulation
-        if MPI.COMM_WORLD.Get_rank() == 0:
-            _, images = simpli.apply_optic(images)  # use mp_pool to speed up
-            dim = np.array(images.shape)
-        else:
-            dim = np.empty(3, dtype=np.int64)
-        MPI.COMM_WORLD.Bcast(dim, root=0)
-        if MPI.COMM_WORLD.Get_rank() > 0:
-            images = np.empty(dim, np.float64)
-        MPI.COMM_WORLD.Bcast(images, root=0)
-
-        images = simpli.mpi.split_optic(images)
-        simpli.mpi.save_split_h5(h5f, f'simulation/optic/{t}', images)
-
-        # calculate modalities
-        epa = simpli.apply_epa(images)
-        simpli.mpi.save_split_h5(h5f, f'analysis/epa/{t}/transmittance', epa[0])
-        simpli.mpi.save_split_h5(h5f, f'analysis/epa/{t}/direction',
-                                 np.rad2deg(epa[1]))
-        simpli.mpi.save_split_h5(h5f, f'analysis/epa/{t}/retardation', epa[2])
-
-        tilting_stack[t] = images.copy()
-
-    print('Run ROFL analysis:')
-    rofl_direction, rofl_incl, rofl_t_rel, _ = simpli.apply_rofl(tilting_stack)
-
-    simpli.mpi.save_split_h5(h5f, 'analysis/rofl/direction',
-                             np.rad2deg(rofl_direction))
-    simpli.mpi.save_split_h5(h5f, 'analysis/rofl/inclination',
-                             np.rad2deg(rofl_incl))
-    simpli.mpi.save_split_h5(h5f, 'analysis/rofl/trel', rofl_t_rel)
-
-    print('Done')
-    print('You can look at the data e.g with Fiji and the hdf5 plugin')
+    # Note: The distribution of the images to the nodes is not yet
+    # finished. The images must be distributed so that the filtering
+    # and resampling process is not hindered by the shared nodes.
+    # Since the images are only two-dimensional, the memory
+    # constraints of the tissue and optical axis parameters are no
+    # longer problematic. Therefore, the data can be further processed
+    # on a single node using the multiprocessing toolbox,
+    # see examples/simulation.py
