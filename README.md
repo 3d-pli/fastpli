@@ -42,6 +42,10 @@ The [Fiber Architecture Simulation Toolbox for PLI (fastpli)](https://github.com
   - [Details](https://github.com/3d-pli/fastpli/wiki/Simulation)
   - [Tutorial](https://github.com/3d-pli/fastpli/wiki/tutorial-simulation)
 
+## Wiki
+
+<https://github.com/3d-pli/fastpli/wiki>
+
 ## Example
 
 As an example, a simplified model of the optic chiasm is presented.
