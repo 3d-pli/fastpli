@@ -163,4 +163,4 @@ def crop_circle(radius, seeds, center=(0, 0), radii=0):
     if seeds.ndim != 2 or seeds.shape[1] != 2:
         raise TypeError('seeds : (nx2)-array')
 
-    return seeds[(np.sum((seeds - center)**2, 1) + radii.T**2) <= radius**2]
+    return seeds[(np.sum((seeds - center)**2, 1)) <= (radius - radii.T)**2]
