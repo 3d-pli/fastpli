@@ -120,8 +120,6 @@ wiki: ${VENV}
 	find . -iname '*.md' | xargs -I {} sed -i '5G' {} ; \
 	find . -iname '*.md' | cut -c3- | xargs -I {} mv {} tutorial-{}
 
-
-
 .PHONY: docker
 docker:
 	./CI/run-docker.sh

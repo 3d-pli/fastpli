@@ -5,7 +5,7 @@ docker build -t fastpli-ci - <./CI/dockerfile
 
 # clone current commit state
 rm -rf /tmp/fastpli-ci
-git clone . /tmp/fastpli-ci
+git clone --recursive . /tmp/fastpli-ci
 
 # generate container
 if docker container inspect fastpli-cont-ci &>/dev/null; then

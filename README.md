@@ -113,7 +113,7 @@ sudo apt install libopenmpi-dev freeglut3-dev
 ### Clone repository
 
 ```sh
-git clone https://github.com/3d-pli/fastpli.git
+git clone --recursive https://github.com/3d-pli/fastpli.git
 cd fastpli
 ```
 
