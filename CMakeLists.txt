@@ -60,18 +60,17 @@ LIST (APPEND FASTPLI_INFO_COMPILER "${CMAKE_CXX_COMPILER_ID}
 # Git Submodules
 ##########################################################################
 FIND_PACKAGE(Git REQUIRED)
-IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-    OPTION(GIT_SUBMODULE "Check submodules during build" ON)
-    IF(GIT_SUBMODULE)
-        MESSAGE(STATUS "Submodule update")
-        EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
-        IF(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            MESSAGE(FATAL_ERROR string("git submodule update --init failed with"
-                              "${GIT_SUBMOD_RESULT}, please checkout submodules"))
-        ENDIF()
-    ENDIF()
+IF(NOT EXISTS "${PROJECT_SOURCE_DIR}/.git")
+    MESSAGE( FATAL_ERROR "fastPLI compromised. .git not found. Please clone the Project again." )
+ELSE()
+   MESSAGE(STATUS "Submodule update")
+   EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                  RESULT_VARIABLE GIT_SUBMOD_RESULT)
+   IF(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      MESSAGE(FATAL_ERROR string("git submodule update --init failed with"
+                        "${GIT_SUBMOD_RESULT}, please checkout submodules"))
+   ENDIF()
 ENDIF()
 
 ##########################################################################
