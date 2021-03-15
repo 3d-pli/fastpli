@@ -77,7 +77,9 @@ ENDIF()
 # Libraries
 ##########################################################################
 # Python
-FIND_PACKAGE(Python3 COMPONENTS Interpreter Development REQUIRED)
+FIND_PACKAGE(PythonInterp 3.6 REQUIRED)
+SET(PYTHON3_INTP_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}.${PYTHON_VERSION_PATCH}")
+FIND_PACKAGE(PythonLibs ${PYTHON3_INTP_VERSION} REQUIRED)
 
 ADD_SUBDIRECTORY(lib/pybind11)
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
