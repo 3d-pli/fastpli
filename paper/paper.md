@@ -36,6 +36,16 @@ To understand the influence of the underlying fiber structure, simulations are a
 
 In addition, the generated nerve fiber models can be used in other imaging simulation techniques such as diffusion magnetic resonance imaging.
 
+In recent years, various software tools have been developed to design fibre models.
+Nerve fiber modeling is commonly used in diffusion magnetic resonance imaging (dMRI).
+But many modeling techniques do not use volumetric representations, especially collision-free ones.
+In the last decade, an increasing number of algorithms for non-trivial overlapping structures have been developed [@Altendorf2011; @Chapelle2015; @Mingasson2017; @Ginsburger2019].
+While these algorithms are specialized in their field, _fastPLI_ also provides a dedicated tool for 3D-PLI simulation based on linear optics.
+Here, the focus is on the previously developed algorithm [@Matuschke2019], which provides a fast method to generate collision-free results for white matter structures in the brain.
+
+Different types of simulation for polarized light are for example described in [RamellaRoman2005; @vanTurnhout2009; @Jiang2020].
+However, to our knowledge, none of these techniques have been used to simulate the effects of polarized light on nerve fibers, with the exception of `simPLI` [@Dohmen2015], which is included in this toolbox.
+
 # Summary
 
 _fastPLI_ is an open source toolbox based on Python and C++ for modeling myelinated axons, i.e. nerve fibers and simulating the results of measurement of fiber orientations with a polarization microscope using 3D-PLI.
