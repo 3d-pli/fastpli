@@ -6,7 +6,7 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 /_/    \__,_/ /____/ \__/ /_/     /_____/___/
 -->
 
-# Fiber Architecture Simulation Toolbox for PLI
+# Fiber Architecture Simulation Toolbox for 3D-PLI
 
 ![fastpli-logo](logo.svg)
 
