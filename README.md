@@ -119,7 +119,8 @@ cd fastpli
 
 ### Compilation
 
-Use your favorite environment e. g. `python3 -m venv env` and `source env/bin/activate`
+Use your favorite environment e. g. `python3 -m venv env` and `source env/bin/activate`.
+Probably you also have to update your pip version `pip3 install pip -U`.
 
 ```sh
 make fastpli
