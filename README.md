@@ -119,7 +119,7 @@ cd fastpli
 
 ### Compilation
 
-Use zour favorite environment e. g. `python3 -m venv env` and `source env/bin/activate`
+Use your favorite environment e. g. `python3 -m venv env` and `source env/bin/activate`
 
 ```sh
 make fastpli
