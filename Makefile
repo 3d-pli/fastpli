@@ -11,7 +11,7 @@ help:
 
 BUILD := release
 VENV := ${if ${venv},${venv},env}
-
+PYTHON3 := python3
 CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug
 CMAKE.info := cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -53,12 +53,12 @@ clean: clean-build clean-src
 
 ${VENV}/bin/pip3:
 	rm -rf ${VENV}
-	python3 -m venv ${VENV}
+	${PYTHON3} -m venv ${VENV}
 	${VENV}/bin/pip3 install --upgrade pip -q
 
 ${VENV}/bin/python3:
 	rm -rf ${VENV}
-	python3 -m venv ${VENV}
+	${PYTHON3} -m venv ${VENV}
 	${VENV}/bin/pip3 install --upgrade pip -q
 
 .PHONY: ${VENV}
