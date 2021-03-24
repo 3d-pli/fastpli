@@ -12,10 +12,11 @@ help:
 BUILD := release
 VENV := ${if ${venv},${venv},env}
 PYTHON3 := python3
+PYTHON3_VERSION := $(shell ${PYTHON3} -V | cut -d ' ' -f2)
 CMAKE.debug := cmake .. -DCMAKE_BUILD_TYPE=Debug
 CMAKE.info := cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 CMAKE.release := cmake .. -DCMAKE_BUILD_TYPE=Release
-CMAKE := ${CMAKE.${BUILD}}
+CMAKE := ${CMAKE.${BUILD}} -DPython3_VERSION=${PYTHON3_VERSION}
 
 MAKE.debug := make
 MAKE.info := make -j
@@ -35,7 +36,7 @@ build/:
 build/Makefile: build/
 	@if [ ! -f build/Makefile ]; then \
 		cd build; \
-		echo cmake; \
+		echo ${CMAKE}; \
 		${CMAKE}; \
 	fi
 
