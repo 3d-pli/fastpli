@@ -495,10 +495,7 @@ std::vector<setup::PhyProps> PliGenerator::GetPropertyList() const {
                                                max_layer_ +
                                            1 + cell_populations_org_.size());
 
-   // background
-   // TODO: set background properties
-   // properties[0].dn = 0;
-   // properties[0].mu = 0;
+   // background is set in __simpli.py before return simulation
    properties[0] = setup::PhyProps(0, 0); // dn has to be 0 for brackground
 
    for (size_t f = 0; f < fiber_bundles_org_.size(); f++) {
