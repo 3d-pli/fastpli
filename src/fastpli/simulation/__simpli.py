@@ -52,6 +52,7 @@ class __Simpli:
         self._step_size = 1.0
         self._tilts = None
         self._tissue_refrection = 1
+        self._background_absorption = 0
         self._untilt_sensor_view = True
         self._wavelength = None
 
@@ -312,6 +313,21 @@ class __Simpli:
     @wavelength.setter
     def wavelength(self, wavelength):
         self._wavelength = float(wavelength)
+
+    @property
+    def background_absorption(self):
+        """
+        absorption coefficient of the background
+
+        Parameters
+        ----------
+        background_absorption: float
+        """
+        return self._background_absorption
+
+    @background_absorption.setter
+    def background_absorption(self, background_absorption):
+        self._background_absorption = float(background_absorption)
 
     @property
     def tissue_refrection(self):

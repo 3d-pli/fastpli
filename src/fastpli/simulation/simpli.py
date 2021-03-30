@@ -86,6 +86,9 @@ class Simpli(__Simpli):
         tissue, optical_axis, tissue_properties = self.__gen.run_generation(
             only_tissue)
 
+        # set background absorption
+        tissue_properties[0, 1] = self._background_absorption
+
         if not np.any(tissue):
             warnings.warn(
                 'All labels are 0. Usually this means, that the VOI contains ' +
