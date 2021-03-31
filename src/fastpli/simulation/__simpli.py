@@ -668,14 +668,15 @@ class __Simpli:
         if mask is None:
             mask = np.ones((data.shape[1], data.shape[2]), bool)
 
-        directionmap = np.empty_like(mask, dtype=data.dtype)
-        inclmap = np.empty_like(mask, dtype=data.dtype)
-        trelmap = np.empty_like(mask, dtype=data.dtype)
-        dirdevmap = np.empty_like(mask, dtype=data.dtype)
-        incldevmap = np.empty_like(mask, dtype=data.dtype)
-        treldevmap = np.empty_like(mask, dtype=data.dtype)
-        funcmap = np.empty_like(mask, dtype=data.dtype)
-        itermap = np.empty_like(mask, dtype=data.dtype)
+        dtype = np.float32 if data.itemsize <= 4 else np.float64
+        directionmap = np.empty_like(mask, dtype=dtype)
+        inclmap = np.empty_like(mask, dtype=dtype)
+        trelmap = np.empty_like(mask, dtype=dtype)
+        dirdevmap = np.empty_like(mask, dtype=dtype)
+        incldevmap = np.empty_like(mask, dtype=dtype)
+        treldevmap = np.empty_like(mask, dtype=dtype)
+        funcmap = np.empty_like(mask, dtype=dtype)
+        itermap = np.empty_like(mask, dtype=dtype)
 
         if mp_pool:
             for j in range(data.shape[2]):
