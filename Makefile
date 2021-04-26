@@ -117,7 +117,7 @@ wiki: ${VENV}
 	cd examples/notebooks/; \
 	find . -iname '*.md' | xargs -I {} sed -i '2 a ### Note' {} ; \
 	find . -iname '*.md' | xargs -I {} sed -i '3G' {} ; \
-	find . -iname '*.md' | rev | cut -c4- | rev | cut -c3- | xargs -I {} sed -i '4 a > Jupyter notebook version: [.\/examples\/{}.ipynb](https:\/\/github.com\/3d-pli\/fastpli\/blob\/master\/examples\/{}.ipynb)' {}.md ; \
+	find . -iname '*.md' | rev | cut -c4- | rev | cut -c3- | xargs -I {} sed -i '4 a > Jupyter notebook version: [.\/examples\/{}.ipynb](https:\/\/github.com\/3d-pli\/fastpli\/blob\/main\/examples\/{}.ipynb)' {}.md ; \
 	find . -iname '*.md' | xargs -I {} sed -i '5G' {} ; \
 	find . -iname '*.md' | cut -c3- | xargs -I {} mv {} tutorial-{}
 

@@ -36,6 +36,8 @@ def epa(data):
 
     d = d % np.pi
 
+    # TODO: d = 0.5 * np.arctan2(a1, -b1) + np.pi without d = d % np.pi
+
     return t, d, r
 
 

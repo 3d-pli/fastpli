@@ -87,7 +87,7 @@ All required software libraries are listed in the [software repository](https://
 
 A more detailed description of _fastPLI_ including examples, jupyter notebooks and tutorials can be found in the software package [^1], at the wiki pages [^2] and the API documentation [^3].
 
-[^1]: [https://github.com/3d-pli/fastpli](https://github.com/3d-pli/fastpli/tree/master/examples)
+[^1]: [https://github.com/3d-pli/fastpli](https://github.com/3d-pli/fastpli/tree/main/examples)
 [^2]: [https://github.com/3d-pli/fastpli/wiki](https://github.com/3d-pli/fastpli/wiki)
 [^3]: [https://3d-pli.github.io/fastpli/](https://3d-pli.github.io/fastpli/)
 

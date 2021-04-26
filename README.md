@@ -199,4 +199,4 @@ This project has received funding from the European Union’s Horizon 2020 Resea
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/3d-pli/fastpli/blob/master/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/3d-pli/fastpli/blob/main/LICENSE) file for details
