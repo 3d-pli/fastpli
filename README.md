@@ -10,7 +10,7 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 
 ![fastpli-logo](logo.svg)
 
-The [Fiber Architecture Simulation Toolbox for PLI (fastpli)](https://github.com/3d-pli/fastpli) is a toolbox for [polarized light imaging (PLI)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) with three main purposes:
+The [Fiber Architecture Simulation Toolbox for 3D-PLI (fastpli)](https://github.com/3d-pli/fastpli) is a toolbox for [polarized light imaging (PLI)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) with three main purposes:
 
 <img align="right" src="https://raw.githubusercontent.com/wiki/3d-pli/fastpli/images/fiber.png" alt="fiber" width="125">
 
