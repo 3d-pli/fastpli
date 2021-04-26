@@ -26,7 +26,7 @@ bibliography: paper.bib
 
 # Statement of need
 
-3D-PLI is a microscopic neuroimaging technique used to study the nerve fiber architecture in unstained histological brain sections at the micrometer scale [@Axer2011].
+3D Polarized Light Imaging (3D-PLI) is a microscopic neuroimaging technique used to study the nerve fiber architecture in unstained histological brain sections at the micrometer scale [@Axer2011].
 It allows contrasting fibers and fiber tracts and ultimately reconstructing 3D nerve fiber orientations.
 The physical effect behind 3D-PLI is the optical property of the nerve fibers called birefringence.
 Due to this intrinsic birefringence, it is possible to use polarized light, pass it through a thin brain section and observe the change of the polarization state of light.
