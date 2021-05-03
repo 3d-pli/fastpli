@@ -27,23 +27,23 @@ bibliography: paper.bib
 # Statement of need
 
 3D Polarized Light Imaging (3D-PLI) is a microscopic neuroimaging technique used to study the nerve fiber architecture in unstained histological brain sections at the micrometer scale [@Axer2011].
-It allows contrasting fibers and fiber tracts and ultimately reconstructing 3D nerve fiber orientations.
+It provides image contrast for fibers and fiber tracts, and ultimately enables reconstruction of 3D nerve fiber orientations.
 The physical effect behind 3D-PLI is the optical property of the nerve fibers called birefringence.
 Due to this intrinsic birefringence, it is possible to use polarized light, pass it through a thin brain section and observe the change of the polarization state of light.
 This change is directly related to the 3D orientation of the fibers and also provides strong contrasts between fibers and other tissue components.
 
 To understand the influence of the underlying fiber structure, simulations are an essential tool. They allow testing different hypotheses, knowing the ground truth. It has already been shown that simulations with scattered light within tissue sections require models with irregularities to mimic the behavior of the scattered light. This knowledge can now be used to understand structures such as fiber crossings that have been difficult to interpret in 3D-PLI [@Menzel2020].
 
-In addition, the generated nerve fiber models can be used in other imaging simulation techniques such as diffusion magnetic resonance imaging.
+In addition, the generated nerve fiber models can be used in other imaging simulation techniques such as diffusion magnetic resonance imaging (dMRI).
 
 In recent years, various software tools have been developed to design fibre models.
-Nerve fiber modeling is commonly used in diffusion magnetic resonance imaging (dMRI).
+Nerve fiber modeling is commonly used in dMRI.
 But many modeling techniques do not use volumetric representations, especially collision-free ones.
 In the last decade, an increasing number of algorithms for non-trivial overlapping structures have been developed [@Altendorf2011; @Chapelle2015; @Mingasson2017; @Ginsburger2019].
 While these algorithms are specialized in their field, _fastPLI_ also provides a dedicated tool for 3D-PLI simulation based on linear optics.
 Here, the focus is on the previously developed algorithm [@Matuschke2019], which provides a fast method to generate collision-free results for white matter structures in the brain.
 
-Different types of simulation for polarized light are for example described in [RamellaRoman2005; @vanTurnhout2009; @Jiang2020].
+Different types of simulations for polarized light are for example described in [RamellaRoman2005; @vanTurnhout2009; @Jiang2020].
 However, to our knowledge, none of these techniques have been used to simulate the effects of polarized light on nerve fibers, except `simPLI` [@Dohmen2015], which is included in this toolbox.
 
 # Summary
