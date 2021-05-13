@@ -655,6 +655,8 @@ class __Simpli:
         tilt_angle = self._tilts[1, 0]
 
         data = np.array(data, copy=False)
+        dtype = np.float32 if data.itemsize <= 4 else np.float64
+        data = data.astype(dtype)
 
         if data.ndim != 4:
             raise TypeError('data: np.array([tilts,x,y,stack])')

@@ -35,6 +35,8 @@ def rofl(data,
     """
 
     data = np.array(data, copy=False)
+    dtype = np.float32 if data.itemsize <= 4 else np.float64
+    data = data.astype(dtype)
 
     if data.ndim != 2:
         raise TypeError('data: np.array([tilts,stack])')

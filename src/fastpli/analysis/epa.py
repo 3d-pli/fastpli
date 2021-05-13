@@ -21,9 +21,11 @@ def epa(data):
     """
 
     data = np.array(data, copy=False)
+    dtype = np.float32 if data.itemsize <= 4 else np.float64
+    data = data.astype(dtype)
+
     n = data.shape[-1]
 
-    dtype = np.float32 if data.itemsize <= 4 else np.float64
     rho_2 = 2 * np.linspace(0, np.pi, n, False, dtype=dtype)
 
     a0 = np.sum(data, -1) / n
@@ -56,9 +58,11 @@ def direction(data):
     """
 
     data = np.array(data, copy=False)
+    dtype = np.float32 if data.itemsize <= 4 else np.float64
+    data = data.astype(dtype)
+
     n = data.shape[-1]
 
-    dtype = np.float32 if data.itemsize <= 4 else np.float64
     rho_2 = 2 * np.linspace(0, np.pi, n, False, dtype=dtype)
 
     a1 = 2 * np.sum(data * np.sin(rho_2), -1) / n
