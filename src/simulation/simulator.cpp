@@ -272,7 +272,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
             // calculate physical parameters
             const auto dn = (*properties_)[label].dn;
             const auto mu = (*properties_)[label].mu * 1e3;
-            const auto attenuation = pow(exp(-0.5 * mu * thickness), 2);
+            const auto attenuation = exp(-mu * thickness);
 
             if (dn == 0 || label == 0) {
                // label == 0 if outside tissue -> no vector
