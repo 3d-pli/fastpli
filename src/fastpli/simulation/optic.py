@@ -24,8 +24,7 @@ def add_noise(image, model, mask=None):
     """
 
     image = np.array(image, copy=False)
-    func = np.vectorize(model)
-    noisy = func(image)
+    noisy = model(image)
 
     if mask is not None:
         mask = np.logical_not(np.logical_and(np.isfinite(image), mask))
