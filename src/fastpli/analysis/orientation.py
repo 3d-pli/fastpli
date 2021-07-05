@@ -119,9 +119,74 @@ def remap_spherical(phi, theta):
     return phi, theta
 
 
+def fiber(fiber):
+    """
+    Calculates the orientation of all fiber segments.
+
+    Parameters
+    ----------
+    fiber : (nx4)-array
+        fiber object
+
+    Returns
+    -------
+    res : 1d-array, 1d-array
+        arrays of spherical coordinates phi and theta for all fiber segments
+    """
+
+    gphi = []
+    gtheta = []
+
+    if fiber.shape[0] <= 1:
+        return None, None
+
+    df = fiber[1:, :] - fiber[0:-1, :]
+    phi = np.arctan2(df[:, 1], df[:, 0])
+    theta = np.arccos(df[:, 2] / np.linalg.norm(df, axis=1))
+    gphi.extend(phi)
+    gtheta.extend(theta)
+
+    gphi, gtheta = remap_orientation(gphi, gtheta)
+
+    return gphi, gtheta
+
+
+def fiber_bundle(fb):
+    """
+    Calculates the orientation of all fiber segments.
+
+    Parameters
+    ----------
+    fb : [(nx4)-array]
+        fiber_bundle object
+
+    Returns
+    -------
+    res : 1d-array, 1d-array
+        arrays of spherical coordinates phi and theta for all fiber segments
+    """
+
+    gphi = []
+    gtheta = []
+
+    for f in fb:
+        if f.shape[0] <= 1:
+            continue
+
+        df = f[1:, :] - f[0:-1, :]
+        phi = np.arctan2(df[:, 1], df[:, 0])
+        theta = np.arccos(df[:, 2] / np.linalg.norm(df, axis=1))
+        gphi.extend(phi)
+        gtheta.extend(theta)
+
+    gphi, gtheta = remap_orientation(gphi, gtheta)
+
+    return gphi, gtheta
+
+
 def fiber_bundles(fbs):
     """
-    Calculates the orientation of all fiber segments and plots the result.
+    Calculates the orientation of all fiber segments.
 
     Parameters
     ----------
