@@ -52,6 +52,8 @@ def _remap_orientation(phi, theta):
 
 def remap_orientation(phi, theta):
     """
+    TODO: 0,np.pi and -np.pi/2 to np.pi/2 with inclination
+    TODO: rename this to remap_orientation_spherical or something like that
     Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle
     theta in [0, 0.5*np.pi)
 
