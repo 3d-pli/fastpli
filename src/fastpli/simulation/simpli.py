@@ -173,8 +173,9 @@ class Simpli(__Simpli):
         if not np.all(tissue.shape == optical_axis.shape[:-1]):
             raise ValueError(
                 'not np.equal(tissue.shape, optical_axis.shape[:-1])')
-        if np.any(tissue.shape != self._dim):
-            raise ValueError('np.any(tissue.shape != self._dim)')
+        if not np.all(tissue.shape == optical_axis.shape[:-1]):
+            raise ValueError(
+                'not np.equal(tissue.shape, optical_axis.shape[:-1])')
 
         images = self.__sim.run_simulation(self._dim, tissue_, optical_axis_,
                                            tissue_properties, theta, phi)
