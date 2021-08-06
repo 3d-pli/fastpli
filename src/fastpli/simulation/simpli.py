@@ -30,8 +30,10 @@ class Simpli(__Simpli):
         self.mpi = None
         if mpi_comm:
             from mpi4py import MPI
-            self.__gen.set_mpi_comm(MPI._addressof(mpi_comm))
-            self.__sim.set_mpi_comm(MPI._addressof(mpi_comm))
+            self.__gen.set_mpi_comm(MPI._addressof(mpi_comm),
+                                    mpi_comm.Get_size())
+            self.__sim.set_mpi_comm(MPI._addressof(mpi_comm),
+                                    mpi_comm.Get_size())
             self.mpi = _mpi._MPI(mpi_comm)
 
         # freeze class

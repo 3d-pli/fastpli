@@ -26,7 +26,7 @@ class PliGenerator {
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
    void
    SetCellPopulations(const std::vector<cell::Population> &cell_populations);
-   void SetMPIComm(const MPI_Comm comm);
+   void SetMPIComm(const MPI_Comm comm, const int n);
 
    std::tuple<std::vector<int> *, std::vector<float> *,
               std::vector<setup::PhyProps>>

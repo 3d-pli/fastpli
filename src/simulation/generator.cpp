@@ -144,12 +144,14 @@ void PliGenerator::SetCellPopulations(
    // for (const auto &cp : cell_populations)
 }
 
-void PliGenerator::SetMPIComm(const MPI_Comm comm) {
-   auto mpi = std::make_unique<MyMPI>(comm);
-   if (mpi->size() > 1)
-      mpi_ = std::move(mpi);
-   else
-      PyErr_WarnEx(PyExc_UserWarning, "only one processor found", 0);
+void PliGenerator::SetMPIComm(const MPI_Comm comm, const int n) {
+   mpi_ = std::make_unique<MyMPI>(comm);
+   if (mpi_->size() != n) {
+      PyErr_WarnEx(
+          PyExc_UserWarning,
+          ("only " + std::to_string(mpi_->size()) + " processor found").c_str(),
+           0);
+   }
 }
 
 // #############################################################################

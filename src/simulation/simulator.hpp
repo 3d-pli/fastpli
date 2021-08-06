@@ -18,7 +18,7 @@ class PliSimulator {
    PliSimulator() { set_omp_num_threads(1); }
    ~PliSimulator() = default;
 
-   void SetMPIComm(const MPI_Comm comm);
+   void SetMPIComm(const MPI_Comm comm, const int n);
    void SetSetup(const setup::Setup setup);
 
    vm::Vec3<long long> GetImageDim() {

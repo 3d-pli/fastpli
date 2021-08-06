@@ -76,12 +76,13 @@ int PliSimulator::set_omp_num_threads(int i) {
    return omp_get_max_threads();
 }
 
-void PliSimulator::SetMPIComm(const MPI_Comm comm) {
-   auto mpi = std::make_unique<MyMPI>(comm);
-   if (mpi->size() > 1)
-      mpi_ = std::move(mpi);
-   else
-      PyErr_WarnEx(PyExc_UserWarning, "only one processor found", 0);
+void PliSimulator::SetMPIComm(const MPI_Comm comm, const int n) {
+   mpi_ = std::make_unique<MyMPI>(comm);
+   if (mpi_->size() != n)
+      PyErr_WarnEx(
+          PyExc_UserWarning,
+          ("only " + std::to_string(mpi_->size()) + " processor found").c_str(),
+          0);
 }
 
 void PliSimulator::SetSetup(const setup::Setup setup) {
