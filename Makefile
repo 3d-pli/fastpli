@@ -72,9 +72,7 @@ local: ${VENV} fastpli
 .PHONY: development
 development: ${VENV} fastpli
 	${VENV}/bin/pip3 install -e . -q
-	${VENV}/bin/pip3 install yapf -q
-	${VENV}/bin/pip3 install pylint -q
-	${VENV}/bin/pip3 install flake8 -q
+	${VENV}/bin/pip3 install yapf pylint flake8 -q
 	${VENV}/bin/pip3 install -r examples/requirements.txt -q
 
 .PHONY: uninstall
