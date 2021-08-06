@@ -150,7 +150,7 @@ void PliGenerator::SetMPIComm(const MPI_Comm comm, const int n) {
       PyErr_WarnEx(
           PyExc_UserWarning,
           ("only " + std::to_string(mpi_->size()) + " processor found").c_str(),
-           0);
+          0);
    }
 }
 
