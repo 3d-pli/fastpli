@@ -34,7 +34,9 @@ def epa(data):
 
     t = 2 * a0
     d = 0.5 * np.arctan2(-b1, a1) + np.pi
-    r = np.sqrt(a1 * a1 + b1 * b1) / (a0 + 1e-16)
+
+    a0[a0 < np.finfo(dtype).eps * 100] = 1
+    r = np.sqrt(a1 * a1 + b1 * b1) / a0
 
     d = d % np.pi
 
