@@ -50,7 +50,7 @@ def rofl(data,
     if gain <= 1:
         raise ValueError('rofl gain <= 1')
 
-    direction = epa.direction(data[0, :])
+    direction = epa.direction(data[0, :]) + dir_offset
 
     params, params_conf, func, n_iter = rofl_fit(direction, 6, 6, dir_offset,
                                                  tilt_angle, data, gain,
