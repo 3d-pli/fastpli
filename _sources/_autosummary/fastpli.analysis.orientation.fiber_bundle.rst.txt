@@ -1,0 +1,6 @@
+fastpli.analysis.orientation.fiber\_bundle
+==========================================
+
+.. currentmodule:: fastpli.analysis.orientation
+
+.. autofunction:: fiber_bundle

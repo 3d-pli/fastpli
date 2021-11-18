@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fastpli.analysis.rofl.rofl &mdash; fastPLI v1.1.0 documentation</title>
+  <title>fastpli.analysis.orientation.fiber_bundle &mdash; fastPLI v1.1.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,8 +18,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="fastpli.io" href="fastpli.io.html" />
-    <link rel="prev" title="fastpli.analysis.rofl" href="fastpli.analysis.rofl.html" /> 
+    <link rel="next" title="fastpli.analysis.orientation.fiber_bundles" href="fastpli.analysis.orientation.fiber_bundles.html" />
+    <link rel="prev" title="fastpli.analysis.orientation.fiber" href="fastpli.analysis.orientation.fiber.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,11 +42,17 @@
 <li class="toctree-l2"><a class="reference internal" href="fastpli.analysis.affine_transformation.html">fastpli.analysis.affine_transformation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fastpli.analysis.epa.html">fastpli.analysis.epa</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fastpli.analysis.images.html">fastpli.analysis.images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastpli.analysis.orientation.html">fastpli.analysis.orientation</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="fastpli.analysis.rofl.html">fastpli.analysis.rofl</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">fastpli.analysis.rofl.rofl</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="fastpli.analysis.orientation.html">fastpli.analysis.orientation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.fiber.html">fastpli.analysis.orientation.fiber</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">fastpli.analysis.orientation.fiber_bundle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.fiber_bundles.html">fastpli.analysis.orientation.fiber_bundles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.histogram.html">fastpli.analysis.orientation.histogram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.remap_direction.html">fastpli.analysis.orientation.remap_direction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.remap_orientation.html">fastpli.analysis.orientation.remap_orientation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.remap_spherical.html">fastpli.analysis.orientation.remap_spherical</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="fastpli.analysis.rofl.html">fastpli.analysis.rofl</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="fastpli.io.html">fastpli.io</a></li>
@@ -71,8 +77,8 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="fastpli.analysis.html">fastpli.analysis</a> &raquo;</li>
-          <li><a href="fastpli.analysis.rofl.html">fastpli.analysis.rofl</a> &raquo;</li>
-      <li>fastpli.analysis.rofl.rofl</li>
+          <li><a href="fastpli.analysis.orientation.html">fastpli.analysis.orientation</a> &raquo;</li>
+      <li>fastpli.analysis.orientation.fiber_bundle</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -81,23 +87,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="fastpli-analysis-rofl-rofl">
-<h1>fastpli.analysis.rofl.rofl<a class="headerlink" href="#fastpli-analysis-rofl-rofl" title="Permalink to this headline"></a></h1>
+  <section id="fastpli-analysis-orientation-fiber-bundle">
+<h1>fastpli.analysis.orientation.fiber_bundle<a class="headerlink" href="#fastpli-analysis-orientation-fiber-bundle" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="fastpli.analysis.rofl.rofl">
-<span class="sig-name descname"><span class="pre">rofl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilt_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.09599310885968812</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/analysis/rofl.html#rofl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastpli.analysis.rofl.rofl" title="Permalink to this definition"></a></dt>
-<dd><p>Calculates modalities for a PLI image sequence</p>
+<dt class="sig sig-object py" id="fastpli.analysis.orientation.fiber_bundle">
+<span class="sig-name descname"><span class="pre">fiber_bundle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastpli/analysis/orientation.html#fiber_bundle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastpli.analysis.orientation.fiber_bundle" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the orientation of all fiber segments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>(tilts, rho)-array_like</em>) – tilts must be [(0,0), (tilt_angle,0), (tilt_angle,pi/2),
-(tilt_angle,pi), (tilt_angle,3/2*pi)]
-rho must be equidistance between [0,pi)</p>
+<dd class="field-odd"><p><strong>fb</strong> (<em>[(nx4)-array]</em>) – fiber_bundle object</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>res</strong></p>
+<dd class="field-even"><p><strong>res</strong> – arrays of spherical coordinates phi and theta for all fiber segments</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>direction, inclination, trel, …</p>
+<dd class="field-odd"><p>1d-array, 1d-array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -108,8 +112,8 @@ rho must be equidistance between [0,pi)</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="fastpli.analysis.rofl.html" class="btn btn-neutral float-left" title="fastpli.analysis.rofl" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="fastpli.io.html" class="btn btn-neutral float-right" title="fastpli.io" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="fastpli.analysis.orientation.fiber.html" class="btn btn-neutral float-left" title="fastpli.analysis.orientation.fiber" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fastpli.analysis.orientation.fiber_bundles.html" class="btn btn-neutral float-right" title="fastpli.analysis.orientation.fiber_bundles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
