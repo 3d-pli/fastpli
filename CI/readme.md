@@ -47,3 +47,11 @@ All examples inside the `./examples` path will be checked for runnability.
 ```sh
 ./CI/run-examples.sh
 ```
+
+## API and WIKI:
+
+- make docs
+- make wiki
+- switch to ssh credential
+- push new version
+- notebook md tutorials have to be formated by `pretty`
