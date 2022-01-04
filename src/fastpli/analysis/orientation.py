@@ -312,9 +312,11 @@ def histogram(phi,
         for h in hist:
             h[:] = np.multiply(h[:], 1 / weights)
 
+    hist = fun(hist)
+
     if ax:
         X, Y = np.meshgrid(x, np.rad2deg(y))
-        pc = ax.pcolormesh(X, Y, fun(hist.T), cmap=cmap)
+        pc = ax.pcolormesh(X, Y, hist.T, cmap=cmap)
     else:
         pc = None
 
