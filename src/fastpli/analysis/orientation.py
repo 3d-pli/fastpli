@@ -2,18 +2,17 @@
 """
 Analyse Methods fiber_bundles orientations
 """
-
 import numpy as np
 import numba
 
-
-@numba.njit(cache=True)
-def _remap_direction(phi):
-    phi = phi % np.pi
-    phi[phi < 0] += np.pi
-    return phi
+# pylint: disable = unpacking-non-sequence
+# pylint: disable = no-value-for-parameter
 
 
+@numba.vectorize([numba.float32(numba.float32),
+                  numba.float64(numba.float64)],
+                 nopython=True,
+                 cache=True)
 def remap_direction(phi):
     """
     Return direction in range of [0, np.pi)
@@ -23,102 +22,104 @@ def remap_direction(phi):
     res : np.ndarray
         direction in [0, np.pi)
     """
-    phi = np.array(phi, copy=False)
-    shape = phi.shape
-    phi.shape = (-1)
-    phi = _remap_direction(phi)
-    phi.shape = shape
-    return phi
+
+    phi_ = phi % np.pi
+    if phi_ < 0:
+        phi_ += np.pi
+
+    return phi_
 
 
-@numba.njit(cache=True)
-def _remap_orientation(phi, theta):
-    phi = phi % (2 * np.pi)
-    theta = theta % np.pi
-
-    phi[phi < 0] += 2 * np.pi
-
-    phi[theta < 0] += np.pi
-    theta = np.abs(theta)
-
-    mask = theta > 0.5 * np.pi
-    phi[mask] += np.pi
-    theta[mask] = np.pi - theta[mask]
-
-    phi = phi % (2 * np.pi)
-
-    return phi, theta
-
-
-def remap_orientation(phi, theta):
+@numba.guvectorize(
+    [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
+     (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
+    '(),()->(),()',
+    nopython=True,
+    cache=True)
+def remap_spherical(phi, theta, phi_, theta_):
     """
-    TODO: 0,np.pi and -np.pi/2 to np.pi/2 with inclination
-    TODO: rename this to remap_orientation_spherical or something like that
-    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle
-    theta in [0, 0.5*np.pi)
+    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi)
+
+    Returns
+    -------
+    res : (np.ndarray, np.ndarray)
+        phi in [0, 2*np.pi), theta in [0, np.pi)
+    """
+    phi_[:] = phi % (2 * np.pi)
+    theta_[:] = theta % (2 * np.pi)
+
+    phi_[phi_ < 0] += 2 * np.pi
+
+    phi_[theta_ < 0] += np.pi
+    theta_[:] = np.abs(theta_)
+
+    mask = theta_ >= np.pi
+    phi_[mask] += np.pi
+    theta_[mask] = 2 * np.pi - theta_[mask]
+
+    phi_[:] = phi_ % (2 * np.pi)
+
+
+@numba.guvectorize(
+    [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
+     (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
+    '(),()->(),()',
+    nopython=True,
+    cache=True)
+def remap_orientation(phi, theta, phi_, theta_):
+    """
+    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi)
 
     Returns
     -------
     res : (np.ndarray, np.ndarray)
         aximuth in [0, 2*np.pi], theta in [0, 0.5*np.pi]
     """
-    phi = np.array(phi)
-    theta = np.array(theta)
-    shape = phi.shape
+    phi_[:] = phi % (2 * np.pi)
+    theta_[:] = theta % np.pi
 
-    phi.shape = (-1)
-    theta.shape = (-1)
+    phi_[phi_ < 0] += 2 * np.pi
 
-    phi, theta = _remap_orientation(phi, theta)
+    phi_[theta_ < 0] += np.pi
+    theta_[:] = np.abs(theta_)
 
-    phi.shape = shape
-    theta.shape = shape
+    mask = theta_ >= 0.5 * np.pi
+    phi_[mask] += np.pi
+    theta_[mask] = np.pi - theta_[mask]
 
-    return phi, theta
-
-
-@numba.njit(cache=True)
-def _remap_spherical(phi, theta):
-    phi = phi % (2 * np.pi)
-    theta = theta % (2 * np.pi)
-
-    phi[phi < 0] += 2 * np.pi
-
-    phi[theta < 0] += np.pi
-    theta = np.abs(theta)
-
-    mask = theta > np.pi
-    phi[mask] += np.pi
-    theta[mask] = 2 * np.pi - theta[mask]
-
-    phi = phi % (2 * np.pi)
-
-    return phi, theta
+    phi_[:] = phi_ % (2 * np.pi)
 
 
-def remap_spherical(phi, theta):
+@numba.guvectorize(
+    [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
+     (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
+    '(),()->(),()',
+    nopython=True,
+    cache=True)
+def remap_incl_orientation(phi, alpha, phi_, alpha_):
     """
-    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle
-    theta in [0, np.pi)
+    Return the azimuthal angle in range of [-np.pi, np.pi) and the
+    inclination angle in [-0.5*np.pi, 0.5*np.pi)
 
     Returns
     -------
     res : (np.ndarray, np.ndarray)
         aximuth in [0, 2*np.pi], theta in [0, np.pi]
     """
-    phi = np.array(phi)
-    theta = np.array(theta)
-    shape = phi.shape
 
-    phi.shape = (-1)
-    theta.shape = (-1)
+    alpha_[:] = alpha % np.pi
 
-    phi, theta = _remap_spherical(phi, theta)
+    mask = alpha_ >= np.pi / 2
+    phi_[mask] += np.pi
+    alpha_[mask] -= np.pi
 
-    phi.shape = shape
-    theta.shape = shape
+    mask = alpha_ < -np.pi / 2
+    phi_[mask] += np.pi
+    alpha_[mask] += np.pi
 
-    return phi, theta
+    phi_[:] = phi % (2 * np.pi)
+    phi_[phi_ >= np.pi] -= 2 * np.pi
+    phi_[phi_ < -np.pi] += 2 * np.pi
 
 
 def fiber(fiber):
@@ -222,11 +223,11 @@ def fiber_bundles(fbs):
 
 def histogram(phi,
               theta,
-              ax=None,
               n_phi=100,
               n_theta=50,
               weight_area=False,
               fun=lambda x: x,
+              ax=None,
               cmap='viridis'):
     """
     Plot the Orientation angles in a histogram
