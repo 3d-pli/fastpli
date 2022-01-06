@@ -129,7 +129,9 @@ format:
 	${VENV}/bin/yapf -i -r -p src
 	${VENV}/bin/yapf -i -r -p tests
 	${VENV}/bin/yapf -i -r -p examples
-	${VENV}/bin/flake8
+	${VENV}/bin/flake8 src
+	${VENV}/bin/flake8 tests
+	${VENV}/bin/flake8 examples
 	find examples/ -iname "*.ipynb" | xargs ${VENV}/bin/jupyter-nbconvert --clear-output --ClearMetadataPreprocessor.enabled=True --inplace
 
 .PHONY: pylint
