@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fastpli.analysis.orientation &mdash; fastPLI v1.1.2.rc1 documentation</title>
+  <title>fastpli.analysis.orientation &mdash; fastPLI v1.1.2.rc2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -47,6 +47,10 @@
 <li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.fiber_bundle.html">fastpli.analysis.orientation.fiber_bundle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.fiber_bundles.html">fastpli.analysis.orientation.fiber_bundles</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.histogram.html">fastpli.analysis.orientation.histogram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.remap_direction.html">fastpli.analysis.orientation.remap_direction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.remap_half_sphere_x.html">fastpli.analysis.orientation.remap_half_sphere_x</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.remap_half_sphere_z.html">fastpli.analysis.orientation.remap_half_sphere_z</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastpli.analysis.orientation.remap_sphere.html">fastpli.analysis.orientation.remap_sphere</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="fastpli.analysis.rofl.html">fastpli.analysis.rofl</a></li>
@@ -105,6 +109,18 @@
 <tr class="row-even"><td><p><a class="reference internal" href="fastpli.analysis.orientation.histogram.html#fastpli.analysis.orientation.histogram" title="fastpli.analysis.orientation.histogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">histogram</span></code></a></p></td>
 <td><p>Plot the Orientation angles in a histogram</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="fastpli.analysis.orientation.remap_direction.html#fastpli.analysis.orientation.remap_direction" title="fastpli.analysis.orientation.remap_direction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_direction</span></code></a></p></td>
+<td><p>Return direction in range of [0, np.pi)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="fastpli.analysis.orientation.remap_half_sphere_x.html#fastpli.analysis.orientation.remap_half_sphere_x" title="fastpli.analysis.orientation.remap_half_sphere_x"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_half_sphere_x</span></code></a></p></td>
+<td><p>Return the azimuthal angle in range of [-np.pi, np.pi) and the polar angle in [0, np.pi]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="fastpli.analysis.orientation.remap_half_sphere_z.html#fastpli.analysis.orientation.remap_half_sphere_z" title="fastpli.analysis.orientation.remap_half_sphere_z"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_half_sphere_z</span></code></a></p></td>
+<td><p>Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="fastpli.analysis.orientation.remap_sphere.html#fastpli.analysis.orientation.remap_sphere" title="fastpli.analysis.orientation.remap_sphere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_sphere</span></code></a></p></td>
+<td><p>Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi]</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -120,7 +136,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Forschungszentrum Jülich, INM-1.</p>
+    <p>&#169; Copyright 2022, Forschungszentrum Jülich, INM-1.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

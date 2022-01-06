@@ -1,0 +1,6 @@
+fastpli.analysis.orientation.remap\_half\_sphere\_z
+===================================================
+
+.. currentmodule:: fastpli.analysis.orientation
+
+.. autofunction:: remap_half_sphere_z

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fastpli.analysis.orientation &mdash; fastPLI v1.1.2.rc1 documentation</title>
+  <title>fastpli.analysis.orientation &mdash; fastPLI v1.1.2.rc2 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -83,7 +83,7 @@
                   <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">)],</span>
                  <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return direction in range of [0, np.pi)</span>
 
@@ -100,13 +100,26 @@
     <span class="k">return</span> <span class="n">phi_</span>
 
 
+<div class="viewcode-block" id="remap_direction"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_direction.html#fastpli.analysis.orientation.remap_direction">[docs]</a><span class="k">def</span> <span class="nf">remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return direction in range of [0, np.pi)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : np.ndarray</span>
+<span class="sd">        direction in [0, np.pi)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span></div>
+
+
 <span class="nd">@numba</span><span class="o">.</span><span class="n">guvectorize</span><span class="p">(</span>
     <span class="p">[(</span><span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:]),</span>
      <span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:])],</span>
     <span class="s1">&#39;(),()-&gt;(),()&#39;</span><span class="p">,</span>
     <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">remap_sphere</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_remap_sphere</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi]</span>
 
@@ -132,13 +145,26 @@
     <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
 
+<div class="viewcode-block" id="remap_sphere"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_sphere.html#fastpli.analysis.orientation.remap_sphere">[docs]</a><span class="k">def</span> <span class="nf">remap_sphere</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (np.ndarray, np.ndarray)</span>
+<span class="sd">        phi in [0, 2*np.pi), theta in [0, np.pi]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_remap_sphere</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span></div>
+
+
 <span class="nd">@numba</span><span class="o">.</span><span class="n">guvectorize</span><span class="p">(</span>
     <span class="p">[(</span><span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:]),</span>
      <span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:])],</span>
     <span class="s1">&#39;(),()-&gt;(),()&#39;</span><span class="p">,</span>
     <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">remap_half_sphere_z</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_remap_half_sphere_z</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi]</span>
 
@@ -170,13 +196,27 @@
     <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
 
+<div class="viewcode-block" id="remap_half_sphere_z"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_half_sphere_z.html#fastpli.analysis.orientation.remap_half_sphere_z">[docs]</a><span class="k">def</span> <span class="nf">remap_half_sphere_z</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (np.ndarray, np.ndarray)</span>
+<span class="sd">        aximuth in [0, 2*np.pi), theta in [0, 0.5*np.pi]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_remap_half_sphere_z</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span></div>
+
+
 <span class="nd">@numba</span><span class="o">.</span><span class="n">guvectorize</span><span class="p">(</span>
     <span class="p">[(</span><span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:]),</span>
      <span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:])],</span>
     <span class="s1">&#39;(),()-&gt;(),()&#39;</span><span class="p">,</span>
     <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">remap_half_sphere_x</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_remap_half_sphere_x</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the azimuthal angle in range of [-np.pi, np.pi) and the</span>
 <span class="sd">    polar angle in [0, np.pi]</span>
@@ -215,6 +255,21 @@
     <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">theta_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="remap_half_sphere_x"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_half_sphere_x.html#fastpli.analysis.orientation.remap_half_sphere_x">[docs]</a><span class="k">def</span> <span class="nf">remap_half_sphere_x</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the azimuthal angle in range of [-np.pi, np.pi) and the</span>
+<span class="sd">    polar angle in [0, np.pi]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (np.ndarray, np.ndarray)</span>
+<span class="sd">        aximuth in [-np.pi/2, np.pi/2), theta in [0, np.pi]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_remap_half_sphere_x</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span></div>
 
 
 <div class="viewcode-block" id="fiber"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.fiber.html#fastpli.analysis.orientation.fiber">[docs]</a><span class="k">def</span> <span class="nf">fiber</span><span class="p">(</span><span class="n">fiber</span><span class="p">):</span>
@@ -426,7 +481,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Forschungszentrum Jülich, INM-1.</p>
+    <p>&#169; Copyright 2022, Forschungszentrum Jülich, INM-1.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
