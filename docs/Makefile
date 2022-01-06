@@ -15,10 +15,10 @@ help:
 .PHONY: help Makefile
 
 .PHONY: help Makefile
-github:
+gh-pages:
 	rm -rf gh-pages
 	make html
-	git clone --branch gh-pages --single-branch https://github.com/3d-pli/fastpli.git gh-pages
+	git clone --branch gh-pages --single-branch git@github.com:3d-pli/fastpli.git gh-pages
 	rm -r gh-pages/*
 	cp -r $(BUILDDIR)/html/* gh-pages/
 	touch gh-pages/.nojekyll
