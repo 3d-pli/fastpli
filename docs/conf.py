@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('../src/'))
 # -- Project information -----------------------------------------------------
 
 project = 'fastPLI'
-copyright = '2021, Forschungszentrum Jülich, INM-1'
+copyright = '2022, Forschungszentrum Jülich, INM-1'
 author = 'Felix Matuschke'
 
 # The full version, including alpha/beta/rc tags
