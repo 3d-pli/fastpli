@@ -13,7 +13,7 @@ import numba
                   numba.float64(numba.float64)],
                  nopython=True,
                  cache=True)
-def remap_direction(phi):
+def _remap_direction(phi):
     """
     Return direction in range of [0, np.pi)
 
@@ -30,13 +30,26 @@ def remap_direction(phi):
     return phi_
 
 
+def remap_direction(phi):
+    """
+    Return direction in range of [0, np.pi)
+
+    Returns
+    -------
+    res : np.ndarray
+        direction in [0, np.pi)
+    """
+
+    return _remap_direction(phi)
+
+
 @numba.guvectorize(
     [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
      (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
     '(),()->(),()',
     nopython=True,
     cache=True)
-def remap_sphere(phi, theta, phi_, theta_):
+def _remap_sphere(phi, theta, phi_, theta_):
     """
     Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi]
 
@@ -62,13 +75,26 @@ def remap_sphere(phi, theta, phi_, theta_):
     phi_[theta_ == np.pi] = 0
 
 
+def remap_sphere(phi, theta):
+    """
+    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi]
+
+    Returns
+    -------
+    res : (np.ndarray, np.ndarray)
+        phi in [0, 2*np.pi), theta in [0, np.pi]
+    """
+    phi, theta = _remap_sphere(phi, theta)
+    return phi, theta
+
+
 @numba.guvectorize(
     [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
      (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
     '(),()->(),()',
     nopython=True,
     cache=True)
-def remap_half_sphere_z(phi, theta, phi_, theta_):
+def _remap_half_sphere_z(phi, theta, phi_, theta_):
     """
     Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi]
 
@@ -100,13 +126,27 @@ def remap_half_sphere_z(phi, theta, phi_, theta_):
     phi_[theta_ == 0] = 0
 
 
+def remap_half_sphere_z(phi, theta):
+    """
+    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi]
+
+    Returns
+    -------
+    res : (np.ndarray, np.ndarray)
+        aximuth in [0, 2*np.pi), theta in [0, 0.5*np.pi]
+    """
+
+    phi, theta = _remap_half_sphere_z(phi, theta)
+    return phi, theta
+
+
 @numba.guvectorize(
     [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
      (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
     '(),()->(),()',
     nopython=True,
     cache=True)
-def remap_half_sphere_x(phi, theta, phi_, theta_):
+def _remap_half_sphere_x(phi, theta, phi_, theta_):
     """
     Return the azimuthal angle in range of [-np.pi, np.pi) and the
     polar angle in [0, np.pi]
@@ -145,6 +185,21 @@ def remap_half_sphere_x(phi, theta, phi_, theta_):
     phi_[theta_ == 0] = 0
     phi_[theta_ == np.pi] = 0
     theta_[theta_ == np.pi] = 0
+
+
+def remap_half_sphere_x(phi, theta):
+    """
+    Return the azimuthal angle in range of [-np.pi, np.pi) and the
+    polar angle in [0, np.pi]
+
+    Returns
+    -------
+    res : (np.ndarray, np.ndarray)
+        aximuth in [-np.pi/2, np.pi/2), theta in [0, np.pi]
+    """
+
+    phi, theta = _remap_half_sphere_x(phi, theta)
+    return phi, theta
 
 
 def fiber(fiber):
