@@ -1,6 +1,0 @@
-fastpli.analysis.orientation.remap\_orientation
-===============================================
-
-.. currentmodule:: fastpli.analysis.orientation
-
-.. autofunction:: remap_orientation

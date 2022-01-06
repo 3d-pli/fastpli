@@ -19,9 +19,6 @@ fastpli.analysis.orientation
       fiber_bundle
       fiber_bundles
       histogram
-      remap_direction
-      remap_orientation
-      remap_spherical
    
    
 

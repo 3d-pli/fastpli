@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fastpli.analysis.orientation &mdash; fastPLI v1.1.0 documentation</title>
+  <title>fastpli.analysis.orientation &mdash; fastPLI v1.1.2.rc1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -72,19 +72,18 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Analyse Methods fiber_bundles orientations</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span>
 
-
-<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">phi</span><span class="p">[</span><span class="n">phi</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="k">return</span> <span class="n">phi</span>
+<span class="c1"># pylint: disable = unpacking-non-sequence</span>
+<span class="c1"># pylint: disable = no-value-for-parameter</span>
 
 
-<div class="viewcode-block" id="remap_direction"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_direction.html#fastpli.analysis.orientation.remap_direction">[docs]</a><span class="k">def</span> <span class="nf">remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">vectorize</span><span class="p">([</span><span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+                  <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">)],</span>
+                 <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return direction in range of [0, np.pi)</span>
 
@@ -93,102 +92,129 @@
 <span class="sd">    res : np.ndarray</span>
 <span class="sd">        direction in [0, np.pi)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">phi</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">_remap_direction</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
-    <span class="k">return</span> <span class="n">phi</span></div>
+
+    <span class="n">phi_</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="k">if</span> <span class="n">phi_</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">phi_</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="k">return</span> <span class="n">phi_</span>
 
 
-<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_remap_orientation</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-    <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-
-    <span class="n">phi</span><span class="p">[</span><span class="n">phi</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-
-    <span class="n">phi</span><span class="p">[</span><span class="n">theta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">phi</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">theta</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
-
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span>
-
-
-<div class="viewcode-block" id="remap_orientation"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_orientation.html#fastpli.analysis.orientation.remap_orientation">[docs]</a><span class="k">def</span> <span class="nf">remap_orientation</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">guvectorize</span><span class="p">(</span>
+    <span class="p">[(</span><span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:]),</span>
+     <span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:])],</span>
+    <span class="s1">&#39;(),()-&gt;(),()&#39;</span><span class="p">,</span>
+    <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">remap_sphere</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    TODO: 0,np.pi and -np.pi/2 to np.pi/2 with inclination</span>
-<span class="sd">    TODO: rename this to remap_orientation_spherical or something like that</span>
-<span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle</span>
-<span class="sd">    theta in [0, 0.5*np.pi)</span>
+<span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi]</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    res : (np.ndarray, np.ndarray)</span>
-<span class="sd">        aximuth in [0, 2*np.pi], theta in [0, 0.5*np.pi]</span>
+<span class="sd">        phi in [0, 2*np.pi), theta in [0, np.pi]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">phi</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">phi_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">theta_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 
-    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">phi_</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 
-    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_remap_orientation</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta_</span><span class="p">)</span>
 
-    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
-    <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">theta_</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span></div>
-
-
-<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_remap_spherical</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-    <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-
-    <span class="n">phi</span><span class="p">[</span><span class="n">phi</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-
-    <span class="n">phi</span><span class="p">[</span><span class="n">theta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">phi</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">theta</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
-
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span>
+    <span class="n">phi_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">phi_</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
 
-<div class="viewcode-block" id="remap_spherical"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.remap_spherical.html#fastpli.analysis.orientation.remap_spherical">[docs]</a><span class="k">def</span> <span class="nf">remap_spherical</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">guvectorize</span><span class="p">(</span>
+    <span class="p">[(</span><span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:]),</span>
+     <span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:])],</span>
+    <span class="s1">&#39;(),()-&gt;(),()&#39;</span><span class="p">,</span>
+    <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">remap_half_sphere_z</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle</span>
-<span class="sd">    theta in [0, np.pi)</span>
+<span class="sd">    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi]</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    res : (np.ndarray, np.ndarray)</span>
-<span class="sd">        aximuth in [0, 2*np.pi], theta in [0, np.pi]</span>
+<span class="sd">        aximuth in [0, 2*np.pi), theta in [0, 0.5*np.pi]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">phi</span><span class="o">.</span><span class="n">shape</span>
 
-    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># remap to sphere</span>
+    <span class="n">phi_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">theta_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 
-    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_remap_spherical</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">phi_</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 
-    <span class="n">phi</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
-    <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta_</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span></div>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">theta_</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+    <span class="c1"># remap to half sphere -&gt; z</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">theta_</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="n">phi_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">phi_</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">guvectorize</span><span class="p">(</span>
+    <span class="p">[(</span><span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float32</span><span class="p">[:]),</span>
+     <span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:])],</span>
+    <span class="s1">&#39;(),()-&gt;(),()&#39;</span><span class="p">,</span>
+    <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">remap_half_sphere_x</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi_</span><span class="p">,</span> <span class="n">theta_</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the azimuthal angle in range of [-np.pi, np.pi) and the</span>
+<span class="sd">    polar angle in [0, np.pi]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : (np.ndarray, np.ndarray)</span>
+<span class="sd">        aximuth in [-np.pi/2, np.pi/2), theta in [0, np.pi]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># remap to sphere</span>
+    <span class="n">phi_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">theta_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+    <span class="n">phi_</span><span class="p">[</span><span class="n">phi_</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta_</span><span class="p">)</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">theta_</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+    <span class="n">phi_</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">phi_</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># transform to half sphere -&gt; x</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">phi_</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">phi_</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">phi_</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">phi_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">theta_</span><span class="p">[</span><span class="n">theta_</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
 
 <div class="viewcode-block" id="fiber"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.fiber.html#fastpli.analysis.orientation.fiber">[docs]</a><span class="k">def</span> <span class="nf">fiber</span><span class="p">(</span><span class="n">fiber</span><span class="p">):</span>
@@ -218,7 +244,7 @@
     <span class="n">gphi</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
     <span class="n">gtheta</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
 
-    <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span> <span class="o">=</span> <span class="n">remap_orientation</span><span class="p">(</span><span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span><span class="p">)</span>
+    <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span> <span class="o">=</span> <span class="n">remap_half_sphere_z</span><span class="p">(</span><span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span></div>
 
@@ -251,7 +277,7 @@
         <span class="n">gphi</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
         <span class="n">gtheta</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
 
-    <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span> <span class="o">=</span> <span class="n">remap_orientation</span><span class="p">(</span><span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span><span class="p">)</span>
+    <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span> <span class="o">=</span> <span class="n">remap_half_sphere_z</span><span class="p">(</span><span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span></div>
 
@@ -285,18 +311,18 @@
             <span class="n">gphi</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
             <span class="n">gtheta</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
 
-    <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span> <span class="o">=</span> <span class="n">remap_orientation</span><span class="p">(</span><span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span><span class="p">)</span>
+    <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span> <span class="o">=</span> <span class="n">remap_half_sphere_z</span><span class="p">(</span><span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">gphi</span><span class="p">,</span> <span class="n">gtheta</span></div>
 
 
 <div class="viewcode-block" id="histogram"><a class="viewcode-back" href="../../../_autosummary/fastpli.analysis.orientation.histogram.html#fastpli.analysis.orientation.histogram">[docs]</a><span class="k">def</span> <span class="nf">histogram</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span>
               <span class="n">theta</span><span class="p">,</span>
-              <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">n_phi</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
               <span class="n">n_theta</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
               <span class="n">weight_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
               <span class="n">fun</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+              <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the Orientation angles in a histogram</span>
@@ -368,7 +394,7 @@
 <span class="sd">    &gt;&gt;&gt; plt.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">remap_orientation</span><span class="p">(</span><span class="n">phi</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">theta</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">remap_half_sphere_z</span><span class="p">(</span><span class="n">phi</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">theta</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
 
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n_phi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n_theta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -382,9 +408,11 @@
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hist</span><span class="p">:</span>
             <span class="n">h</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">h</span><span class="p">[:],</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">weights</span><span class="p">)</span>
 
+    <span class="n">hist</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">ax</span><span class="p">:</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
-        <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">fun</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">hist</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pc</span> <span class="o">=</span> <span class="kc">None</span>
 
