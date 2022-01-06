@@ -36,14 +36,14 @@ def remap_direction(phi):
     '(),()->(),()',
     nopython=True,
     cache=True)
-def remap_spherical(phi, theta, phi_, theta_):
+def remap_sphere(phi, theta, phi_, theta_):
     """
-    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi)
+    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, np.pi]
 
     Returns
     -------
     res : (np.ndarray, np.ndarray)
-        phi in [0, 2*np.pi), theta in [0, np.pi)
+        phi in [0, 2*np.pi), theta in [0, np.pi]
     """
     phi_[:] = phi % (2 * np.pi)
     theta_[:] = theta % (2 * np.pi)
@@ -53,11 +53,13 @@ def remap_spherical(phi, theta, phi_, theta_):
     phi_[theta_ < 0] += np.pi
     theta_[:] = np.abs(theta_)
 
-    mask = theta_ >= np.pi
+    mask = theta_ > np.pi
     phi_[mask] += np.pi
     theta_[mask] = 2 * np.pi - theta_[mask]
 
     phi_[:] = phi_ % (2 * np.pi)
+    phi_[theta_ == 0] = 0
+    phi_[theta_ == np.pi] = 0
 
 
 @numba.guvectorize(
@@ -66,28 +68,36 @@ def remap_spherical(phi, theta, phi_, theta_):
     '(),()->(),()',
     nopython=True,
     cache=True)
-def remap_orientation(phi, theta, phi_, theta_):
+def remap_half_sphere_z(phi, theta, phi_, theta_):
     """
-    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi)
+    Return the azimuthal angle in range of [0, 2*np.pi) and the polar angle theta in [0, 0.5*np.pi]
 
     Returns
     -------
     res : (np.ndarray, np.ndarray)
-        aximuth in [0, 2*np.pi], theta in [0, 0.5*np.pi]
+        aximuth in [0, 2*np.pi), theta in [0, 0.5*np.pi]
     """
+
+    # remap to sphere
     phi_[:] = phi % (2 * np.pi)
-    theta_[:] = theta % np.pi
+    theta_[:] = theta % (2 * np.pi)
 
     phi_[phi_ < 0] += 2 * np.pi
 
     phi_[theta_ < 0] += np.pi
     theta_[:] = np.abs(theta_)
 
-    mask = theta_ >= 0.5 * np.pi
+    mask = theta_ > np.pi
     phi_[mask] += np.pi
-    theta_[mask] = np.pi - theta_[mask]
+    theta_[mask] = 2 * np.pi - theta_[mask]
+
+    # remap to half sphere -> z
+    mask = theta_ > np.pi / 2
+    phi_[mask] += np.pi
+    theta_[mask] -= np.pi / 2
 
     phi_[:] = phi_ % (2 * np.pi)
+    phi_[theta_ == 0] = 0
 
 
 @numba.guvectorize(
@@ -96,30 +106,45 @@ def remap_orientation(phi, theta, phi_, theta_):
     '(),()->(),()',
     nopython=True,
     cache=True)
-def remap_incl_orientation(phi, alpha, phi_, alpha_):
+def remap_half_sphere_x(phi, theta, phi_, theta_):
     """
     Return the azimuthal angle in range of [-np.pi, np.pi) and the
-    inclination angle in [-0.5*np.pi, 0.5*np.pi)
+    polar angle in [0, np.pi]
 
     Returns
     -------
     res : (np.ndarray, np.ndarray)
-        aximuth in [0, 2*np.pi], theta in [0, np.pi]
+        aximuth in [-np.pi/2, np.pi/2), theta in [0, np.pi]
     """
 
-    alpha_[:] = alpha % np.pi
-
-    mask = alpha_ >= np.pi / 2
-    phi_[mask] += np.pi
-    alpha_[mask] -= np.pi
-
-    mask = alpha_ < -np.pi / 2
-    phi_[mask] += np.pi
-    alpha_[mask] += np.pi
-
+    # remap to sphere
     phi_[:] = phi % (2 * np.pi)
-    phi_[phi_ >= np.pi] -= 2 * np.pi
-    phi_[phi_ < -np.pi] += 2 * np.pi
+    theta_[:] = theta % (2 * np.pi)
+
+    phi_[phi_ < 0] += 2 * np.pi
+
+    phi_[theta_ < 0] += np.pi
+    theta_[:] = np.abs(theta_)
+
+    mask = theta_ > np.pi
+    phi_[mask] += np.pi
+    theta_[mask] = 2 * np.pi - theta_[mask]
+
+    phi_[:] = phi_ % (2 * np.pi)
+    phi_[theta_ == 0] = 0
+    phi_[theta_ == np.pi] = 0
+
+    # transform to half sphere -> x
+    mask = np.logical_and(phi_ >= np.pi / 2, phi_ < 3 * np.pi / 2)
+    phi_[mask] -= np.pi
+    theta_[mask] = np.pi - theta_[mask]
+
+    mask = phi_ >= 3 * np.pi / 2
+    phi_[mask] -= 2 * np.pi
+
+    phi_[theta_ == 0] = 0
+    phi_[theta_ == np.pi] = 0
+    theta_[theta_ == np.pi] = 0
 
 
 def fiber(fiber):
@@ -149,7 +174,7 @@ def fiber(fiber):
     gphi.extend(phi)
     gtheta.extend(theta)
 
-    gphi, gtheta = remap_orientation(gphi, gtheta)
+    gphi, gtheta = remap_half_sphere_z(gphi, gtheta)
 
     return gphi, gtheta
 
@@ -182,7 +207,7 @@ def fiber_bundle(fb):
         gphi.extend(phi)
         gtheta.extend(theta)
 
-    gphi, gtheta = remap_orientation(gphi, gtheta)
+    gphi, gtheta = remap_half_sphere_z(gphi, gtheta)
 
     return gphi, gtheta
 
@@ -216,7 +241,7 @@ def fiber_bundles(fbs):
             gphi.extend(phi)
             gtheta.extend(theta)
 
-    gphi, gtheta = remap_orientation(gphi, gtheta)
+    gphi, gtheta = remap_half_sphere_z(gphi, gtheta)
 
     return gphi, gtheta
 
@@ -299,7 +324,7 @@ def histogram(phi,
     >>> plt.show()
     """
 
-    phi, theta = remap_orientation(phi.ravel(), theta.ravel())
+    phi, theta = remap_half_sphere_z(phi.ravel(), theta.ravel())
 
     x = np.linspace(0, 2 * np.pi, n_phi + 1, endpoint=True)
     y = np.linspace(0, np.pi / 2, n_theta + 1, endpoint=True)
