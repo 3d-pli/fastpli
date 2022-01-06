@@ -109,7 +109,7 @@ docs: ${VENV} clean-docs
 
 .PHONY: wiki
 wiki: ${VENV}
-	${VENV}/bin/pip3 -q install -r examples/requirements.txt
+	${VENV}/bin/pip3 -q install -r wiki/requirements.txt
 	rm -rf examples/notebooks
 	find examples/ -iname '*.ipynb' | xargs -P 2 -I {} ${VENV}/bin/jupyter-nbconvert --execute --to markdown --output-dir='examples/notebooks' {}
 	cd examples/notebooks/; \
