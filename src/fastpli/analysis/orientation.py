@@ -44,8 +44,7 @@ def remap_direction(phi):
 
 
 @numba.guvectorize(
-    [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
-     (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
+    [(numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
     '(),()->(),()',
     nopython=True,
     cache=True)
@@ -89,8 +88,7 @@ def remap_sphere(phi, theta):
 
 
 @numba.guvectorize(
-    [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
-     (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
+    [(numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
     '(),()->(),()',
     nopython=True,
     cache=True)
@@ -120,10 +118,13 @@ def _remap_half_sphere_z(phi, theta, phi_, theta_):
     # remap to half sphere -> z
     mask = theta_ > np.pi / 2
     phi_[mask] += np.pi
-    theta_[mask] -= np.pi / 2
+    theta_[mask] = np.pi - theta_[mask]
 
     phi_[:] = phi_ % (2 * np.pi)
+
+    # edge cases
     phi_[theta_ == 0] = 0
+    phi_[np.logical_and(theta_ == np.pi / 2, phi_ >= np.pi)] -= np.pi
 
 
 def remap_half_sphere_z(phi, theta):
@@ -141,8 +142,7 @@ def remap_half_sphere_z(phi, theta):
 
 
 @numba.guvectorize(
-    [(numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:]),
-     (numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
+    [(numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:])],
     '(),()->(),()',
     nopython=True,
     cache=True)
@@ -182,6 +182,7 @@ def _remap_half_sphere_x(phi, theta, phi_, theta_):
     mask = phi_ >= 3 * np.pi / 2
     phi_[mask] -= 2 * np.pi
 
+    # edge cases
     phi_[theta_ == 0] = 0
     phi_[theta_ == np.pi] = 0
     theta_[theta_ == np.pi] = 0

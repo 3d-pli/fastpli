@@ -85,6 +85,7 @@ uninstall:
 
 .PHONY: test
 test:
+	@# python3 -m unittest tests.analysis.orientation_test.MainTest.test_remap_half_sphere_z
 	${VENV}/bin/python3 tests/test.py
 
 .PHONY: h5py-serial
