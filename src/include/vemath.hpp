@@ -415,12 +415,12 @@ MatMxN<T, M, N> for_each(MatMxN<T, M, N> u, UnaryFunction f) {
 }
 
 template <typename T, size_t M, size_t N, class UnaryFunction>
-bool any_of(MatMxN<T, M, N> u, UnaryFunction f) {
+bool any_of(MatMxN<T, M, N> const &u, UnaryFunction f) {
    return std::any_of(u.begin(), u.end(), f);
 }
 
 template <typename T, size_t M, size_t N, class UnaryFunction>
-bool all_of(MatMxN<T, M, N> u, UnaryFunction f) {
+bool all_of(MatMxN<T, M, N> const &u, UnaryFunction f) {
    return std::all_of(u.begin(), u.end(), f);
 }
 

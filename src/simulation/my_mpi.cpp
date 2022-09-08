@@ -85,7 +85,7 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
    up.y() = (coordinate_.y() + 1) * dim_vol_.local.y() - 1 + 1;
    up.z() = (coordinate_.z() + 1) * dim_vol_.local.z() - 1 + 1;
 
-   if (vm::any_of(low, [&](long long i) { return i < 0; })) {
+   if (vm::any_of(low, [](long long i) { return i < 0; })) {
       MPI_Abort(my_comm_, 10000 + __LINE__);
    }
 
