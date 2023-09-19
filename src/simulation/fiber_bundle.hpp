@@ -1,5 +1,5 @@
-#ifndef SIMULATION_FIBER_BUNDLE_HPP_
-#define SIMULATION_FIBER_BUNDLE_HPP_
+#ifndef SRC_SIMULATION_FIBER_BUNDLE_HPP_
+#define SRC_SIMULATION_FIBER_BUNDLE_HPP_
 
 #include <utility>
 #include <vector>
@@ -25,10 +25,10 @@ struct Property {
 
 class Properties {
  public:
-   const std::vector<double> &scale_squ() const { return scale_squ_; };
-   const std::vector<double> &dn() const { return dn_; };
-   const std::vector<double> &mu() const { return mu_; };
-   const std::vector<Orientation> &orientation() const { return orientation_; };
+   const std::vector<double> &scale_squ() const { return scale_squ_; }
+   const std::vector<double> &dn() const { return dn_; }
+   const std::vector<double> &mu() const { return mu_; }
+   const std::vector<Orientation> &orientation() const { return orientation_; }
 
    size_t size() const;
    void clear();
@@ -37,10 +37,10 @@ class Properties {
    void push_back(Property p);
    void push_back(double s, double n, double m, char o) {
       push_back(Property(s, n, m, o));
-   };
+   }
    void push_back(double s, double n, double m, Orientation o) {
       push_back(Property(s, n, m, o));
-   };
+   }
 
  private:
    std::vector<double> scale_squ_;
@@ -62,7 +62,7 @@ class Bundle {
    const object::Fiber &fiber(size_t i) const { return fibers_[i]; }
    const std::vector<object::Fiber> &fibers() const { return fibers_; }
    const aabb::AABB<double, 3> &aabb() const { return aabb_; }
-   layer::Properties layers() const { return layers_; };
+   layer::Properties layers() const { return layers_; }
    size_t size() const { return fibers_.size(); }
    bool empty() const { return fibers_.empty(); }
 
@@ -100,4 +100,4 @@ class Bundle {
 };
 } // namespace fiber
 
-#endif // SIMULATION_FIBER_BUNDLE_HPP_
+#endif // SRC_SIMULATION_FIBER_BUNDLE_HPP_

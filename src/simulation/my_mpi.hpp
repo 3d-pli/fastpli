@@ -1,5 +1,5 @@
-#ifndef SIMULATION_MY_MPI_HPP_
-#define SIMULATION_MY_MPI_HPP_
+#ifndef SRC_SIMULATION_MY_MPI_HPP_
+#define SRC_SIMULATION_MY_MPI_HPP_
 
 #include <array>
 #include <tuple>
@@ -12,15 +12,15 @@
 
 class MyMPI {
  public:
-   MyMPI(const MPI_Comm comm);
+   explicit MyMPI(const MPI_Comm comm);
    ~MyMPI();
 
-   void CreateCartGrid(vm::Vec3<long long> dim_global);
+   void CreateCartGrid(vm::Vec3<int64_t> dim_global);
 
    // communication
-   void set_num_rho(int num_rho) { num_rho_ = num_rho; };
+   void set_num_rho(int num_rho) { num_rho_ = num_rho; }
 
-   void PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
+   void PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<int64_t> ccd,
                           std::vector<vm::Vec4<double>> light, int direction);
 
    std::tuple<std::vector<setup::Coordinates>, std::vector<vm::Vec4<double>>>
@@ -31,13 +31,13 @@ class MyMPI {
    std::vector<double> AllreduceMax(std::vector<double> v);
 
    // getter
-   MPI_Comm comm() const { return my_comm_; };
-   int rank() const { return rank_; };
-   int size() const { return numP_; };
-   vm::Vec3<int> coordinate() const { return coordinate_; };
-   vm::Vec3<int> global_coordinate() const { return global_coordinate_; };
+   MPI_Comm comm() const { return my_comm_; }
+   int rank() const { return rank_; }
+   int size() const { return numP_; }
+   vm::Vec3<int> coordinate() const { return coordinate_; }
+   vm::Vec3<int> global_coordinate() const { return global_coordinate_; }
 
-   setup::Dimensions dim_vol() const { return dim_vol_; };
+   setup::Dimensions dim_vol() const { return dim_vol_; }
 
  private:
    void SndRcv();
@@ -57,8 +57,8 @@ class MyMPI {
 
    setup::Dimensions dim_vol_{};
 
-   vm::Vec3<int> coordinate_ = {-1, -1, -1};
-   vm::Vec3<int> global_coordinate_ = {-1, -1, -1};
+   vm::Vec3<int> coordinate_{{-1, -1, -1}};
+   vm::Vec3<int> global_coordinate_{{-1, -1, -1}};
    MPI_Comm COMM_CART_;
 
    int num_rho_ = 0;
@@ -72,7 +72,7 @@ class MyMPI {
    std::array<std::vector<double>, 6> rcv_buffer_;
    std::array<std::vector<double>, 6> snd_buffer_;
 
-   void CalcDimensions(const vm::Vec3<long long> dim);
+   void CalcDimensions(const vm::Vec3<int64_t> dim);
 };
 
-#endif // SIMULATION_MY_MPI_HPP_
+#endif // SRC_SIMULATION_MY_MPI_HPP_

@@ -1,12 +1,12 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
-SET(subdir objects)
+cmake_minimum_required(VERSION 3.9)
+set(subdir objects)
 
-##########################################################################
+# ##############################################################################
 # Building shared Library for Python
-##########################################################################
+# ##############################################################################
 
 # building core objects
-SET(CoreModules ${subdir}CoreModules)
-FILE(GLOB CoreFiles *.cpp)
-ADD_LIBRARY(${CoreModules} OBJECT ${CoreFiles})
-SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+set(CoreModules ${subdir}CoreModules)
+file(GLOB CoreFiles *.cpp)
+add_library(${CoreModules} OBJECT ${CoreFiles})
+set_property(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)

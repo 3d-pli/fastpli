@@ -1,5 +1,5 @@
-#ifndef SIMULATION_SETUP_HPP_
-#define SIMULATION_SETUP_HPP_
+#ifndef SRC_SIMULATION_SETUP_HPP_
+#define SRC_SIMULATION_SETUP_HPP_
 
 #include <cassert>
 #include <utility>
@@ -12,20 +12,20 @@ namespace setup {
 enum class InterpMode { nn, lerp, slerp };
 
 struct Dimensions {
-   vm::Vec3<long long> global{0};
-   vm::Vec3<long long> local{0};
-   vm::Vec3<long long> offset{0};
+   vm::Vec3<int64_t> global{0};
+   vm::Vec3<int64_t> local{0};
+   vm::Vec3<int64_t> offset{0};
    vm::Vec3<double> origin{0};
 };
 
 struct Coordinates {
    vm::Vec3<double> tissue;
-   vm::Vec2<long long> ccd;
+   vm::Vec2<int64_t> ccd;
 };
 
 struct Tilting {
    Tilting() = default;
-   Tilting(double theta, double phi) : theta(theta), phi(phi){};
+   Tilting(double theta, double phi) : theta(theta), phi(phi) {}
 
    double theta{0};
    double phi{0};
@@ -33,12 +33,12 @@ struct Tilting {
 
 struct PhyProps {
    PhyProps() = default;
-   PhyProps(double dn, double mu) : dn(dn), mu(mu){};
+   PhyProps(double dn, double mu) : dn(dn), mu(mu) {}
 
    void Check(void) const {
       if (mu < 0)
          throw std::invalid_argument("mu < 0: " + std::to_string(mu));
-   };
+   }
 
    double dn{0};
    double mu{0};
@@ -82,4 +82,4 @@ struct Setup {
 };
 
 } // namespace setup
-#endif
+#endif // SRC_SIMULATION_SETUP_HPP_

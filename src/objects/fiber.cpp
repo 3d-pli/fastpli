@@ -1,10 +1,10 @@
 #include "fiber.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <vector>
 
-#include "fiber.hpp"
 #include "include/aabb.hpp"
 #include "include/vemath.hpp"
 
@@ -27,9 +27,9 @@ Fiber::Fiber(const std::vector<double> &data) {
    }
 
    // calc voi
-   if (points_.empty())
+   if (points_.empty()) {
       return;
-   else if (points_.size() == 1) {
+   } else if (points_.size() == 1) {
       aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }
@@ -52,9 +52,9 @@ Fiber::Fiber(const std::vector<double> &points,
                                     points[3 * i + 2]);
 
    // calc voi
-   if (points_.empty())
+   if (points_.empty()) {
       return;
-   else if (points_.size() == 1) {
+   } else if (points_.size() == 1) {
       aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }
@@ -71,9 +71,9 @@ Fiber::Fiber(const std::vector<vm::Vec3<double>> &points,
    radii_ = radii;
 
    // calc voi
-   if (points_.empty())
+   if (points_.empty()) {
       return;
-   else if (points_.size() == 1) {
+   } else if (points_.size() == 1) {
       aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }

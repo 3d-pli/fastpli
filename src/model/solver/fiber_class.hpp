@@ -1,5 +1,5 @@
-#ifndef FIBER_CLASS_HPP_
-#define FIBER_CLASS_HPP_
+#ifndef SRC_MODEL_SOLVER_FIBER_CLASS_HPP_
+#define SRC_MODEL_SOLVER_FIBER_CLASS_HPP_
 
 #include <vector>
 
@@ -30,8 +30,8 @@ class Fiber : public object::Fiber {
    std::vector<geometry::FiberSegment> FiberSegments() const;
 
    // manipulators
-   const double &max_speed() const { return max_speed_; };
-   void set_max_speed(double max_speed) { max_speed_ = max_speed; };
+   const double &max_speed() const { return max_speed_; }
+   void set_max_speed(double max_speed) { max_speed_ = max_speed; }
 
    void Move();
    void Drag(const double drag = 1);
@@ -50,4 +50,4 @@ class Fiber : public object::Fiber {
 };
 } // namespace geometry
 
-#endif // FIBER_CLASS_HPP_
+#endif // SRC_MODEL_SOLVER_FIBER_CLASS_HPP_

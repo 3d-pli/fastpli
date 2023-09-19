@@ -1,6 +1,7 @@
-#ifndef NP_ARRAY_HELPER_HPP_
-#define NP_ARRAY_HELPER_HPP_
+#ifndef SRC_OBJECTS_NP_ARRAY_HELPER_HPP_
+#define SRC_OBJECTS_NP_ARRAY_HELPER_HPP_
 
+#include <functional>
 #include <iostream>
 #include <vector>
 
@@ -71,4 +72,4 @@ py::array Vec2NpArray(std::vector<T> *vec,
 }
 } // namespace object
 
-#endif // NP_ARRAY_HELPER_HPP_
+#endif // SRC_OBJECTS_NP_ARRAY_HELPER_HPP_

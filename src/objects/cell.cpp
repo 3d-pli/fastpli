@@ -4,8 +4,9 @@ namespace object {
 Cell::Cell(const std::vector<double> &points,
            const std::vector<double> &radii) {
 
-   if (points.size() != radii.size() * 3)
+   if (points.size() != radii.size() * 3) {
       throw std::invalid_argument("points and radii aren't same size");
+   }
 
    points_.resize(radii.size());
    points_.shrink_to_fit();
@@ -17,9 +18,9 @@ Cell::Cell(const std::vector<double> &points,
                                     points[3 * i + 2]);
 
    // calc voi
-   if (points_.empty())
+   if (points_.empty()) {
       return;
-   else if (points_.size() == 1) {
+   } else if (points_.size() == 1) {
       aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }
@@ -36,9 +37,9 @@ Cell::Cell(const std::vector<vm::Vec3<double>> &points,
    radii_ = radii;
 
    // calc voi
-   if (points_.empty())
+   if (points_.empty()) {
       return;
-   else if (points_.size() == 1) {
+   } else if (points_.size() == 1) {
       aabb_ = aabb::AABB<double, 3>(points_[0], points_[0]);
       return;
    }

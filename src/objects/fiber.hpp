@@ -1,5 +1,5 @@
-#ifndef FIBER_HPP_
-#define FIBER_HPP_
+#ifndef SRC_OBJECTS_FIBER_HPP_
+#define SRC_OBJECTS_FIBER_HPP_
 
 #include <cassert>
 #include <vector>
@@ -11,7 +11,7 @@ namespace object {
 
 class Fiber {
  public:
-   Fiber(const std::vector<double> &data);
+   explicit Fiber(const std::vector<double> &data);
    Fiber(const std::vector<vm::Vec3<double>> &points,
          const std::vector<double> &radii);
    Fiber(const std::vector<double> &points, const std::vector<double> &radii);
@@ -31,7 +31,7 @@ class Fiber {
    std::vector<double> vector() const;
    const aabb::AABB<double, 3> &aabb() const { return aabb_; }
 
-   size_t size() const { return points_.size(); };
+   size_t size() const { return points_.size(); }
    double CalcRadius(size_t idx, double t) const;
 
    // manipolator
@@ -57,4 +57,4 @@ using FiberBundles = std::vector<FiberBundle>;
 
 } // namespace object
 
-#endif // FIBER_HPP_
+#endif // SRC_OBJECTS_FIBER_HPP_

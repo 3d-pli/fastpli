@@ -1,5 +1,5 @@
-#ifndef FIBER_SEGMENT_HPP_
-#define FIBER_SEGMENT_HPP_
+#ifndef SRC_MODEL_SOLVER_FIBER_SEGMENT_HPP_
+#define SRC_MODEL_SOLVER_FIBER_SEGMENT_HPP_
 
 #include <tuple>
 #include <vector>
@@ -21,10 +21,10 @@ struct FiberSegment {
 
    // constructors
    FiberSegment(const vm::Vec3<double> p0, const vm::Vec3<double> p1,
-                const double r0, const double r1, const long long fiber_idx,
-                const long long fiber_elm)
+                const double r0, const double r1, const int64_t fiber_idx,
+                const int64_t fiber_elm)
        : p0(p0), p1(p1), r0(r0), r1(r1), r(r0 > r1 ? r0 : r1),
-         fiber_idx(fiber_idx), fiber_elm(fiber_elm){};
+         fiber_idx(fiber_idx), fiber_elm(fiber_elm) {}
 
    aabb::AABB<double, 3> aabb() const;
 
@@ -42,4 +42,4 @@ struct FiberSegment {
 };
 } // namespace geometry
 
-#endif // FIBER_SEGMENT_HPP_
+#endif // SRC_MODEL_SOLVER_FIBER_SEGMENT_HPP_

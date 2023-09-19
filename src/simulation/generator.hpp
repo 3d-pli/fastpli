@@ -1,5 +1,5 @@
-#ifndef SIMULATION_GENERATOR_HPP_
-#define SIMULATION_GENERATOR_HPP_
+#ifndef SRC_SIMULATION_GENERATOR_HPP_
+#define SRC_SIMULATION_GENERATOR_HPP_
 
 #include <memory>
 #include <tuple>
@@ -21,7 +21,7 @@ class PliGenerator {
    ~PliGenerator() = default;
 
    // setter
-   void SetVolume(const vm::Vec3<long long> global_dim,
+   void SetVolume(const vm::Vec3<int64_t> global_dim,
                   const vm::Vec3<double> origin, const double voxel_size);
    void SetFiberBundles(const std::vector<fiber::Bundle> &fiber_bundles);
    void
@@ -34,11 +34,11 @@ class PliGenerator {
    int set_omp_num_threads(int num);
 
    // getter
-   setup::Dimensions dim() const { return dim_; };
-   vm::Vec3<long long> dim_local() const { return dim_.local; };
-   vm::Vec3<long long> dim_global() const { return dim_.global; };
-   vm::Vec3<long long> dim_offset() const { return dim_.offset; };
-   vm::Vec3<double> dim_origin() const { return dim_.origin; };
+   setup::Dimensions dim() const { return dim_; }
+   vm::Vec3<int64_t> dim_local() const { return dim_.local; }
+   vm::Vec3<int64_t> dim_global() const { return dim_.global; }
+   vm::Vec3<int64_t> dim_offset() const { return dim_.offset; }
+   vm::Vec3<double> dim_origin() const { return dim_.origin; }
 
  private:
 #ifndef NDEBUG
@@ -86,4 +86,4 @@ class PliGenerator {
    void Abort(const int num) const;
 };
 
-#endif // SIMULATION_GENERATOR_HPP_
+#endif // SRC_SIMULATION_GENERATOR_HPP_

@@ -10,12 +10,17 @@ _  __/ / /_/ /_(__  )/ /_ _  ____/_  /____/ /
 
 ![fastpli-logo](logo.svg)
 
-The [Fiber Architecture Simulation Toolbox for 3D-PLI (fastpli)](https://github.com/3d-pli/fastpli) is a toolbox for [polarized light imaging (PLI)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) with three main purposes:
+The
+[Fiber Architecture Simulation Toolbox for 3D-PLI (fastpli)](https://github.com/3d-pli/fastpli)
+is a toolbox for
+[polarized light imaging (PLI)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html)
+with three main purposes:
 
 <img align="right" src="https://raw.githubusercontent.com/wiki/3d-pli/fastpli/images/fiber.png" alt="fiber" width="125">
 
 - [`Sandbox` - designing of nerve fiber models](https://github.com/3d-pli/fastpli/wiki/NerveFiber):
-  The first module allows the user to create different types of nerve fiber bundles and additionally fill them with individual nerve fibers.
+  The first module allows the user to create different types of nerve fiber
+  bundles and additionally fill them with individual nerve fibers.
 
   - [Details](https://github.com/3d-pli/fastpli/wiki/NerveFiber)
   - [Tutorial](https://github.com/3d-pli/fastpli/wiki/tutorial-sandbox)
@@ -23,10 +28,12 @@ The [Fiber Architecture Simulation Toolbox for 3D-PLI (fastpli)](https://github.
 <img align="right" src="https://raw.githubusercontent.com/wiki/3d-pli/fastpli/images/solver_1_cropped.gif" alt="fiber" width="125">
 
 - [`Solver` - generating collision free models](https://github.com/3d-pli/fastpli/wiki/Solver):
-  The second module takes as input a configuration of nerve fibers and checks them for spatial collisions.
-  Since nerve fibers cannot overlap in reality, one must ensure that the models follow the same rules.
-  The solver module implements a simple algorithm that checks for collisions and, if it finds any, pushes the colliding segments of the fibers slightly apart.
-  This is repeated until all collisions are solved.
+  The second module takes as input a configuration of nerve fibers and checks
+  them for spatial collisions. Since nerve fibers cannot overlap in reality, one
+  must ensure that the models follow the same rules. The solver module
+  implements a simple algorithm that checks for collisions and, if it finds any,
+  pushes the colliding segments of the fibers slightly apart. This is repeated
+  until all collisions are solved.
 
   - [Details](https://github.com/3d-pli/fastpli/wiki/Solver)
   - [Tutorial](https://github.com/3d-pli/fastpli/wiki/tutorial-solver)
@@ -34,10 +41,13 @@ The [Fiber Architecture Simulation Toolbox for 3D-PLI (fastpli)](https://github.
 <img align="right" src="https://raw.githubusercontent.com/wiki/3d-pli/fastpli/images/optic_chiasm_10_0.png" alt="fiber" width="125">
 
 - [`Simulation` - simulation of 3D-Polarized Light Imaging](https://github.com/3d-pli/fastpli/wiki/Simulation):
-  The simulation module enables the simulation of [3D Polarized Light Imaging (3D-PLI)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html).
-  This is a microscopic technique that allows the polarization change of light moving through a brain section to be measured.
-  Due to the birefringence property of the myelin surrounding the nerve fibers, the polarization state changes.
-  This change enables the calculation of the 3d orientation of the nerve fibers in the brain slice.
+  The simulation module enables the simulation of
+  [3D Polarized Light Imaging (3D-PLI)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html).
+  This is a microscopic technique that allows the polarization change of light
+  moving through a brain section to be measured. Due to the birefringence
+  property of the myelin surrounding the nerve fibers, the polarization state
+  changes. This change enables the calculation of the 3d orientation of the
+  nerve fibers in the brain slice.
 
   - [Details](https://github.com/3d-pli/fastpli/wiki/Simulation)
   - [Tutorial](https://github.com/3d-pli/fastpli/wiki/tutorial-simulation)
@@ -48,9 +58,10 @@ The [Fiber Architecture Simulation Toolbox for 3D-PLI (fastpli)](https://github.
 
 ## Example
 
-As an example, a simplified model of the optic chiasm is presented.
-This structure in the brain allows nerve fibers from the eyes to cross each other and connect to the opposite side of the brain.
-In addition, a certain portion remains on the same side of the brain.
+As an example, a simplified model of the optic chiasm is presented. This
+structure in the brain allows nerve fibers from the eyes to cross each other and
+connect to the opposite side of the brain. In addition, a certain portion
+remains on the same side of the brain.
 
 - [Tutorial](https://github.com/3d-pli/fastpli/wiki/tutorial-optic_chiasm)
 
@@ -75,10 +86,10 @@ In addition, a certain portion remains on the same side of the brain.
 
 ### Note:
 
-> The current version of `fastpli` can only be run under Linux as operating system due to dependencies.
-> If you want to use `fastpli` under Windows, please use the Windows subsystem for Linux.
-> To enable graphical output, you must install an X server.
-> For more information, see <https://wiki.ubuntu.com/WSL>.
+> The current version of `fastpli` can only be run under Linux as operating
+> system due to dependencies. If you want to use `fastpli` under Windows, please
+> use the Windows subsystem for Linux. To enable graphical output, you must
+> install an X server. For more information, see <https://wiki.ubuntu.com/WSL>.
 > Support for macOS is planned for the future.
 
 ## Dependencies
@@ -120,8 +131,8 @@ cd fastpli
 
 ### Compilation
 
-Use your favorite environment e. g. `python3 -m venv env` and `source env/bin/activate`.
-Update your pip version with `pip3 install pip -U`.
+Use your favorite environment e. g. `python3 -m venv env` and
+`source env/bin/activate`. Update your pip version with `pip3 install pip -U`.
 
 ```sh
 make fastpli
@@ -165,15 +176,18 @@ python3 setup.py test
 
 ## Libraries
 
-All computationally intensive calculations are optimized either with **numba** on the Python side or with multithreading **C++**, which can be accessed via **pybind11**.
-Additionally the simulation module supports the **Message Passing Interface (MPI)**.
+All computationally intensive calculations are optimized either with **numba**
+on the Python side or with multithreading **C++**, which can be accessed via
+**pybind11**. Additionally the simulation module supports the **Message Passing
+Interface (MPI)**.
 
 ## Contributions and Bug Reports
 
-Please submit [issues](https://github.com/3d-pli/fastpli/issues) on GitHub to report
-problems or suggest features. [Pull requests](https://github.com/3d-pli/fastpli/pulls)
-are also welcome to add features or correct problems.
-Please run the local env-CI environment `./CI/run-all.sh` or docker container `make docker` in advance.
+Please submit [issues](https://github.com/3d-pli/fastpli/issues) on GitHub to
+report problems or suggest features.
+[Pull requests](https://github.com/3d-pli/fastpli/pulls) are also welcome to add
+features or correct problems. Please run the local env-CI environment
+`./CI/run-all.sh` or docker container `make docker` in advance.
 
 ## Literature
 
@@ -189,15 +203,24 @@ Please run the local env-CI environment `./CI/run-all.sh` or docker container `m
 
 ## References
 
-[fastPLI](https://github.com/3d-pli/fastpli) is an open source toolbox for modeling nerve fibers, simulating them in a [3D-PLI](https://dx.doi.org/10.3389%2Ffninf.2011.00034) microscope and the signal processing developed by the [fiber architecture group](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) at the [Forschungszentrum Jülich](https://www.fz-juelich.de) - [INM1](https://www.fz-juelich.de/inm/inm-1/EN/Home/home_node.html).
-This project has received funding from the European Union’s Horizon 2020 Research and Innovation Programme under Grant Agreement No. 7202070 ([Human Brain Project](https://www.humanbrainproject.eu/en/) SGA2).
+[fastPLI](https://github.com/3d-pli/fastpli) is an open source toolbox for
+modeling nerve fibers, simulating them in a
+[3D-PLI](https://dx.doi.org/10.3389%2Ffninf.2011.00034) microscope and the
+signal processing developed by the
+[fiber architecture group](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html)
+at the [Forschungszentrum Jülich](https://www.fz-juelich.de) -
+[INM1](https://www.fz-juelich.de/inm/inm-1/EN/Home/home_node.html). This project
+has received funding from the European Union’s Horizon 2020 Research and
+Innovation Programme under Grant Agreement No. 7202070
+([Human Brain Project](https://www.humanbrainproject.eu/en/) SGA2).
 
 |                                                                                                                                                                                  |                                                                                                                                                              |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-|                  [![Forschungszentrum Jülich](https://www.fz-juelich.de/SharedDocs/Bilder/INM/INM-1/EN/FZj_Logo.jpg?__blob=normal)](https://www.fz-juelich.de)                   | [Forschungszentrum Jülich](https://www.fz-juelich.de)                                                                                                        |
+|       [![Forschungszentrum Jülich](https://upload.wikimedia.org/wikipedia/commons/4/40/Logo_des_Forschungszentrums_J%C3%BClich_seit_2018.svg)](https://www.fz-juelich.de)        | [Forschungszentrum Jülich](https://www.fz-juelich.de)                                                                                                        |
 | [![FA-INM-1](https://avatars2.githubusercontent.com/u/51479655?s=200&v=4)](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) | [Fiber Architecture - INM1 - Forschungszentrum Jülich](https://www.fz-juelich.de/inm/inm-1/EN/Forschung/Fibre%20Architecture/Fibre%20Architecture_node.html) |
 |                                 [![HBP](https://sos-ch-dk-2.exo.io/public-website-production/img/HBP.png)](https://www.humanbrainproject.eu/en/)                                 | [Human Brain Project](https://www.humanbrainproject.eu/en/)                                                                                                  |
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/3d-pli/fastpli/blob/main/LICENSE) file for details
+This project is licensed under the MIT License - see the
+[LICENSE](https://github.com/3d-pli/fastpli/blob/main/LICENSE) file for details

@@ -73,10 +73,12 @@ PYBIND11_MODULE(__solver, m) {
        .def("_set_col_voi",
             [](World &self, std::array<double, 3> min,
                std::array<double, 3> max) {
-               auto test = aabb::AABB<double, 3>(min, max);
-               self.set_colliding_voi(aabb::AABB<double, 3>(min, max));
+               auto test = aabb::AABB<double, 3>(vm::Vec3<double>(min),
+                                                 vm::Vec3<double>(max));
+               self.set_colliding_voi(aabb::AABB<double, 3>(
+                   vm::Vec3<double>(min), vm::Vec3<double>(max)));
             })
-       .def("step", (bool (World::*)(void)) & World::Step)
+       .def("step", (bool(World::*)(void)) & World::Step)
        .def("apply_boundary_conditions", &World::ApplyBoundaryConditions,
             py::arg("steps") = 1)
        .def_property_readonly("num_obj", &World::num_obj)

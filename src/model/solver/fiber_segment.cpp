@@ -1,5 +1,6 @@
 #include "fiber_segment.hpp"
 
+#include <algorithm>
 #include <random>
 #include <tuple>
 #include <vector>
@@ -71,34 +72,36 @@ FiberSegment::MinDistanceVector(const FiberSegment obj) const {
    if (tN < 0.0) {
       tN = 0.0;
 
-      if (-d < 0.0)
+      if (-d < 0.0) {
          sN = 0.0;
-      else if (-d > a)
+      } else if (-d > a) {
          sN = sD;
-      else {
+      } else {
          sN = -d;
          sD = a;
       }
    } else if (tN > tD) {
       tN = tD;
-      if ((-d + b) < 0.0)
+      if ((-d + b) < 0.0) {
          sN = 0;
-      else if ((-d + b) > a)
+      } else if ((-d + b) > a) {
          sN = sD;
-      else {
+      } else {
          sN = (-d + b);
          sD = a;
       }
    }
 
-   if (std::abs(sN) < 1e-5f)
+   if (std::abs(sN) < 1e-5f) {
       sc = 0.0;
-   else
+   } else {
       sc = sN / sD;
-   if (std::abs(tN) < 1e-5f)
+   }
+   if (std::abs(tN) < 1e-5f) {
       tc = 0.0;
-   else
+   } else {
       tc = tN / tD;
+   }
 
    // vm::Vec3<double> dP;
    // dP = w + (u * sc) - (v * tc);

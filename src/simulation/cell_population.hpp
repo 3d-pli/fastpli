@@ -1,5 +1,5 @@
-#ifndef SIMULATION_CELL_POPULATION_HPP_
-#define SIMULATION_CELL_POPULATION_HPP_
+#ifndef SRC_SIMULATION_CELL_POPULATION_HPP_
+#define SRC_SIMULATION_CELL_POPULATION_HPP_
 
 #include <utility>
 #include <vector>
@@ -60,4 +60,4 @@ class Population {
 };
 } // namespace cell
 
-#endif // SIMULATION_CELL_POPULATION_HPP_
+#endif // SRC_SIMULATION_CELL_POPULATION_HPP_

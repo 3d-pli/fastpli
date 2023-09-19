@@ -1,8 +1,10 @@
 #include "generator.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -40,7 +42,7 @@ int PliGenerator::set_omp_num_threads(int i) {
    return omp_get_max_threads();
 }
 
-void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
+void PliGenerator::SetVolume(const vm::Vec3<int64_t> global_dim,
                              const vm::Vec3<double> origin,
                              const double voxel_size) {
 
@@ -69,7 +71,7 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
       }
 
 #ifndef NDEBUG
-      if (vm::any_of(dim_.local, [&](long long i) { return i < 0; })) {
+      if (vm::any_of(dim_.local, [&](int64_t i) { return i < 0; })) {
          std::cerr << "dim_.local" << std::endl;
          Abort(20000 + __LINE__);
       }
@@ -82,7 +84,7 @@ void PliGenerator::SetVolume(const vm::Vec3<long long> global_dim,
       dim_.local = global_dim;
       dim_.global = global_dim;
       dim_.origin = origin;
-      dim_.offset = vm::Vec3<long long>(0);
+      dim_.offset = vm::Vec3<int64_t>(0);
       if (debug_) {
          std::cout << "dim.global = " << dim_.global << std::endl;
          std::cout << "dim.local = " << dim_.local << std::endl;
@@ -299,23 +301,23 @@ void PliGenerator::FillVoxelsAroundFiberSegment(
    fiber_segment_bb.max += max_radius;
 
    fiber_segment_bb.Intersect(volume_bb_);
-   const auto min = vm::cast<long long>(fiber_segment_bb.min);
-   const auto max = vm::cast<long long>(fiber_segment_bb.max + 0.5);
+   const auto min = vm::cast<int64_t>(fiber_segment_bb.min);
+   const auto max = vm::cast<int64_t>(fiber_segment_bb.max + 0.5);
 
    double t{};
    vm::Vec3<double> min_point{};
    const auto &layers_scale_squ = fb.layers_scale_squ();
 
    // FIXME: TEST!!!
-   for (long long x = std::floor(min.x()); x < max.x(); x++) {
+   for (int64_t x = std::floor(min.x()); x < max.x(); x++) {
 
       if (omp_in_parallel())
          // because of omp parallel for thread safe operations
          if (x % omp_get_max_threads() != omp_get_thread_num())
             continue;
 
-      for (long long y = std::floor(min.y()); y < max.y(); y++) {
-         for (long long z = std::floor(min.z()); z < max.z(); z++) {
+      for (int64_t y = std::floor(min.y()); y < max.y(); y++) {
+         for (int64_t z = std::floor(min.z()); z < max.z(); z++) {
             vm::Vec3<double> point(x + 0.5, y + 0.5,
                                    z + 0.5); // point in center of voxel -> cart
 
@@ -416,14 +418,14 @@ void PliGenerator::FillVoxelsAroundSphere(const size_t cp_idx,
    const auto max = cell_sphere_bb.max;
 
    const auto scale_squ = cp.scale_squ();
-   for (long long x = std::floor(min.x()); x < std::floor(max.x()); x++) {
+   for (int64_t x = std::floor(min.x()); x < std::floor(max.x()); x++) {
       // because of omp parallel
       if (omp_in_parallel())
          if (x % omp_get_max_threads() != omp_get_thread_num())
             continue;
 
-      for (long long y = std::floor(min.y()); y < std::floor(max.y()); y++) {
-         for (long long z = std::floor(min.z()); z < std::floor(max.z()); z++) {
+      for (int64_t y = std::floor(min.y()); y < std::floor(max.y()); y++) {
+         for (int64_t z = std::floor(min.z()); z < std::floor(max.z()); z++) {
 
             const vm::Vec3<double> point(x, y, z);
             const auto dist_squ = vm::length2(p - point);

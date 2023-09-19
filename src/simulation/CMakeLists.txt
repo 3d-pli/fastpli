@@ -1,47 +1,40 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
-SET(subdir simulation)
+cmake_minimum_required(VERSION 3.9)
+set(subdir simulation)
 
-##########################################################################
+# ##############################################################################
 # Building shared Library for Python
-##########################################################################
+# ##############################################################################
 
 # building core objects
-SET(CoreModules ${subdir}CoreModules)
-ADD_LIBRARY(${CoreModules} OBJECT cell_population.cpp
-                                    fiber_bundle.cpp
-                                    my_mpi.cpp)
-SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
-TARGET_INCLUDE_DIRECTORIES(${CoreModules} SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
+set(CoreModules ${subdir}CoreModules)
+add_library(${CoreModules} OBJECT cell_population.cpp fiber_bundle.cpp
+                                  my_mpi.cpp)
+set_property(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+target_include_directories(${CoreModules} SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
-IF ( THESIS )
-   TARGET_COMPILE_DEFINITIONS(${CoreModules} PRIVATE _THESIS)
-ENDIF ( )
+if(THESIS)
+  target_compile_definitions(${CoreModules} PRIVATE _THESIS)
+endif()
 
 # building python modules
-pybind11_add_module(__generation
-      bindings/generator_module.cpp
-      generator.cpp
-      $<TARGET_OBJECTS:${CoreModules}>
-      $<TARGET_OBJECTS:objectsCoreModules>
-      )
-TARGET_LINK_LIBRARIES(__generation PRIVATE ${MPI_LIBRARIES})
-TARGET_INCLUDE_DIRECTORIES(__generation SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
+pybind11_add_module(
+  __generation bindings/generator_module.cpp generator.cpp
+  $<TARGET_OBJECTS:${CoreModules}> $<TARGET_OBJECTS:objectsCoreModules>)
+target_link_libraries(__generation PRIVATE ${MPI_LIBRARIES})
+target_include_directories(__generation SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
-pybind11_add_module(__simulation
-      bindings/simulator_module.cpp
-      simulator.cpp
-      $<TARGET_OBJECTS:${CoreModules}>
-      $<TARGET_OBJECTS:objectsCoreModules>
-      )
-TARGET_LINK_LIBRARIES(__simulation PRIVATE ${MPI_LIBRARIES})
-TARGET_INCLUDE_DIRECTORIES(__simulation SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
+pybind11_add_module(
+  __simulation bindings/simulator_module.cpp simulator.cpp
+  $<TARGET_OBJECTS:${CoreModules}> $<TARGET_OBJECTS:objectsCoreModules>)
+target_link_libraries(__simulation PRIVATE ${MPI_LIBRARIES})
+target_include_directories(__simulation SYSTEM PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
 # copy to fastpli build python path
-SET_TARGET_PROPERTIES(__generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY 
-                        "${PROJECT_LIB_DIR}/${subdir}")
-SET_TARGET_PROPERTIES(__simulation PROPERTIES LIBRARY_OUTPUT_DIRECTORY 
-                        "${PROJECT_LIB_DIR}/${subdir}")
+set_target_properties(__generation PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+                                              "${PROJECT_LIB_DIR}/${subdir}")
+set_target_properties(__simulation PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+                                              "${PROJECT_LIB_DIR}/${subdir}")
 
-IF ( THESIS )
-      TARGET_COMPILE_DEFINITIONS(__simulation PRIVATE _THESIS)
-ENDIF ( )
+if(THESIS)
+  target_compile_definitions(__simulation PRIVATE _THESIS)
+endif()

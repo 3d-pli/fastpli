@@ -1,6 +1,7 @@
-#ifndef INCLUDE_AABB_HPP_
-#define INCLUDE_AABB_HPP_
+#ifndef SRC_INCLUDE_AABB_HPP_
+#define SRC_INCLUDE_AABB_HPP_
 
+#include <algorithm>
 #include <array>
 #include <limits>
 #include <ostream>
@@ -13,7 +14,7 @@ namespace aabb {
 
 template <typename T, int N> struct AABB {
    // constructors
-   AABB(const vm::Vec<T, N> &p);
+   explicit AABB(const vm::Vec<T, N> &p);
    AABB(const vm::Vec<T, N> &p, const vm::Vec<T, N> &q, bool sorted = false);
 
    // defaults
@@ -25,8 +26,8 @@ template <typename T, int N> struct AABB {
    ~AABB() = default;
 
    // data
-   vm::Vec<T, N> min{std::numeric_limits<T>::infinity()};
-   vm::Vec<T, N> max{-std::numeric_limits<T>::infinity()};
+   vm::Vec<T, N> min = vm::Vec<T, N>(std::numeric_limits<T>::infinity());
+   vm::Vec<T, N> max = vm::Vec<T, N>(-std::numeric_limits<T>::infinity());
 
    // function
    // TODO: IsEmpty should be checked everytime?
@@ -156,4 +157,4 @@ AABB<T, N> Intersection(AABB<T, N> a, const vm::Vec<T, N> &v) {
 }
 
 } // namespace aabb
-#endif // AABB_HPP_
+#endif // SRC_INCLUDE_AABB_HPP_

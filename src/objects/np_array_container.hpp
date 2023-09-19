@@ -1,8 +1,9 @@
-#ifndef VECTOR_CONTAINER_HPP_
-#define VECTOR_CONTAINER_HPP_
+#ifndef SRC_OBJECTS_NP_ARRAY_CONTAINER_HPP_
+#define SRC_OBJECTS_NP_ARRAY_CONTAINER_HPP_
 
 // #include <exception>
 #include <cassert>
+#include <functional>
 #include <iostream>
 #include <vector>
 
@@ -21,7 +22,7 @@ template <typename T> class NpArray {
       assert(shape.size() > 0);
       assert(std::accumulate(shape.begin(), shape.end(), 1ULL,
                              std::multiplies<size_t>()) == n);
-   };
+   }
 
    NpArray() = default;
 
@@ -49,4 +50,4 @@ template <typename T> class NpArray {
 } // namespace container
 } // namespace object
 
-#endif
+#endif // SRC_OBJECTS_NP_ARRAY_CONTAINER_HPP_

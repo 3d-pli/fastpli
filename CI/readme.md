@@ -1,13 +1,14 @@
 # CI - Scripts
 
-These scripts provide all CI functions.
-They also allow developers to run them localy or the provided dockerfile
+These scripts provide all CI functions. They also allow developers to run them
+localy or the provided dockerfile
 
 **All scripts have to be run from the repository path!**
 
 ## Environment
 
-To be able to check all functionalities, a virtual python environment `env-CI` will be created.
+To be able to check all functionalities, a virtual python environment `env-CI`
+will be created.
 
 ```sh
 ./CI/run-env.sh
@@ -15,8 +16,8 @@ To be able to check all functionalities, a virtual python environment `env-CI` w
 
 ## Checking Code Format
 
-The `C++` formatation is checked via clang-format.
-The style is define in the `.clang-format` file n the repository.
+The `C++` formatation is checked via clang-format. The style is define in the
+`.clang-format` file n the repository.
 
 For the python formation `flake8` is used.
 
@@ -48,7 +49,7 @@ All examples inside the `./examples` path will be checked for runnability.
 ./CI/run-examples.sh
 ```
 
-## API and WIKI:
+## API and WIKI
 
 - make docs
 - make wiki

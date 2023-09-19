@@ -1,38 +1,36 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
-SET(subdir model/solver)
+cmake_minimum_required(VERSION 3.9)
+set(subdir model/solver)
 
-##########################################################################
+# ##############################################################################
 # Building shared Library for Python
-##########################################################################
+# ##############################################################################
 
 # building core objects
-SET(CoreModules solverCoreModules)
-FILE(GLOB solverCoreFiles *.cpp)
+set(CoreModules solverCoreModules)
+file(GLOB solverCoreFiles *.cpp)
 
-IF ( NOT OPENGL_FOUND OR NOT GLUT_FOUND )
-   MESSAGE(WARNING "OpenGL or GLUT not found. scene.cpp will not be compiled")
-   LIST(REMOVE_ITEM solverCoreFiles ${CMAKE_CURRENT_SOURCE_DIR}/scene.cpp)
-ENDIF ( )
+if(NOT OPENGL_FOUND OR NOT GLUT_FOUND)
+  message(WARNING "OpenGL or GLUT not found. scene.cpp will not be compiled")
+  list(REMOVE_ITEM solverCoreFiles ${CMAKE_CURRENT_SOURCE_DIR}/scene.cpp)
+endif()
 
-ADD_LIBRARY(${CoreModules} OBJECT ${solverCoreFiles})
-TARGET_INCLUDE_DIRECTORIES(${CoreModules} SYSTEM PUBLIC ${PYTHON_INCLUDE_DIRS})
-SET_PROPERTY(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+add_library(${CoreModules} OBJECT ${solverCoreFiles})
+target_include_directories(${CoreModules} SYSTEM PUBLIC ${PYTHON_INCLUDE_DIRS})
+set_property(TARGET ${CoreModules} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
-IF ( OPENGL_FOUND AND GLUT_FOUND )
-   TARGET_COMPILE_DEFINITIONS(${CoreModules} PRIVATE _VIS_LIBRARIES)
-ENDIF ( )
+if(OPENGL_FOUND AND GLUT_FOUND)
+  target_compile_definitions(${CoreModules} PRIVATE _VIS_LIBRARIES)
+endif()
 
 # building python modules
-pybind11_add_module(__solver
-      bindings/solver_module.cpp
-      $<TARGET_OBJECTS:${CoreModules}>
-      $<TARGET_OBJECTS:objectsCoreModules>
-      )
-      
-IF ( OPENGL_FOUND AND GLUT_FOUND )
-   TARGET_LINK_LIBRARIES(__solver PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
-   TARGET_COMPILE_DEFINITIONS(__solver PRIVATE _VIS_LIBRARIES)
-ENDIF ( )
+pybind11_add_module(
+  __solver bindings/solver_module.cpp $<TARGET_OBJECTS:${CoreModules}>
+  $<TARGET_OBJECTS:objectsCoreModules>)
 
-SET_TARGET_PROPERTIES(__solver PROPERTIES LIBRARY_OUTPUT_DIRECTORY
-                        "${PROJECT_LIB_DIR}/${subdir}")
+if(OPENGL_FOUND AND GLUT_FOUND)
+  target_link_libraries(__solver PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+  target_compile_definitions(__solver PRIVATE _VIS_LIBRARIES)
+endif()
+
+set_target_properties(__solver PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+                                          "${PROJECT_LIB_DIR}/${subdir}")
