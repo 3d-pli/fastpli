@@ -26,9 +26,9 @@ setuptools.setup(
     author_email='f.matuschke@fz-juelich.de',
     url='http://www.fz-juelich.de/inm/inm-1/EN/Forschung/\
         Fibre%20Architecture/Fibre%20Architecture_node.html',
-    python_requires='>3.6.0',
+    python_requires='>=3.10.0',
     install_requires=[
-        'numpy>=1.19', 'numba>=0.52', 'scipy>=1.5.4', 'h5py>=3.1'
+        'numpy>=1.24', 'numba>=0.57', 'scipy>=1.11.0', 'h5py>=3.9'
     ],
     zip_safe=False,
     packages=setuptools.find_packages('src'),
