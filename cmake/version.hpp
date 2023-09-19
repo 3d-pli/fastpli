@@ -1,9 +1,9 @@
-#ifndef INCLUDE_VERSION_HPP
-#define INCLUDE_VERSION_HPP
+#ifndef CMAKE_VERSION_HPP_
+#define CMAKE_VERSION_HPP_
 
 #include <string>
 
-const std::string kGitBranch = "Branch: @GIT_BRANCH@";
-const std::string kGitCommitHash = "Hash: @GIT_COMMIT_HASH@";
+const char kGitBranch[] = "Branch: @GIT_BRANCH@";
+const char kGitCommitHash[] = "Hash: @GIT_COMMIT_HASH@";
 
-#endif
+#endif // CMAKE_VERSION_HPP_

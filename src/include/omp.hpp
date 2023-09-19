@@ -1,5 +1,5 @@
-#ifndef INCLUDE_OMP_HPP_
-#define INCLUDE_OMP_HPP_
+#ifndef SRC_INCLUDE_OMP_HPP_
+#define SRC_INCLUDE_OMP_HPP_
 
 #if defined(_OPENMP)
 #include <omp.h>
@@ -15,4 +15,4 @@ inline void omp_set_num_threads(int i) {
 }
 #endif
 
-#endif
+#endif // SRC_INCLUDE_OMP_HPP_

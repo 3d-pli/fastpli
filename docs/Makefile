@@ -27,5 +27,5 @@ gh-pages:
 %: Makefile
 	@rm -rf $(BUILDDIR)
 	@rm -rf _autosummary
-	@rm -rf gh-pages 
+	@rm -rf gh-pages
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

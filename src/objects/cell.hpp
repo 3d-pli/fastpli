@@ -1,5 +1,5 @@
-#ifndef CELL_HPP_
-#define CELL_HPP_
+#ifndef SRC_OBJECTS_CELL_HPP_
+#define SRC_OBJECTS_CELL_HPP_
 
 #include <cassert>
 #include <vector>
@@ -33,4 +33,4 @@ using CellPopulations = std::vector<CellPopulation>;
 
 } // namespace object
 
-#endif // CELL_HPP_
+#endif // SRC_OBJECTS_CELL_HPP_

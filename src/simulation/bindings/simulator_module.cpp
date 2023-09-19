@@ -53,14 +53,14 @@ PYBIND11_MODULE(__simulation, m) {
            py::arg("untilt_sensor_view"), py::arg("flip_z"),
            py::arg("filter_rotations"))
        .def("set_mpi_comm",
-            [](PliSimulator &self, long long comm_address, int n) {
+            [](PliSimulator &self, int64_t comm_address, int n) {
                MPI_Comm comm = *static_cast<MPI_Comm *>(
                    reinterpret_cast<void *>(comm_address));
                self.SetMPIComm(comm, n);
             })
        .def(
            "run_simulation",
-           [](PliSimulator &self, std::array<long long, 3> dim,
+           [](PliSimulator &self, std::array<int64_t, 3> dim,
               py::array_t<int, py::array::c_style> label_array,
               py::array_t<float, py::array::c_style> vector_array,
               py::array_t<double, py::array::c_style> prop_array, double theta,
@@ -80,9 +80,9 @@ PYBIND11_MODULE(__simulation, m) {
                      // [2*i] -> dn, [2*i+1] -> mu
                      setup::PhyProps(prop_vec[i], prop_vec[i + 1]));
 
-              auto image = new std::vector<double>(
-                  self.RunSimulation(dim, label_container, vector_container,
-                                     properties, setup::Tilting(theta, phi)));
+              auto image = new std::vector<double>(self.RunSimulation(
+                  vm::Vec3<int64_t>(dim), label_container, vector_container,
+                  properties, setup::Tilting(theta, phi)));
 
               std::vector<size_t> dim_image =
                   vm::cast<size_t>(self.GetImageDim());
@@ -96,8 +96,8 @@ PYBIND11_MODULE(__simulation, m) {
 #if _THESIS
        .def(
            "__field_interpolation",
-           [](PliSimulator &self, std::array<long long, 3> dim,
-              std::array<long long, 3> dim_int,
+           [](PliSimulator &self, std::array<int64_t, 3> dim,
+              std::array<int64_t, 3> dim_int,
               py::array_t<int, py::array::c_style> label_array,
               py::array_t<float, py::array::c_style> vector_array,
               py::array_t<int, py::array::c_style> label_int_array,

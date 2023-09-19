@@ -1,9 +1,11 @@
 #include "scene.hpp"
 
 #define _USE_MATH_DEFINES
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 

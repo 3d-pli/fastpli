@@ -1,5 +1,5 @@
-#ifndef OCT_TREE_HPP_
-#define OCT_TREE_HPP_
+#ifndef SRC_MODEL_SOLVER_OCT_TREE_HPP_
+#define SRC_MODEL_SOLVER_OCT_TREE_HPP_
 
 #include <array>
 #include <set>
@@ -17,7 +17,7 @@ class OctTree {
            const double min_cube_size, const aabb::AABB<double, 3> col_voi);
    std::set<std::array<size_t, 4>> Run();
 
-   int max_level() { return max_level_; };
+   int max_level() { return max_level_; }
 
  private:
    std::tuple<std::vector<std::vector<size_t>>, int>
@@ -34,4 +34,4 @@ class OctTree {
    const int kMaxThreadLevel_ = 1;
 };
 
-#endif // OCT_TREE_HPP_
+#endif // SRC_MODEL_SOLVER_OCT_TREE_HPP_

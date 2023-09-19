@@ -2,6 +2,7 @@
 
 #include <array>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -22,15 +23,15 @@ MyMPI::MyMPI(const MPI_Comm comm) {
 
 MyMPI::~MyMPI() {}
 
-void MyMPI::CreateCartGrid(const vm::Vec3<long long> global_dim) {
+void MyMPI::CreateCartGrid(const vm::Vec3<int64_t> global_dim) {
 
    const int max_dims = 3;
    const int reorder = 1;
    std::array<int, 3> period = {0, 0, 0};
 
    // calculate minimal communication volume
-   vm::Vec3<long long> dim{};
-   auto min_area = std::numeric_limits<long long>::max();
+   vm::Vec3<int64_t> dim{};
+   auto min_area = std::numeric_limits<int64_t>::max();
 
    // for(auto z = 1; z <= this->numP; z++){
    for (auto z = 1; z <= 1; z++) { // z dominates communication
@@ -62,7 +63,7 @@ void MyMPI::CreateCartGrid(const vm::Vec3<long long> global_dim) {
    CalcDimensions(global_dim);
 }
 
-void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
+void MyMPI::CalcDimensions(const vm::Vec3<int64_t> global_dim) {
 
    dim_vol_.global = global_dim;
 
@@ -73,8 +74,8 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
    dim_vol_.local.z() =
        ceil(dim_vol_.global.z() / static_cast<double>(global_coordinate_[2]));
 
-   vm::Vec3<long long> low{};
-   vm::Vec3<long long> up{};
+   vm::Vec3<int64_t> low{};
+   vm::Vec3<int64_t> up{};
 
    low.x() = coordinate_.x() * dim_vol_.local.x();
    low.y() = coordinate_.y() * dim_vol_.local.y();
@@ -85,7 +86,7 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
    up.y() = (coordinate_.y() + 1) * dim_vol_.local.y() - 1 + 1;
    up.z() = (coordinate_.z() + 1) * dim_vol_.local.z() - 1 + 1;
 
-   if (vm::any_of(low, [](long long i) { return i < 0; })) {
+   if (vm::any_of(low, [](int64_t i) { return i < 0; })) {
       MPI_Abort(my_comm_, 10000 + __LINE__);
    }
 
@@ -115,7 +116,7 @@ void MyMPI::CalcDimensions(const vm::Vec3<long long> global_dim) {
       std::cout << "rank " << rank_ << ": up: " << up << std::endl;
    }
 
-   if (vm::any_of(dim_vol_.local, [&](long long i) { return i < 0; })) {
+   if (vm::any_of(dim_vol_.local, [&](int64_t i) { return i < 0; })) {
       MPI_Abort(my_comm_, 10000 + __LINE__);
    }
 }
@@ -135,7 +136,7 @@ void MyMPI::ClearInternalBuffer() {
       elm = 0;
 }
 
-void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<long long> ccd,
+void MyMPI::PushLightToBuffer(vm::Vec3<double> pos, vm::Vec2<int64_t> ccd,
                               std::vector<vm::Vec4<double>> light,
                               int direction) {
 
@@ -273,9 +274,9 @@ MyMPI::InternalBufferToVariable() {
                            rcv_buffer_[ind][i + 2]};
 
          pos_ccd.ccd.x() =
-             *reinterpret_cast<long long *>(&rcv_buffer_[ind][i + 3]);
+             *reinterpret_cast<int64_t *>(&rcv_buffer_[ind][i + 3]);
          pos_ccd.ccd.y() =
-             *reinterpret_cast<long long *>(&rcv_buffer_[ind][i + 4]);
+             *reinterpret_cast<int64_t *>(&rcv_buffer_[ind][i + 4]);
          light_positions.push_back(pos_ccd);
 
          size_t first_elm = 5;

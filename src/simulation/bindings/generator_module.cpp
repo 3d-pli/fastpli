@@ -29,8 +29,8 @@ PYBIND11_MODULE(__generation, m) {
            "set_volume",
            [](PliGenerator &self, std::array<size_t, 3> global_dim,
               std::array<double, 3> origin, double voxel_size) {
-              self.SetVolume(vm::cast<long long>(vm::Vec3<size_t>(global_dim)),
-                             origin, voxel_size);
+              self.SetVolume(vm::cast<int64_t>(vm::Vec3<size_t>(global_dim)),
+                             vm::Vec3<double>(origin), voxel_size);
            },
            py::arg("global_dim"), py::arg("origin"), py::arg("voxel_size"))
        .def(
@@ -90,7 +90,7 @@ PYBIND11_MODULE(__generation, m) {
                self.SetCellPopulations(cell_populations);
             })
        .def("set_mpi_comm",
-            [](PliGenerator &self, long long comm_address, int n) {
+            [](PliGenerator &self, int64_t comm_address, int n) {
                MPI_Comm comm = *static_cast<MPI_Comm *>(
                    reinterpret_cast<void *>(comm_address));
                self.SetMPIComm(comm, n);

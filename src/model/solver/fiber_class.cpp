@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <limits>
+#include <utility>
 #include <vector>
 
 #include "include/vemath.hpp"
@@ -12,7 +14,7 @@ Fiber::Fiber(const object::Fiber &fiber, const size_t f_idx)
     : object::Fiber(fiber) {
 
    fiber_idx_ = f_idx;
-   speed_.assign(points_.size(), vm::Vec3<double>(0));
+   speed_.assign(points_.size(), vm::Vec3<double>(0.0));
 
    max_speed_ = std::numeric_limits<double>::max();
    for (auto &r : radii_)

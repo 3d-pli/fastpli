@@ -1,5 +1,5 @@
-#ifndef INCLUDE_VEMATH_HPP_
-#define INCLUDE_VEMATH_HPP_
+#ifndef SRC_INCLUDE_VEMATH_HPP_
+#define SRC_INCLUDE_VEMATH_HPP_
 
 #include <algorithm>
 #include <array>
@@ -24,13 +24,27 @@ template <typename T, size_t M, size_t N> struct MatMxN {
    MatMxN &operator=(const MatMxN &) = default;
    ~MatMxN() = default;
 
-   // constructors
-   MatMxN(const T s) { data_.fill(s); }
-   MatMxN(const std::array<T, M * N> &a) {
+   // constructor scalar
+   explicit MatMxN(const T s) { data_.fill(s); }
+   MatMxN &operator=(const T &s) { return *this = MatMxN(s); }
+
+   // constructor vector
+   explicit MatMxN(const std::array<T, M * N> &a) {
       std::copy(a.begin(), a.end(), data_.begin());
    }
-   MatMxN(const T (&list)[N * M]) {
+
+   // constructor array
+   explicit MatMxN(const T (&list)[N * M]) {
       std::copy(list, list + (N * M), data_.begin());
+   }
+   MatMxN &operator=(const T (&list)[N * M]) { return *this = MatMxN(list); }
+
+   // constructor initializer list
+   explicit MatMxN(std::initializer_list<T> list) {
+      std::copy(list.begin(), list.end(), data_.begin());
+   }
+   MatMxN &operator=(std::initializer_list<T> list) {
+      return *this = MatMxN(list);
    }
 
    // x, y, z, w functionality
@@ -98,10 +112,22 @@ template <typename T, size_t M, size_t N> struct MatMxN {
       return data_[N * i + j];
    }
 
+   MatMxN<T, M, N> operator+(const T &f) const {
+      MatMxN<T, M, N> result;
+      std::transform(data_.begin(), data_.end(), result.begin(),
+                     [&f](const T &elm) { return elm + f; });
+      return result;
+   }
    MatMxN<T, M, N> operator+(const MatMxN<T, M, N> &A) const {
       MatMxN<T, M, N> result;
       std::transform(data_.begin(), data_.end(), A.begin(), result.begin(),
                      std::plus<T>());
+      return result;
+   }
+   MatMxN<T, M, N> operator-(const T &f) const {
+      MatMxN<T, M, N> result;
+      std::transform(data_.begin(), data_.end(), result.begin(),
+                     [&f](const T &elm) { return elm - f; });
       return result;
    }
    MatMxN<T, M, N> operator-(const MatMxN<T, M, N> &A) const {
@@ -519,4 +545,4 @@ template <typename T> Mat3x3<T> Mat3RotZYZ(T gamma, T beta, T alpha) {
 } // namespace rot_pi_cases
 } // namespace vm
 
-#endif
+#endif // SRC_INCLUDE_VEMATH_HPP_

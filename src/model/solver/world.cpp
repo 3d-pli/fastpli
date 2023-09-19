@@ -1,9 +1,11 @@
 #include "world.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <memory>
 #include <utility>
@@ -317,7 +319,7 @@ std::vector<Face> CalcTubeSkeleton(const geometry::Fiber fiber) {
 
    // calc tube mesh points
    NSidePolygon mesh_elm{};
-   vm::Vec3<float> tangent_old = {0, 0, 1};
+   vm::Vec3<float> tangent_old{{0, 0, 1}};
    vm::Vec3<float> p0{}, p1{}, pm{};
 
    for (auto i = 0u; i < fiber.size(); i++) {
@@ -343,7 +345,7 @@ std::vector<Face> CalcTubeSkeleton(const geometry::Fiber fiber) {
       if (i == 0) {
          // initialize circle
          for (uint k = 0; k < kNumTubeMesh; k++) {
-            float t = k / (float)kNumTubeMesh;
+            float t = k / static_cast<float>(kNumTubeMesh);
             float theta = t * 2 * M_PI;
             mesh_elm[k].n = {cosf(theta), sinf(theta), 0.0f};
          }
@@ -418,7 +420,7 @@ void World::SaveSTL(const char *fname) {
 
    // write number of faces
    auto const n = NumFaces(fibers_);
-   file.write((char *)&n, 4);
+   file.write(reinterpret_cast<const char *>(&n), 4);
 
    size_t n_tmp = 0;
    for (auto const &fiber : fibers_) {
@@ -431,22 +433,22 @@ void World::SaveSTL(const char *fname) {
          auto normal = f[0].n + f[1].n + f[2].n;
          normal = normal / vm::length(normal);
 
-         file.write((char *)(normal.data() + 0), 4);
-         file.write((char *)(normal.data() + 1), 4);
-         file.write((char *)(normal.data() + 2), 4);
+         file.write(reinterpret_cast<char *>(normal.data() + 0), 4);
+         file.write(reinterpret_cast<char *>(normal.data() + 1), 4);
+         file.write(reinterpret_cast<char *>(normal.data() + 2), 4);
 
          // save coordinates
-         file.write((char *)(f[0].p.data() + 0), 4);
-         file.write((char *)(f[0].p.data() + 1), 4);
-         file.write((char *)(f[0].p.data() + 2), 4);
+         file.write(reinterpret_cast<const char *>(f[0].p.data() + 0), 4);
+         file.write(reinterpret_cast<const char *>(f[0].p.data() + 1), 4);
+         file.write(reinterpret_cast<const char *>(f[0].p.data() + 2), 4);
 
-         file.write((char *)(f[1].p.data() + 0), 4);
-         file.write((char *)(f[1].p.data() + 1), 4);
-         file.write((char *)(f[1].p.data() + 2), 4);
+         file.write(reinterpret_cast<const char *>(f[1].p.data() + 0), 4);
+         file.write(reinterpret_cast<const char *>(f[1].p.data() + 1), 4);
+         file.write(reinterpret_cast<const char *>(f[1].p.data() + 2), 4);
 
-         file.write((char *)(f[2].p.data() + 0), 4);
-         file.write((char *)(f[2].p.data() + 1), 4);
-         file.write((char *)(f[2].p.data() + 2), 4);
+         file.write(reinterpret_cast<const char *>(f[2].p.data() + 0), 4);
+         file.write(reinterpret_cast<const char *>(f[2].p.data() + 1), 4);
+         file.write(reinterpret_cast<const char *>(f[2].p.data() + 2), 4);
 
          file.write(attribute, 2);
          n_tmp++;

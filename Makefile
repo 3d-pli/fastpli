@@ -127,17 +127,9 @@ docker:
 .PHONY: format
 format:
 	find ./src -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|cu\)' | xargs ${CLANG-FORMAT} -i
-	${VENV}/bin/yapf -i -r -p src
-	${VENV}/bin/yapf -i -r -p tests
-	${VENV}/bin/yapf -i -r -p examples
-	${VENV}/bin/flake8 src
-	${VENV}/bin/flake8 tests
-	${VENV}/bin/flake8 examples
-	find examples/ -iname "*.ipynb" | xargs ${VENV}/bin/jupyter-nbconvert --clear-output --ClearMetadataPreprocessor.enabled=True --inplace
-
-.PHONY: pylint
-pylint:
-	env-CI/bin/pylint -d C0103 -d E0401 -d E0611 -d R0913 -d R0914 src/fastpli
+	${VENV}/bin/pip3 install pre-commit
+	pre-commit install
+	pre-commit run --all-files
 
 .PHONY: clean-all
 clean-all: uninstall clean-build clean-src clean-docs clean-venv

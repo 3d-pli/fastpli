@@ -1,9 +1,11 @@
 #include "simulator.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <exception>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <numeric>
 #include <vector>
@@ -25,20 +27,20 @@ namespace pi_case = vm::rot_pi_cases;
 
 vm::Mat4x4<double> PolX(const double p) {
    // see dissertation hendrik wiese
-   vm::Mat4x4<double> M = {{1, p, 0, 0, p, 1, 0, 0, 0, 0, sqrt(1 - p * p), 0, 0,
-                            0, 0, sqrt(1 - p * p)}};
+   vm::Mat4x4<double> M{{1, p, 0, 0, p, 1, 0, 0, 0, 0, sqrt(1 - p * p), 0, 0, 0,
+                         0, sqrt(1 - p * p)}};
    return M * 0.5;
 }
 
 vm::Mat4x4<double> PolY(const double p) {
    // see dissertation hendrik wiese
-   vm::Mat4x4<double> M = {{1, -p, 0, 0, -p, 1, 0, 0, 0, 0, sqrt(1 - p * p), 0,
-                            0, 0, 0, sqrt(1 - p * p)}};
+   vm::Mat4x4<double> M{{1, -p, 0, 0, -p, 1, 0, 0, 0, 0, sqrt(1 - p * p), 0, 0,
+                         0, 0, sqrt(1 - p * p)}};
    return M * 0.5;
 }
 
 vm::Mat4x4<double> RetarderMatrix(const double beta, const double ret) {
-   vm::Mat4x4<double> M = {
+   vm::Mat4x4<double> M{
        {1, 0, 0, 0, 0,
         pow(pi_case::cos(beta), 2) +
             pi_case::cos(ret) * pow(pi_case::sin(beta), 2),
@@ -89,7 +91,7 @@ void PliSimulator::SetSetup(const setup::Setup setup) {
    setup_ = std::make_unique<setup::Setup>(setup);
 }
 
-void PliSimulator::CalculateDimensions(const vm::Vec3<long long> &global_dim) {
+void PliSimulator::CalculateDimensions(const vm::Vec3<int64_t> &global_dim) {
 
    if (global_dim.x() <= 0 || global_dim.y() <= 0 || global_dim.z() <= 0) {
       std::cerr << "global_dim[any] <= 0: [" + std::to_string(global_dim.x()) +
@@ -106,7 +108,7 @@ void PliSimulator::CalculateDimensions(const vm::Vec3<long long> &global_dim) {
    } else {
       dim_.local = global_dim;
       dim_.global = global_dim;
-      dim_.offset = vm::Vec3<long long>(0);
+      dim_.offset = vm::Vec3<int64_t>(0);
    }
 
    if (dim_.local.x() * dim_.local.y() * dim_.local.z() * 1ULL !=
@@ -178,7 +180,7 @@ void PliSimulator::CheckInput() {
 // #############################################################################
 
 std::vector<double>
-PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
+PliSimulator::RunSimulation(const vm::Vec3<int64_t> &global_dim,
                             object::container::NpArray<int> label_field,
                             object::container::NpArray<float> vector_field,
                             std::vector<setup::PhyProps> properties,
@@ -207,7 +209,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
    const auto m_lambda_4 = RetarderMatrix(M_PI_2, -M_PI_2);
 
    // initial values
-   vm::Vec4<double> signal_0 = {{setup_->light_intensity, 0, 0, 0}};
+   vm::Vec4<double> signal_0{{setup_->light_intensity, 0.0, 0.0, 0.0}};
    signal_0 = vm::dot(m_lambda_4, vm::dot(polarizer_x, signal_0));
    const std::vector<vm::Vec4<double>> s_vec_0(n_rho, signal_0);
 
@@ -266,7 +268,7 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 
             const auto label = GetLabel(local_pos);
 #ifndef NDEBUG
-            if (label >= static_cast<long long>(properties_->size()))
+            if (label >= static_cast<int64_t>(properties_->size()))
                Abort(30000 + __LINE__);
 #endif
 
@@ -327,9 +329,10 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
                const auto b1 = c1 * cos_r + s_vec[rho][3] * sin_r;
 
                // is equivalent to (R*M*R*S)*att
-               s_vec[rho] = {{s_vec[rho][0], a1 * cos_b + b1 * sin_b,
-                              -a1 * sin_b + b1 * cos_b,
-                              -c1 * sin_r + s_vec[rho][3] * cos_r}};
+               s_vec[rho] =
+                   vm::Vec4<double>{{s_vec[rho][0], a1 * cos_b + b1 * sin_b,
+                                     -a1 * sin_b + b1 * cos_b,
+                                     -c1 * sin_r + s_vec[rho][3] * cos_r}};
                s_vec[rho] *= attenuation;
 
 #ifndef NDEBUG
@@ -411,16 +414,15 @@ PliSimulator::RunSimulation(const vm::Vec3<long long> &global_dim,
 // Get Label
 // #############################################################################
 
-auto llfloor = [](double x) { return static_cast<long long>(std::floor(x)); };
-auto llceil = [](double x) { return static_cast<long long>(std::ceil(x)); };
+auto llfloor = [](double x) { return static_cast<int64_t>(std::floor(x)); };
+auto llceil = [](double x) { return static_cast<int64_t>(std::ceil(x)); };
 
 int PliSimulator::GetLabel(const double x, const double y,
                            const double z) const {
    return GetLabel(llfloor(x), llfloor(y), llfloor(z));
 }
 
-int PliSimulator::GetLabel(const long long x, const long long y,
-                           long long z) const {
+int PliSimulator::GetLabel(const int64_t x, const int64_t y, int64_t z) const {
 
    if (setup_->flip_z)
       z = dim_.local.z() - 1 - z;
@@ -505,16 +507,13 @@ PliSimulator::GetVec(const double x, const double y, const double z,
       return vm::Vec3<double>(0, 0, 0);
    }
 
-   const auto x0 =
-       std::min(std::max(llfloor(x - 0.5), 0LL), dim_.local.x() - 1);
-   const auto y0 =
-       std::min(std::max(llfloor(y - 0.5), 0LL), dim_.local.y() - 1);
-   const auto z0 =
-       std::min(std::max(llfloor(z - 0.5), 0LL), dim_.local.z() - 1);
+   const auto x0 = std::min(std::max(llfloor(x - 0.5), 0L), dim_.local.x() - 1);
+   const auto y0 = std::min(std::max(llfloor(y - 0.5), 0L), dim_.local.y() - 1);
+   const auto z0 = std::min(std::max(llfloor(z - 0.5), 0L), dim_.local.z() - 1);
 
-   const auto x1 = std::min(std::max(llceil(x - 0.5), 0LL), dim_.local.x() - 1);
-   const auto y1 = std::min(std::max(llceil(y - 0.5), 0LL), dim_.local.y() - 1);
-   const auto z1 = std::min(std::max(llceil(z - 0.5), 0LL), dim_.local.z() - 1);
+   const auto x1 = std::min(std::max(llceil(x - 0.5), 0L), dim_.local.x() - 1);
+   const auto y1 = std::min(std::max(llceil(y - 0.5), 0L), dim_.local.y() - 1);
+   const auto z1 = std::min(std::max(llceil(z - 0.5), 0L), dim_.local.z() - 1);
 
    if (x0 == x1 && y0 == y1 && z0 == z1)
       return GetVec(x0, y0, z0);
@@ -555,8 +554,8 @@ PliSimulator::GetVec(const double x, const double y, const double z,
    return interp(c0, c1, zd);
 }
 
-vm::Vec3<double> PliSimulator::GetVec(const long long x, const long long y,
-                                      long long z) const {
+vm::Vec3<double> PliSimulator::GetVec(const int64_t x, const int64_t y,
+                                      int64_t z) const {
    if (setup_->flip_z)
       z = dim_.local.z() - 1 - z;
 
@@ -641,9 +640,9 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
    // top plane: P = pc+pt+p1*s+p2*t
    // rotated top plane: P' = pc + rot(pt) + rot(p1) *s + rot(p2) * t
    const auto pc = vm::cast<double>(dim_.global) * 0.5;
-   vm::Vec3<double> pt = {-pc.x(), -pc.y(), pc.z()};
-   vm::Vec3<double> p1 = {1, 0, 0};
-   vm::Vec3<double> p2 = {0, 1, 0};
+   vm::Vec3<double> pt{{-pc.x(), -pc.y(), pc.z()}};
+   vm::Vec3<double> p1{{1, 0, 0}};
+   vm::Vec3<double> p2{{0, 1, 0}};
 
    pt = vm::dot(rot, pt);
    p1 = vm::dot(rot, p1);
@@ -657,8 +656,8 @@ PliSimulator::CalcStartingLightPositionsTilted(const setup::Tilting &tilt) {
    const double d = p2.y();
 
    // begin at ccd pos
-   for (long long ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
-      for (long long ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
+   for (int64_t ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
+      for (int64_t ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
 
          // light pos starts in the middle of pixel
          const double e = ccd_x + 0.5 - pc.x() - pt.x();
@@ -728,8 +727,8 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
        LightDirectionUnitVector(tilt) / cos(tilt.theta) * dim_.global.z();
 
    // begin at ccd pos
-   for (long long ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
-      for (long long ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
+   for (int64_t ccd_x = 0; ccd_x < dim_.global.x(); ccd_x++) {
+      for (int64_t ccd_y = 0; ccd_y < dim_.global.y(); ccd_y++) {
 
          // transform to bottom tissue position
          // light pos starts in the middle of pixel
@@ -778,7 +777,7 @@ PliSimulator::CalcStartingLightPositionsUntilted(const setup::Tilting &tilt) {
 // #############################################################################
 
 bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
-                                const vm::Vec2<long long> &ccd_pos,
+                                const vm::Vec2<int64_t> &ccd_pos,
                                 const vm::Vec3<int> &shift_direct,
                                 const std::vector<vm::Vec4<double>> &s_vec) {
 
@@ -816,7 +815,7 @@ bool PliSimulator::CheckMPIHalo(const vm::Vec3<double> &local_pos,
 // #############################################################################
 
 void PliSimulator::RunInterpolation(
-    const vm::Vec3<long long> &dim, const vm::Vec3<long long> &dim_int,
+    const vm::Vec3<int64_t> &dim, const vm::Vec3<int64_t> &dim_int,
     object::container::NpArray<int> label_field,
     object::container::NpArray<float> vector_field,
     object::container::NpArray<int> label_field_int,
@@ -828,23 +827,23 @@ void PliSimulator::RunInterpolation(
    auto const scale = dim_int.x() / static_cast<double>(dim.x());
 
    if (dim.x() * dim.y() * dim.z() !=
-       static_cast<long long>(label_field.size())) {
+       static_cast<int64_t>(label_field.size())) {
       std::cerr << "label_field.size(): " << label_field.size() << std::endl;
       Abort(30000 + __LINE__);
    }
    if (dim.x() * dim.y() * dim.z() * 3 !=
-       static_cast<long long>(vector_field.size())) {
+       static_cast<int64_t>(vector_field.size())) {
       std::cerr << "vector_field.size(): " << vector_field.size() << std::endl;
       Abort(30000 + __LINE__);
    }
    if (dim_int.x() * dim_int.y() * dim_int.z() !=
-       static_cast<long long>(label_field_int.size())) {
+       static_cast<int64_t>(label_field_int.size())) {
       std::cerr << "label_field_int.size(): " << label_field_int.size()
                 << std::endl;
       Abort(30000 + __LINE__);
    }
    if (dim_int.x() * dim_int.y() * dim_int.z() * 3 !=
-       static_cast<long long>(vector_field_int.size())) {
+       static_cast<int64_t>(vector_field_int.size())) {
       std::cerr << "vector_field_int.size(): " << vector_field_int.size()
                 << std::endl;
       Abort(30000 + __LINE__);

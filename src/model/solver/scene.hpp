@@ -1,5 +1,5 @@
-#ifndef SCENE_HPP_
-#define SCENE_HPP_
+#ifndef SRC_MODEL_SOLVER_SCENE_HPP_
+#define SRC_MODEL_SOLVER_SCENE_HPP_
 
 #include <vector>
 
@@ -19,7 +19,7 @@
 class Scene {
  public:
    Scene(int argc, char **argv);
-   ~Scene() { delete[] argv_; };
+   ~Scene() { delete[] argv_; }
 
    void ResetView() {
       center_user_ = false;
@@ -27,19 +27,19 @@ class Scene {
       rotation_ = {30, 30, 0};
       axes_ = false;
       only_col_ = false;
-   };
+   }
    void SetViewAngles(const float x, const float y, const float z) {
       rotation_ = {x, y, z};
-   };
+   }
    void SetViewCenter(const float x, const float y, const float z) {
       center_user_ = true;
       center_user_value_ = {x, y, z};
-   };
-   void SetViewDistance(const float d) { distance_user_ = d; };
+   }
+   void SetViewDistance(const float d) { distance_user_ = d; }
    void DrawScene(const std::vector<geometry::Fiber> &fibers);
-   void ToggleAxis(bool flag) { axes_ = flag; };
-   void ToggleCollisionView(bool flag) { only_col_ = flag; };
-   void SetAxis(bool flag) { axes_ = flag; };
+   void ToggleAxis(bool flag) { axes_ = flag; }
+   void ToggleCollisionView(bool flag) { only_col_ = flag; }
+   void SetAxis(bool flag) { axes_ = flag; }
    void SavePPM(const char *fname, int start_x = 0, int start_y = 0);
    void Close();
 
@@ -57,9 +57,9 @@ class Scene {
 
    GLUquadricObj *quadObj_ = nullptr;
 
-   vm::Vec3<float> rotation_ = {30, 30, 0};
-   vm::Vec3<float> center_ = 0;
-   vm::Vec3<float> center_user_value_ = 0;
+   vm::Vec3<float> rotation_{{30.0, 30.0, 0.0}};
+   vm::Vec3<float> center_{0.0f};
+   vm::Vec3<float> center_user_value_{0.0f};
 
    float distance_ = 0;
    float distance_user_ = 0;
@@ -70,4 +70,4 @@ class Scene {
    bool axes_ = false;
 };
 
-#endif // SCENECLASS_HPP_
+#endif // SRC_MODEL_SOLVER_SCENE_HPP_
