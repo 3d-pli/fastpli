@@ -12,3 +12,4 @@ fi
 python3 -m venv env-CI
 env-CI/bin/pip3 install --upgrade pip
 env-CI/bin/pip3 install .
+env-CI/bin/pip3 install pre-commit
