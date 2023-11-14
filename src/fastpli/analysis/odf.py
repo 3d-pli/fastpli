@@ -12,17 +12,19 @@ def get_num_coeff(bands: int) -> int:
     return ((bands // 2) + 1) * (2 * (bands // 2) + 1)
 
 
+@numba.njit(cache=True)
 def _get_bands_from_coeff(coeff: int) -> int:
     r = 1 / 2 * (np.sqrt(8 * coeff + 1) - 3)
-    if r % 1 != 0:
-        raise ValueError(f"num coeff={coeff} is invalid")
     return int(r)
 
 
 def _analytic_single_odf(
     cos_theta: np.ndarray, sin_theta: np.ndarray, phi: np.ndarray, bands: int
 ) -> np.ndarray:
-    """original: DOI:10.1109/ISBI.2018.8363804"""
+    """original: DOI:10.1109/ISBI.2018.8363804
+    This is a helper function for the visualization.
+    Currently the visualization does not want to use the _analytic_odf function
+    """
     n_coeff = get_num_coeff(bands)
     real_sph_harm = np.empty(n_coeff, np.float32)
 
@@ -59,45 +61,137 @@ def _analytic_odf(
 
 
 @numba.njit(cache=True)
-def calc_real_sh(
-    dir_data: np.ndarray, incl_data: np.ndarray, mask_data: np.ndarray, bands: int
+def _compute_coefficients(
+    direction: np.ndarray, inclination: np.ndarray, mask: np.ndarray, bands: int
 ) -> np.ndarray:
-    assert dir_data.size == incl_data.size == mask_data.size
+    """Compute odf coefficients from all values in the input arrays
 
-    dir_data = dir_data.ravel()
-    incl_data = incl_data.ravel()
-    mask_data = mask_data.ravel()
+    Args:
+        direction (np.ndarray): direction in rad
+        inclination (np.ndarray): inclination in rad
+        mask (np.ndarray): boolian array of valid entries
+        bands (int): _description_
 
-    dir_data = dir_data[mask_data]
-    incl_data = incl_data[mask_data]
+    Returns:
+        np.ndarray: _description_
+    """
 
-    if dir_data.size == 0:
+    assert direction.ndim == inclination.ndim == mask.ndim == 1
+    assert direction.size == inclination.size == mask.size
+
+    direction = direction.ravel()
+    inclination = inclination.ravel()
+    mask = mask.ravel()
+
+    direction = direction[mask]
+    inclination = inclination[mask]
+
+    if direction.size == 0:
         return np.zeros(get_num_coeff(bands), dtype=np.float32)
 
-    phi_data = np.radians(dir_data)
-    theta_data = np.radians(90 - incl_data)
+    theta = np.pi / 2 - inclination
 
-    return _analytic_odf(np.cos(theta_data), np.sin(theta_data), phi_data, bands)
+    return _analytic_odf(np.cos(theta), np.sin(theta), direction, bands)
 
 
 @numba.njit(cache=True)
-def compute(
-    direction: np.ndarray,
-    inclination: np.ndarray,
-    mask: typ.Optional[np.ndarray],
-    bands: int,
-) -> np.ndarray:
-    if mask is None:
-        mask = np.ones_like(direction, dtype=np.uint8)
+def _compute_flatten_array(
+    direction: np.ndarray, inclination: np.ndarray, mask: np.ndarray, bands: int
+) -> np.array:
+    """Compute odf coefficients from all values in the input arrays
 
+    Args:
+        direction (np.ndarray): direction in rad
+        inclination (np.ndarray): inclination in rad
+        mask (np.ndarray): boolian array of valid entries
+        bands (int): _description_
+
+    Returns:
+        np.ndarray: _description_
+    """
     coeff = np.empty((direction.shape[0], get_num_coeff(bands)), dtype=np.float32)
-
-    for x in range(0, coeff.shape[0]):
-        coeff[x, :] = calc_real_sh(
-            direction[x, :], inclination[x, :], mask[x, :], bands
+    for i in range(0, coeff.shape[0]):
+        coeff[i, :] = _compute_coefficients(
+            direction[i, :], inclination[i, :], mask[i, :], bands
         )
 
     return coeff
+
+
+def compute(
+    direction: np.ndarray,
+    inclination: np.ndarray,
+    mask: np.ndarray | None = None,
+    bands: int = 6,
+) -> np.ndarray:
+    """calculate odf coefficients
+    Odf coefficients are calculated by the analytic solution of the spherical harmonics.
+    The input data is interpreted, that the last axis is used for calculating the coefficients.
+    The return array is therefore of shape (direction.shape[:-1], get_num_coeff(bands)).
+
+    Args:
+        direction (np.ndarray): nd-array of directions in radiant.
+        inclination (np.ndarray): nd-array of inclinations in radiant.
+        mask (np.ndarray | None, optional): nd-array of bool entries of valid entries. Defaults to None.
+        bands (int, optional): number of bands for odf coefficient calculation. Defaults to 6.
+
+    Returns:
+        np.ndarray: nd-array of odf coefficients
+    """
+
+    ndim = direction.ndim
+    direction = np.array(direction, copy=False)
+    inclination = np.array(inclination, copy=False)
+    assert direction.shape == inclination.shape
+
+    if mask is None:
+        mask = np.ones_like(direction, dtype=bool)
+    else:
+        mask = np.array(mask, copy=False, dtype=bool)
+        assert mask.shape == direction.shape
+
+    direction_ = direction.reshape((-1, direction.shape[-1]))
+    inclination_ = inclination.reshape((-1, inclination.shape[-1]))
+    mask_ = mask.reshape((-1, mask.shape[-1]))
+
+    results = _compute_flatten_array(direction_, inclination_, mask_, bands)
+
+    if ndim == 1:
+        results = np.squeeze(results, axis=0)
+
+    return results
+
+
+def _flip_y_coeff(n_elm):
+    band = 2 * (1 / 4 * (np.sqrt(8 * n_elm + 1) - 3)) + 1
+
+    if band != int(band):
+        raise ValueError("input data misses odf indices")
+
+    idx = 0
+    neg = []
+    for s in range(0, int(band), 2):
+        for si in range(1 + 2 * s):
+            if si < ((1 + 2 * s) / 2) - 1:
+                neg.append(idx)
+            idx += 1
+
+    return neg
+
+
+def coefficients_to_mrtrix_nii(path: str, coefficients: np.ndarray):
+    import nibabel as nib
+
+    assert coefficients.ndim == 3
+
+    # flip y coefficients
+    neg = _flip_y_coeff(coefficients.shape[-1])
+    coefficients[:, :, :, neg] *= -1
+
+    nib.save(
+        nib.Nifti1Image(coefficients, np.identity(4)),
+        path,
+    )
 
 
 def _set_axes_equal(ax):
@@ -129,7 +223,7 @@ def _set_axes_equal(ax):
     ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
-def visualize_odf(coefficients, n_phi, n_theta, fig=None, ax=None, show=True):
+def visualize_odf(coefficients, n_phi, n_theta, scale=1, fig=None, ax=None):
     phi, theta = np.mgrid[0 : 2 * np.pi : n_phi * 1j, 0 : np.pi : n_theta * 1j]
 
     cos_theta = np.cos(theta)
@@ -141,27 +235,28 @@ def visualize_odf(coefficients, n_phi, n_theta, fig=None, ax=None, show=True):
     for i, (p, ct, st) in enumerate(
         zip(phi.ravel(), cos_theta.ravel(), sin_theta.ravel())
     ):
-        radius.ravel()[i] = np.sum(
-            np.multiply(
-                _analytic_single_odf(ct, st, p, bands),
-                coefficients,
+        radius.ravel()[i] = (
+            np.sum(
+                np.multiply(
+                    _analytic_single_odf(ct, st, p, bands),
+                    coefficients,
+                )
             )
+            * scale
         )
 
     x = radius * np.sin(theta) * np.cos(phi)
     y = radius * np.sin(theta) * np.sin(phi)
     z = radius * np.cos(theta)
 
+    flag = False
     if fig is None:
         fig = plt.figure()
     if ax is None:
         ax = fig.add_subplot(111, projection="3d")
+        flag = True
     ax.plot_surface(x, y, z, color="b", alpha=0.5)
-    if show:
-        plt.plot([0, 1], [0, 0], [0, 0], color="r")
-        plt.plot([0, 0], [0, 1], [0, 0], color="g")
-        plt.plot([0, 0], [0, 0], [0, 1], color="b")
+    if flag:
         _set_axes_equal(ax)
-        plt.show()
 
     return fig, ax
