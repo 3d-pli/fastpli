@@ -182,9 +182,10 @@ def _flip_y_coeff(n_elm):
 
 
 def coefficients_to_mrtrix_nii(path: str, coefficients: np.ndarray):
+    """save odf coefficients to nii to be able to read in mrtrix"""
     import nibabel as nib
 
-    assert coefficients.ndim == 3
+    assert coefficients.ndim == 4  # (x, y, z, coefficients)
 
     # flip y coefficients
     neg = _flip_y_coeff(coefficients.shape[-1])
