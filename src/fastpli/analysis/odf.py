@@ -158,6 +158,8 @@ def compute(
 
     if ndim == 1:
         results = np.squeeze(results, axis=0)
+    else:
+        results = results.reshape(direction.shape[:-1] + (get_num_coeff(bands),))
 
     return results
 
