@@ -5,8 +5,8 @@ Methods for building fiber_bundles
 optimized with numba
 """
 
-import numpy as np
 import numba
+import numpy as np
 
 from ... import objects
 
@@ -15,12 +15,14 @@ from ... import objects
 def _rot_a_on_b(a, b):
     a = a / np.linalg.norm(a)
     b = b / np.linalg.norm(b)
-    if np.all(a == b):
+    if np.sum(np.abs(a - b)) < 1e-6:
         return np.identity(3)
 
     v = np.cross(a, b)
     s = np.linalg.norm(v)
     c = np.dot(a, b)
+    assert s != 0, "s == 0"
+    
     vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
     R = np.identity(3, np.float64) + vx + np.dot(vx, vx) * (1 - c) / s**2
     return R
