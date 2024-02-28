@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8888:8888"
-    # volumes:
-    #   - local_path:/app/data
+    volumes:
+      - .:/app
     working_dir: /app
     command: jupyter lab --port=8888 --ip=0.0.0.0 --no-browser --allow-root;
