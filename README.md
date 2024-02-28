@@ -139,6 +139,15 @@ make fastpli
 pip3 install .
 ```
 
+# Docker
+
+```sh
+docker compose up --build
+```
+
+Maybe you need to change the port if it is already in use. You can connect via
+`http://localhost:8888`. Mount local directories to keep your work.
+
 # Examples
 
 ## Tutorials
